@@ -6,6 +6,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 
+from file_management import file_management_agent
 from graph.agent import agent_manager
 from graph.memory_indexer import memory_indexer
 from tools.skills_scanner import refresh_snapshot, scan_skills
@@ -49,17 +50,33 @@ async def read_file(path: str = Query(..., min_length=1)) -> dict[str, str]:
 
 @router.post("/files")
 async def save_file(payload: SaveFileRequest) -> dict[str, Any]:
+    normalized = payload.path.replace("\\", "/")
+    
+    if normalized.startswith("knowledge/"):
+        result = file_management_agent.handle_user_save(
+            str(_resolve_path(payload.path)),
+            payload.content
+        )
+        if not result["success"]:
+            raise HTTPException(status_code=500, detail=result["message"])
+        
+        return {
+            "ok": result["success"],
+            "path": normalized,
+            "blocked": result.get("blocked", False),
+            "message": result.get("message", ""),
+        }
+    
     file_path = _resolve_path(payload.path)
     file_path.parent.mkdir(parents=True, exist_ok=True)
     file_path.write_text(payload.content, encoding="utf-8")
 
-    normalized = payload.path.replace("\\", "/")
     if normalized == "memory/MEMORY.md":
         memory_indexer.rebuild_index()
     if normalized.startswith("skills/"):
         refresh_snapshot(agent_manager.base_dir)
 
-    return {"ok": True, "path": normalized}
+    return {"ok": True, "path": normalized, "blocked": False}
 
 
 @router.get("/skills")
