@@ -10,12 +10,14 @@ from api.compress import router as compress_router
 from api.config_api import router as config_router
 from api.files import router as files_router
 from api.knowledge_index import router as knowledge_index_router
+from api.review import router as review_router
 from api.sessions import router as sessions_router
 from api.tokens import router as tokens_router
 from config import get_settings
 from graph.agent import agent_manager
 from graph.memory_indexer import memory_indexer
 from knowledge_retrieval import knowledge_indexer
+from file_management import file_management_agent, IndexWorker
 from tools.skills_scanner import refresh_snapshot
 
 
@@ -28,6 +30,11 @@ async def lifespan(_: FastAPI):
     memory_indexer.rebuild_index()
     knowledge_indexer.configure(settings.backend_dir)
     knowledge_indexer.rebuild_index()
+    
+    file_management_agent.configure(settings.backend_dir)
+    index_worker = IndexWorker(settings.backend_dir)
+    index_worker.start()
+    
     yield
 
 
@@ -52,6 +59,7 @@ app.include_router(tokens_router, prefix="/api", tags=["tokens"])
 app.include_router(compress_router, prefix="/api", tags=["compress"])
 app.include_router(config_router, prefix="/api", tags=["config"])
 app.include_router(knowledge_index_router, prefix="/api", tags=["knowledge"])
+app.include_router(review_router, prefix="/api", tags=["review"])
 
 
 @app.get("/health")
