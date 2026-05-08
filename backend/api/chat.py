@@ -78,7 +78,11 @@ async def chat(payload: ChatRequest):
             conversation_saved = True
 
         try:
-            async for event in agent_manager.astream(payload.message, history):
+            async for event in agent_manager.astream(
+                payload.message,
+                history,
+                session_id=payload.session_id,
+            ):
                 event_type = event["type"]
 
                 if event_type == "token":
