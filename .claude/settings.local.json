@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dir \"c:\\\\Users\\\\HUAWEI\\\\PycharmProjects\\\\Skill-First-Hybrid-RAG\\\\backend\")",
+      "Bash(python -m py_compile context/__init__.py context/dataclasses.py context/session_manager.py context/legacy_adapter.py context/memory_system.py context/context_manager.py)",
+      "Bash(python -m py_compile graph/agent.py)",
+      "Bash(python3 -c ' *)",
+      "Bash(python -c ' *)",
+      "Bash(netstat -ano)",
+      "Bash(findstr \"8004\")",
+      "Bash(taskkill //F //PID 6956)",
+      "Bash(taskkill //F //PID 25196)"
+    ]
+  }
+}
