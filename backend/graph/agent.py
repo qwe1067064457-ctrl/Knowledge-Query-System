@@ -17,11 +17,11 @@ from config import get_settings, runtime_config
 from graph.memory_indexer import memory_indexer
 from graph.prompt_builder import build_system_prompt
 from knowledge_retrieval import knowledge_orchestrator
+from memory_system import MemorySystem
 from tools import get_all_tools
 
 # 导入新的 context 模块
 from context.session_manager import SessionManager
-from context.memory_system import MemorySystem
 from context.context_manager import ContextManager
 from context.legacy_adapter import DEFAULT_AGENT, DEFAULT_GROUP, LegacySessionManagerAdapter
 

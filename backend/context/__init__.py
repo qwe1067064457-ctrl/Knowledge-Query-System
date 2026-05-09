@@ -1,36 +1,56 @@
 """
-context 模块 - 会话管理、记忆系统与上下文管理
+context package exports.
+
+Keep imports lazy to avoid circular dependencies between context and memory_system.
 """
+
 from context.dataclasses import (
-    GroupType,
-    SessionStatus,
-    Role,
     EntryType,
+    GroupType,
+    MemoryEntry,
+    MemoryScope,
+    MemoryType,
+    Role,
+    Session,
+    SessionStatus,
     ToolCall,
     TranscriptEntry,
-    Session,
-    MemoryEntry,
 )
-from context.session_manager import SessionManager
-from context.memory_system import MemorySystem
-from context.context_manager import ContextManager, ContextConfig
-from context.legacy_adapter import LegacySessionManagerAdapter
 
 __all__ = [
-    # 数据类
     "GroupType",
     "SessionStatus",
     "Role",
     "EntryType",
+    "MemoryScope",
+    "MemoryType",
     "ToolCall",
     "TranscriptEntry",
     "Session",
     "MemoryEntry",
-    # 核心类
     "SessionManager",
     "MemorySystem",
     "ContextManager",
     "ContextConfig",
-    # 适配器
     "LegacySessionManagerAdapter",
 ]
+
+
+def __getattr__(name: str):
+    if name == "SessionManager":
+        from context.session_manager import SessionManager
+
+        return SessionManager
+    if name in {"ContextManager", "ContextConfig"}:
+        from context.context_manager import ContextConfig, ContextManager
+
+        return {"ContextManager": ContextManager, "ContextConfig": ContextConfig}[name]
+    if name == "LegacySessionManagerAdapter":
+        from context.legacy_adapter import LegacySessionManagerAdapter
+
+        return LegacySessionManagerAdapter
+    if name == "MemorySystem":
+        from memory_system import MemorySystem
+
+        return MemorySystem
+    raise AttributeError(name)

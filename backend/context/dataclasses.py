@@ -25,6 +25,8 @@ class SessionStatus(Enum):
 
 Role = Literal["user", "assistant", "tool", "system"]
 EntryType = Literal["normal", "compaction", "summary", "system_notice"]
+MemoryScope = Literal["user_global", "user_group", "group_shared"]
+MemoryType = Literal["core", "daily_log", "domain_case"]
 
 
 @dataclass
@@ -206,3 +208,8 @@ class MemoryEntry:
     group_id: str
     timestamp: datetime
     score: float = 0.0
+    scope: MemoryScope = "user_group"
+    memory_type: MemoryType = "daily_log"
+    user_id: Optional[str] = None
+    title: Optional[str] = None
+    tags: Optional[List[str]] = None

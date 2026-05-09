@@ -16,8 +16,8 @@ except ImportError:
     _HAS_TIKTOKEN = False
 
 from context.session_manager import SessionManager
-from context.memory_system import MemorySystem
 from context.dataclasses import TranscriptEntry
+from memory_system import MemorySystem
 
 
 @dataclass
@@ -199,7 +199,8 @@ class ContextManager:
         group_id: str,
         agent_id: str,
         query: str,
-        messages: List[Dict]
+        messages: List[Dict],
+        user_id: str = "default",
     ) -> List[Dict]:
         """
         注入相关记忆
@@ -210,6 +211,10 @@ class ContextManager:
             return messages
 
         # 检索相关记忆
+        core_memories = self.memory_sys.get_core_memories(
+            user_id=user_id,
+            group_id=group_id,
+        )
         memories = self.memory_sys.search(
             group_id=group_id,
             agent_id=agent_id,
@@ -217,18 +222,38 @@ class ContextManager:
             top_k=self.config.memory_top_k,
             time_decay_half_life=self.config.memory_time_decay_half_life,
             use_mmr=self.config.memory_use_mmr,
-            mmr_lambda=self.config.memory_mmr_lambda
+            mmr_lambda=self.config.memory_mmr_lambda,
+            user_id=user_id,
+            include_core=False,
         )
 
-        if not memories:
+        if not core_memories and not memories:
             return messages
 
-        # 构建记忆注入的 system 消息
-        memory_content = "## 相关记忆（供参考）\n\n"
-        for mem in memories:
-            mem_time = mem.timestamp.strftime("%Y-%m-%d") if mem.timestamp else "unknown"
-            memory_content += f"**来源: {mem.source}** ({mem_time})\n"
-            memory_content += f"{mem.content}\n\n"
+        sections: List[str] = []
+        if core_memories:
+            core_lines = ["## 核心记忆（高优先级）", ""]
+            for mem in core_memories:
+                label = "全局用户" if mem.scope == "user_global" else "当前组用户"
+                title = f"{mem.title}: " if mem.title else ""
+                core_lines.append(f"- [{label}] {title}{mem.content}")
+            sections.append("\n".join(core_lines))
+
+        if memories:
+            related_lines = ["## 相关记忆（供参考）", ""]
+            for mem in memories:
+                mem_time = mem.timestamp.strftime("%Y-%m-%d") if mem.timestamp else "unknown"
+                title = f"{mem.title}\n" if mem.title else ""
+                related_lines.append(f"**来源: {mem.source}** ({mem_time})")
+                if title:
+                    related_lines.append(title.rstrip())
+                related_lines.append(mem.content)
+                related_lines.append("")
+            sections.append("\n".join(related_lines).rstrip())
+
+        memory_content = "## 相关记忆（供参考）\n\n" + "\n\n".join(
+            section for section in sections if section.strip()
+        )
 
         # 插入到消息列表开头（系统消息之后）
         # 假设第一条是 system 消息，在其后插入
@@ -284,7 +309,8 @@ class ContextManager:
         group_id: str,
         agent_id: str,
         session_id: str,
-        messages: List[Dict]
+        messages: List[Dict],
+        user_id: str = "default",
     ) -> Dict[str, Any]:
         """第三道防线：触发压缩"""
         if not self.config.compaction_enabled:
@@ -312,10 +338,15 @@ class ContextManager:
 """
                 important_info = await self._call_llm_text(flush_prompt)
                 if important_info and important_info.strip() != "NO_REPLY":
-                    self.memory_sys.write_to_daily_log(
-                        group_id, agent_id, important_info
+                    flush_result = await self.memory_sys.flush_from_context(
+                        group_id,
+                        agent_id,
+                        important_info,
+                        user_id=user_id,
+                        source_session_id=session_id,
+                        messages=messages,
                     )
-                    memory_flushed = True
+                    memory_flushed = bool(flush_result.get("flushed"))
             except Exception as e:
                 print(f"Memory flush failed: {e}")
 
@@ -437,6 +468,8 @@ class ContextManager:
             group_id, agent_id, session_id, include_compacted=True
         )
         messages = self._entries_to_messages(entries, extra_messages)
+        session = self.session_mgr.get_session(session_id, group_id, agent_id)
+        user_id = session.user_id if session else str(kwargs.pop("user_id", "default"))
 
         if not messages:
             return {
@@ -451,7 +484,7 @@ class ContextManager:
         # 3. 提取查询并注入记忆
         active_query = query or self._extract_query_from_messages(messages)
         if active_query:
-            messages = self._inject_memories(group_id, agent_id, active_query, messages)
+            messages = self._inject_memories(group_id, agent_id, active_query, messages, user_id=user_id)
 
         # 4. 第二道防线：Token 预算组装
         messages, needs_compaction = self._assemble_context(messages)
@@ -466,7 +499,7 @@ class ContextManager:
         ):
             # 执行压缩
             compaction_result = await self._trigger_compaction(
-                group_id, agent_id, session_id, messages
+                group_id, agent_id, session_id, messages, user_id=user_id
             )
 
             # 递归重试（压缩后重新准备上下文）
@@ -498,6 +531,7 @@ class ContextManager:
         **kwargs: Any,
     ) -> Dict[str, Any]:
         """优化一组内存中的消息，供旧会话接口或测试直接使用。"""
+        user_id = str(kwargs.pop("user_id", "default"))
         for key, value in kwargs.items():
             if hasattr(self.config, key):
                 setattr(self.config, key, value)
@@ -513,7 +547,7 @@ class ContextManager:
         prepared = self._limit_history_turns(prepared)
         active_query = query or self._extract_query_from_messages(prepared)
         if active_query:
-            prepared = self._inject_memories(group_id, agent_id, active_query, prepared)
+            prepared = self._inject_memories(group_id, agent_id, active_query, prepared, user_id=user_id)
         prepared, needs_compaction = self._assemble_context(prepared)
         return {
             "messages": prepared,
