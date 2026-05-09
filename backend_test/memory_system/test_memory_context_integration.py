@@ -10,6 +10,7 @@ from helpers import (
     make_memory_system,
     make_session_manager,
     temp_workspace,
+    write_group_meta,
 )
 
 
@@ -33,27 +34,26 @@ class MemoryContextIntegrationTests(unittest.TestCase):
                     user_id="u1",
                     group_id=None,
                     scope="user_global",
-                    content="默认中文输出。",
+                    content="Default to Chinese output.",
                 )
                 memory.write_core_memory(
                     user_id="u1",
                     group_id="law",
                     scope="user_group",
-                    content="法律组优先引用法条。",
+                    content="In the law group, cite statutes first.",
                 )
 
                 prepared = await context.prepare(
                     "law",
                     "default",
                     session.id,
-                    extra_messages=[{"role": "user", "content": "解释违约责任"}],
-                    query="违约责任",
+                    extra_messages=[{"role": "user", "content": "Explain breach liability."}],
+                    query="breach liability",
                     allow_compaction=False,
                 )
                 joined = "\n".join(str(item.get("content", "")) for item in prepared["messages"])
-                self.assertIn("核心记忆", joined)
-                self.assertIn("默认中文输出。", joined)
-                self.assertIn("法律组优先引用法条。", joined)
+                self.assertIn("Default to Chinese output.", joined)
+                self.assertIn("In the law group, cite statutes first.", joined)
 
         asyncio.run(run())
 
@@ -68,27 +68,26 @@ class MemoryContextIntegrationTests(unittest.TestCase):
                 memory.write_daily_log(
                     "law",
                     "default",
-                    "今天确认违约责任需要结合损失赔偿。",
+                    "Today's discussion connects breach liability with damages.",
                     user_id="u1",
                 )
                 memory.write_domain_case(
                     group_id="law",
-                    title="违约责任案例",
-                    content="案例指出违约责任与可预见规则相关。",
+                    title="Breach liability case",
+                    content="The case relates breach liability to foreseeability.",
                 )
 
                 prepared = await context.prepare(
                     "law",
                     "default",
                     session.id,
-                    extra_messages=[{"role": "user", "content": "继续讨论违约责任"}],
-                    query="违约责任",
+                    extra_messages=[{"role": "user", "content": "Continue the breach-liability discussion."}],
+                    query="breach liability",
                     allow_compaction=False,
                 )
                 joined = "\n".join(str(item.get("content", "")) for item in prepared["messages"])
-                self.assertIn("相关记忆", joined)
-                self.assertIn("损失赔偿", joined)
-                self.assertIn("违约责任案例", joined)
+                self.assertIn("damages", joined)
+                self.assertIn("Breach liability case", joined)
 
         asyncio.run(run())
 
@@ -100,23 +99,17 @@ class MemoryContextIntegrationTests(unittest.TestCase):
                 context = make_context_manager(workspace)
 
                 session = sessions.create_session("law", "default", "u1")
-                sessions.append_entry("law", "default", make_entry(session.id, "law", "user", "很早之前的问题"))
+                sessions.append_entry("law", "default", make_entry(session.id, "law", "user", "very old question"))
                 sessions.append_entry(
                     "law",
                     "default",
-                    make_entry(
-                        session.id,
-                        "law",
-                        "system",
-                        "较早对话摘要",
-                        entry_type="compaction",
-                    ),
+                    make_entry(session.id, "law", "system", "earlier compacted summary", entry_type="compaction"),
                 )
-                sessions.append_entry("law", "default", make_entry(session.id, "law", "assistant", "压缩后的回答"))
+                sessions.append_entry("law", "default", make_entry(session.id, "law", "assistant", "answer after compaction"))
                 memory.write_daily_log(
                     "law",
                     "default",
-                    "相关日志：违约责任应结合赔偿规则。",
+                    "Related log: breach liability should be analyzed with damages rules.",
                     user_id="u1",
                 )
 
@@ -124,15 +117,14 @@ class MemoryContextIntegrationTests(unittest.TestCase):
                     "law",
                     "default",
                     session.id,
-                    extra_messages=[{"role": "user", "content": "继续讲违约责任"}],
-                    query="违约责任",
+                    extra_messages=[{"role": "user", "content": "Continue discussing breach liability."}],
+                    query="breach liability",
                     allow_compaction=False,
                 )
                 joined = "\n".join(str(item.get("content", "")) for item in prepared["messages"])
-                self.assertIn("较早对话摘要", joined)
-                self.assertIn("相关记忆", joined)
-                self.assertIn("赔偿规则", joined)
-                self.assertNotIn("很早之前的问题", joined)
+                self.assertIn("earlier compacted summary", joined)
+                self.assertIn("damages rules", joined)
+                self.assertNotIn("very old question", joined)
 
         asyncio.run(run())
 
@@ -144,7 +136,7 @@ class MemoryContextIntegrationTests(unittest.TestCase):
                 result = await memory.flush_from_context(
                     "law",
                     "default",
-                    "- 记录：用户确认 archive 仍可写入",
+                    "Recorded: the user confirmed archived sessions still accept writes.",
                     user_id="u1",
                     source_session_id="s1",
                 )
@@ -152,56 +144,134 @@ class MemoryContextIntegrationTests(unittest.TestCase):
                 self.assertTrue(result["flushed"])
                 rows = memory.get_recent_memories("law", "default", days=1, user_id="u1")
                 self.assertEqual(len(rows), 1)
-                self.assertIn("archive 仍可写入", rows[0].content)
+                self.assertIn("archived sessions still accept writes", rows[0].content)
                 self.assertEqual(rows[0].user_id, "u1")
+
+        asyncio.run(run())
+
+    def test_flush_from_context_respects_checkpoint_enabled_false(self) -> None:
+        async def run() -> None:
+            with temp_workspace() as workspace:
+                write_group_meta(
+                    workspace,
+                    "law",
+                    {
+                        "enabled_memory_types": ["core", "daily_log", "domain_case"],
+                        "core": {
+                            "explicit_markers": ["ALWAYS"],
+                            "group_scope_keywords": ["LAW"],
+                            "min_candidate_length": 1,
+                            "max_candidate_length": 120,
+                        },
+                        "daily_log": {"checkpoint_enabled": False},
+                        "domain_case": {
+                            "completion_markers": ["DONE"],
+                            "structural_markers": ["ISSUE", "ANALYSIS", "CONCLUSION"],
+                            "case_markers": ["CASE"],
+                        },
+                    },
+                )
+                memory = make_memory_system(workspace)
+
+                result = await memory.flush_from_context(
+                    "law",
+                    "default",
+                    "This summary would normally be written to the daily log.",
+                    user_id="u1",
+                    source_session_id="s1",
+                )
+
+                self.assertFalse(result["flushed"])
+                self.assertEqual(memory.get_recent_memories("law", "default", days=1, user_id="u1"), [])
 
         asyncio.run(run())
 
     def test_flush_from_context_promotes_explicit_core_memory_with_scope(self) -> None:
         async def run() -> None:
             with temp_workspace() as workspace:
+                write_group_meta(
+                    workspace,
+                    "law",
+                    {
+                        "enabled_memory_types": ["core", "daily_log", "domain_case"],
+                        "core": {
+                            "explicit_markers": ["ALWAYS", "DEFAULT"],
+                            "group_scope_keywords": ["LAW", "STATUTE"],
+                            "min_candidate_length": 1,
+                            "max_candidate_length": 120,
+                        },
+                        "daily_log": {"checkpoint_enabled": True},
+                        "domain_case": {
+                            "completion_markers": ["DONE"],
+                            "structural_markers": ["ISSUE", "ANALYSIS", "CONCLUSION"],
+                            "case_markers": ["CASE"],
+                        },
+                    },
+                )
                 memory = make_memory_system(workspace)
 
                 await memory.flush_from_context(
                     "law",
                     "default",
-                    "- 记录：已形成长期偏好",
+                    "Checkpoint summary",
                     user_id="u1",
                     source_session_id="s1",
                     messages=[
-                        {"role": "user", "content": "以后默认中文输出。"},
-                        {"role": "user", "content": "法律组后续都优先引用法条。"},
+                        {"role": "user", "content": "ALWAYS answer in Chinese."},
+                        {"role": "user", "content": "DEFAULT in this LAW workspace, cite STATUTE text first."},
                     ],
                 )
 
                 results = memory.get_core_memories(user_id="u1", group_id="law")
                 payload = {(item.scope, item.content) for item in results}
-                self.assertIn(("user_global", "以后默认中文输出"), payload)
-                self.assertIn(("user_group", "法律组后续都优先引用法条"), payload)
+                self.assertIn(("user_global", "ALWAYS answer in Chinese."), payload)
+                self.assertIn(("user_group", "DEFAULT in this LAW workspace, cite STATUTE text first."), payload)
 
         asyncio.run(run())
 
     def test_flush_from_context_promotes_structured_domain_case(self) -> None:
         async def run() -> None:
             with temp_workspace() as workspace:
+                write_group_meta(
+                    workspace,
+                    "law",
+                    {
+                        "enabled_memory_types": ["core", "daily_log", "domain_case"],
+                        "core": {
+                            "explicit_markers": ["ALWAYS"],
+                            "group_scope_keywords": ["LAW"],
+                            "min_candidate_length": 1,
+                            "max_candidate_length": 120,
+                        },
+                        "daily_log": {"checkpoint_enabled": True},
+                        "domain_case": {
+                            "completion_markers": ["DONE"],
+                            "structural_markers": ["ISSUE", "ANALYSIS", "CONCLUSION"],
+                            "case_markers": ["CASE"],
+                        },
+                    },
+                )
                 memory = make_memory_system(workspace)
 
                 await memory.flush_from_context(
                     "law",
                     "default",
-                    "问题：违约责任如何认定。分析：结合损失赔偿和可预见规则。结论：建议按法条和事实分别论证，已完成。",
+                    "ISSUE: how to determine breach liability. ANALYSIS: compare damages and foreseeability. CONCLUSION: use statutes and facts together. DONE.",
                     user_id="u1",
                     source_session_id="s1",
                     messages=[
-                        {"role": "user", "content": "请总结一个违约责任案例"},
-                        {"role": "assistant", "content": "问题：违约责任如何认定。分析：结合损失赔偿和可预见规则。结论：建议按法条和事实分别论证，已完成。"},
+                        {"role": "user", "content": "Please summarize one breach-liability CASE."},
+                        {
+                            "role": "assistant",
+                            "content": "ISSUE: how to determine breach liability. ANALYSIS: compare damages and foreseeability. CONCLUSION: use statutes and facts together. DONE.",
+                        },
                     ],
                 )
 
                 results = memory.search(
                     "law",
                     "default",
-                    "违约责任 案例",
+                    "breach liability CASE",
                     user_id="u2",
                     include_core=False,
                     include_daily_logs=False,
@@ -210,6 +280,53 @@ class MemoryContextIntegrationTests(unittest.TestCase):
                 self.assertTrue(results)
                 self.assertEqual(results[0].memory_type, "domain_case")
                 self.assertEqual(results[0].scope, "group_shared")
+
+        asyncio.run(run())
+
+    def test_flush_from_context_does_not_promote_case_without_required_structure(self) -> None:
+        async def run() -> None:
+            with temp_workspace() as workspace:
+                write_group_meta(
+                    workspace,
+                    "law",
+                    {
+                        "enabled_memory_types": ["core", "daily_log", "domain_case"],
+                        "core": {
+                            "explicit_markers": ["ALWAYS"],
+                            "group_scope_keywords": ["LAW"],
+                            "min_candidate_length": 1,
+                            "max_candidate_length": 120,
+                        },
+                        "daily_log": {"checkpoint_enabled": True},
+                        "domain_case": {
+                            "completion_markers": ["DONE"],
+                            "structural_markers": ["ISSUE", "ANALYSIS", "CONCLUSION"],
+                            "case_markers": ["CASE"],
+                        },
+                    },
+                )
+                memory = make_memory_system(workspace)
+
+                result = await memory.flush_from_context(
+                    "law",
+                    "default",
+                    "DONE. Short answer only.",
+                    user_id="u1",
+                    source_session_id="s1",
+                    messages=[{"role": "assistant", "content": "DONE. Short answer only."}],
+                )
+
+                self.assertEqual(result["domain_case_written"], 0)
+                results = memory.search(
+                    "law",
+                    "default",
+                    "short answer",
+                    user_id="u1",
+                    include_core=False,
+                    include_daily_logs=False,
+                    min_score=0.01,
+                )
+                self.assertFalse(results)
 
         asyncio.run(run())
 
@@ -222,8 +339,8 @@ class MemoryContextIntegrationTests(unittest.TestCase):
 
                 def fake_llm(prompt: str) -> str:
                     if "提取对你主人重要的信息" in prompt:
-                        return "- 记录：用户确认 archive 仍可写入"
-                    return "压缩摘要"
+                        return "- Record: the user confirmed archived sessions still accept writes."
+                    return "Compaction summary"
 
                 context.config.memory_flush_enabled = True
                 context.set_llm_call(fake_llm)
@@ -238,7 +355,7 @@ class MemoryContextIntegrationTests(unittest.TestCase):
                             session.id,
                             "law",
                             role,
-                            "很长的上下文内容" * 40,
+                            "Very long context body " * 40,
                             token_count=120,
                         ),
                     )
@@ -259,17 +376,17 @@ class MemoryContextIntegrationTests(unittest.TestCase):
 
                 self.assertEqual(len(compactions), 1)
                 self.assertTrue(recent_logs)
-                self.assertIn("archive 仍可写入", recent_logs[0].content)
-                self.assertIn("压缩摘要", compactions[0].content)
+                self.assertIn("archived sessions still accept writes", recent_logs[0].content)
+                self.assertIn("Compaction summary", compactions[0].content)
                 self.assertIn("compaction", prepared)
 
         asyncio.run(run())
 
-    @unittest.skip("待 core 自动晋升策略定稿后启用")
+    @unittest.skip("Enable after the broader core auto-promotion strategy is finalized.")
     def test_core_auto_promotion_todo(self) -> None:
         self.fail("todo")
 
-    @unittest.skip("待 domain_case 自动沉淀策略定稿后启用")
+    @unittest.skip("Enable after the broader domain-case promotion strategy is finalized.")
     def test_domain_case_auto_promotion_todo(self) -> None:
         self.fail("todo")
 

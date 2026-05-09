@@ -486,27 +486,22 @@ class MemorySystem:
 
     def get_core_memories(self, *, user_id: str, group_id: str) -> List[MemoryEntry]:
         entries: List[MemoryEntry] = []
-        owners = [user_id]
-        if user_id != "default":
-            owners.append("default")
-
         seen: set[tuple[str, str, str]] = set()
-        for owner in owners:
-            global_file = self._core_file(owner, "user_global")
-            for item in self._read_json(global_file, {"items": []}).get("items", []):
-                entry = self._to_memory_entry(item, source=str(global_file.relative_to(self.base_storage_path)))
-                key = (entry.scope, entry.title or "", entry.content)
-                if key not in seen:
-                    seen.add(key)
-                    entries.append(entry)
+        global_file = self._core_file(user_id, "user_global")
+        for item in self._read_json(global_file, {"items": []}).get("items", []):
+            entry = self._to_memory_entry(item, source=str(global_file.relative_to(self.base_storage_path)))
+            key = (entry.scope, entry.title or "", entry.content)
+            if key not in seen:
+                seen.add(key)
+                entries.append(entry)
 
-            group_file = self._core_file(owner, "user_group", group_id=group_id)
-            for item in self._read_json(group_file, {"items": []}).get("items", []):
-                entry = self._to_memory_entry(item, source=str(group_file.relative_to(self.base_storage_path)))
-                key = (entry.scope, entry.title or "", entry.content)
-                if key not in seen:
-                    seen.add(key)
-                    entries.append(entry)
+        group_file = self._core_file(user_id, "user_group", group_id=group_id)
+        for item in self._read_json(group_file, {"items": []}).get("items", []):
+            entry = self._to_memory_entry(item, source=str(group_file.relative_to(self.base_storage_path)))
+            key = (entry.scope, entry.title or "", entry.content)
+            if key not in seen:
+                seen.add(key)
+                entries.append(entry)
         return entries
 
     def _search_core_memories(self, *, user_id: str, group_id: str, query: str, min_score: float) -> List[MemoryEntry]:
