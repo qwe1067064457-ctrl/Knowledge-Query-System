@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { Database, FileSearch, Plus, Sparkles, Wrench } from "lucide-react";
 
 import { useAppStore } from "@/lib/store";
@@ -56,6 +57,13 @@ export function Navbar() {
       </div>
 
       <div className="flex flex-wrap items-center justify-end gap-3">
+        <Link
+          className="flex items-center gap-2 rounded-full border border-[var(--color-line)] bg-white/60 px-4 py-2 text-sm"
+          href="/groups"
+        >
+          <Database size={16} />
+          组管理
+        </Link>
         <button
           className="flex items-center gap-2 rounded-full border border-[var(--color-line)] bg-white/60 px-4 py-2 text-sm"
           onClick={() => void createNewSession()}

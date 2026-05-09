@@ -53,6 +53,42 @@ export type SessionHistory = {
   }>;
 };
 
+export type UserRecord = {
+  id: string;
+  display_name: string;
+  status: "active" | "disabled";
+  created_at: string;
+  updated_at: string;
+  metadata: Record<string, unknown>;
+};
+
+export type GroupRecord = {
+  id: string;
+  name: string;
+  description: string;
+  status: "active" | "archived";
+  default_agent_id: string;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+  knowledge: {
+    root?: string;
+    documents?: string;
+    uploads?: string;
+  };
+  memory_policy: Record<string, unknown>;
+  metadata: Record<string, unknown>;
+};
+
+export type MembershipRecord = {
+  group_id: string;
+  user_id: string;
+  role: "owner" | "admin" | "member" | "viewer";
+  status: "active" | "removed";
+  created_at: string;
+  updated_at: string;
+};
+
 export type StreamHandlers = {
   onEvent: (event: string, data: Record<string, unknown>) => void;
 };
@@ -172,6 +208,87 @@ export async function rebuildKnowledgeIndex() {
   return request<{ accepted: boolean }>("/knowledge/index/rebuild", {
     method: "POST"
   });
+}
+
+export async function listUsers(includeDisabled = false) {
+  const suffix = includeDisabled ? "?include_disabled=true" : "";
+  return request<UserRecord[]>(`/users${suffix}`);
+}
+
+export async function createUser(payload: {
+  id: string;
+  display_name?: string;
+  metadata?: Record<string, unknown>;
+}) {
+  return request<UserRecord>("/users", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function deleteUser(userId: string) {
+  return request<UserRecord>(`/users/${encodeURIComponent(userId)}`, {
+    method: "DELETE"
+  });
+}
+
+export async function listGroups(includeArchived = false) {
+  const suffix = includeArchived ? "?include_archived=true" : "";
+  return request<GroupRecord[]>(`/groups${suffix}`);
+}
+
+export async function createGroup(payload: {
+  id: string;
+  name: string;
+  created_by: string;
+  description?: string;
+  default_agent_id?: string;
+  memory_policy?: Record<string, unknown>;
+  metadata?: Record<string, unknown>;
+}) {
+  return request<GroupRecord>("/groups", {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function archiveGroup(groupId: string) {
+  return request<GroupRecord>(`/groups/${encodeURIComponent(groupId)}/archive`, {
+    method: "POST"
+  });
+}
+
+export async function restoreGroup(groupId: string) {
+  return request<GroupRecord>(`/groups/${encodeURIComponent(groupId)}/restore`, {
+    method: "POST"
+  });
+}
+
+export async function listGroupMembers(groupId: string, includeRemoved = false) {
+  const suffix = includeRemoved ? "?include_removed=true" : "";
+  return request<MembershipRecord[]>(
+    `/groups/${encodeURIComponent(groupId)}/members${suffix}`
+  );
+}
+
+export async function addGroupMember(
+  groupId: string,
+  payload: {
+    user_id: string;
+    role: MembershipRecord["role"];
+  }
+) {
+  return request<MembershipRecord>(`/groups/${encodeURIComponent(groupId)}/members`, {
+    method: "POST",
+    body: JSON.stringify(payload)
+  });
+}
+
+export async function removeGroupMember(groupId: string, userId: string) {
+  return request<MembershipRecord>(
+    `/groups/${encodeURIComponent(groupId)}/members/${encodeURIComponent(userId)}`,
+    { method: "DELETE" }
+  );
 }
 
 export async function streamChat(
