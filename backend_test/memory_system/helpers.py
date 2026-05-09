@@ -5,8 +5,9 @@ import sys
 import time
 import uuid
 from contextlib import contextmanager
+import json
 from pathlib import Path
-from typing import Iterator
+from typing import Any, Dict, Iterator
 
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -16,8 +17,8 @@ if str(BACKEND_DIR) not in sys.path:
 
 from context.context_manager import ContextManager
 from context.dataclasses import TranscriptEntry
-from context.memory_system import MemorySystem
 from context.session_manager import SessionManager
+from memory_system import MemorySystem
 
 
 TEST_TMP_ROOT = Path(__file__).resolve().parent / ".test_tmp"
@@ -46,6 +47,16 @@ def make_context_manager(workspace: Path) -> ContextManager:
     sessions = make_session_manager(workspace)
     memory = make_memory_system(workspace)
     return ContextManager(sessions, memory)
+
+
+def write_group_meta(workspace: Path, group_id: str, memory_policy: Dict[str, Any]) -> Path:
+    path = workspace / "storage" / "groups" / group_id / "meta.json"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text(
+        json.dumps({"memory_policy": memory_policy}, ensure_ascii=False, indent=2),
+        encoding="utf-8",
+    )
+    return path
 
 
 def make_entry(

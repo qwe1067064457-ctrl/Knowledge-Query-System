@@ -1,9 +1,10 @@
 from __future__ import annotations
 
+import asyncio
 import unittest
 from datetime import date
 
-from helpers import TEST_TMP_ROOT, make_memory_system, temp_workspace
+from helpers import TEST_TMP_ROOT, make_memory_system, temp_workspace, write_group_meta
 
 
 class MemorySearchSwitchTests(unittest.TestCase):
@@ -20,21 +21,21 @@ class MemorySearchSwitchTests(unittest.TestCase):
             user_id="u1",
             group_id="law",
             scope="user_group",
-            content="违约责任回答优先引用法条。",
-            title="核心记忆",
+            content="Answer breach-liability questions with statute citations first.",
+            title="Core memory",
         )
         memory.write_daily_log(
             "law",
             "default",
-            "今天继续讨论违约责任和赔偿范围。",
-            target_date=date(2026, 5, 8),
+            "We continued the breach-liability discussion today.",
+            target_date=date.today(),
             user_id="u1",
-            title="日志",
+            title="Daily log",
         )
         memory.write_domain_case(
             group_id="law",
-            title="违约责任案例",
-            content="案例强调违约责任和可预见规则。",
+            title="Breach liability case",
+            content="The case emphasizes foreseeability in breach liability.",
         )
         return memory
 
@@ -44,7 +45,7 @@ class MemorySearchSwitchTests(unittest.TestCase):
             results = memory.search(
                 "law",
                 "default",
-                "违约责任",
+                "breach liability",
                 user_id="u1",
                 include_core=False,
                 min_score=0.01,
@@ -58,7 +59,7 @@ class MemorySearchSwitchTests(unittest.TestCase):
             results = memory.search(
                 "law",
                 "default",
-                "违约责任",
+                "breach liability",
                 user_id="u1",
                 include_daily_logs=False,
                 min_score=0.01,
@@ -72,7 +73,7 @@ class MemorySearchSwitchTests(unittest.TestCase):
             results = memory.search(
                 "law",
                 "default",
-                "违约责任",
+                "breach liability",
                 user_id="u1",
                 include_domain_cases=False,
                 min_score=0.01,
@@ -86,13 +87,96 @@ class MemorySearchSwitchTests(unittest.TestCase):
             results = memory.search(
                 "law",
                 "default",
-                "违约责任",
+                "breach liability",
                 user_id="u1",
                 top_k=10,
                 min_score=0.01,
             )
             memory_types = {item.memory_type for item in results}
             self.assertEqual(memory_types, {"core", "daily_log", "domain_case"})
+
+    def test_disabled_core_policy_prevents_core_promotion_during_flush(self) -> None:
+        async def run() -> None:
+            with temp_workspace() as workspace:
+                write_group_meta(
+                    workspace,
+                    "law",
+                    {
+                        "enabled_memory_types": ["daily_log", "domain_case"],
+                        "core": {
+                            "explicit_markers": ["ALWAYS"],
+                            "group_scope_keywords": ["LAW"],
+                            "min_candidate_length": 1,
+                            "max_candidate_length": 120,
+                        },
+                        "daily_log": {"checkpoint_enabled": True},
+                        "domain_case": {
+                            "completion_markers": ["DONE"],
+                            "structural_markers": ["ISSUE", "ANALYSIS", "CONCLUSION"],
+                            "case_markers": ["CASE"],
+                        },
+                    },
+                )
+                memory = make_memory_system(workspace)
+
+                result = await memory.flush_from_context(
+                    "law",
+                    "default",
+                    "Checkpoint summary",
+                    user_id="u1",
+                    messages=[{"role": "user", "content": "ALWAYS answer in Chinese."}],
+                )
+
+                self.assertEqual(result["core_written"], 0)
+                self.assertEqual(memory.get_core_memories(user_id="u1", group_id="law"), [])
+
+        asyncio.run(run())
+
+    def test_disabled_domain_case_policy_prevents_case_promotion_during_flush(self) -> None:
+        async def run() -> None:
+            with temp_workspace() as workspace:
+                write_group_meta(
+                    workspace,
+                    "law",
+                    {
+                        "enabled_memory_types": ["core", "daily_log"],
+                        "core": {
+                            "explicit_markers": ["ALWAYS"],
+                            "group_scope_keywords": ["LAW"],
+                            "min_candidate_length": 1,
+                            "max_candidate_length": 120,
+                        },
+                        "daily_log": {"checkpoint_enabled": True},
+                        "domain_case": {
+                            "completion_markers": ["DONE"],
+                            "structural_markers": ["ISSUE", "ANALYSIS", "CONCLUSION"],
+                            "case_markers": ["CASE"],
+                        },
+                    },
+                )
+                memory = make_memory_system(workspace)
+
+                result = await memory.flush_from_context(
+                    "law",
+                    "default",
+                    "ISSUE: breach liability. ANALYSIS: compare facts. CONCLUSION: DONE.",
+                    user_id="u1",
+                    messages=[{"role": "assistant", "content": "ISSUE: breach liability. ANALYSIS: compare facts. CONCLUSION: DONE."}],
+                )
+
+                self.assertEqual(result["domain_case_written"], 0)
+                results = memory.search(
+                    "law",
+                    "default",
+                    "breach liability",
+                    user_id="u1",
+                    include_core=False,
+                    include_daily_logs=False,
+                    min_score=0.01,
+                )
+                self.assertFalse(results)
+
+        asyncio.run(run())
 
 
 if __name__ == "__main__":
