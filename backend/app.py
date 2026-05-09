@@ -1,3 +1,4 @@
+
 from __future__ import annotations
 
 from contextlib import asynccontextmanager
@@ -17,7 +18,6 @@ from config import get_settings
 from graph.agent import agent_manager
 from graph.memory_indexer import memory_indexer
 from knowledge_retrieval import knowledge_indexer
-from file_management import file_management_agent, IndexWorker
 from tools.skills_scanner import refresh_snapshot
 
 
@@ -26,15 +26,6 @@ async def lifespan(_: FastAPI):
     settings = get_settings()
     refresh_snapshot(settings.backend_dir)
     agent_manager.initialize(settings.backend_dir)
-    memory_indexer.configure(settings.backend_dir)
-    memory_indexer.rebuild_index()
-    knowledge_indexer.configure(settings.backend_dir)
-    knowledge_indexer.rebuild_index()
-    
-    file_management_agent.configure(settings.backend_dir)
-    index_worker = IndexWorker(settings.backend_dir)
-    index_worker.start()
-    
     yield
 
 

@@ -16,6 +16,7 @@ backend/storage/memory_index/*
 !backend/storage/memory_index/.gitkeep
 backend/storage/knowledge/*
 !backend/storage/knowledge/.gitkeep
+backend/.test_tmp/
 frontend/.next/
 frontend/node_modules/
 frontend/.npm-cache/

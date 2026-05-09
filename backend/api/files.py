@@ -6,7 +6,7 @@ from typing import Any
 from fastapi import APIRouter, HTTPException, Query
 from pydantic import BaseModel, Field
 
-from file_management import file_management_agent
+from file_management.file_event_producer import produce_file_event
 from graph.agent import agent_manager
 from graph.memory_indexer import memory_indexer
 from tools.skills_scanner import refresh_snapshot, scan_skills
@@ -53,18 +53,18 @@ async def save_file(payload: SaveFileRequest) -> dict[str, Any]:
     normalized = payload.path.replace("\\", "/")
     
     if normalized.startswith("knowledge/"):
-        result = file_management_agent.handle_user_save(
-            str(_resolve_path(payload.path)),
-            payload.content
+        file_path = _resolve_path(payload.path)
+        file_path.parent.mkdir(parents=True, exist_ok=True)
+        file_path.write_text(payload.content, encoding="utf-8")
+        produce_file_event(
+            event_type='modified',
+            file_path=str(file_path),
         )
-        if not result["success"]:
-            raise HTTPException(status_code=500, detail=result["message"])
-        
         return {
-            "ok": result["success"],
+            "ok": True,
             "path": normalized,
-            "blocked": result.get("blocked", False),
-            "message": result.get("message", ""),
+            "blocked": False,
+            "message": "File saved and modification event produced.",
         }
     
     file_path = _resolve_path(payload.path)

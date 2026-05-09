@@ -16,9 +16,14 @@ except ImportError:  # pragma: no cover - optional dependency at runtime
 from config import get_settings, runtime_config
 from graph.memory_indexer import memory_indexer
 from graph.prompt_builder import build_system_prompt
-from graph.session_manager import SessionManager
 from knowledge_retrieval import knowledge_orchestrator
+from memory_system import MemorySystem
 from tools import get_all_tools
+
+# 导入新的 context 模块
+from context.session_manager import SessionManager
+from context.context_manager import ContextManager
+from context.legacy_adapter import DEFAULT_AGENT, DEFAULT_GROUP, LegacySessionManagerAdapter
 
 KNOWLEDGE_SKILL_PATTERNS = (
     re.compile(r"知识库"),
@@ -44,12 +49,26 @@ def _stringify_content(content: Any) -> str:
 class AgentManager:
     def __init__(self) -> None:
         self.base_dir: Path | None = None
-        self.session_manager: SessionManager | None = None
+        self.raw_session_manager: SessionManager | None = None
+        self.session_manager: LegacySessionManagerAdapter | None = None
+        self.memory_system: MemorySystem | None = None
+        self.context_manager: ContextManager | None = None
         self.tools = []
 
     def initialize(self, base_dir: Path) -> None:
         self.base_dir = base_dir
-        self.session_manager = SessionManager(base_dir)
+
+        # 初始化新的 context 模块
+        self.raw_session_manager = SessionManager(base_dir / "storage")
+        self.memory_system = MemorySystem(base_dir / "storage")
+        self.context_manager = ContextManager(self.raw_session_manager, self.memory_system)
+        # 设置 LLM 调用用于 compaction
+        self.context_manager.set_llm_call(self._llm_text_call)
+
+        # 初始化 legacy 适配器（保持向后兼容）
+        self.session_manager = LegacySessionManagerAdapter(self.raw_session_manager)
+        self.session_manager.configure_legacy_paths(base_dir)
+
         self.tools = get_all_tools(base_dir)
         knowledge_orchestrator.configure(base_dir, self._build_chat_model)
 
@@ -78,6 +97,12 @@ class AgentManager:
             temperature=0,
         )
 
+    async def _llm_text_call(self, prompt: str) -> str:
+        response = await self._build_chat_model().ainvoke(
+            [{"role": "user", "content": prompt}]
+        )
+        return _stringify_content(getattr(response, "content", "")).strip()
+
     def _build_agent(
         self,
         extra_instructions: list[str] | None = None,
@@ -102,10 +127,66 @@ class AgentManager:
         messages: list[dict[str, str]] = []
         for item in history:
             role = item.get("role")
-            if role not in {"user", "assistant"}:
+            if role not in {"system", "user", "assistant"}:
                 continue
             messages.append({"role": role, "content": str(item.get("content", ""))})
         return messages
+
+    def _insert_before_latest_user(
+        self,
+        messages: list[dict[str, str]],
+        context_message: dict[str, str],
+    ) -> list[dict[str, str]]:
+        insert_at = len(messages)
+        for index in range(len(messages) - 1, -1, -1):
+            if messages[index].get("role") == "user":
+                insert_at = index
+                break
+        return messages[:insert_at] + [context_message] + messages[insert_at:]
+
+    async def _prepare_messages_for_request(
+        self,
+        session_id: str | None,
+        message: str,
+        history: list[dict[str, Any]],
+    ) -> list[dict[str, str]]:
+        current_user = {"role": "user", "content": message}
+        if self.context_manager is None:
+            messages = self._build_messages(history)
+            messages.append(current_user)
+            return messages
+
+        has_new_transcript = False
+        if session_id and self.raw_session_manager is not None:
+            has_new_transcript = bool(
+                self.raw_session_manager.get_transcript(
+                    DEFAULT_GROUP,
+                    DEFAULT_AGENT,
+                    session_id,
+                    limit=1,
+                    include_compacted=True,
+                )
+            )
+
+        if session_id and has_new_transcript:
+            prepared = await self.context_manager.prepare(
+                DEFAULT_GROUP,
+                DEFAULT_AGENT,
+                session_id,
+                extra_messages=[current_user],
+                query=message,
+            )
+        else:
+            messages = self._build_messages(history)
+            messages.append(current_user)
+            prepared = await self.context_manager.prepare_messages(
+                DEFAULT_GROUP,
+                DEFAULT_AGENT,
+                messages,
+                query=message,
+            )
+
+        return self._build_messages(prepared["messages"])
 
     def _format_retrieval_context(self, results: list[dict[str, Any]]) -> str:
         lines = ["[RAG retrieved memory context]"]
@@ -194,22 +275,25 @@ class AgentManager:
         self,
         message: str,
         history: list[dict[str, Any]],
+        session_id: str | None = None,
     ):
         if self.base_dir is None:
             raise RuntimeError("AgentManager is not initialized")
 
         rag_mode = runtime_config.get_rag_mode()
-        augmented_history = list(history)
+        messages = await self._prepare_messages_for_request(session_id, message, history)
+
         if rag_mode:
             retrievals = memory_indexer.retrieve(message, top_k=3)
             if retrievals:
                 yield {"type": "retrieval", **self._format_memory_retrieval_step(retrievals)}
             if retrievals:
-                augmented_history.append(
+                messages = self._insert_before_latest_user(
+                    messages,
                     {
                         "role": "assistant",
                         "content": self._format_retrieval_context(retrievals),
-                    }
+                    },
                 )
 
         if self._is_knowledge_query(message):
@@ -223,15 +307,13 @@ class AgentManager:
             if knowledge_result is not None:
                 for step in knowledge_result.steps:
                     yield {"type": "retrieval", **step.to_dict()}
-                augmented_history.append(
+                messages = self._insert_before_latest_user(
+                    messages,
                     {
                         "role": "assistant",
                         "content": self._format_knowledge_context(knowledge_result),
-                    }
+                    },
                 )
-
-            messages = self._build_messages(augmented_history)
-            messages.append({"role": "user", "content": message})
 
             async for event in self._astream_model_answer(
                 messages,
@@ -241,8 +323,6 @@ class AgentManager:
             return
 
         agent = self._build_agent()
-        messages = self._build_messages(augmented_history)
-        messages.append({"role": "user", "content": message})
 
         final_content_parts: list[str] = []
         last_ai_message = ""
