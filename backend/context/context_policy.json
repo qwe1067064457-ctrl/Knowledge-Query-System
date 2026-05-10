@@ -1,0 +1,42 @@
+{
+  "history": {
+    "max_recent_turns": 8
+  },
+  "budget": {
+    "total_tokens": 6000,
+    "core": {
+      "reserved": 300,
+      "max": 600
+    },
+    "retrieved_memories": {
+      "target": 800,
+      "max": 1400
+    },
+    "recent_turns": {
+      "target": 2000,
+      "max": 3200
+    },
+    "tool_results": {
+      "target": 400,
+      "max": 1000,
+      "max_chars_per_message": 4000
+    }
+  },
+  "compaction": {
+    "enabled": true,
+    "trigger_ratio": 0.9,
+    "keep_recent_tokens": 2000
+  },
+  "memory": {
+    "search_enabled": true,
+    "top_k": 5,
+    "time_decay_half_life": 30,
+    "use_mmr": true,
+    "mmr_lambda": 0.7,
+    "flush_enabled": true,
+    "flush_threshold": 5400
+  },
+  "prompt": {
+    "system_prompt_path": "prompts/system_prompt.md"
+  }
+}
