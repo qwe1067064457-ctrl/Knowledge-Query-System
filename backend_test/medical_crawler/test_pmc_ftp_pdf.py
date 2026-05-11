@@ -32,7 +32,7 @@ def workspace() -> Path:
 
 
 class FakePmcApi:
-    def iter_csv_rows(self, url: str, *, row_limit: int) -> list[dict[str, str]]:
+    def iter_csv_rows(self, url: str, *, start_row: int, row_limit: int) -> list[dict[str, str]]:
         if url == "https://example.test/oa.csv":
             rows = [
                 {
@@ -60,7 +60,7 @@ class FakePmcApi:
                     "License": "CC BY",
                 },
             ]
-            return rows[:row_limit]
+            return rows[start_row : start_row + row_limit]
         raise RuntimeError(f"unexpected csv url: {url}")
 
     def get_bytes(self, url: str) -> bytes:
@@ -103,6 +103,8 @@ def test_crawl_pmc_ftp_pdfs_writes_pdf_and_metadata(workspace: Path) -> None:
         api=FakePmcApi(),
     )
 
+    assert summary.start_row == 0
+    assert summary.next_row_offset == 2
     assert summary.records_seen == 2
     assert summary.records_written == 1
     assert summary.skipped_invalid == 1
@@ -114,6 +116,75 @@ def test_crawl_pmc_ftp_pdfs_writes_pdf_and_metadata(workspace: Path) -> None:
     metadata = json.loads((record_dir / "metadata.json").read_text(encoding="utf-8"))
     assert metadata["pmcid"] == "PMC111"
     index_text = (output_root / "index.md").read_text(encoding="utf-8-sig")
-    assert "`total_pdf_documents`：1" in index_text
-    assert "`records_written_this_run`：1" in index_text
-    assert "`skipped_invalid`：1" in index_text
+    assert "`total_pdf_documents`：" in index_text
+    assert "`start_row_this_run`：" in index_text
+    assert "`next_row_offset`：" in index_text
+    assert "`records_written_this_run`：" in index_text
+    assert "`skipped_invalid`：" in index_text
+
+
+def test_crawl_pmc_ftp_pdfs_resumes_from_manifest_offset(workspace: Path) -> None:
+    output_root = workspace / "medicine" / "documents" / "pmc_ftp_pdf"
+    first_summary = crawl_pmc_ftp_pdfs(
+        PmcFtpPdfConfig(
+            output_root=output_root,
+            csv_url="https://example.test/oa.csv",
+            ftp_base_url="https://ftp.example/",
+            max_records=1,
+            sleep_seconds=0,
+        ),
+        api=FakePmcApi(),
+    )
+
+    second_summary = crawl_pmc_ftp_pdfs(
+        PmcFtpPdfConfig(
+            output_root=output_root,
+            csv_url="https://example.test/oa.csv",
+            ftp_base_url="https://ftp.example/",
+            max_records=1,
+            sleep_seconds=0,
+        ),
+        api=FakePmcApi(),
+    )
+
+    manifest = json.loads((output_root / "manifest.json").read_text(encoding="utf-8"))
+    assert first_summary.start_row == 0
+    assert first_summary.next_row_offset == 1
+    assert second_summary.start_row == 1
+    assert second_summary.next_row_offset == 2
+    assert second_summary.records_written == 0
+    assert second_summary.skipped_invalid == 1
+    assert manifest["start_row"] == 1
+    assert manifest["next_row_offset"] == 2
+
+
+def test_crawl_pmc_ftp_pdfs_uses_legacy_manifest_when_offset_missing(workspace: Path) -> None:
+    output_root = workspace / "medicine" / "documents" / "pmc_ftp_pdf"
+    output_root.mkdir(parents=True, exist_ok=True)
+    (output_root / "manifest.json").write_text(
+        json.dumps(
+            {
+                "total_pdf_documents": 12,
+                "records_seen": 12,
+            },
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+    summary = crawl_pmc_ftp_pdfs(
+        PmcFtpPdfConfig(
+            output_root=output_root,
+            csv_url="https://example.test/oa.csv",
+            ftp_base_url="https://ftp.example/",
+            max_records=1,
+            sleep_seconds=0,
+        ),
+        api=FakePmcApi(),
+    )
+
+    assert summary.start_row == 12
+    assert summary.next_row_offset == 12
+    assert summary.records_seen == 0
+    assert summary.records_written == 0

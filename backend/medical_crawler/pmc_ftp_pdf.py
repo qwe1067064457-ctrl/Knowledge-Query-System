@@ -25,6 +25,7 @@ class PmcFtpPdfConfig:
     csv_url: str = DEFAULT_CSV_URL
     ftp_base_url: str = DEFAULT_FTP_BASE_URL
     max_records: int = 10
+    start_row: int | None = None
     sleep_seconds: float = 0.1
     timeout_seconds: float = 60.0
     trust_env: bool = False
@@ -32,6 +33,8 @@ class PmcFtpPdfConfig:
     def normalized(self) -> "PmcFtpPdfConfig":
         if self.max_records < 1:
             raise ValueError("max_records must be at least 1")
+        if self.start_row is not None and self.start_row < 0:
+            raise ValueError("start_row cannot be negative")
         if self.sleep_seconds < 0:
             raise ValueError("sleep_seconds cannot be negative")
         return self
@@ -40,6 +43,8 @@ class PmcFtpPdfConfig:
 @dataclass(frozen=True)
 class PmcFtpPdfSummary:
     output_root: Path
+    start_row: int
+    next_row_offset: int
     records_seen: int
     records_written: int
     skipped_existing: int
@@ -51,7 +56,7 @@ class PmcFtpApi(Protocol):
     def get_bytes(self, url: str) -> bytes:
         ...
 
-    def iter_csv_rows(self, url: str, *, row_limit: int) -> list[dict[str, str]]:
+    def iter_csv_rows(self, url: str, *, start_row: int, row_limit: int) -> list[dict[str, str]]:
         ...
 
 
@@ -72,7 +77,7 @@ class PmcFtpHttpApi:
         response.raise_for_status()
         return response.content
 
-    def iter_csv_rows(self, url: str, *, row_limit: int) -> list[dict[str, str]]:
+    def iter_csv_rows(self, url: str, *, start_row: int, row_limit: int) -> list[dict[str, str]]:
         with self.client.stream("GET", url) as response:
             response.raise_for_status()
             lines = response.iter_lines()
@@ -83,15 +88,20 @@ class PmcFtpHttpApi:
             header_text = header.decode("utf-8") if isinstance(header, bytes) else header
             fieldnames = next(csv.reader([header_text]))
             rows: list[dict[str, str]] = []
+            row_index = 0
             for line in lines:
                 if len(rows) >= row_limit:
                     break
                 line_text = line.decode("utf-8") if isinstance(line, bytes) else line
                 if not line_text.strip():
                     continue
+                if row_index < start_row:
+                    row_index += 1
+                    continue
                 values = next(csv.reader([line_text]))
                 row = {fieldnames[index]: values[index] if index < len(values) else "" for index in range(len(fieldnames))}
                 rows.append(row)
+                row_index += 1
             return rows
 
 
@@ -167,6 +177,22 @@ def write_binary(path: Path, content: bytes) -> None:
     path.write_bytes(content)
 
 
+def load_existing_manifest(path: Path) -> dict[str, Any]:
+    if not path.exists():
+        return {}
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+
+
+def infer_start_row(existing_manifest: dict[str, Any]) -> int:
+    next_row_offset = int(existing_manifest.get("next_row_offset", 0) or 0)
+    legacy_records_seen = int(existing_manifest.get("records_seen", 0) or 0)
+    total_pdf_documents = int(existing_manifest.get("total_pdf_documents", 0) or 0)
+    return max(next_row_offset, legacy_records_seen, total_pdf_documents)
+
+
 def render_index(manifest: dict[str, Any]) -> str:
     return f"""# PMC FTP 医学 PDF 样本
 
@@ -177,6 +203,8 @@ def render_index(manifest: dict[str, Any]) -> str:
 ## 统计
 
 - `total_pdf_documents`：{manifest.get("total_pdf_documents", 0)}
+- `start_row_this_run`：{manifest.get("start_row", 0)}
+- `next_row_offset`：{manifest.get("next_row_offset", 0)}
 - `records_written_this_run`：{manifest.get("records_written", 0)}
 - `skipped_existing`：{manifest.get("skipped_existing", 0)}
 - `skipped_invalid`：{manifest.get("skipped_invalid", 0)}
@@ -185,12 +213,19 @@ def render_index(manifest: dict[str, Any]) -> str:
 
 - 仅保留 PMC FTP 官方清单里可直接下载成功的原始 PDF
 - 这些 PDF 是完整论文正文，不是门面页
+- `next_row_offset` 可用于下次断点续抓，避免每次都从 CSV 开头重扫
 """
 
 
 def crawl_pmc_ftp_pdfs(config: PmcFtpPdfConfig, *, api: PmcFtpApi | None = None) -> PmcFtpPdfSummary:
     config = config.normalized()
     config.output_root.mkdir(parents=True, exist_ok=True)
+    manifest_path = config.output_root / "manifest.json"
+    existing_manifest = load_existing_manifest(manifest_path)
+    start_row = config.start_row
+    if start_row is None:
+        start_row = infer_start_row(existing_manifest)
+
     own_api = PmcFtpHttpApi(config) if api is None else None
     pmc_api = api or own_api
     assert pmc_api is not None
@@ -199,9 +234,10 @@ def crawl_pmc_ftp_pdfs(config: PmcFtpPdfConfig, *, api: PmcFtpApi | None = None)
     records_written = 0
     skipped_existing = 0
     skipped_invalid = 0
+    csv_rows: list[dict[str, str]] = []
 
     try:
-        csv_rows = pmc_api.iter_csv_rows(config.csv_url, row_limit=config.max_records)
+        csv_rows = pmc_api.iter_csv_rows(config.csv_url, start_row=start_row, row_limit=config.max_records)
         records = parse_csv_rows(csv_rows, ftp_base_url=config.ftp_base_url)
         for record in records:
             if records_seen >= config.max_records:
@@ -241,7 +277,7 @@ def crawl_pmc_ftp_pdfs(config: PmcFtpPdfConfig, *, api: PmcFtpApi | None = None)
         if own_api is not None:
             own_api.close()
 
-    manifest_path = config.output_root / "manifest.json"
+    next_row_offset = start_row + len(csv_rows)
     total_pdf_documents = len(list(config.output_root.rglob("source.pdf")))
     manifest = {
         "generated_at": datetime.now(UTC).isoformat(),
@@ -251,6 +287,8 @@ def crawl_pmc_ftp_pdfs(config: PmcFtpPdfConfig, *, api: PmcFtpApi | None = None)
             "ftp_base_url": config.ftp_base_url,
         },
         "total_pdf_documents": total_pdf_documents,
+        "start_row": start_row,
+        "next_row_offset": next_row_offset,
         "records_seen": records_seen,
         "records_written": records_written,
         "skipped_existing": skipped_existing,
@@ -260,6 +298,8 @@ def crawl_pmc_ftp_pdfs(config: PmcFtpPdfConfig, *, api: PmcFtpApi | None = None)
     write_text(config.output_root / "index.md", render_index(manifest))
     return PmcFtpPdfSummary(
         output_root=config.output_root,
+        start_row=start_row,
+        next_row_offset=next_row_offset,
         records_seen=records_seen,
         records_written=records_written,
         skipped_existing=skipped_existing,

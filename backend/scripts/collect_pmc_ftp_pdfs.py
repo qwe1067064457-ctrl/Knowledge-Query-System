@@ -19,6 +19,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--output-root", type=Path, default=DEFAULT_OUTPUT_ROOT)
     parser.add_argument("--csv-url", type=str, default="https://ftp.ncbi.nlm.nih.gov/pub/pmc/deprecated/oa_non_comm_use_pdf.csv")
     parser.add_argument("--max-records", type=int, default=10)
+    parser.add_argument("--start-row", type=int, default=None)
     parser.add_argument("--sleep-seconds", type=float, default=0.1)
     parser.add_argument("--trust-env", action="store_true")
     return parser.parse_args()
@@ -38,11 +39,14 @@ def main() -> int:
             csv_url=args.csv_url,
             ftp_base_url="https://ftp.ncbi.nlm.nih.gov/pub/pmc/deprecated/",
             max_records=args.max_records,
+            start_row=args.start_row,
             sleep_seconds=args.sleep_seconds,
             trust_env=args.trust_env,
         )
     )
     print(f"Output root: {summary.output_root}")
+    print(f"Start row: {summary.start_row}")
+    print(f"Next row offset: {summary.next_row_offset}")
     print(f"Records seen: {summary.records_seen}")
     print(f"Records written: {summary.records_written}")
     print(f"Skipped existing: {summary.skipped_existing}")
