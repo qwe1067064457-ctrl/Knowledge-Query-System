@@ -1,0 +1,15 @@
+{
+  "generated_at": "2026-05-11T14:19:42.122837+00:00",
+  "source": {
+    "name": "PMC Open Access Subset / FTP Service",
+    "csv_url": "https://example.test/oa.csv",
+    "ftp_base_url": "https://ftp.example/"
+  },
+  "total_pdf_documents": 1,
+  "start_row": 1,
+  "next_row_offset": 2,
+  "records_seen": 1,
+  "records_written": 0,
+  "skipped_existing": 0,
+  "skipped_invalid": 1
+}
