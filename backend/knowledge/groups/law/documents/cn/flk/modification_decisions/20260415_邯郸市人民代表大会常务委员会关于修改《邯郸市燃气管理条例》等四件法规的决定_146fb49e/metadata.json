@@ -1,0 +1,119 @@
+{
+  "source": "国家法律法规数据库",
+  "source_url": "https://flk.npc.gov.cn/detail?id=146fb49e7ae24e1fafbbe8c8fab7e806",
+  "category_key": "modification_decisions",
+  "category_label": "修改、废止的决定",
+  "row": {
+    "bbbs": "146fb49e7ae24e1fafbbe8c8fab7e806",
+    "title": "邯郸市人民代表大会常务委员会关于修改《邯郸市燃气管理条例》等四件法规的决定",
+    "gbrq": "2026-04-15",
+    "sxrq": "2026-04-15",
+    "sxx": null,
+    "zdjgName": "邯郸市人民代表大会常务委员会",
+    "xgzlHighLight": null,
+    "flxz": "修改、废止的决定",
+    "zdjgCodeId": 9999,
+    "flfgCodeId": 310,
+    "titleHightLightList": [
+      {
+        "value": "邯郸市人民代表大会常务委员会关于修改《邯郸市燃气管理条例》等四件法规的决定",
+        "highLight": false
+      }
+    ],
+    "score": 0.0
+  },
+  "detail": {
+    "bbbs": "146fb49e7ae24e1fafbbe8c8fab7e806",
+    "ossFile": {
+      "ossWordPath": "prod/20260415/0302ca33321b4a0c92246016681dc41f.docx",
+      "ossWordOfdPath": "prod/20260415/0302ca33321b4a0c92246016681dc41f.ofd",
+      "ossWordOfdSize": 218791,
+      "ossPdfPath": null,
+      "ossPdfOfdPath": null,
+      "ossPdfOfdSize": null
+    },
+    "xgwj": [],
+    "lsyg": null,
+    "xgzl": [
+      {
+        "fileId": "ad3c2d10e0e940c895005cec2cbb2f33",
+        "title": "公告",
+        "titleHighLight": null,
+        "busiType": "公告",
+        "fileType": "docx",
+        "titleHightLightList": null
+      },
+      {
+        "fileId": "d340655d9d18457b8d409d39a7702703",
+        "title": "关于批准《邯郸市人民代表大会常务委员会关于修改〈邯郸市燃气管理条例〉等四件法规的决定》的决定",
+        "titleHighLight": null,
+        "busiType": "批准决定",
+        "fileType": "docx",
+        "titleHightLightList": null
+      },
+      {
+        "fileId": "1e77958c2bce46e8ae845148fea2fc14",
+        "title": "邯郸市人民代表大会常务委员会关于修改《邯郸市燃气管理条例》等四件法规的说明",
+        "titleHighLight": null,
+        "busiType": "草案的说明",
+        "fileType": "docx",
+        "titleHightLightList": null
+      },
+      {
+        "fileId": "740502e768c940e084896cd7f74c97f8",
+        "title": "关于《邯郸市人民代表大会常务委员会关于修改〈邯郸市燃气管理条例〉等四件法规的决定》初步审查意见的报告（书面）",
+        "titleHighLight": null,
+        "busiType": "审议结果的报告",
+        "fileType": "docx",
+        "titleHightLightList": null
+      },
+      {
+        "fileId": "e8c82b01b835427baa964cb4747b60ca",
+        "title": "关于本次常委会会议拟通过、批准的地方性法规修改意见、审议结果和审查情况的报告",
+        "titleHighLight": null,
+        "busiType": "审议结果的报告",
+        "fileType": "docx",
+        "titleHightLightList": null
+      }
+    ],
+    "flfg": [
+      {
+        "bbbs": "4028855b61cc679a0161cc7b077f0039",
+        "title": "邯郸市气象灾害防御条例"
+      },
+      {
+        "bbbs": "4028abcc612777930161281866f3591c",
+        "title": "邯郸市妇女权益保障条例"
+      },
+      {
+        "bbbs": "ff8081817f3b9178017f499e8dd0009b",
+        "title": "邯郸市居住证条例"
+      },
+      {
+        "bbbs": "2c90e5bb6a291f86016bc0fb908d2e37",
+        "title": "邯郸市燃气管理条例"
+      }
+    ],
+    "flxz": "修改、废止的决定",
+    "zdjgName": "邯郸市人民代表大会常务委员会",
+    "gbrq": "2026-04-15",
+    "sxrq": "2026-04-15",
+    "title": "邯郸市人民代表大会常务委员会关于修改《邯郸市燃气管理条例》等四件法规的决定",
+    "sxx": null,
+    "content": null,
+    "xfFlag": 0
+  },
+  "detail_fetch_error": "",
+  "assets": [
+    {
+      "kind": "primary_docx",
+      "path": "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend\\knowledge\\groups\\law\\documents\\cn\\flk\\modification_decisions\\20260415_邯郸市人民代表大会常务委员会关于修改《邯郸市燃气管理条例》等四件法规的决定_146fb49e\\files\\邯郸市人民代表大会常务委员会关于修改《邯郸市燃气管理条例》等四件法规的决定_20260415.docx",
+      "relative_path": "邯郸市人民代表大会常务委员会关于修改《邯郸市燃气管理条例》等四件法规的决定_20260415.docx",
+      "bytes": 32119,
+      "sha256": "16f7bc5c08802cdeddc64dd9a631c1b03ebdbe60f87160c03b642345e1653a22",
+      "url": "https://flkoss.obs-bj2.cucloud.cn/prod/20260415/0302ca33321b4a0c92246016681dc41f.docx?response-content-disposition=attachment%3B%20filename%3D%22%25E9%2582%25AF%25E9%2583%25B8%25E5%25B8%2582%25E4%25BA%25BA%25E6%25B0%2591%25E4%25BB%25A3%25E8%25A1%25A8%25E5%25A4%25A7%25E4%25BC%259A%25E5%25B8%25B8%25E5%258A%25A1%25E5%25A7%2594%25E5%2591%2598%25E4%25BC%259A%25E5%2585%25B3%25E4%25BA%258E%25E4%25BF%25AE%25E6%2594%25B9%25E3%2580%258A%25E9%2582%25AF%25E9%2583%25B8%25E5%25B8%2582%25E7%2587%2583%25E6%25B0%2594%25E7%25AE%25A1%25E7%2590%2586%25E6%259D%25A1%25E4%25BE%258B%25E3%2580%258B%25E7%25AD%2589%25E5%259B%259B%25E4%25BB%25B6%25E6%25B3%2595%25E8%25A7%2584%25E7%259A%2584%25E5%2586%25B3%25E5%25AE%259A_20260415.docx%22&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260510T111457Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3600&X-Amz-Credential=8uue2voatpgnwukhfj46%2F20260510%2Fcn-north-1%2Fs3%2Faws4_request&X-Amz-Signature=249920214594760aafee52b89c439d5d195bd8ca292be573e4c2ec4e1b6039cc",
+      "skipped_existing": false
+    }
+  ],
+  "collected_at": "2026-05-10T11:47:32.373424+00:00"
+}

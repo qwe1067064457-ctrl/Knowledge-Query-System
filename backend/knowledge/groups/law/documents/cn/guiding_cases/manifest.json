@@ -1,0 +1,14 @@
+{
+  "generated_at": "2026-05-10T16:20:34.684146+00:00",
+  "source": {
+    "name": "最高人民法院",
+    "url": "https://www.court.gov.cn",
+    "country": "China"
+  },
+  "document_type": "guiding_case",
+  "output_root": "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend\\knowledge\\groups\\law\\documents\\cn\\guiding_cases",
+  "records_seen": 206,
+  "records_written": 206,
+  "skipped_existing": 12,
+  "skipped_errors": 1
+}

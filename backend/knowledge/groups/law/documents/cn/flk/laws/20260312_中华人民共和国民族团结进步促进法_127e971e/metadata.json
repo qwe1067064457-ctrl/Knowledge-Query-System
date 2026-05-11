@@ -1,0 +1,70 @@
+{
+  "source": "国家法律法规数据库",
+  "source_url": "https://flk.npc.gov.cn/detail?id=127e971ed95b44dd8ae375ab1aa8e531",
+  "category_key": "laws",
+  "category_label": "法律",
+  "row": {
+    "bbbs": "127e971ed95b44dd8ae375ab1aa8e531",
+    "title": "中华人民共和国民族团结进步促进法",
+    "gbrq": "2026-03-12",
+    "sxrq": "2026-07-01",
+    "sxx": 4,
+    "zdjgName": "全国人民代表大会",
+    "xgzlHighLight": null,
+    "flxz": "法律",
+    "zdjgCodeId": 100,
+    "flfgCodeId": 110,
+    "titleHightLightList": [
+      {
+        "value": "中华人民共和国民族团结进步促进法",
+        "highLight": false
+      }
+    ],
+    "score": 0.0
+  },
+  "detail": {
+    "bbbs": "127e971ed95b44dd8ae375ab1aa8e531",
+    "ossFile": {
+      "ossWordPath": "prod/20260312/a1a0d7c79e244c72ac1a438144294e77.docx",
+      "ossWordOfdPath": "prod/20260312/a1a0d7c79e244c72ac1a438144294e77.ofd",
+      "ossWordOfdSize": 207652,
+      "ossPdfPath": null,
+      "ossPdfOfdPath": null,
+      "ossPdfOfdSize": null
+    },
+    "xgwj": [],
+    "lsyg": null,
+    "xgzl": [
+      {
+        "fileId": "2b272626f5054c1f941334043e076a40",
+        "title": "中华人民共和国主席令（第七十一号）",
+        "titleHighLight": null,
+        "busiType": "主席令",
+        "fileType": "docx",
+        "titleHightLightList": null
+      }
+    ],
+    "flfg": null,
+    "flxz": "法律",
+    "zdjgName": "全国人民代表大会",
+    "gbrq": "2026-03-12",
+    "sxrq": "2026-07-01",
+    "title": "中华人民共和国民族团结进步促进法",
+    "sxx": 4,
+    "content": null,
+    "xfFlag": 0
+  },
+  "detail_fetch_error": "",
+  "assets": [
+    {
+      "kind": "primary_docx",
+      "path": "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend\\knowledge\\groups\\law\\documents\\cn\\flk\\laws\\20260312_中华人民共和国民族团结进步促进法_127e971e\\files\\中华人民共和国民族团结进步促进法_20260312.docx",
+      "relative_path": "中华人民共和国民族团结进步促进法_20260312.docx",
+      "bytes": 29896,
+      "sha256": "",
+      "url": "https://flkoss.obs-bj2.cucloud.cn/prod/20260312/a1a0d7c79e244c72ac1a438144294e77.docx?response-content-disposition=attachment%3B%20filename%3D%22%25E4%25B8%25AD%25E5%258D%258E%25E4%25BA%25BA%25E6%25B0%2591%25E5%2585%25B1%25E5%2592%258C%25E5%259B%25BD%25E6%25B0%2591%25E6%2597%258F%25E5%259B%25A2%25E7%25BB%2593%25E8%25BF%259B%25E6%25AD%25A5%25E4%25BF%2583%25E8%25BF%259B%25E6%25B3%2595_20260312.docx%22&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260510T105923Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3600&X-Amz-Credential=8uue2voatpgnwukhfj46%2F20260510%2Fcn-north-1%2Fs3%2Faws4_request&X-Amz-Signature=9b5b5236fd34ab9254ca22032646e6d05b40e007d87e968721af8b7dd6cf5934",
+      "skipped_existing": true
+    }
+  ],
+  "collected_at": "2026-05-10T10:59:23.356194+00:00"
+}

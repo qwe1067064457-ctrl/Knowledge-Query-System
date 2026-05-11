@@ -1,0 +1,12 @@
+{
+  "source": "PMC Open Access Subset / FTP Service",
+  "pmcid": "PMC111",
+  "pmid": "123",
+  "title": "Sample Journal. 2024; 10(1):1-10",
+  "citation": "Sample Journal. 2024; 10(1):1-10",
+  "year": 2024,
+  "pdf_url": "https://ftp.example/oa_pdf/ab/cd/article-one.pdf",
+  "file_path": "oa_pdf/ab/cd/article-one.pdf",
+  "last_updated": "2024-07-17 10:18:05",
+  "license": "CC BY-NC"
+}

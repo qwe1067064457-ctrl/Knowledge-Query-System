@@ -1,0 +1,39 @@
+{
+  "source": "国家法律法规数据库",
+  "source_url": "https://flk.npc.gov.cn/detail?id=ff808181927f12760195d19ab2762d99",
+  "category_key": "judicial_interpretations",
+  "category_label": "司法解释",
+  "row": {
+    "bbbs": "ff808181927f12760195d19ab2762d99",
+    "title": "最高人民法院关于外币及港澳台货币逾期付款利息计算标准的批复",
+    "gbrq": "2025-02-12",
+    "sxrq": "2025-02-13",
+    "sxx": 3,
+    "zdjgName": "最高人民法院",
+    "xgzlHighLight": null,
+    "flxz": "司法解释",
+    "zdjgCodeId": 140,
+    "flfgCodeId": 320,
+    "titleHightLightList": [
+      {
+        "value": "最高人民法院关于外币及港澳台货币逾期付款利息计算标准的批复",
+        "highLight": false
+      }
+    ],
+    "score": 0.0
+  },
+  "detail": {},
+  "detail_fetch_error": "RuntimeError: FLK request did not return valid JSON: https://flk.npc.gov.cn/law-search/search/flfgDetails",
+  "assets": [
+    {
+      "kind": "primary_pdf",
+      "path": "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend\\knowledge\\groups\\law\\documents\\cn\\flk\\judicial_interpretations\\20250212_最高人民法院关于外币及港澳台货币逾期付款利息计算标准的批复_ff808181\\files\\最高人民法院关于外币及港澳台货币逾期付款利息计算标准的批复_20250212.pdf",
+      "relative_path": "最高人民法院关于外币及港澳台货币逾期付款利息计算标准的批复_20250212.pdf",
+      "bytes": 282258,
+      "sha256": "d72938609856e9c62f2830b3130bd7a72d1d4677f9c1859ff73a5fddfa32dac4",
+      "url": "https://flkoss.obs-bj2.cucloud.cn/prod/20250212/201d8d671f3c447fae57822064429d7e.pdf?response-content-disposition=attachment%3B%20filename%3D%22%25E6%259C%2580%25E9%25AB%2598%25E4%25BA%25BA%25E6%25B0%2591%25E6%25B3%2595%25E9%2599%25A2%25E5%2585%25B3%25E4%25BA%258E%25E5%25A4%2596%25E5%25B8%2581%25E5%258F%258A%25E6%25B8%25AF%25E6%25BE%25B3%25E5%258F%25B0%25E8%25B4%25A7%25E5%25B8%2581%25E9%2580%25BE%25E6%259C%259F%25E4%25BB%2598%25E6%25AC%25BE%25E5%2588%25A9%25E6%2581%25AF%25E8%25AE%25A1%25E7%25AE%2597%25E6%25A0%2587%25E5%2587%2586%25E7%259A%2584%25E6%2589%25B9%25E5%25A4%258D_20250212.pdf%22&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260510T114725Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3600&X-Amz-Credential=8uue2voatpgnwukhfj46%2F20260510%2Fcn-north-1%2Fs3%2Faws4_request&X-Amz-Signature=708a7e3715a81377c1ab45a79a21f148eb9abb6f8b6129e82728912045a68f55",
+      "skipped_existing": false
+    }
+  ],
+  "collected_at": "2026-05-10T11:47:27.218002+00:00"
+}

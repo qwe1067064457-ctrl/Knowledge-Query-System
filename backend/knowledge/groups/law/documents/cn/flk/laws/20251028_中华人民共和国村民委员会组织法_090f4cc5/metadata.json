@@ -1,0 +1,170 @@
+{
+  "source": "国家法律法规数据库",
+  "source_url": "https://flk.npc.gov.cn/detail?id=090f4cc550f84241941e1109c8772e76",
+  "category_key": "laws",
+  "category_label": "法律",
+  "row": {
+    "bbbs": "090f4cc550f84241941e1109c8772e76",
+    "title": "中华人民共和国村民委员会组织法",
+    "gbrq": "2025-10-28",
+    "sxrq": "2026-01-01",
+    "sxx": 3,
+    "zdjgName": "全国人民代表大会常务委员会",
+    "xgzlHighLight": null,
+    "flxz": "法律",
+    "zdjgCodeId": 110,
+    "flfgCodeId": 110,
+    "titleHightLightList": [
+      {
+        "value": "中华人民共和国村民委员会组织法",
+        "highLight": false
+      }
+    ],
+    "score": 0.0
+  },
+  "detail": {
+    "bbbs": "090f4cc550f84241941e1109c8772e76",
+    "ossFile": {
+      "ossWordPath": "prod/20251028/e8d4ea7f5a1c404c93c1c640780d9cf7.docx",
+      "ossWordOfdPath": "prod/20251028/e8d4ea7f5a1c404c93c1c640780d9cf7.ofd",
+      "ossWordOfdSize": 166615,
+      "ossPdfPath": "prod/20251028/d02038b16acb47a1b58eb59f73f7c7e9.pdf",
+      "ossPdfOfdPath": "prod/20251028/d02038b16acb47a1b58eb59f73f7c7e9.ofd",
+      "ossPdfOfdSize": 804511
+    },
+    "xgwj": [],
+    "lsyg": [
+      {
+        "bbbs": "090f4cc550f84241941e1109c8772e76",
+        "title": "中华人民共和国村民委员会组织法",
+        "gbrq": "2025-10-28",
+        "highLight": true
+      },
+      {
+        "bbbs": "ff8080816f135f46016f1d901c941589",
+        "title": "中华人民共和国村民委员会组织法",
+        "gbrq": "2018-12-29",
+        "highLight": false
+      },
+      {
+        "bbbs": "2c909fdd678bf17901678bf7157005cd",
+        "title": "中华人民共和国村民委员会组织法",
+        "gbrq": "2010-10-28",
+        "highLight": false
+      }
+    ],
+    "xgzl": [
+      {
+        "fileId": "8a0eaeb4072348038ea3ea3fe9700c74",
+        "title": "中华人民共和国主席令（第五十九号）",
+        "titleHighLight": null,
+        "busiType": "主席令",
+        "fileType": "docx",
+        "titleHightLightList": null
+      },
+      {
+        "fileId": "9aa9e33e23484e78b7306d2d03915ef1",
+        "title": "中华人民共和国主席令（第五十九号）",
+        "titleHighLight": null,
+        "busiType": "主席令",
+        "fileType": "pdf",
+        "titleHightLightList": null
+      },
+      {
+        "fileId": "b67df972dfd043c79c1283af8f25691a",
+        "title": "全国人民代表大会常务委员会关于修改《中华人民共和国村民委员会组织法》的决定",
+        "titleHighLight": null,
+        "busiType": "修改决定",
+        "fileType": "docx",
+        "titleHightLightList": null
+      },
+      {
+        "fileId": "e7986b4d1f1e467e84a376188079381b",
+        "title": "全国人民代表大会常务委员会关于修改《中华人民共和国村民委员会组织法》的决定",
+        "titleHighLight": null,
+        "busiType": "修改决定",
+        "fileType": "pdf",
+        "titleHightLightList": null
+      },
+      {
+        "fileId": "3e830156ce824ec1aac660b5a1a1e35c",
+        "title": "关于《中华人民共和国村民委员会组织法（修正草案）》的说明",
+        "titleHighLight": null,
+        "busiType": "草案的说明",
+        "fileType": "docx",
+        "titleHightLightList": null
+      },
+      {
+        "fileId": "5f0db8f95ba94542b5080b280455e6e6",
+        "title": "关于《中华人民共和国村民委员会组织法（修正草案）》的说明",
+        "titleHighLight": null,
+        "busiType": "草案的说明",
+        "fileType": "pdf",
+        "titleHightLightList": null
+      },
+      {
+        "fileId": "07f98208fd6d4a20bc4a21697d49ff34",
+        "title": "全国人民代表大会宪法和法律委员会关于《中华人民共和国村民委员会组织法（修正草案）》审议结果的报告",
+        "titleHighLight": null,
+        "busiType": "审议结果的报告",
+        "fileType": "docx",
+        "titleHightLightList": null
+      },
+      {
+        "fileId": "14fbe29ced9b4c55b90d5a9105de64f3",
+        "title": "全国人民代表大会宪法和法律委员会关于《中华人民共和国村民委员会组织法（修正草案）》审议结果的报告",
+        "titleHighLight": null,
+        "busiType": "审议结果的报告",
+        "fileType": "pdf",
+        "titleHightLightList": null
+      },
+      {
+        "fileId": "a23f542a125a4a4d9c101b463a2a45a8",
+        "title": "全国人民代表大会宪法和法律委员会关于《全国人民代表大会常务委员会关于修改〈中华人民共和国村民委员会组织法〉的决定（草案）》修改意见的报告",
+        "titleHighLight": null,
+        "busiType": "修改意见的报告",
+        "fileType": "docx",
+        "titleHightLightList": null
+      },
+      {
+        "fileId": "f80996c7ca5d47e3a7dfc6173e39c8f9",
+        "title": "全国人民代表大会宪法和法律委员会关于《全国人民代表大会常务委员会关于修改〈中华人民共和国村民委员会组织法〉的决定（草案）》修改意见的报告",
+        "titleHighLight": null,
+        "busiType": "修改意见的报告",
+        "fileType": "pdf",
+        "titleHightLightList": null
+      }
+    ],
+    "flfg": null,
+    "flxz": "法律",
+    "zdjgName": "全国人民代表大会常务委员会",
+    "gbrq": "2025-10-28",
+    "sxrq": "2026-01-01",
+    "title": "中华人民共和国村民委员会组织法",
+    "sxx": 3,
+    "content": null,
+    "xfFlag": 0
+  },
+  "detail_fetch_error": "",
+  "assets": [
+    {
+      "kind": "primary_docx",
+      "path": "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend\\knowledge\\groups\\law\\documents\\cn\\flk\\laws\\20251028_中华人民共和国村民委员会组织法_090f4cc5\\files\\中华人民共和国村民委员会组织法_20251028.docx",
+      "relative_path": "中华人民共和国村民委员会组织法_20251028.docx",
+      "bytes": 24128,
+      "sha256": "d9ca7287017a8b58fc4657e733f1b409cf62065dd5c10fdbf659f311995082e6",
+      "url": "https://flkoss.obs-bj2.cucloud.cn/prod/20251028/e8d4ea7f5a1c404c93c1c640780d9cf7.docx?response-content-disposition=attachment%3B%20filename%3D%22%25E4%25B8%25AD%25E5%258D%258E%25E4%25BA%25BA%25E6%25B0%2591%25E5%2585%25B1%25E5%2592%258C%25E5%259B%25BD%25E6%259D%2591%25E6%25B0%2591%25E5%25A7%2594%25E5%2591%2598%25E4%25BC%259A%25E7%25BB%2584%25E7%25BB%2587%25E6%25B3%2595_20251028.docx%22&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260510T101231Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3600&X-Amz-Credential=8uue2voatpgnwukhfj46%2F20260510%2Fcn-north-1%2Fs3%2Faws4_request&X-Amz-Signature=88847609ef40493afaa84b70d13ac9294e28d84b2853f071a9a70758d1105b13",
+      "skipped_existing": false
+    },
+    {
+      "kind": "primary_pdf",
+      "path": "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend\\knowledge\\groups\\law\\documents\\cn\\flk\\laws\\20251028_中华人民共和国村民委员会组织法_090f4cc5\\files\\中华人民共和国村民委员会组织法_20251028.pdf",
+      "relative_path": "中华人民共和国村民委员会组织法_20251028.pdf",
+      "bytes": 827010,
+      "sha256": "753c909150bef6ca444e5ce64ccf731c8c46498edf3cefae34b8c2db3d932345",
+      "url": "https://flkoss.obs-bj2.cucloud.cn/prod/20251028/d02038b16acb47a1b58eb59f73f7c7e9.pdf?response-content-disposition=attachment%3B%20filename%3D%22%25E4%25B8%25AD%25E5%258D%258E%25E4%25BA%25BA%25E6%25B0%2591%25E5%2585%25B1%25E5%2592%258C%25E5%259B%25BD%25E6%259D%2591%25E6%25B0%2591%25E5%25A7%2594%25E5%2591%2598%25E4%25BC%259A%25E7%25BB%2584%25E7%25BB%2587%25E6%25B3%2595_20251028.pdf%22&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260510T105928Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3600&X-Amz-Credential=8uue2voatpgnwukhfj46%2F20260510%2Fcn-north-1%2Fs3%2Faws4_request&X-Amz-Signature=30a9dca6b8f7544f9e058a89bb5649a47256b96b7e6b7399510d63f07631f07d",
+      "skipped_existing": false
+    }
+  ],
+  "collected_at": "2026-05-10T10:59:29.399923+00:00"
+}

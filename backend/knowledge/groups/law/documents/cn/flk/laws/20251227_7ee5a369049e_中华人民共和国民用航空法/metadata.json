@@ -1,0 +1,29 @@
+{
+  "source": "国家法律法规数据库",
+  "source_url": "https://flk.npc.gov.cn/detail?id=7ee5a369049e412bbd1a96a2fef74abb",
+  "category_key": "laws",
+  "category_label": "法律",
+  "row": {
+    "bbbs": "7ee5a369049e412bbd1a96a2fef74abb",
+    "title": "中华人民共和国民用航空法",
+    "gbrq": "2025-12-27",
+    "sxrq": "2026-07-01",
+    "sxx": 4,
+    "zdjgName": "全国人民代表大会常务委员会",
+    "xgzlHighLight": null,
+    "flxz": "法律",
+    "zdjgCodeId": 110,
+    "flfgCodeId": 140,
+    "titleHightLightList": [
+      {
+        "value": "中华人民共和国民用航空法",
+        "highLight": false
+      }
+    ],
+    "score": 0.0
+  },
+  "detail": {},
+  "detail_fetch_error": "details skipped by configuration",
+  "assets": [],
+  "collected_at": "2026-05-10T16:21:18.249672+00:00"
+}

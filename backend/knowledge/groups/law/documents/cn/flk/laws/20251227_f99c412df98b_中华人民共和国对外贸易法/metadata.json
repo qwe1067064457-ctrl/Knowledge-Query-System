@@ -1,0 +1,29 @@
+{
+  "source": "国家法律法规数据库",
+  "source_url": "https://flk.npc.gov.cn/detail?id=f99c412df98b4ea396d6709c78703111",
+  "category_key": "laws",
+  "category_label": "法律",
+  "row": {
+    "bbbs": "f99c412df98b4ea396d6709c78703111",
+    "title": "中华人民共和国对外贸易法",
+    "gbrq": "2025-12-27",
+    "sxrq": "2026-03-01",
+    "sxx": 3,
+    "zdjgName": "全国人民代表大会常务委员会",
+    "xgzlHighLight": null,
+    "flxz": "法律",
+    "zdjgCodeId": 110,
+    "flfgCodeId": 140,
+    "titleHightLightList": [
+      {
+        "value": "中华人民共和国对外贸易法",
+        "highLight": false
+      }
+    ],
+    "score": 0.0
+  },
+  "detail": {},
+  "detail_fetch_error": "details skipped by configuration",
+  "assets": [],
+  "collected_at": "2026-05-10T16:21:21.622430+00:00"
+}

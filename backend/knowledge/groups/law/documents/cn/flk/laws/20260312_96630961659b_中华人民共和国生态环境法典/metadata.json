@@ -1,0 +1,29 @@
+{
+  "source": "国家法律法规数据库",
+  "source_url": "https://flk.npc.gov.cn/detail?id=96630961659b4d87a65b7b1c595097fa",
+  "category_key": "laws",
+  "category_label": "法律",
+  "row": {
+    "bbbs": "96630961659b4d87a65b7b1c595097fa",
+    "title": "中华人民共和国生态环境法典",
+    "gbrq": "2026-03-12",
+    "sxrq": "2026-08-15",
+    "sxx": 4,
+    "zdjgName": "全国人民代表大会",
+    "xgzlHighLight": null,
+    "flxz": "法律",
+    "zdjgCodeId": 100,
+    "flfgCodeId": 155,
+    "titleHightLightList": [
+      {
+        "value": "中华人民共和国生态环境法典",
+        "highLight": false
+      }
+    ],
+    "score": 0.0
+  },
+  "detail": {},
+  "detail_fetch_error": "details skipped by configuration",
+  "assets": [],
+  "collected_at": "2026-05-10T16:21:11.477628+00:00"
+}

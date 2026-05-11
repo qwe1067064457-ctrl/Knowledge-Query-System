@@ -1,0 +1,29 @@
+{
+  "source": "国家法律法规数据库",
+  "source_url": "https://flk.npc.gov.cn/detail?id=7b5a76d0461745a08d3f964916b87ef3",
+  "category_key": "laws",
+  "category_label": "法律",
+  "row": {
+    "bbbs": "7b5a76d0461745a08d3f964916b87ef3",
+    "title": "中华人民共和国食品安全法",
+    "gbrq": "2025-09-12",
+    "sxrq": "2025-12-01",
+    "sxx": 3,
+    "zdjgName": "全国人民代表大会常务委员会",
+    "xgzlHighLight": null,
+    "flxz": "法律",
+    "zdjgCodeId": 110,
+    "flfgCodeId": 130,
+    "titleHightLightList": [
+      {
+        "value": "中华人民共和国食品安全法",
+        "highLight": false
+      }
+    ],
+    "score": 0.0
+  },
+  "detail": {},
+  "detail_fetch_error": "details skipped by configuration",
+  "assets": [],
+  "collected_at": "2026-05-10T16:21:52.665874+00:00"
+}

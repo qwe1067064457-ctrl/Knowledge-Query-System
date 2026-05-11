@@ -1,0 +1,28 @@
+{
+  "generated_at": "2026-05-10T16:18:25.936373+00:00",
+  "source": {
+    "name": "国家法律法规数据库",
+    "url": "https://flk.npc.gov.cn",
+    "country": "China"
+  },
+  "output_root": "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend\\knowledge\\groups\\law\\documents\\cn\\flk",
+  "records_seen": 203,
+  "records_written": 203,
+  "assets_downloaded": 12,
+  "related_downloaded": 0,
+  "skipped_existing_assets": 26,
+  "skipped_errors": 363,
+  "detail_fallbacks": 0,
+  "category_counts": {
+    "laws": 40,
+    "administrative_regulations": 40,
+    "supervision_regulations": 3,
+    "local_regulations": 40,
+    "judicial_interpretations": 40,
+    "modification_decisions": 40
+  },
+  "asset_counts": {
+    "pdf": 6,
+    "docx": 6
+  }
+}

@@ -1,0 +1,21 @@
+{
+  "title": "示例文章一",
+  "url": "https://rs.yiigle.com/cmaid/1001",
+  "abstract": "这是摘要内容。",
+  "body": "## 1 æ¹æ³\n\næ¹æ³æ®µè½ã\n\n## 2 ç»æ\n\nç»ææ®µè½ã\n\n### è¡¨1 çææ¯è¾ã",
+  "body_kind": "fulltext_xml",
+  "date": "2024/04/15",
+  "year": 2024,
+  "journal": "中国基层医药",
+  "authors": [
+    "张三",
+    "李四"
+  ],
+  "keywords": [
+    "基层医疗",
+    "消化内科"
+  ],
+  "doi": "10.3760/example",
+  "pdf_url": "https://rs.yiigle.com/r/cms/sample.pdf",
+  "xml_available": true
+}

@@ -1,0 +1,18 @@
+{
+  "id": "law",
+  "name": "Law Knowledge Base",
+  "description": "Legal knowledge group for statutes, regulations, cases, and reusable legal analysis.",
+  "status": "active",
+  "default_agent_id": "default",
+  "knowledge": {
+    "root": "knowledge/groups/law",
+    "documents": "knowledge/groups/law/documents",
+    "uploads": "knowledge/groups/law/uploads"
+  },
+  "memory_policy": {},
+  "metadata": {
+    "created_by": "codex_law_kb_builder"
+  },
+  "created_at": "2026-05-10T10:34:23.114301+00:00",
+  "updated_at": "2026-05-10T10:34:23.114325+00:00"
+}
