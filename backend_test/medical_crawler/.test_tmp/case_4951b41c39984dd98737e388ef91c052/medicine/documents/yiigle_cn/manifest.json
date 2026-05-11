@@ -1,0 +1,15 @@
+{
+  "generated_at": "2026-05-11T09:01:54.944377+00:00",
+  "source": {
+    "name": "中国基层医药",
+    "url": "http://example.journal/",
+    "country": "China"
+  },
+  "articles_seen": 2,
+  "articles_written": 1,
+  "skipped_existing": 0,
+  "skipped_year": 1,
+  "skipped_errors": 0,
+  "fulltext_xml": 1,
+  "pdf_downloaded": 1
+}

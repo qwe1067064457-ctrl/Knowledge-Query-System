@@ -1,0 +1,29 @@
+{
+  "source": "国家法律法规数据库",
+  "source_url": "https://flk.npc.gov.cn/detail?id=9f5dd948936d475fab381916c37dd257",
+  "category_key": "laws",
+  "category_label": "法律",
+  "row": {
+    "bbbs": "9f5dd948936d475fab381916c37dd257",
+    "title": "中华人民共和国国家发展规划法",
+    "gbrq": "2026-03-12",
+    "sxrq": "2026-03-12",
+    "sxx": 3,
+    "zdjgName": "全国人民代表大会",
+    "xgzlHighLight": null,
+    "flxz": "法律",
+    "zdjgCodeId": 100,
+    "flfgCodeId": 110,
+    "titleHightLightList": [
+      {
+        "value": "中华人民共和国国家发展规划法",
+        "highLight": false
+      }
+    ],
+    "score": 0.0
+  },
+  "detail": {},
+  "detail_fetch_error": "details skipped by configuration",
+  "assets": [],
+  "collected_at": "2026-05-10T16:21:08.117351+00:00"
+}

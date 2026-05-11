@@ -1,0 +1,29 @@
+{
+  "source": "国家法律法规数据库",
+  "source_url": "https://flk.npc.gov.cn/detail?id=f3f7217464834db5b5d4f563f40c6dec",
+  "category_key": "laws",
+  "category_label": "法律",
+  "row": {
+    "bbbs": "f3f7217464834db5b5d4f563f40c6dec",
+    "title": "中华人民共和国国家公园法",
+    "gbrq": "2025-09-12",
+    "sxrq": "2026-01-01",
+    "sxx": 3,
+    "zdjgName": "全国人民代表大会常务委员会",
+    "xgzlHighLight": null,
+    "flxz": "法律",
+    "zdjgCodeId": 110,
+    "flfgCodeId": 155,
+    "titleHightLightList": [
+      {
+        "value": "中华人民共和国国家公园法",
+        "highLight": false
+      }
+    ],
+    "score": 0.0
+  },
+  "detail": {},
+  "detail_fetch_error": "details skipped by configuration",
+  "assets": [],
+  "collected_at": "2026-05-10T16:22:02.760012+00:00"
+}

@@ -1,0 +1,99 @@
+{
+  "source": "国家法律法规数据库",
+  "source_url": "https://flk.npc.gov.cn/detail?id=986e822258ea4f3b8ef62a9145bbe100",
+  "category_key": "modification_decisions",
+  "category_label": "修改、废止的决定",
+  "row": {
+    "bbbs": "986e822258ea4f3b8ef62a9145bbe100",
+    "title": "无锡市人民代表大会常务委员会关于废止《无锡市刑事被害人特困救助条例》的决定",
+    "gbrq": "2026-04-10",
+    "sxrq": "2026-05-01",
+    "sxx": null,
+    "zdjgName": "无锡市人民代表大会常务委员会",
+    "xgzlHighLight": null,
+    "flxz": "修改、废止的决定",
+    "zdjgCodeId": 9999,
+    "flfgCodeId": 310,
+    "titleHightLightList": [
+      {
+        "value": "无锡市人民代表大会常务委员会关于废止《无锡市刑事被害人特困救助条例》的决定",
+        "highLight": false
+      }
+    ],
+    "score": 0.0
+  },
+  "detail": {
+    "bbbs": "986e822258ea4f3b8ef62a9145bbe100",
+    "ossFile": {
+      "ossWordPath": "prod/20260410/6d84289839924d7c98e08d12085334b9.docx",
+      "ossWordOfdPath": "prod/20260410/6d84289839924d7c98e08d12085334b9.ofd",
+      "ossWordOfdSize": 30343,
+      "ossPdfPath": null,
+      "ossPdfOfdPath": null,
+      "ossPdfOfdSize": null
+    },
+    "xgwj": [],
+    "lsyg": null,
+    "xgzl": [
+      {
+        "fileId": "370d04ae0cf3435980db2b00792d4542",
+        "title": "无锡市人民代表大会常务委员会关于废止《无锡市刑事被害人特困救助条例》的决定公告",
+        "titleHighLight": null,
+        "busiType": "公告",
+        "fileType": "doc",
+        "titleHightLightList": null
+      },
+      {
+        "fileId": "e768f6c317324b52bf970fa1f69ef2cb",
+        "title": "无锡市人民代表大会常务委员会关于废止《无锡市刑事被害人特困救助条例》的决定批准通知",
+        "titleHighLight": null,
+        "busiType": "批准决定",
+        "fileType": "doc",
+        "titleHightLightList": null
+      },
+      {
+        "fileId": "7fde4ba4cd3549a5a076974fdbdf42d3",
+        "title": "无锡市人民代表大会常务委员会关于废止《无锡市刑事被害人特困救助条例》的决定说明",
+        "titleHighLight": null,
+        "busiType": "草案的说明",
+        "fileType": "doc",
+        "titleHightLightList": null
+      },
+      {
+        "fileId": "0f8bafd093ba4cca86d210a3ddd9f661",
+        "title": "无锡市人民代表大会常务委员会关于废止《无锡市刑事被害人特困救助条例》的决定审议意见报告",
+        "titleHighLight": null,
+        "busiType": "审议结果的报告",
+        "fileType": "doc",
+        "titleHightLightList": null
+      }
+    ],
+    "flfg": [
+      {
+        "bbbs": "4028abcc61277793016127c698100766",
+        "title": "无锡市刑事被害人特困救助条例"
+      }
+    ],
+    "flxz": "修改、废止的决定",
+    "zdjgName": "无锡市人民代表大会常务委员会",
+    "gbrq": "2026-04-10",
+    "sxrq": "2026-05-01",
+    "title": "无锡市人民代表大会常务委员会关于废止《无锡市刑事被害人特困救助条例》的决定",
+    "sxx": null,
+    "content": null,
+    "xfFlag": 0
+  },
+  "detail_fetch_error": "",
+  "assets": [
+    {
+      "kind": "primary_docx",
+      "path": "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend\\knowledge\\groups\\law\\documents\\cn\\flk\\modification_decisions\\20260410_无锡市人民代表大会常务委员会关于废止《无锡市刑事被害人特困救助条例》的决定_986e8222\\files\\无锡市人民代表大会常务委员会关于废止《无锡市刑事被害人特困救助条例》的决定_20260410.docx",
+      "relative_path": "无锡市人民代表大会常务委员会关于废止《无锡市刑事被害人特困救助条例》的决定_20260410.docx",
+      "bytes": 15521,
+      "sha256": "a76ab3204d8f3f823559847035dd7ca2697df0b7581f41c08494622938c33021",
+      "url": "https://flkoss.obs-bj2.cucloud.cn/prod/20260410/6d84289839924d7c98e08d12085334b9.docx?response-content-disposition=attachment%3B%20filename%3D%22%25E6%2597%25A0%25E9%2594%25A1%25E5%25B8%2582%25E4%25BA%25BA%25E6%25B0%2591%25E4%25BB%25A3%25E8%25A1%25A8%25E5%25A4%25A7%25E4%25BC%259A%25E5%25B8%25B8%25E5%258A%25A1%25E5%25A7%2594%25E5%2591%2598%25E4%25BC%259A%25E5%2585%25B3%25E4%25BA%258E%25E5%25BA%259F%25E6%25AD%25A2%25E3%2580%258A%25E6%2597%25A0%25E9%2594%25A1%25E5%25B8%2582%25E5%2588%2591%25E4%25BA%258B%25E8%25A2%25AB%25E5%25AE%25B3%25E4%25BA%25BA%25E7%2589%25B9%25E5%259B%25B0%25E6%2595%2591%25E5%258A%25A9%25E6%259D%25A1%25E4%25BE%258B%25E3%2580%258B%25E7%259A%2584%25E5%2586%25B3%25E5%25AE%259A_20260410.docx%22&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260510T111457Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3600&X-Amz-Credential=8uue2voatpgnwukhfj46%2F20260510%2Fcn-north-1%2Fs3%2Faws4_request&X-Amz-Signature=a467bc577f18c2607603acefe7c0cb29e2fd405ea1a58d672da830c5beb038eb",
+      "skipped_existing": false
+    }
+  ],
+  "collected_at": "2026-05-10T11:47:33.374498+00:00"
+}

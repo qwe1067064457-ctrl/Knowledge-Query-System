@@ -1,0 +1,56 @@
+{
+  "generated_at": "2026-05-10T10:34:56.247935+00:00",
+  "group_id": "law",
+  "knowledge_root": "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend\\knowledge\\groups\\law",
+  "source": {
+    "name": "Electronic Code of Federal Regulations",
+    "short_name": "eCFR",
+    "country": "United States",
+    "document_type": "federal_regulations",
+    "source_dir": "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend\\storage\\knowledge\\legal_corpus\\documents_by_category",
+    "target_dir": "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend\\knowledge\\groups\\law\\documents\\us\\ecfr"
+  },
+  "categories": {
+    "agriculture": {
+      "count": 2037,
+      "path": "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend\\knowledge\\groups\\law\\documents\\us\\ecfr\\agriculture"
+    },
+    "defense_security": {
+      "count": 428,
+      "path": "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend\\knowledge\\groups\\law\\documents\\us\\ecfr\\defense_security"
+    },
+    "employment_labor": {
+      "count": 414,
+      "path": "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend\\knowledge\\groups\\law\\documents\\us\\ecfr\\employment_labor"
+    },
+    "environment": {
+      "count": 22,
+      "path": "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend\\knowledge\\groups\\law\\documents\\us\\ecfr\\environment"
+    },
+    "finance": {
+      "count": 74,
+      "path": "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend\\knowledge\\groups\\law\\documents\\us\\ecfr\\finance"
+    },
+    "general_regulatory": {
+      "count": 1251,
+      "path": "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend\\knowledge\\groups\\law\\documents\\us\\ecfr\\general_regulatory"
+    },
+    "government_administration": {
+      "count": 5638,
+      "path": "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend\\knowledge\\groups\\law\\documents\\us\\ecfr\\government_administration"
+    },
+    "health": {
+      "count": 78,
+      "path": "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend\\knowledge\\groups\\law\\documents\\us\\ecfr\\health"
+    },
+    "tax": {
+      "count": 24,
+      "path": "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend\\knowledge\\groups\\law\\documents\\us\\ecfr\\tax"
+    },
+    "transportation": {
+      "count": 34,
+      "path": "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend\\knowledge\\groups\\law\\documents\\us\\ecfr\\transportation"
+    }
+  },
+  "total_documents": 10000
+}

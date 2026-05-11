@@ -1,0 +1,29 @@
+{
+  "source": "国家法律法规数据库",
+  "source_url": "https://flk.npc.gov.cn/detail?id=2e9e8cb6a1d1481c8a4170884a74d0d5",
+  "category_key": "laws",
+  "category_label": "法律",
+  "row": {
+    "bbbs": "2e9e8cb6a1d1481c8a4170884a74d0d5",
+    "title": "中华人民共和国突发公共卫生事件应对法",
+    "gbrq": "2025-09-12",
+    "sxrq": "2025-11-01",
+    "sxx": 3,
+    "zdjgName": "全国人民代表大会常务委员会",
+    "xgzlHighLight": null,
+    "flxz": "法律",
+    "zdjgCodeId": 110,
+    "flfgCodeId": 130,
+    "titleHightLightList": [
+      {
+        "value": "中华人民共和国突发公共卫生事件应对法",
+        "highLight": false
+      }
+    ],
+    "score": 0.0
+  },
+  "detail": {},
+  "detail_fetch_error": "details skipped by configuration",
+  "assets": [],
+  "collected_at": "2026-05-10T16:21:56.049961+00:00"
+}

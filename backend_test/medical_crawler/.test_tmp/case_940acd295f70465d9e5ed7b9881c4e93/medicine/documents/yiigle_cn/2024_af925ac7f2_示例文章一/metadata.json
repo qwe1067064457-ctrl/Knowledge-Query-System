@@ -1,0 +1,19 @@
+{
+  "title": "示例文章一",
+  "url": "https://rs.yiigle.com/cmaid/1001",
+  "abstract": "这是摘要内容。",
+  "body": "这是摘要内容。",
+  "body_kind": "abstract_only",
+  "date": "2024/04/15",
+  "year": 2024,
+  "journal": "中国基层医药",
+  "authors": [
+    "张三",
+    "李四"
+  ],
+  "keywords": [
+    "基层医疗",
+    "溃疡性结肠炎"
+  ],
+  "doi": ""
+}

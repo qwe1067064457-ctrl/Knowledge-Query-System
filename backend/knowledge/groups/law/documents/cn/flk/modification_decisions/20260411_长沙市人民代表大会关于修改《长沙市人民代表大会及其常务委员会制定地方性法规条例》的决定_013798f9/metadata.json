@@ -1,0 +1,99 @@
+{
+  "source": "国家法律法规数据库",
+  "source_url": "https://flk.npc.gov.cn/detail?id=013798f907bc4598922f3c8809024c0c",
+  "category_key": "modification_decisions",
+  "category_label": "修改、废止的决定",
+  "row": {
+    "bbbs": "013798f907bc4598922f3c8809024c0c",
+    "title": "长沙市人民代表大会关于修改《长沙市人民代表大会及其常务委员会制定地方性法规条例》的决定",
+    "gbrq": "2026-04-11",
+    "sxrq": "2026-04-11",
+    "sxx": null,
+    "zdjgName": "长沙市人民代表大会",
+    "xgzlHighLight": null,
+    "flxz": "修改、废止的决定",
+    "zdjgCodeId": 9999,
+    "flfgCodeId": 310,
+    "titleHightLightList": [
+      {
+        "value": "长沙市人民代表大会关于修改《长沙市人民代表大会及其常务委员会制定地方性法规条例》的决定",
+        "highLight": false
+      }
+    ],
+    "score": 0.0
+  },
+  "detail": {
+    "bbbs": "013798f907bc4598922f3c8809024c0c",
+    "ossFile": {
+      "ossWordPath": "prod/20260411/7b04bd022168485fb42b99f062e99320.docx",
+      "ossWordOfdPath": "prod/20260411/7b04bd022168485fb42b99f062e99320.ofd",
+      "ossWordOfdSize": 96143,
+      "ossPdfPath": null,
+      "ossPdfOfdPath": null,
+      "ossPdfOfdSize": null
+    },
+    "xgwj": [],
+    "lsyg": null,
+    "xgzl": [
+      {
+        "fileId": "22569a94fa9541a8ac6807399810e6d0",
+        "title": "长沙市人大常委会公告",
+        "titleHighLight": null,
+        "busiType": "公告",
+        "fileType": "docx",
+        "titleHightLightList": null
+      },
+      {
+        "fileId": "7e682388c47e47b1989bf78fa11c1438",
+        "title": "湖南省人民代表大会常务委员会关于批准《长沙市人民代表大会关于修改〈长沙市人民代表大会及其常务委员会制定地方性法规条例〉的决定》的决定",
+        "titleHighLight": null,
+        "busiType": "批准决定",
+        "fileType": "docx",
+        "titleHightLightList": null
+      },
+      {
+        "fileId": "0b9b382f5c0644b58228a7fd0485dc1f",
+        "title": "关于《长沙市人民代表大会关于修改〈长沙市人民代表大会及其常务委员会制定地方性法规条例〉的决定》的说明",
+        "titleHighLight": null,
+        "busiType": "草案的说明",
+        "fileType": "docx",
+        "titleHightLightList": null
+      },
+      {
+        "fileId": "d2c4801c488d497fa6010c1adf66f3eb",
+        "title": "湖南省人民代表大会法制委员会关于《长沙市人民代表大会关于修改〈长沙市人民代表大会及其常务委员会制定地方性法规条例〉的决定》的审查报告",
+        "titleHighLight": null,
+        "busiType": "审议结果的报告",
+        "fileType": "docx",
+        "titleHightLightList": null
+      }
+    ],
+    "flfg": [
+      {
+        "bbbs": "4028abcc61277793016128896b63404b",
+        "title": "长沙市人民代表大会及其常务委员会制定地方性法规条例"
+      }
+    ],
+    "flxz": "修改、废止的决定",
+    "zdjgName": "长沙市人民代表大会",
+    "gbrq": "2026-04-11",
+    "sxrq": "2026-04-11",
+    "title": "长沙市人民代表大会关于修改《长沙市人民代表大会及其常务委员会制定地方性法规条例》的决定",
+    "sxx": null,
+    "content": null,
+    "xfFlag": 0
+  },
+  "detail_fetch_error": "",
+  "assets": [
+    {
+      "kind": "primary_docx",
+      "path": "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend\\knowledge\\groups\\law\\documents\\cn\\flk\\modification_decisions\\20260411_长沙市人民代表大会关于修改《长沙市人民代表大会及其常务委员会制定地方性法规条例》的决定_013798f9\\files\\长沙市人民代表大会关于修改《长沙市人民代表大会及其常务委员会制定地方性法规条例》的决定_20260411.docx",
+      "relative_path": "长沙市人民代表大会关于修改《长沙市人民代表大会及其常务委员会制定地方性法规条例》的决定_20260411.docx",
+      "bytes": 19806,
+      "sha256": "25c0bda292224aaa085062980ef8c19dfd983441e8407caa718b029f9a7d34a7",
+      "url": "https://flkoss.obs-bj2.cucloud.cn/prod/20260411/7b04bd022168485fb42b99f062e99320.docx?response-content-disposition=attachment%3B%20filename%3D%22%25E9%2595%25BF%25E6%25B2%2599%25E5%25B8%2582%25E4%25BA%25BA%25E6%25B0%2591%25E4%25BB%25A3%25E8%25A1%25A8%25E5%25A4%25A7%25E4%25BC%259A%25E5%2585%25B3%25E4%25BA%258E%25E4%25BF%25AE%25E6%2594%25B9%25E3%2580%258A%25E9%2595%25BF%25E6%25B2%2599%25E5%25B8%2582%25E4%25BA%25BA%25E6%25B0%2591%25E4%25BB%25A3%25E8%25A1%25A8%25E5%25A4%25A7%25E4%25BC%259A%25E5%258F%258A%25E5%2585%25B6%25E5%25B8%25B8%25E5%258A%25A1%25E5%25A7%2594%25E5%2591%2598%25E4%25BC%259A%25E5%2588%25B6%25E5%25AE%259A%25E5%259C%25B0%25E6%2596%25B9%25E6%2580%25A7%25E6%25B3%2595%25E8%25A7%2584%25E6%259D%25A1%25E4%25BE%258B%25E3%2580%258B%25E7%259A%2584%25E5%2586%25B3%25E5%25AE%259A_20260411.docx%22&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260510T111456Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3600&X-Amz-Credential=8uue2voatpgnwukhfj46%2F20260510%2Fcn-north-1%2Fs3%2Faws4_request&X-Amz-Signature=ee833d83993542ec9ecc719a34c92c5dd3bbd6b31ebec9dbe42230e765a7fd80",
+      "skipped_existing": false
+    }
+  ],
+  "collected_at": "2026-05-10T11:47:32.898714+00:00"
+}

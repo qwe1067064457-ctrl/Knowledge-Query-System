@@ -1,0 +1,94 @@
+{
+  "source": "国家法律法规数据库",
+  "source_url": "https://flk.npc.gov.cn/detail?id=016c39ca7739492cab1fe3aef22941c7",
+  "category_key": "laws",
+  "category_label": "法律",
+  "row": {
+    "bbbs": "016c39ca7739492cab1fe3aef22941c7",
+    "title": "中华人民共和国社会救助法",
+    "gbrq": "2026-04-30",
+    "sxrq": "2026-07-01",
+    "sxx": 4,
+    "zdjgName": "全国人民代表大会常务委员会",
+    "xgzlHighLight": null,
+    "flxz": "法律",
+    "zdjgCodeId": 110,
+    "flfgCodeId": 150,
+    "titleHightLightList": [
+      {
+        "value": "中华人民共和国社会救助法",
+        "highLight": false
+      }
+    ],
+    "score": 0.0
+  },
+  "detail": {
+    "bbbs": "016c39ca7739492cab1fe3aef22941c7",
+    "ossFile": {
+      "ossWordPath": "prod/20260430/337304165d8a4402a1555556c4c790df.docx",
+      "ossWordOfdPath": "prod/20260430/337304165d8a4402a1555556c4c790df.ofd",
+      "ossWordOfdSize": 174128,
+      "ossPdfPath": null,
+      "ossPdfOfdPath": null,
+      "ossPdfOfdSize": null
+    },
+    "xgwj": [],
+    "lsyg": null,
+    "xgzl": [
+      {
+        "fileId": "807aebbcfbfb496083acfd3362d9aead",
+        "title": "中华人民共和国主席令（第七十五号）",
+        "titleHighLight": null,
+        "busiType": "主席令",
+        "fileType": "docx",
+        "titleHightLightList": null
+      },
+      {
+        "fileId": "e8171f18dcf440c69aec8b5854c5eee1",
+        "title": "全国人民代表大会宪法和法律委员会关于《中华人民共和国社会救助法（草案）》修改情况的汇报",
+        "titleHighLight": null,
+        "busiType": "修改情况的汇报",
+        "fileType": "docx",
+        "titleHightLightList": null
+      },
+      {
+        "fileId": "5448cf73bdad444b937a6df22a62944d",
+        "title": "全国人民代表大会宪法和法律委员会关于《中华人民共和国社会救助法（草案）》审议结果的报告",
+        "titleHighLight": null,
+        "busiType": "审议结果的报告",
+        "fileType": "docx",
+        "titleHightLightList": null
+      },
+      {
+        "fileId": "612ecfcdf82244caa5b3e89d72cba0e0",
+        "title": "全国人民代表大会宪法和法律委员会关于《中华人民共和国社会救助法（草案三次审议稿）》修改意见的报告",
+        "titleHighLight": null,
+        "busiType": "修改意见的报告",
+        "fileType": "docx",
+        "titleHightLightList": null
+      }
+    ],
+    "flfg": null,
+    "flxz": "法律",
+    "zdjgName": "全国人民代表大会常务委员会",
+    "gbrq": "2026-04-30",
+    "sxrq": "2026-07-01",
+    "title": "中华人民共和国社会救助法",
+    "sxx": 4,
+    "content": null,
+    "xfFlag": 0
+  },
+  "detail_fetch_error": "",
+  "assets": [
+    {
+      "kind": "primary_docx",
+      "path": "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend\\knowledge\\groups\\law\\documents\\cn\\flk\\laws\\20260430_中华人民共和国社会救助法_016c39ca\\files\\中华人民共和国社会救助法_20260430.docx",
+      "relative_path": "中华人民共和国社会救助法_20260430.docx",
+      "bytes": 24214,
+      "sha256": "",
+      "url": "https://flkoss.obs-bj2.cucloud.cn/prod/20260430/337304165d8a4402a1555556c4c790df.docx?response-content-disposition=attachment%3B%20filename%3D%22%25E4%25B8%25AD%25E5%258D%258E%25E4%25BA%25BA%25E6%25B0%2591%25E5%2585%25B1%25E5%2592%258C%25E5%259B%25BD%25E7%25A4%25BE%25E4%25BC%259A%25E6%2595%2591%25E5%258A%25A9%25E6%25B3%2595_20260430.docx%22&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20260510T105243Z&X-Amz-SignedHeaders=host&X-Amz-Expires=3600&X-Amz-Credential=8uue2voatpgnwukhfj46%2F20260510%2Fcn-north-1%2Fs3%2Faws4_request&X-Amz-Signature=5b65589a8454ff9bae37bd4f24573e8967275146c3b71fe258463f143fc384ac",
+      "skipped_existing": true
+    }
+  ],
+  "collected_at": "2026-05-10T10:59:22.939426+00:00"
+}
