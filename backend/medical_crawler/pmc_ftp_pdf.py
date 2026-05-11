@@ -48,10 +48,10 @@ class PmcFtpPdfSummary:
 
 
 class PmcFtpApi(Protocol):
-    def get_text(self, url: str) -> str:
+    def get_bytes(self, url: str) -> bytes:
         ...
 
-    def get_bytes(self, url: str) -> bytes:
+    def iter_csv_rows(self, url: str, *, row_limit: int) -> list[dict[str, str]]:
         ...
 
 
@@ -67,15 +67,32 @@ class PmcFtpHttpApi:
     def close(self) -> None:
         self.client.close()
 
-    def get_text(self, url: str) -> str:
-        response = self.client.get(url)
-        response.raise_for_status()
-        return response.text
-
     def get_bytes(self, url: str) -> bytes:
         response = self.client.get(url)
         response.raise_for_status()
         return response.content
+
+    def iter_csv_rows(self, url: str, *, row_limit: int) -> list[dict[str, str]]:
+        with self.client.stream("GET", url) as response:
+            response.raise_for_status()
+            lines = response.iter_lines()
+            try:
+                header = next(lines)
+            except StopIteration:
+                return []
+            header_text = header.decode("utf-8") if isinstance(header, bytes) else header
+            fieldnames = next(csv.reader([header_text]))
+            rows: list[dict[str, str]] = []
+            for line in lines:
+                if len(rows) >= row_limit:
+                    break
+                line_text = line.decode("utf-8") if isinstance(line, bytes) else line
+                if not line_text.strip():
+                    continue
+                values = next(csv.reader([line_text]))
+                row = {fieldnames[index]: values[index] if index < len(values) else "" for index in range(len(fieldnames))}
+                rows.append(row)
+            return rows
 
 
 def safe_filename(value: str, *, fallback: str = "document", max_length: int = 72) -> str:
@@ -97,8 +114,11 @@ def extract_year_from_citation(citation: str) -> int | None:
     return int(years[-1])
 
 
-def parse_csv_rows(csv_text: str, *, ftp_base_url: str) -> list[dict[str, Any]]:
-    reader = csv.DictReader(io.StringIO(csv_text))
+def parse_csv_rows(rows_input: list[dict[str, str]] | str, *, ftp_base_url: str) -> list[dict[str, Any]]:
+    if isinstance(rows_input, str):
+        reader = csv.DictReader(io.StringIO(rows_input))
+    else:
+        reader = rows_input
     rows: list[dict[str, Any]] = []
     for row in reader:
         file_path = (row.get("File") or "").strip()
@@ -156,7 +176,8 @@ def render_index(manifest: dict[str, Any]) -> str:
 
 ## 统计
 
-- `records_written`：{manifest.get("records_written", 0)}
+- `total_pdf_documents`：{manifest.get("total_pdf_documents", 0)}
+- `records_written_this_run`：{manifest.get("records_written", 0)}
 - `skipped_existing`：{manifest.get("skipped_existing", 0)}
 - `skipped_invalid`：{manifest.get("skipped_invalid", 0)}
 
@@ -180,8 +201,8 @@ def crawl_pmc_ftp_pdfs(config: PmcFtpPdfConfig, *, api: PmcFtpApi | None = None)
     skipped_invalid = 0
 
     try:
-        csv_text = pmc_api.get_text(config.csv_url)
-        records = parse_csv_rows(csv_text, ftp_base_url=config.ftp_base_url)
+        csv_rows = pmc_api.iter_csv_rows(config.csv_url, row_limit=config.max_records)
+        records = parse_csv_rows(csv_rows, ftp_base_url=config.ftp_base_url)
         for record in records:
             if records_seen >= config.max_records:
                 break
@@ -199,7 +220,6 @@ def crawl_pmc_ftp_pdfs(config: PmcFtpPdfConfig, *, api: PmcFtpApi | None = None)
             if not payload.startswith(b"%PDF"):
                 skipped_invalid += 1
                 continue
-
             metadata = {
                 "source": "PMC Open Access Subset / FTP Service",
                 "pmcid": record["pmcid"],
@@ -222,6 +242,7 @@ def crawl_pmc_ftp_pdfs(config: PmcFtpPdfConfig, *, api: PmcFtpApi | None = None)
             own_api.close()
 
     manifest_path = config.output_root / "manifest.json"
+    total_pdf_documents = len(list(config.output_root.rglob("source.pdf")))
     manifest = {
         "generated_at": datetime.now(UTC).isoformat(),
         "source": {
@@ -229,6 +250,7 @@ def crawl_pmc_ftp_pdfs(config: PmcFtpPdfConfig, *, api: PmcFtpApi | None = None)
             "csv_url": config.csv_url,
             "ftp_base_url": config.ftp_base_url,
         },
+        "total_pdf_documents": total_pdf_documents,
         "records_seen": records_seen,
         "records_written": records_written,
         "skipped_existing": skipped_existing,

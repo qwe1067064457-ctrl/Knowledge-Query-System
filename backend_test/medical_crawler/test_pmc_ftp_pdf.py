@@ -32,14 +32,36 @@ def workspace() -> Path:
 
 
 class FakePmcApi:
-    def get_text(self, url: str) -> str:
+    def iter_csv_rows(self, url: str, *, row_limit: int) -> list[dict[str, str]]:
         if url == "https://example.test/oa.csv":
-            return """File,Article Citation,Accession ID,Last Updated (YYYY-MM-DD HH:MM:SS),PMID,License
-oa_pdf/ab/cd/article-one.pdf,Sample Journal. 2024; 10(1):1-10,PMC111,2024-07-17 10:18:05,123,CC BY-NC
-oa_pdf/ef/gh/article-two.pdf,Old Journal. 2021; 2(1):20-30,PMC222,2024-07-17 10:18:05,456,CC BY-NC
-oa_package/x/y/no-pdf.tar.gz,Ignored Package,PMC333,2024-07-17 10:18:05,789,CC BY
-"""
-        raise RuntimeError(f"unexpected text url: {url}")
+            rows = [
+                {
+                    "File": "oa_pdf/ab/cd/article-one.pdf",
+                    "Article Citation": "Sample Journal. 2024; 10(1):1-10",
+                    "Accession ID": "PMC111",
+                    "Last Updated (YYYY-MM-DD HH:MM:SS)": "2024-07-17 10:18:05",
+                    "PMID": "123",
+                    "License": "CC BY-NC",
+                },
+                {
+                    "File": "oa_pdf/ef/gh/article-two.pdf",
+                    "Article Citation": "Old Journal. 2021; 2(1):20-30",
+                    "Accession ID": "PMC222",
+                    "Last Updated (YYYY-MM-DD HH:MM:SS)": "2024-07-17 10:18:05",
+                    "PMID": "456",
+                    "License": "CC BY-NC",
+                },
+                {
+                    "File": "oa_package/x/y/no-pdf.tar.gz",
+                    "Article Citation": "Ignored Package",
+                    "Accession ID": "PMC333",
+                    "Last Updated (YYYY-MM-DD HH:MM:SS)": "2024-07-17 10:18:05",
+                    "PMID": "789",
+                    "License": "CC BY",
+                },
+            ]
+            return rows[:row_limit]
+        raise RuntimeError(f"unexpected csv url: {url}")
 
     def get_bytes(self, url: str) -> bytes:
         if url.endswith("article-one.pdf"):
@@ -92,5 +114,6 @@ def test_crawl_pmc_ftp_pdfs_writes_pdf_and_metadata(workspace: Path) -> None:
     metadata = json.loads((record_dir / "metadata.json").read_text(encoding="utf-8"))
     assert metadata["pmcid"] == "PMC111"
     index_text = (output_root / "index.md").read_text(encoding="utf-8-sig")
-    assert "`records_written`：1" in index_text
+    assert "`total_pdf_documents`：1" in index_text
+    assert "`records_written_this_run`：1" in index_text
     assert "`skipped_invalid`：1" in index_text
