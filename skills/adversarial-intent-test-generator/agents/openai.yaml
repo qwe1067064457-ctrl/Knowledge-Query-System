@@ -1,0 +1,4 @@
+interface:
+  display_name: "Adversarial Intent Test Generator"
+  short_description: "Generate hard intent-eval datasets from rules and routing goals."
+  default_prompt: "Use $adversarial-intent-test-generator to generate a hard intent evaluation dataset for follow_up and challenge rules."
