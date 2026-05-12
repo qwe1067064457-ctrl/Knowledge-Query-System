@@ -1,0 +1,37 @@
+[
+  {
+    "id": "bench_001",
+    "query": "那这种情况呢？",
+    "hints": {
+      "preferred_batch": "follow_up"
+    }
+  },
+  {
+    "id": "bench_002",
+    "query": "你确定吗？",
+    "hints": {
+      "preferred_batch": "challenge"
+    }
+  },
+  {
+    "id": "bench_003",
+    "query": "你刚才的依据是什么？",
+    "hints": {
+      "preferred_batch": "meta"
+    }
+  },
+  {
+    "id": "bench_004",
+    "query": "这样算不算医疗事故？",
+    "hints": {
+      "preferred_batch": "fuzzy_qa"
+    }
+  },
+  {
+    "id": "bench_005",
+    "query": "如果医生误诊，但不是故意的，责任怎么算？",
+    "hints": {
+      "preferred_batch": "mixed_intent"
+    }
+  }
+]

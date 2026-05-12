@@ -1,0 +1,425 @@
+{
+  "overall": {
+    "samples": 24,
+    "evidence_mode_correct": 14,
+    "evidence_required_signals_correct": 14,
+    "evidence_required_rules_correct": 21,
+    "evidence_dependency_correct": 17,
+    "evidence_unsupported_correct": 24,
+    "resolved_main_intent_correct": 16,
+    "resolved_complexity_correct": 24,
+    "resolved_shape_correct": 17,
+    "resolved_context_correct": 17,
+    "control_route_correct": 12,
+    "control_mode_correct": 17,
+    "evidence_mode_accuracy": 0.5833,
+    "evidence_required_signals_accuracy": 0.5833,
+    "evidence_required_rules_accuracy": 0.875,
+    "evidence_dependency_accuracy": 0.7083,
+    "evidence_unsupported_accuracy": 1.0,
+    "resolved_main_intent_accuracy": 0.6667,
+    "resolved_complexity_accuracy": 1.0,
+    "resolved_shape_accuracy": 0.7083,
+    "resolved_context_accuracy": 0.7083,
+    "control_route_accuracy": 0.5,
+    "control_mode_accuracy": 0.7083
+  },
+  "per_batch": {
+    "challenge": {
+      "samples": 8,
+      "evidence_mode_correct": 2,
+      "evidence_required_signals_correct": 2,
+      "evidence_required_rules_correct": 6,
+      "evidence_dependency_correct": 2,
+      "evidence_unsupported_correct": 8,
+      "resolved_main_intent_correct": 6,
+      "resolved_complexity_correct": 8,
+      "resolved_shape_correct": 6,
+      "resolved_context_correct": 2,
+      "control_route_correct": 2,
+      "control_mode_correct": 2,
+      "evidence_mode_accuracy": 0.25,
+      "evidence_required_signals_accuracy": 0.25,
+      "evidence_required_rules_accuracy": 0.75,
+      "evidence_dependency_accuracy": 0.25,
+      "evidence_unsupported_accuracy": 1.0,
+      "resolved_main_intent_accuracy": 0.75,
+      "resolved_complexity_accuracy": 1.0,
+      "resolved_shape_accuracy": 0.75,
+      "resolved_context_accuracy": 0.25,
+      "control_route_accuracy": 0.25,
+      "control_mode_accuracy": 0.25
+    },
+    "follow_up": {
+      "samples": 8,
+      "evidence_mode_correct": 8,
+      "evidence_required_signals_correct": 8,
+      "evidence_required_rules_correct": 8,
+      "evidence_dependency_correct": 7,
+      "evidence_unsupported_correct": 8,
+      "resolved_main_intent_correct": 6,
+      "resolved_complexity_correct": 8,
+      "resolved_shape_correct": 6,
+      "resolved_context_correct": 7,
+      "control_route_correct": 6,
+      "control_mode_correct": 8,
+      "evidence_mode_accuracy": 1.0,
+      "evidence_required_signals_accuracy": 1.0,
+      "evidence_required_rules_accuracy": 1.0,
+      "evidence_dependency_accuracy": 0.875,
+      "evidence_unsupported_accuracy": 1.0,
+      "resolved_main_intent_accuracy": 0.75,
+      "resolved_complexity_accuracy": 1.0,
+      "resolved_shape_accuracy": 0.75,
+      "resolved_context_accuracy": 0.875,
+      "control_route_accuracy": 0.75,
+      "control_mode_accuracy": 1.0
+    },
+    "meta": {
+      "samples": 4,
+      "evidence_mode_correct": 3,
+      "evidence_required_signals_correct": 3,
+      "evidence_required_rules_correct": 3,
+      "evidence_dependency_correct": 4,
+      "evidence_unsupported_correct": 4,
+      "resolved_main_intent_correct": 3,
+      "resolved_complexity_correct": 4,
+      "resolved_shape_correct": 4,
+      "resolved_context_correct": 4,
+      "control_route_correct": 3,
+      "control_mode_correct": 3,
+      "evidence_mode_accuracy": 0.75,
+      "evidence_required_signals_accuracy": 0.75,
+      "evidence_required_rules_accuracy": 0.75,
+      "evidence_dependency_accuracy": 1.0,
+      "evidence_unsupported_accuracy": 1.0,
+      "resolved_main_intent_accuracy": 0.75,
+      "resolved_complexity_accuracy": 1.0,
+      "resolved_shape_accuracy": 1.0,
+      "resolved_context_accuracy": 1.0,
+      "control_route_accuracy": 0.75,
+      "control_mode_accuracy": 0.75
+    },
+    "standard_qa": {
+      "samples": 4,
+      "evidence_mode_correct": 1,
+      "evidence_required_signals_correct": 1,
+      "evidence_required_rules_correct": 4,
+      "evidence_dependency_correct": 4,
+      "evidence_unsupported_correct": 4,
+      "resolved_main_intent_correct": 1,
+      "resolved_complexity_correct": 4,
+      "resolved_shape_correct": 1,
+      "resolved_context_correct": 4,
+      "control_route_correct": 1,
+      "control_mode_correct": 4,
+      "evidence_mode_accuracy": 0.25,
+      "evidence_required_signals_accuracy": 0.25,
+      "evidence_required_rules_accuracy": 1.0,
+      "evidence_dependency_accuracy": 1.0,
+      "evidence_unsupported_accuracy": 1.0,
+      "resolved_main_intent_accuracy": 0.25,
+      "resolved_complexity_accuracy": 1.0,
+      "resolved_shape_accuracy": 0.25,
+      "resolved_context_accuracy": 1.0,
+      "control_route_accuracy": 0.25,
+      "control_mode_accuracy": 1.0
+    }
+  },
+  "rule_stats": {
+    "challenge.disagree": {
+      "hits": 2,
+      "required_hits": 2,
+      "required_hit_rate": 1.0,
+      "labeled_samples": 12,
+      "expected_positive": 4,
+      "expected_negative": 8,
+      "tp": 2,
+      "fp": 0,
+      "fn": 2,
+      "tn": 8,
+      "precision": 1.0,
+      "recall": 0.5,
+      "accuracy": 0.8333,
+      "f1": 0.6667
+    },
+    "context.follow_up.missing_history": {
+      "hits": 4,
+      "required_hits": 4,
+      "required_hit_rate": 1.0,
+      "labeled_samples": 4,
+      "expected_positive": 4,
+      "expected_negative": 0,
+      "tp": 4,
+      "fp": 0,
+      "fn": 0,
+      "tn": 0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "accuracy": 1.0,
+      "f1": 1.0
+    },
+    "context.follow_up.reference": {
+      "hits": 4,
+      "required_hits": 4,
+      "required_hit_rate": 1.0,
+      "labeled_samples": 8,
+      "expected_positive": 4,
+      "expected_negative": 4,
+      "tp": 4,
+      "fp": 0,
+      "fn": 0,
+      "tn": 4,
+      "precision": 1.0,
+      "recall": 1.0,
+      "accuracy": 1.0,
+      "f1": 1.0
+    },
+    "intent.qa.domain": {
+      "hits": 3,
+      "required_hits": 0,
+      "required_hit_rate": 0.0,
+      "labeled_samples": 8,
+      "expected_positive": 4,
+      "expected_negative": 4,
+      "tp": 1,
+      "fp": 1,
+      "fn": 3,
+      "tn": 3,
+      "precision": 0.5,
+      "recall": 0.25,
+      "accuracy": 0.5,
+      "f1": 0.3333
+    },
+    "source.ask_basis": {
+      "hits": 1,
+      "required_hits": 0,
+      "required_hit_rate": 0.0,
+      "labeled_samples": 8,
+      "expected_positive": 0,
+      "expected_negative": 8,
+      "tp": 0,
+      "fp": 0,
+      "fn": 0,
+      "tn": 8,
+      "precision": 0.0,
+      "recall": 0.0,
+      "accuracy": 1.0,
+      "f1": 0.0
+    },
+    "system.capability.ask": {
+      "hits": 3,
+      "required_hits": 3,
+      "required_hit_rate": 1.0,
+      "labeled_samples": 8,
+      "expected_positive": 4,
+      "expected_negative": 4,
+      "tp": 3,
+      "fp": 0,
+      "fn": 1,
+      "tn": 4,
+      "precision": 1.0,
+      "recall": 0.75,
+      "accuracy": 0.875,
+      "f1": 0.8571
+    }
+  },
+  "tables": {
+    "overall": [
+      {
+        "metric": "evidence_mode_correct",
+        "value": 14
+      },
+      {
+        "metric": "evidence_required_signals_correct",
+        "value": 14
+      },
+      {
+        "metric": "evidence_required_rules_correct",
+        "value": 21
+      },
+      {
+        "metric": "evidence_dependency_correct",
+        "value": 17
+      },
+      {
+        "metric": "evidence_unsupported_correct",
+        "value": 24
+      },
+      {
+        "metric": "resolved_main_intent_correct",
+        "value": 16
+      },
+      {
+        "metric": "resolved_complexity_correct",
+        "value": 24
+      },
+      {
+        "metric": "resolved_shape_correct",
+        "value": 17
+      },
+      {
+        "metric": "resolved_context_correct",
+        "value": 17
+      },
+      {
+        "metric": "control_route_correct",
+        "value": 12
+      },
+      {
+        "metric": "control_mode_correct",
+        "value": 17
+      },
+      {
+        "metric": "evidence_mode_accuracy",
+        "value": 0.5833
+      },
+      {
+        "metric": "evidence_required_signals_accuracy",
+        "value": 0.5833
+      },
+      {
+        "metric": "evidence_required_rules_accuracy",
+        "value": 0.875
+      },
+      {
+        "metric": "evidence_dependency_accuracy",
+        "value": 0.7083
+      },
+      {
+        "metric": "evidence_unsupported_accuracy",
+        "value": 1.0
+      },
+      {
+        "metric": "resolved_main_intent_accuracy",
+        "value": 0.6667
+      },
+      {
+        "metric": "resolved_complexity_accuracy",
+        "value": 1.0
+      },
+      {
+        "metric": "resolved_shape_accuracy",
+        "value": 0.7083
+      },
+      {
+        "metric": "resolved_context_accuracy",
+        "value": 0.7083
+      },
+      {
+        "metric": "control_route_accuracy",
+        "value": 0.5
+      },
+      {
+        "metric": "control_mode_accuracy",
+        "value": 0.7083
+      }
+    ],
+    "per_batch": [
+      {
+        "batch": "challenge",
+        "samples": 8,
+        "resolved_main_intent_accuracy": 0.75,
+        "resolved_complexity_accuracy": 1.0,
+        "resolved_shape_accuracy": 0.75,
+        "control_route_accuracy": 0.25,
+        "control_mode_accuracy": 0.25
+      },
+      {
+        "batch": "follow_up",
+        "samples": 8,
+        "resolved_main_intent_accuracy": 0.75,
+        "resolved_complexity_accuracy": 1.0,
+        "resolved_shape_accuracy": 0.75,
+        "control_route_accuracy": 0.75,
+        "control_mode_accuracy": 1.0
+      },
+      {
+        "batch": "meta",
+        "samples": 4,
+        "resolved_main_intent_accuracy": 0.75,
+        "resolved_complexity_accuracy": 1.0,
+        "resolved_shape_accuracy": 1.0,
+        "control_route_accuracy": 0.75,
+        "control_mode_accuracy": 0.75
+      },
+      {
+        "batch": "standard_qa",
+        "samples": 4,
+        "resolved_main_intent_accuracy": 0.25,
+        "resolved_complexity_accuracy": 1.0,
+        "resolved_shape_accuracy": 0.25,
+        "control_route_accuracy": 0.25,
+        "control_mode_accuracy": 1.0
+      }
+    ],
+    "rule_stats": [
+      {
+        "rule_id": "challenge.disagree",
+        "hits": 2,
+        "labeled_samples": 12,
+        "tp": 2,
+        "fp": 0,
+        "fn": 2,
+        "precision": 1.0,
+        "recall": 0.5,
+        "f1": 0.6667
+      },
+      {
+        "rule_id": "context.follow_up.missing_history",
+        "hits": 4,
+        "labeled_samples": 4,
+        "tp": 4,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      {
+        "rule_id": "context.follow_up.reference",
+        "hits": 4,
+        "labeled_samples": 8,
+        "tp": 4,
+        "fp": 0,
+        "fn": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "f1": 1.0
+      },
+      {
+        "rule_id": "intent.qa.domain",
+        "hits": 3,
+        "labeled_samples": 8,
+        "tp": 1,
+        "fp": 1,
+        "fn": 3,
+        "precision": 0.5,
+        "recall": 0.25,
+        "f1": 0.3333
+      },
+      {
+        "rule_id": "source.ask_basis",
+        "hits": 1,
+        "labeled_samples": 8,
+        "tp": 0,
+        "fp": 0,
+        "fn": 0,
+        "precision": 0.0,
+        "recall": 0.0,
+        "f1": 0.0
+      },
+      {
+        "rule_id": "system.capability.ask",
+        "hits": 3,
+        "labeled_samples": 8,
+        "tp": 3,
+        "fp": 0,
+        "fn": 1,
+        "precision": 1.0,
+        "recall": 0.75,
+        "f1": 0.8571
+      }
+    ]
+  }
+}
