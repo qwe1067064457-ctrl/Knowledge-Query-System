@@ -362,7 +362,7 @@ unsupported
 ## 六、control signal 设计
 
 当前 `control` 只做粗分流。
-
+(tag:为什么没有对task.shape=mixed的体现, 目前我看到的只有针对task和intent这两个参数的转化,其余参数没有)
 当前主要字段：
 
 - `route`
@@ -376,11 +376,11 @@ unsupported
 
 - `simple qa -> rag`
 - `compound + multi_question -> rag + decompose_query`
-- `complex -> agent + use_planner`
+- `complex -> agent + use_planner(tag:agent信号, 复杂任务适合用planner吗)`
 - `challenge -> rag + challenge`
-- `system -> direct + capability`
+- `system -> direct + capability(direct是什么意思,需要怎样的执行流)`
 - `unsupported -> reject`
-- `needs_clarification -> direct + clarify`
+- `needs_clarification -> direct + clarify(需要澄清就不需要证据,不需要rag吗)`
 
 注意：
 
