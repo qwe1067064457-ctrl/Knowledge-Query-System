@@ -1,0 +1,1812 @@
+[
+  {
+    "id": "v1_follow_up_supportive_001",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那如果是未成年人呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同无效后责任怎么分。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按合同责任和证据规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "强相关历史下的有效追问",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive"
+    }
+  },
+  {
+    "id": "v1_follow_up_supportive_002",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那公司作为另一方也一样吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同无效后责任怎么分。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按合同责任和证据规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "强相关历史下的有效追问",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive"
+    }
+  },
+  {
+    "id": "v1_follow_up_supportive_003",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那如果没有证据呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同无效后责任怎么分。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按合同责任和证据规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "强相关历史下的有效追问",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive"
+    }
+  },
+  {
+    "id": "v1_follow_up_supportive_004",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "这种情况赔多少？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同无效后责任怎么分。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按合同责任和证据规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "强相关历史下的有效追问",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive"
+    }
+  },
+  {
+    "id": "v1_follow_up_supportive_005",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那法院一般怎么处理？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同无效后责任怎么分。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按合同责任和证据规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "强相关历史下的有效追问",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive"
+    }
+  },
+  {
+    "id": "v1_follow_up_supportive_006",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "如果是医疗场景也照这个规则吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同无效后责任怎么分。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按合同责任和证据规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "强相关历史下的有效追问",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive"
+    }
+  },
+  {
+    "id": "v1_follow_up_supportive_007",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那换成刑事责任呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同无效后责任怎么分。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按合同责任和证据规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "强相关历史下的有效追问",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive"
+    }
+  },
+  {
+    "id": "v1_follow_up_supportive_008",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "这个标准全国都一样吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同无效后责任怎么分。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按合同责任和证据规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "强相关历史下的有效追问",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive"
+    }
+  },
+  {
+    "id": "v1_follow_up_supportive_009",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "如果对方是平台呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同无效后责任怎么分。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按合同责任和证据规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "强相关历史下的有效追问",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive"
+    }
+  },
+  {
+    "id": "v1_follow_up_supportive_010",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那严重一点会怎样？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同无效后责任怎么分。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按合同责任和证据规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "强相关历史下的有效追问",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive"
+    }
+  },
+  {
+    "id": "v1_follow_up_weak_001",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那这个呢？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.missing_history"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": false,
+          "context.follow_up.missing_history": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "追问味很强但完全缺历史，应先澄清",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak"
+    }
+  },
+  {
+    "id": "v1_follow_up_weak_002",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "这种呢？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.missing_history"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": false,
+          "context.follow_up.missing_history": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "追问味很强但完全缺历史，应先澄清",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak"
+    }
+  },
+  {
+    "id": "v1_follow_up_weak_003",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那上面那个情况呢？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.missing_history"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": false,
+          "context.follow_up.missing_history": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "追问味很强但完全缺历史，应先澄清",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak"
+    }
+  },
+  {
+    "id": "v1_follow_up_weak_004",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "如果换一种情况呢？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.missing_history"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": false,
+          "context.follow_up.missing_history": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "追问味很强但完全缺历史，应先澄清",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak"
+    }
+  },
+  {
+    "id": "v1_follow_up_weak_005",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "这也算吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.missing_history"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": false,
+          "context.follow_up.missing_history": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "追问味很强但完全缺历史，应先澄清",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak"
+    }
+  },
+  {
+    "id": "v1_follow_up_weak_006",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "这种也一样？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.missing_history"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": false,
+          "context.follow_up.missing_history": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "追问味很强但完全缺历史，应先澄清",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak"
+    }
+  },
+  {
+    "id": "v1_follow_up_weak_007",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那这个标准呢？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.missing_history"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": false,
+          "context.follow_up.missing_history": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "追问味很强但完全缺历史，应先澄清",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak"
+    }
+  },
+  {
+    "id": "v1_follow_up_weak_008",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "如果是另一边呢？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.missing_history"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": false,
+          "context.follow_up.missing_history": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "追问味很强但完全缺历史，应先澄清",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak"
+    }
+  },
+  {
+    "id": "v1_follow_up_conflicting_001",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那如果是公司呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在聊推荐哪本书更适合入门。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才给了两本非法律类书籍的建议。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "存在历史但主题冲突，重点测是否会被强行关联",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "conflicting"
+    }
+  },
+  {
+    "id": "v1_follow_up_conflicting_002",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "这种情况也一样吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在聊推荐哪本书更适合入门。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才给了两本非法律类书籍的建议。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "存在历史但主题冲突，重点测是否会被强行关联",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "conflicting"
+    }
+  },
+  {
+    "id": "v1_follow_up_conflicting_003",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那这个还能这么看吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在聊推荐哪本书更适合入门。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才给了两本非法律类书籍的建议。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "存在历史但主题冲突，重点测是否会被强行关联",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "conflicting"
+    }
+  },
+  {
+    "id": "v1_follow_up_conflicting_004",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "如果没证据也照这个来吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在聊推荐哪本书更适合入门。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才给了两本非法律类书籍的建议。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "存在历史但主题冲突，重点测是否会被强行关联",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "conflicting"
+    }
+  },
+  {
+    "id": "v1_follow_up_conflicting_005",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "这种情形也支持吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在聊推荐哪本书更适合入门。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才给了两本非法律类书籍的建议。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "存在历史但主题冲突，重点测是否会被强行关联",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "conflicting"
+    }
+  },
+  {
+    "id": "v1_follow_up_conflicting_006",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那另一种主体也一样？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在聊推荐哪本书更适合入门。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才给了两本非法律类书籍的建议。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "存在历史但主题冲突，重点测是否会被强行关联",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "conflicting"
+    }
+  },
+  {
+    "id": "v1_follow_up_conflicting_007",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "这个规则也能套吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在聊推荐哪本书更适合入门。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才给了两本非法律类书籍的建议。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "存在历史但主题冲突，重点测是否会被强行关联",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "conflicting"
+    }
+  }
+]

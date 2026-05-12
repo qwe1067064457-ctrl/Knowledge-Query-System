@@ -1,0 +1,173 @@
+[
+  {
+    "id": "simple_qa_001",
+    "batch": "simple_qa",
+    "input": {
+      "user_query": "劳动合同法中试用期最长多久？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["qa"],
+        "required_rule_ids": ["intent.qa.domain"],
+        "rule_expectations": {
+          "intent.qa.domain": true,
+          "intent.chat.greeting": false,
+          "system.capability.ask": false,
+          "source.ask_basis": false,
+          "challenge.disagree": false,
+          "task.complex.request": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "典型法律知识问答"
+  },
+  {
+    "id": "simple_qa_002",
+    "batch": "simple_qa",
+    "input": {
+      "user_query": "公司制度里婚假一般有几天？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["qa"],
+        "required_rule_ids": ["intent.qa.domain"],
+        "rule_expectations": {
+          "intent.qa.domain": true,
+          "intent.chat.greeting": false,
+          "system.capability.ask": false,
+          "source.ask_basis": false,
+          "task.complex.request": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "制度类单问题"
+  },
+  {
+    "id": "simple_qa_003",
+    "batch": "simple_qa",
+    "input": {
+      "user_query": "医学指南里高血压首选什么治疗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["qa"],
+        "required_rule_ids": ["intent.qa.domain"],
+        "rule_expectations": {
+          "intent.qa.domain": true,
+          "intent.chat.greeting": false,
+          "system.capability.ask": false,
+          "task.complex.request": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "医学领域单问题"
+  }
+]

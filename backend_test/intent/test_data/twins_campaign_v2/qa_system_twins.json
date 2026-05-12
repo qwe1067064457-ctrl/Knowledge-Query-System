@@ -1,0 +1,550 @@
+[
+  {
+    "id": "twins_qa_system_001_qa_twin",
+    "batch": "standard_qa",
+    "input": {
+      "user_query": "告诉我怎么查社保缴费记录。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": true,
+          "system.capability.ask": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "Twin pair: user asks how to perform a business lookup within the domain.",
+    "source_query_id": "twins_qa_system_001",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "near_miss",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "twins_qa_system_001_system_twin",
+    "batch": "meta",
+    "input": {
+      "user_query": "告诉我你现在接的是哪个知识库版本。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "system",
+          "ask_capability"
+        ],
+        "required_rule_ids": [
+          "system.capability.ask"
+        ],
+        "rule_expectations": {
+          "intent.qa.domain": false,
+          "system.capability.ask": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "system",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": true,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "capability"
+      }
+    },
+    "notes": "Twin pair: wording stays close to business QA, but intent shifts to system capability or provenance.",
+    "source_query_id": "twins_qa_system_001",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "near_miss",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "twins_qa_system_002_qa_twin",
+    "batch": "standard_qa",
+    "input": {
+      "user_query": "怎么查最新司法解释？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": true,
+          "system.capability.ask": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "Twin pair: user asks how to perform a business lookup within the domain.",
+    "source_query_id": "twins_qa_system_002",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "near_miss",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "twins_qa_system_002_system_twin",
+    "batch": "meta",
+    "input": {
+      "user_query": "你能查到最新司法解释吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "system",
+          "ask_capability"
+        ],
+        "required_rule_ids": [
+          "system.capability.ask"
+        ],
+        "rule_expectations": {
+          "intent.qa.domain": false,
+          "system.capability.ask": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "system",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": true,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "capability"
+      }
+    },
+    "notes": "Twin pair: wording stays close to business QA, but intent shifts to system capability or provenance.",
+    "source_query_id": "twins_qa_system_002",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "near_miss",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "twins_qa_system_003_qa_twin",
+    "batch": "standard_qa",
+    "input": {
+      "user_query": "怎么查看医保报销比例？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": true,
+          "system.capability.ask": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "Twin pair: user asks how to perform a business lookup within the domain.",
+    "source_query_id": "twins_qa_system_003",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "near_miss",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "twins_qa_system_003_system_twin",
+    "batch": "meta",
+    "input": {
+      "user_query": "你支持查看哪些医保数据源？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "system",
+          "ask_capability"
+        ],
+        "required_rule_ids": [
+          "system.capability.ask"
+        ],
+        "rule_expectations": {
+          "intent.qa.domain": false,
+          "system.capability.ask": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "system",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": true,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "capability"
+      }
+    },
+    "notes": "Twin pair: wording stays close to business QA, but intent shifts to system capability or provenance.",
+    "source_query_id": "twins_qa_system_003",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "near_miss",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "twins_qa_system_004_qa_twin",
+    "batch": "standard_qa",
+    "input": {
+      "user_query": "怎么判断合同条款是否有效？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": true,
+          "system.capability.ask": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "Twin pair: user asks how to perform a business lookup within the domain.",
+    "source_query_id": "twins_qa_system_004",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "near_miss",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "twins_qa_system_004_system_twin",
+    "batch": "meta",
+    "input": {
+      "user_query": "你是根据哪个版本的民法典回答的？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "system",
+          "ask_capability"
+        ],
+        "required_rule_ids": [
+          "system.capability.ask"
+        ],
+        "rule_expectations": {
+          "intent.qa.domain": false,
+          "system.capability.ask": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "system",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": true,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "capability"
+      }
+    },
+    "notes": "Twin pair: wording stays close to business QA, but intent shifts to system capability or provenance.",
+    "source_query_id": "twins_qa_system_004",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "near_miss",
+      "risk_flags": []
+    }
+  }
+]

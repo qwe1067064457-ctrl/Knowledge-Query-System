@@ -1,0 +1,114 @@
+[
+  {
+    "id": "chat_001",
+    "batch": "chat",
+    "input": {
+      "user_query": "你好",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["chat"],
+        "required_rule_ids": ["intent.chat.greeting"],
+        "rule_expectations": {
+          "intent.chat.greeting": true,
+          "intent.qa.domain": false,
+          "system.capability.ask": false,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "chat",
+        "mode": "normal"
+      }
+    },
+    "notes": "明确问候"
+  },
+  {
+    "id": "chat_002",
+    "batch": "chat",
+    "input": {
+      "user_query": "周末有什么好玩的？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.chat.greeting": false,
+          "intent.qa.domain": false,
+          "system.capability.ask": false,
+          "task.complex.request": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "chat",
+        "mode": "normal"
+      }
+    },
+    "notes": "开放式闲聊"
+  }
+]

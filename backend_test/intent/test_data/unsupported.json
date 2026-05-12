@@ -1,0 +1,287 @@
+[
+  {
+    "id": "unsupported_001",
+    "batch": "unsupported",
+    "input": {
+      "user_query": "请删除知识库里的这个文件",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": ["unsupported", "out_of_scope"],
+        "required_rule_ids": ["unsupported.file_delete_request"],
+        "rule_expectations": {
+          "unsupported.file_delete_request": true,
+          "unsupported.file_write_request": false,
+          "unsupported.kb_admin_request": false,
+          "unsupported.privileged_operation": false,
+          "unsupported.unknown_external_action": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": true,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "unsupported",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": true
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "reject",
+        "mode": "clarify"
+      }
+    },
+    "notes": "删除文件请求"
+  },
+  {
+    "id": "unsupported_002",
+    "batch": "unsupported",
+    "input": {
+      "user_query": "请更新知识库里的这份文档",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": ["unsupported", "out_of_scope"],
+        "required_rule_ids": ["unsupported.file_write_request"],
+        "rule_expectations": {
+          "unsupported.file_delete_request": false,
+          "unsupported.file_write_request": true,
+          "unsupported.kb_admin_request": false,
+          "unsupported.privileged_operation": false,
+          "unsupported.unknown_external_action": false
+        },
+        "unsupported_signals": {
+          "file_write_request": true,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "unsupported",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": true
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "reject",
+        "mode": "clarify"
+      }
+    },
+    "notes": "写入更新请求"
+  },
+  {
+    "id": "unsupported_003",
+    "batch": "unsupported",
+    "input": {
+      "user_query": "帮我上传新的知识库文档",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": ["unsupported", "out_of_scope"],
+        "required_rule_ids": ["unsupported.kb_admin_request"],
+        "rule_expectations": {
+          "unsupported.file_delete_request": false,
+          "unsupported.file_write_request": false,
+          "unsupported.kb_admin_request": true,
+          "unsupported.privileged_operation": false,
+          "unsupported.unknown_external_action": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": true,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "unsupported",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": true
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "reject",
+        "mode": "clarify"
+      }
+    },
+    "notes": "知识库管理入口"
+  },
+  {
+    "id": "unsupported_004",
+    "batch": "unsupported",
+    "input": {
+      "user_query": "给我管理员权限",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": ["unsupported", "out_of_scope"],
+        "required_rule_ids": ["unsupported.privileged_operation"],
+        "rule_expectations": {
+          "unsupported.file_delete_request": false,
+          "unsupported.file_write_request": false,
+          "unsupported.kb_admin_request": false,
+          "unsupported.privileged_operation": true,
+          "unsupported.unknown_external_action": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": true,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "unsupported",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": true
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "reject",
+        "mode": "clarify"
+      }
+    },
+    "notes": "权限提升请求"
+  },
+  {
+    "id": "unsupported_005",
+    "batch": "unsupported",
+    "input": {
+      "user_query": "替我执行一下外部系统同步",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": ["unsupported", "out_of_scope"],
+        "required_rule_ids": ["unsupported.unknown_external_action"],
+        "rule_expectations": {
+          "unsupported.file_delete_request": false,
+          "unsupported.file_write_request": false,
+          "unsupported.kb_admin_request": false,
+          "unsupported.privileged_operation": false,
+          "unsupported.unknown_external_action": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": true
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "unsupported",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": true
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "reject",
+        "mode": "clarify"
+      }
+    },
+    "notes": "外部动作代执行"
+  }
+]

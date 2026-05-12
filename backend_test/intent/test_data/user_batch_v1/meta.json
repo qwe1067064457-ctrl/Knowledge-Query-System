@@ -1,0 +1,651 @@
+[
+  {
+    "id": "user_batch_meta_001",
+    "batch": "meta",
+    "input": {
+      "user_query": "你刚才的依据是什么？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编的规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false,
+          "system.capability.ask": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "追问依据"
+  },
+  {
+    "id": "user_batch_meta_002",
+    "batch": "meta",
+    "input": {
+      "user_query": "你确定吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编的规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "直接质疑"
+  },
+  {
+    "id": "user_batch_meta_003",
+    "batch": "meta",
+    "input": {
+      "user_query": "这个结论不对吧？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编的规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "明确否定上一轮结论"
+  },
+  {
+    "id": "user_batch_meta_004",
+    "batch": "meta",
+    "input": {
+      "user_query": "你是根据哪条法律说的？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编的规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "索取法条依据"
+  },
+  {
+    "id": "user_batch_meta_005",
+    "batch": "meta",
+    "input": {
+      "user_query": "有出处吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编的规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "索取出处"
+  },
+  {
+    "id": "user_batch_meta_006",
+    "batch": "meta",
+    "input": {
+      "user_query": "你是不是编的？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编的规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "强质疑"
+  },
+  {
+    "id": "user_batch_meta_007",
+    "batch": "meta",
+    "input": {
+      "user_query": "你支持哪些法律版本？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "system",
+          "ask_capability"
+        ],
+        "required_rule_ids": [
+          "system.capability.ask"
+        ],
+        "rule_expectations": {
+          "system.capability.ask": true,
+          "intent.qa.domain": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "system",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": true,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "capability"
+      }
+    },
+    "notes": "问系统能力范围"
+  },
+  {
+    "id": "user_batch_meta_008",
+    "batch": "meta",
+    "input": {
+      "user_query": "你能查到最新司法解释吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "system",
+          "ask_capability"
+        ],
+        "required_rule_ids": [
+          "system.capability.ask"
+        ],
+        "rule_expectations": {
+          "system.capability.ask": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "system",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": true,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "capability"
+      }
+    },
+    "notes": "问系统能力边界"
+  },
+  {
+    "id": "user_batch_meta_009",
+    "batch": "meta",
+    "input": {
+      "user_query": "你的回答有证据吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编的规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "追问证据"
+  },
+  {
+    "id": "user_batch_meta_010",
+    "batch": "meta",
+    "input": {
+      "user_query": "你是不是搞错了？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编的规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "质疑回答正确性"
+  }
+]

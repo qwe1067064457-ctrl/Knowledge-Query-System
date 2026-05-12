@@ -1,0 +1,287 @@
+[
+  {
+    "id": "user_batch_long_case_complex_001",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "我父亲在医院做手术，术后感染，医生说是正常并发症，但后来病情恶化，我们认为是医院消毒不到位导致的。医院拒绝赔偿，说我们无法证明因果关系。请问这种情况是否属于医疗过错？责任如何认定？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "qa",
+          "complex"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": true,
+          "task.complex.request": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "notes": "医疗事实链长，要求责任认定"
+  },
+  {
+    "id": "user_batch_long_case_complex_002",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "我和公司签了三年劳动合同，现在公司单方面解除，说我绩效不达标，但合同里没有具体绩效标准。请问这种解除是否合法？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "qa",
+          "complex"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": true,
+          "task.complex.request": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "notes": "劳动争议事实判断"
+  },
+  {
+    "id": "user_batch_long_case_complex_003",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "患者长期服用某种降压药出现肝功能异常，医生未及时提醒风险。是否构成医疗过失？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "qa",
+          "complex"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": true,
+          "task.complex.request": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "notes": "医疗过失事实认定"
+  },
+  {
+    "id": "user_batch_long_case_complex_004",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "我在电商平台买到假货，平台说他们只是提供交易服务，请问平台是否需要承担连带责任？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "qa",
+          "complex"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": false,
+          "task.complex.request": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "notes": "平台责任归责判断"
+  },
+  {
+    "id": "user_batch_long_case_complex_005",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "医院误诊延误治疗三个月，导致病情加重，但医生称属于误判而非过失，这种情况下如何判断责任？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "qa",
+          "complex"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": true,
+          "task.complex.request": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "notes": "医疗误诊责任判断"
+  }
+]

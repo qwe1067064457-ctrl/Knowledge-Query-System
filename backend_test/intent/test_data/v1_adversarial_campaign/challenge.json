@@ -1,0 +1,1875 @@
+[
+  {
+    "id": "v1_challenge_supportive_001",
+    "batch": "challenge",
+    "input": {
+      "user_query": "你刚才这个说法不对吧？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "标准 challenge 正例",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive"
+    }
+  },
+  {
+    "id": "v1_challenge_supportive_002",
+    "batch": "challenge",
+    "input": {
+      "user_query": "你确定这个结论没问题吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "标准 challenge 正例",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive"
+    }
+  },
+  {
+    "id": "v1_challenge_supportive_003",
+    "batch": "challenge",
+    "input": {
+      "user_query": "我觉得你这里理解错了。",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "标准 challenge 正例",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive"
+    }
+  },
+  {
+    "id": "v1_challenge_supportive_004",
+    "batch": "challenge",
+    "input": {
+      "user_query": "这和我查到的规则不一致吧？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "标准 challenge 正例",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive"
+    }
+  },
+  {
+    "id": "v1_challenge_supportive_005",
+    "batch": "challenge",
+    "input": {
+      "user_query": "你是不是把条件说反了？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "标准 challenge 正例",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive"
+    }
+  },
+  {
+    "id": "v1_challenge_supportive_006",
+    "batch": "challenge",
+    "input": {
+      "user_query": "这个结论明显太绝对了吧？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "标准 challenge 正例",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive"
+    }
+  },
+  {
+    "id": "v1_challenge_supportive_007",
+    "batch": "challenge",
+    "input": {
+      "user_query": "你刚才是不是漏掉了限制条件？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "标准 challenge 正例",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive"
+    }
+  },
+  {
+    "id": "v1_challenge_supportive_008",
+    "batch": "challenge",
+    "input": {
+      "user_query": "这个说法站不住吧？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "标准 challenge 正例",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive"
+    }
+  },
+  {
+    "id": "v1_challenge_supportive_009",
+    "batch": "challenge",
+    "input": {
+      "user_query": "你这里是不是搞错了？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "标准 challenge 正例",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive"
+    }
+  },
+  {
+    "id": "v1_challenge_supportive_010",
+    "batch": "challenge",
+    "input": {
+      "user_query": "这应该不能这么概括吧？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "标准 challenge 正例",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive"
+    }
+  },
+  {
+    "id": "v1_challenge_weak_001",
+    "batch": "challenge",
+    "input": {
+      "user_query": "我没太听懂，是这个意思吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面提过这个问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面简单提了一下，但没有展开法条依据。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "challenge.disagree": false,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "看似不同意，实则只是没听懂",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak"
+    }
+  },
+  {
+    "id": "v1_challenge_weak_002",
+    "batch": "challenge",
+    "input": {
+      "user_query": "你这个能再解释一下吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面提过这个问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面简单提了一下，但没有展开法条依据。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "challenge.disagree": false,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "看似不同意，实则只是没听懂",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak"
+    }
+  },
+  {
+    "id": "v1_challenge_weak_003",
+    "batch": "challenge",
+    "input": {
+      "user_query": "我有点疑惑，这里怎么理解？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面提过这个问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面简单提了一下，但没有展开法条依据。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "challenge.disagree": false,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "看似不同意，实则只是没听懂",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak"
+    }
+  },
+  {
+    "id": "v1_challenge_weak_004",
+    "batch": "challenge",
+    "input": {
+      "user_query": "这个我还没跟上。",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面提过这个问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面简单提了一下，但没有展开法条依据。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "challenge.disagree": false,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "看似不同意，实则只是没听懂",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak"
+    }
+  },
+  {
+    "id": "v1_challenge_weak_005",
+    "batch": "challenge",
+    "input": {
+      "user_query": "这里是不是我理解慢了？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面提过这个问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面简单提了一下，但没有展开法条依据。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "challenge.disagree": false,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "看似不同意，实则只是没听懂",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak"
+    }
+  },
+  {
+    "id": "v1_challenge_weak_006",
+    "batch": "challenge",
+    "input": {
+      "user_query": "你能换个说法吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面提过这个问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面简单提了一下，但没有展开法条依据。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "challenge.disagree": false,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "看似不同意，实则只是没听懂",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak"
+    }
+  },
+  {
+    "id": "v1_challenge_weak_007",
+    "batch": "challenge",
+    "input": {
+      "user_query": "这个我还是不太明白。",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面提过这个问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面简单提了一下，但没有展开法条依据。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "challenge.disagree": false,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "看似不同意，实则只是没听懂",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak"
+    }
+  },
+  {
+    "id": "v1_challenge_weak_008",
+    "batch": "challenge",
+    "input": {
+      "user_query": "能展开一点吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面提过这个问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面简单提了一下，但没有展开法条依据。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "challenge.disagree": false,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "看似不同意，实则只是没听懂",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak"
+    }
+  },
+  {
+    "id": "v1_challenge_mixed_001",
+    "batch": "challenge",
+    "input": {
+      "user_query": "你刚才这个结论不太对吧，依据是哪条？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "challenge",
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree",
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "challenge 与 ask_source 混合",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive"
+    }
+  },
+  {
+    "id": "v1_challenge_mixed_002",
+    "batch": "challenge",
+    "input": {
+      "user_query": "我查到的不一样，你这个出处是什么？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "challenge",
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree",
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "challenge 与 ask_source 混合",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive"
+    }
+  },
+  {
+    "id": "v1_challenge_mixed_003",
+    "batch": "challenge",
+    "input": {
+      "user_query": "你是不是说错了？有法条吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "challenge",
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree",
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "challenge 与 ask_source 混合",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive"
+    }
+  },
+  {
+    "id": "v1_challenge_mixed_004",
+    "batch": "challenge",
+    "input": {
+      "user_query": "这个说法站不住吧，证据在哪里？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "challenge",
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree",
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "challenge 与 ask_source 混合",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive"
+    }
+  },
+  {
+    "id": "v1_challenge_mixed_005",
+    "batch": "challenge",
+    "input": {
+      "user_query": "你这里理解偏了吧，依据是什么？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "challenge",
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree",
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "challenge 与 ask_source 混合",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive"
+    }
+  },
+  {
+    "id": "v1_challenge_mixed_006",
+    "batch": "challenge",
+    "input": {
+      "user_query": "这个结论太武断了，来源能给一下吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "challenge",
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree",
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "challenge 与 ask_source 混合",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive"
+    }
+  },
+  {
+    "id": "v1_challenge_mixed_007",
+    "batch": "challenge",
+    "input": {
+      "user_query": "你刚才是不是搞错了？按哪条说的？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "challenge",
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree",
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "challenge 与 ask_source 混合",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive"
+    }
+  }
+]

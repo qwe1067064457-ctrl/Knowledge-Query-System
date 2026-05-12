@@ -1,0 +1,572 @@
+[
+  {
+    "id": "user_batch_fuzzy_qa_001",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "我这种情况算违法吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "qa",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "信息不足的法律判断"
+  },
+  {
+    "id": "user_batch_fuzzy_qa_002",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "这样算不算医疗事故？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "qa",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "信息不足的医疗责任判断"
+  },
+  {
+    "id": "user_batch_fuzzy_qa_003",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "这个要赔钱吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "qa",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "赔偿判断缺事实"
+  },
+  {
+    "id": "user_batch_fuzzy_qa_004",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "医院这么做合理吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "qa",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "医疗场景但缺事实"
+  },
+  {
+    "id": "user_batch_fuzzy_qa_005",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "这种合同有效吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "qa",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "合同效力判断缺事实"
+  },
+  {
+    "id": "user_batch_fuzzy_qa_006",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "这算重大疾病吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "qa",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "医学判断缺上下文"
+  },
+  {
+    "id": "user_batch_fuzzy_qa_007",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "这种药可以长期吃吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "qa",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "用药建议缺具体药物信息"
+  },
+  {
+    "id": "user_batch_fuzzy_qa_008",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "这个情况法院会怎么判？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "qa",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "裁判结果预测缺事实"
+  },
+  {
+    "id": "user_batch_fuzzy_qa_009",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "这样会被拘留吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "qa",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "刑事后果判断缺事实"
+  },
+  {
+    "id": "user_batch_fuzzy_qa_010",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "这种属于侵权吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "qa",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "侵权判断缺事实"
+  }
+]

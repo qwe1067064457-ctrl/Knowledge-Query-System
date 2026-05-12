@@ -1,0 +1,170 @@
+[
+  {
+    "id": "ambiguous_001",
+    "batch": "ambiguous",
+    "input": {
+      "user_query": "那这个呢？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["needs_clarification"],
+        "required_rule_ids": ["context.follow_up.missing_history"],
+        "rule_expectations": {
+          "context.follow_up.missing_history": true,
+          "context.follow_up.reference": false,
+          "challenge.missing_context": false,
+          "source.missing_context": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "追问但缺历史"
+  },
+  {
+    "id": "ambiguous_002",
+    "batch": "ambiguous",
+    "input": {
+      "user_query": "你确定吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["needs_clarification"],
+        "required_rule_ids": ["challenge.missing_context"],
+        "rule_expectations": {
+          "challenge.disagree": false,
+          "challenge.missing_context": true,
+          "context.follow_up.missing_history": false,
+          "source.missing_context": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "challenge 缺上下文"
+  },
+  {
+    "id": "ambiguous_003",
+    "batch": "ambiguous",
+    "input": {
+      "user_query": "依据是什么？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["ask_source", "needs_clarification"],
+        "required_rule_ids": ["source.ask_basis", "source.missing_context"],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "source.missing_context": true,
+          "challenge.disagree": false,
+          "intent.qa.domain": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "ask_source 缺上下文"
+  }
+]
