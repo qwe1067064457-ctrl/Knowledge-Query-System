@@ -371,21 +371,154 @@ unsupported
 - `force_citation`
 - `use_planner`
 - `decompose_query`
+- `planning_level`
 
 当前分流规则大意如下：
 
 - `simple qa -> rag`
 - `compound + multi_question -> rag + decompose_query`
-- `complex -> agent + use_planner(tag:agent信号, 复杂任务适合用planner吗)`
+- `complex -> agent + planning_level`
 - `challenge -> rag + challenge`
-- `system -> direct + capability(direct是什么意思,需要怎样的执行流)`
+- `system -> direct + capability`
 - `unsupported -> reject`
-- `needs_clarification -> direct + clarify(需要澄清就不需要证据,不需要rag吗)`
+- `needs_clarification -> direct + clarify`
 
 注意：
 
 - 这层只回答“走哪条主路”和“用什么执行模式”
 - 它不应该承担过多解释职责
+
+### 6.1 `control` 为什么不完整映射所有 `resolved` 字段
+
+当前 `control` 是粗分流层，不是执行计划本身。
+
+它的职责是：
+
+- 决定是否进入 `rag / chat / direct / agent / reject`
+- 决定是否启用少量高价值执行开关
+
+它不负责：
+
+- 保留 `resolved` 层的全部语义细节
+- 把每个 `task.shape` 都映射成独立执行协议
+
+因此会出现一种正常现象：
+
+- `resolved.task.shape` 语义比 `control` 更丰富
+- `control` 只消费那些已经有稳定执行含义的字段
+
+例如：
+
+- `multi_question -> decompose_query`
+- `challenge -> mode=challenge`
+- `complex -> route=agent`
+
+而像 `mixed` 这样的 shape，当前不会直接变成单独 route，而是作为：
+
+- 复杂任务的重要语义标签
+- planner 分级策略的输入之一
+
+### 6.2 为什么 `task.shape=mixed` 没有单独映射
+
+`mixed` 表示：
+
+- 当前 query 的任务形态无法自然压成单一 `compare / summarize / extract / verify`
+- 它通常意味着多动作混合，而不是某一种标准执行模板
+
+因此 `mixed` 本身不直接回答：
+
+- 是否必须拆 query
+- 是否必须显式 planner
+- 是否可以普通 RAG 直接回答
+
+当前策略是：
+
+- `mixed` 先保留在 `resolved` 中，确保语义不丢
+- 当 `complexity=complex` 且 `shape=mixed` 时，倾向走 `agent`
+- 由 `planning_level` 再决定是 `full` 还是更轻量的规划
+
+换句话说：
+
+- `mixed` 不消失
+- 它只是暂时不直接映射成独立 route，而是参与 planner 决策
+
+### 6.3 `direct` 是什么执行流
+
+`direct` 不是回答内容，而是执行路径类型。
+
+它表示：
+
+- 不进入知识检索主链路
+- 不进入复杂 agent 执行链路
+- 由系统直接返回一个结构化响应
+
+当前主要有两种 `direct` 子模式：
+
+- `direct + capability`
+  - 用于系统能力、功能、范围、使用方式问题
+  - 默认不依赖知识库检索
+- `direct + clarify`
+  - 用于输入不充分、指代不清、缺少前提的问题
+  - 默认先补信息，再决定是否进入检索
+
+### 6.4 为什么 `needs_clarification` 默认不先走 RAG
+
+`needs_clarification` 的核心问题通常不是“缺证据”，而是“缺前提”：
+
+- 指代对象不清
+- 用户问题不完整
+- 缺关键事实
+- 缺上下文锚点
+
+在这种情况下直接检索，风险通常比收益更大：
+
+- 容易检索错方向
+- 容易把错误前提带进回答
+- 容易生成看似有依据、其实答偏的内容
+
+因此当前默认策略是：
+
+- `route=direct`
+- `mode=clarify`
+
+这不等于“永远不需要证据”，而是：
+
+> 在证据检索前，先补齐检索前提。
+
+后续如果要增强，也可以考虑：
+
+- `clarify_soft`
+  - 允许轻量检索辅助生成澄清问题
+- `clarify_hard`
+  - 完全不检索，直接追问
+
+但第一版默认应优先保守。
+
+### 6.5 复杂任务是否都适合 planner
+
+不是所有 `complex` 都必须绑定同一强度的 planner。
+
+当前更合理的方向是分级：
+
+- `planning_level=full`
+  - 适合 `complex + compare`
+  - 适合 `complex + mixed`
+  - 原因是多主体、多动作任务最容易漏项
+- `planning_level=light`
+  - 适合 `complex + verify`
+  - 适合 `complex + extract`
+  - 需要先组织步骤，但不一定值得显式生成独立 plan
+- `planning_level=none`
+  - 适合 `complex + summarize`
+  - 适合路径固定、总结目标明确的复杂任务
+
+因此当前建议把 `use_planner` 理解为：
+
+- 是否启用显式 planner
+
+而不是：
+
+- 是否需要任何形式的规划思考
 
 ---
 

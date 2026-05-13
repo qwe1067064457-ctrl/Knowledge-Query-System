@@ -25,6 +25,7 @@ ContextDependency = Literal[
 ]
 Route = Literal["rag", "chat", "direct", "agent", "reject"]
 Mode = Literal["normal", "challenge", "capability", "clarify"]
+PlanningLevel = Literal["none", "light", "full"]
 Strength = Literal["high", "medium", "low"]
 DecisionSource = Literal["rule", "model", "hybrid", "fallback"]
 ClassifierMode = Literal["rule_only", "rule_plus_model", "model_first_with_rule_guard"]
@@ -134,6 +135,39 @@ class ModelResult:
 
 
 @dataclass(frozen=True)
+class SignalConfidence:
+    signal: str
+    base_score: float
+    support_bonus: float
+    conflict_penalty: float
+    context_adjustment: float
+    final_score: float
+    level: Strength
+    supporting_rule_ids: tuple[str, ...] = ()
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(frozen=True)
+class RuleConfidence:
+    signal_confidences: tuple[SignalConfidence, ...] = ()
+    final_signal: str = ""
+    final_score: float = 0.0
+    final_level: Strength = "low"
+    explanation: tuple[str, ...] = ()
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "signal_confidences": [item.to_dict() for item in self.signal_confidences],
+            "final_signal": self.final_signal,
+            "final_score": self.final_score,
+            "final_level": self.final_level,
+            "explanation": list(self.explanation),
+        }
+
+
+@dataclass(frozen=True)
 class IntentEvidence:
     classifier_mode: ClassifierMode
     matched_rules: tuple[RuleMatch, ...] = ()
@@ -143,6 +177,7 @@ class IntentEvidence:
     candidate_intents: tuple[CandidateIntent, ...] = ()
     task_candidates: tuple[TaskCandidate, ...] = ()
     model_result: ModelResult | None = None
+    rule_confidence: RuleConfidence | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -154,6 +189,7 @@ class IntentEvidence:
             "candidate_intents": [item.to_dict() for item in self.candidate_intents],
             "task_candidates": [item.to_dict() for item in self.task_candidates],
             "model_result": self.model_result.to_dict() if self.model_result else None,
+            "rule_confidence": self.rule_confidence.to_dict() if self.rule_confidence else None,
         }
 
 
@@ -212,6 +248,7 @@ class ControlSignal:
     force_citation: bool = False
     use_planner: bool = False
     decompose_query: bool = False
+    planning_level: PlanningLevel = "none"
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

@@ -157,6 +157,8 @@ def _resolve_decision(
         source = "fallback"
 
     strengths = [match.strength for match in evidence.matched_rules]
+    if evidence.rule_confidence:
+        strengths.append(evidence.rule_confidence.final_level)
     if evidence.model_result:
         strengths.append(evidence.model_result.confidence)
     strength = _max_strength(strengths) if strengths else "low"
@@ -169,6 +171,10 @@ def _resolve_decision(
         reason_parts.append(f"context={context_dependency}")
     if source == "rule" and evidence.matched_rules:
         reason_parts.append("rules=" + ",".join(match.rule_id for match in evidence.matched_rules[:3]))
+    if evidence.rule_confidence and evidence.rule_confidence.final_signal:
+        reason_parts.append(
+            f"rule_confidence={evidence.rule_confidence.final_signal}/{evidence.rule_confidence.final_level}"
+        )
     if source in {"model", "hybrid"} and evidence.model_result and evidence.model_result.reason:
         reason_parts.append("model=" + evidence.model_result.reason)
     return DecisionTrace(

@@ -4,6 +4,7 @@ import re
 from typing import Any, Iterable, Pattern
 
 from intent.control_signal import build_control_signal
+from intent.rule_confidence import calculate_rule_confidence
 from intent.resolver import resolve_intent
 from intent.types import (
     CandidateIntent,
@@ -275,6 +276,12 @@ def _build_rule_evidence(intent_input: IntentInput, history: list[dict[str, Any]
         complex_task=complex_task,
     )
     classifier_mode = _determine_classifier_mode(matched_rules)
+    rule_confidence = calculate_rule_confidence(
+        matched_rules=tuple(matched_rules),
+        raw_signals=tuple(dict.fromkeys(raw_signals)),
+        context_state=ctx,
+        dependency_signals=dependency_signals,
+    )
 
     return IntentEvidence(
         classifier_mode=classifier_mode,
@@ -285,6 +292,7 @@ def _build_rule_evidence(intent_input: IntentInput, history: list[dict[str, Any]
         candidate_intents=tuple(candidate_intents),
         task_candidates=tuple(task_candidates),
         model_result=None,
+        rule_confidence=rule_confidence,
     )
 
 

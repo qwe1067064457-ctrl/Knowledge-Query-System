@@ -65,6 +65,27 @@ def test_complex_qa_routes_to_agent() -> None:
     assert signal.route == "agent"
     assert signal.use_planner is True
     assert signal.decompose_query is False
+    assert signal.planning_level == "full"
+
+
+def test_complex_verify_uses_light_planning_without_explicit_planner() -> None:
+    signal = build_control_signal(
+        _resolved(task=ResolvedTask(complexity="complex", shape="verify", needs_agent_planning=True))
+    )
+
+    assert signal.route == "agent"
+    assert signal.use_planner is False
+    assert signal.planning_level == "light"
+
+
+def test_complex_summarize_stays_agent_without_planner() -> None:
+    signal = build_control_signal(
+        _resolved(task=ResolvedTask(complexity="complex", shape="summarize", needs_agent_planning=True))
+    )
+
+    assert signal.route == "agent"
+    assert signal.use_planner is False
+    assert signal.planning_level == "none"
 
 
 def test_compound_multi_question_routes_to_rag_with_decomposition() -> None:

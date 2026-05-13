@@ -399,6 +399,23 @@ score >= 0.60 -> medium
 - 哪些规则在支持它
 - 它是否因为冲突或上下文被拉低
 
+### 11.1 `explanation` 的推荐格式
+
+为了便于调试，`explanation` 建议直接暴露公式展开，而不是只给自然语言摘要。
+
+推荐格式例如：
+
+```text
+signal=challenge; rules=[challenge.disagree, challenge.confirmation]; [Final: 0.95] = Base(0.90) + Bonus(+0.05) - Conflict(0.00) + Context(+0.00)
+```
+
+这种格式的价值在于：
+
+- 一眼看出最终最强的是哪个 signal
+- 一眼看出它由哪些规则支撑
+- 一眼看出是 bonus、conflict 还是 context 在拉分
+- 更方便做 twin 样本和规则回归调试
+
 ---
 
 ## 12. 一个完整示例

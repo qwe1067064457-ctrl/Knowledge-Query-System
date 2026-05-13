@@ -33,6 +33,9 @@ def test_single_high_rule_keeps_high_confidence() -> None:
     assert confidence.final_signal == "challenge"
     assert confidence.final_level == "high"
     assert confidence.final_score >= 0.95
+    assert "signal=challenge" in confidence.explanation[0]
+    assert "[Final:" in confidence.explanation[0]
+    assert "Base(0.90)" in confidence.explanation[0]
 
 
 def test_same_signal_gets_support_bonus() -> None:
@@ -98,3 +101,26 @@ def test_missing_context_reduces_follow_up_confidence() -> None:
     signal_score = confidence.signal_confidences[0]
     assert signal_score.context_adjustment < 0
     assert signal_score.level in {"low", "medium"}
+
+
+def test_explanation_lists_supporting_rules_and_context_term() -> None:
+    confidence = calculate_rule_confidence(
+        matched_rules=(
+            _rule("challenge.disagree", "challenge", "high", 0.9),
+            _rule("challenge.confirmation", "challenge", "medium", 0.6),
+        ),
+        raw_signals=("challenge",),
+        context_state=ContextState(has_history=True, has_previous_answer=True),
+        dependency_signals={
+            "none": False,
+            "history_reference": False,
+            "previous_answer": True,
+            "previous_retrieval": False,
+            "ambiguous": False,
+        },
+    )
+
+    explanation = confidence.explanation[0]
+    assert "rules=[challenge.disagree, challenge.confirmation]" in explanation
+    assert "Bonus(+0.05)" in explanation
+    assert "Context(+0.10)" in explanation

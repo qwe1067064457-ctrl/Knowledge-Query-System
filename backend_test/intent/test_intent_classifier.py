@@ -104,6 +104,19 @@ def test_complex_query_uses_agent_route() -> None:
     assert result.resolved.task.shape == "compare"
     assert result.control.route == "agent"
     assert result.control.use_planner is True
+    assert result.control.planning_level == "full"
+
+
+def test_complex_summarize_query_uses_agent_without_explicit_planner() -> None:
+    result = classify_intent("请总结这份制度的三点要点")
+
+    assert result.resolved.main_intent == "qa"
+    assert result.resolved.task.complexity == "complex"
+    assert result.resolved.task.shape == "summarize"
+    assert result.control.route == "agent"
+    assert result.control.use_planner is False
+    assert result.control.planning_level == "none"
+    assert result.evidence.rule_confidence is not None
 
 
 def test_enumerated_design_query_resolves_to_complex_mixed() -> None:

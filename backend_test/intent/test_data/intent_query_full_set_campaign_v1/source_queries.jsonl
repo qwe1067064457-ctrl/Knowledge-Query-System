@@ -1,0 +1,409 @@
+{"id": "seed_0001", "query": "根据民法典，合同无效的情形有哪些？", "hints": {}, "notes": "source_h2=1. Simple QA; source_h3="}
+{"id": "seed_0002", "query": "医疗过失责任的构成要件是什么？", "hints": {}, "notes": "source_h2=1. Simple QA; source_h3="}
+{"id": "seed_0003", "query": "高血压的诊断标准是多少？", "hints": {}, "notes": "source_h2=1. Simple QA; source_h3="}
+{"id": "seed_0004", "query": "医保报销比例如何计算？", "hints": {}, "notes": "source_h2=1. Simple QA; source_h3="}
+{"id": "seed_0005", "query": "侵犯著作权需要承担哪些法律责任？", "hints": {}, "notes": "source_h2=1. Simple QA; source_h3="}
+{"id": "seed_0006", "query": "刑事拘留最长多少天？", "hints": {}, "notes": "source_h2=1. Simple QA; source_h3="}
+{"id": "seed_0007", "query": "糖尿病并发症包括哪些？", "hints": {}, "notes": "source_h2=1. Simple QA; source_h3="}
+{"id": "seed_0008", "query": "电子合同是否具有法律效力？", "hints": {}, "notes": "source_h2=1. Simple QA; source_h3="}
+{"id": "seed_0009", "query": "什么是非法行医？", "hints": {}, "notes": "source_h2=1. Simple QA; source_h3="}
+{"id": "seed_0010", "query": "公司破产清算流程是怎样的？", "hints": {}, "notes": "source_h2=1. Simple QA; source_h3="}
+{"id": "seed_0011", "query": "劳动合同试用期最长多久？", "hints": {}, "notes": "source_h2=1. Simple QA; source_h3="}
+{"id": "seed_0012", "query": "医疗事故和医疗过失有什么区别？", "hints": {}, "notes": "source_h2=1. Simple QA; source_h3="}
+{"id": "seed_0013", "query": "公司单方面解除合同需要满足哪些条件？", "hints": {}, "notes": "source_h2=1. Simple QA; source_h3="}
+{"id": "seed_0014", "query": "侵权责任和违约责任在赔偿上有什么不同？", "hints": {}, "notes": "source_h2=1. Simple QA; source_h3="}
+{"id": "seed_0015", "query": "刑事拘留和行政拘留的区别是什么？", "hints": {}, "notes": "source_h2=1. Simple QA; source_h3="}
+{"id": "seed_0016", "query": "误诊是否一定构成医疗过失？", "hints": {}, "notes": "source_h2=1. Simple QA; source_h3="}
+{"id": "seed_0017", "query": "破产清算中员工工资如何处理？", "hints": {}, "notes": "source_h2=1. Simple QA; source_h3="}
+{"id": "seed_0018", "query": "侵权赔偿金额通常如何确定？", "hints": {}, "notes": "source_h2=1. Simple QA; source_h3="}
+{"id": "seed_0019", "query": "合同中的免责条款是否一定有效？", "hints": {}, "notes": "source_h2=1. Simple QA; source_h3="}
+{"id": "seed_0020", "query": "试用期最长可以约定多久？如果超过是否合法？", "hints": {}, "notes": "source_h2=1. Simple QA; source_h3="}
+{"id": "seed_0021", "query": "公司单方面解除合同需要什么条件？", "hints": {}, "notes": "source_h2=1. Simple QA; source_h3="}
+{"id": "seed_0022", "query": "赔偿金额通常如何计算？", "hints": {}, "notes": "source_h2=1. Simple QA; source_h3="}
+{"id": "seed_0023", "query": "公司破产后员工工资怎么处理？", "hints": {}, "notes": "source_h2=1. Simple QA; source_h3="}
+{"id": "seed_0024", "query": "合同免责条款是否一定有效？", "hints": {}, "notes": "source_h2=1. Simple QA; source_h3="}
+{"id": "seed_0025", "query": "我这种情况算违法吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0026", "query": "这样算不算医疗事故？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0027", "query": "这个要赔钱吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0028", "query": "医院这么做合理吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0029", "query": "这种合同有效吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0030", "query": "这算重大疾病吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0031", "query": "这种药可以长期吃吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0032", "query": "这个情况法院会怎么判？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0033", "query": "这样会被拘留吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0034", "query": "这种属于侵权吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0035", "query": "这样算违法吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0036", "query": "这种情况会被拘留吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0037", "query": "这个算医疗事故吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0038", "query": "这样要赔钱吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0039", "query": "这个会构成犯罪吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0040", "query": "这个合法么？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0041", "query": "这样合理吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0042", "query": "这个可以吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0043", "query": "这样对吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0044", "query": "这个算严重吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0045", "query": "这样会有问题吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0046", "query": "合法吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0047", "query": "算医疗事故吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0048", "query": "要赔吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0049", "query": "有责任吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0050", "query": "有效吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0051", "query": "违法吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0052", "query": "怎么认定？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0053", "query": "赔多少？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0054", "query": "合理吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0055", "query": "有依据吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0056", "query": "怎么算？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0057", "query": "有例外吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0058", "query": "属于侵权吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0059", "query": "会被拘留吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0060", "query": "合同有效吗？", "hints": {}, "notes": "source_h2=2. 模糊 QA / 边界 QA; source_h3="}
+{"id": "seed_0061", "query": "试用期最长多久？提前解除要赔吗？", "hints": {}, "notes": "source_h2=3. Multi-question; source_h3="}
+{"id": "seed_0062", "query": "医疗事故怎么认定？赔偿标准是多少？", "hints": {}, "notes": "source_h2=3. Multi-question; source_h3="}
+{"id": "seed_0063", "query": "侵权和违约有什么区别？赔偿方式一样吗？", "hints": {}, "notes": "source_h2=3. Multi-question; source_h3="}
+{"id": "seed_0064", "query": "医院误诊算过失吗？需要举证吗？", "hints": {}, "notes": "source_h2=3. Multi-question; source_h3="}
+{"id": "seed_0065", "query": "公司破产后员工工资怎么处理？社保怎么办？", "hints": {}, "notes": "source_h2=3. Multi-question; source_h3="}
+{"id": "seed_0066", "query": "高血压的诊断标准是多少？长期吃药安全吗？", "hints": {}, "notes": "source_h2=3. Multi-question; source_h3="}
+{"id": "seed_0067", "query": "试用期最长多久？工资可以低于最低工资吗？", "hints": {}, "notes": "source_h2=3. Multi-question; source_h3="}
+{"id": "seed_0068", "query": "侵权责任和违约责任构成要件分别是什么？赔偿方式一样吗？", "hints": {}, "notes": "source_h2=3. Multi-question; source_h3="}
+{"id": "seed_0069", "query": "误诊和漏诊的法律后果一样吗？赔偿如何计算？", "hints": {}, "notes": "source_h2=3. Multi-question; source_h3="}
+{"id": "seed_0070", "query": "合同无效和可撤销有什么区别？后果是什么？", "hints": {}, "notes": "source_h2=3. Multi-question; source_h3="}
+{"id": "seed_0071", "query": "刑事拘留和行政拘留的程序一样吗？期限是否相同？", "hints": {}, "notes": "source_h2=3. Multi-question; source_h3="}
+{"id": "seed_0072", "query": "医生告知义务包括哪些？未告知是否必然担责？", "hints": {}, "notes": "source_h2=3. Multi-question; source_h3="}
+{"id": "seed_0073", "query": "免责条款在什么情况下无效？如何判断？", "hints": {}, "notes": "source_h2=3. Multi-question; source_h3="}
+{"id": "seed_0074", "query": "破产清算中债权优先顺序如何确定？员工债权排第几？", "hints": {}, "notes": "source_h2=3. Multi-question; source_h3="}
+{"id": "seed_0075", "query": "请分别说明试用期规定和经济补偿规则。", "hints": {}, "notes": "source_h2=4. Compound / Complex 中短任务; source_h3="}
+{"id": "seed_0076", "query": "对比侵权责任和违约责任的区别。", "hints": {}, "notes": "source_h2=4. Compound / Complex 中短任务; source_h3="}
+{"id": "seed_0077", "query": "总结医疗事故与医疗过失的差异。", "hints": {}, "notes": "source_h2=4. Compound / Complex 中短任务; source_h3="}
+{"id": "seed_0078", "query": "比较刑事拘留和行政拘留的不同。", "hints": {}, "notes": "source_h2=4. Compound / Complex 中短任务; source_h3="}
+{"id": "seed_0079", "query": "分别介绍公司清算和破产程序。", "hints": {}, "notes": "source_h2=4. Compound / Complex 中短任务; source_h3="}
+{"id": "seed_0080", "query": "请系统梳理劳动合同解除的全部情形，并整理成结构化表格。", "hints": {}, "notes": "source_h2=4. Compound / Complex 中短任务; source_h3="}
+{"id": "seed_0081", "query": "分析医疗过失责任认定的逻辑路径，并结合案例说明。", "hints": {}, "notes": "source_h2=4. Compound / Complex 中短任务; source_h3="}
+{"id": "seed_0082", "query": "对比我国与美国医疗责任制度的差异。", "hints": {}, "notes": "source_h2=4. Compound / Complex 中短任务; source_h3="}
+{"id": "seed_0083", "query": "结合司法解释，梳理侵权赔偿的计算方法。", "hints": {}, "notes": "source_h2=4. Compound / Complex 中短任务; source_h3="}
+{"id": "seed_0084", "query": "设计一个判断医疗事故责任的决策树。", "hints": {}, "notes": "source_h2=4. Compound / Complex 中短任务; source_h3="}
+{"id": "seed_0085", "query": "归纳公司破产清算流程，并给出流程图。", "hints": {}, "notes": "source_h2=4. Compound / Complex 中短任务; source_h3="}
+{"id": "seed_0086", "query": "请分别说明侵权责任和违约责任的差异。", "hints": {}, "notes": "source_h2=4. Compound / Complex 中短任务; source_h3="}
+{"id": "seed_0087", "query": "对比医疗事故和医疗过失的认定标准。", "hints": {}, "notes": "source_h2=4. Compound / Complex 中短任务; source_h3="}
+{"id": "seed_0088", "query": "总结公司破产清算的流程。", "hints": {}, "notes": "source_h2=4. Compound / Complex 中短任务; source_h3="}
+{"id": "seed_0089", "query": "梳理劳动合同解除的全部法定情形。", "hints": {}, "notes": "source_h2=4. Compound / Complex 中短任务; source_h3="}
+{"id": "seed_0090", "query": "设计一个判断医疗过失的分析框架。", "hints": {}, "notes": "source_h2=4. Compound / Complex 中短任务; source_h3="}
+{"id": "seed_0091", "query": "整理合同无效的所有情形并分类说明。", "hints": {}, "notes": "source_h2=4. Compound / Complex 中短任务; source_h3="}
+{"id": "seed_0092", "query": "归纳侵权赔偿计算方法。", "hints": {}, "notes": "source_h2=4. Compound / Complex 中短任务; source_h3="}
+{"id": "seed_0093", "query": "对比不同类型拘留的适用条件。", "hints": {}, "notes": "source_h2=4. Compound / Complex 中短任务; source_h3="}
+{"id": "seed_0094", "query": "分析免责条款的适用边界。", "hints": {}, "notes": "source_h2=4. Compound / Complex 中短任务; source_h3="}
+{"id": "seed_0095", "query": "构建医疗责任认定的决策路径。", "hints": {}, "notes": "source_h2=4. Compound / Complex 中短任务; source_h3="}
+{"id": "seed_0096", "query": "你今天状态怎么样？", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0097", "query": "最近压力有点大。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0098", "query": "你觉得人为什么会焦虑？", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0099", "query": "聊聊吧。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0100", "query": "你是谁？", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0101", "query": "哈哈哈。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0102", "query": "有点烦。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0103", "query": "你会不会累？", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0104", "query": "今天天气不错。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0105", "query": "推荐一本书。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0106", "query": "最近有点焦虑。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0107", "query": "感觉事情越来越复杂。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0108", "query": "有时候不知道怎么判断对错。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0109", "query": "学习法律好难。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0110", "query": "压力有点大。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0111", "query": "最近状态不太好。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0112", "query": "有点迷茫。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0113", "query": "想聊聊。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0114", "query": "今天心情一般。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0115", "query": "感觉效率很低。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0116", "query": "最近挺累。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0117", "query": "心情一般。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0118", "query": "压力大。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0119", "query": "好迷茫。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0120", "query": "想休息。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0121", "query": "有点焦虑。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0122", "query": "不太开心。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0123", "query": "有点困惑。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0124", "query": "今天很忙。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0125", "query": "有点无力。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0126", "query": "状态不好。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0127", "query": "有点低落。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0128", "query": "有点烦躁。", "hints": {}, "notes": "source_h2=1. 标准 Chat; source_h3="}
+{"id": "seed_0129", "query": "最近工作压力特别大，感觉每天都在处理各种复杂问题，有时候会怀疑自己是不是能力不够。你觉得这种焦虑正常吗？", "hints": {}, "notes": "source_h2=2. 长一点的 Chat; source_h3="}
+{"id": "seed_0130", "query": "我最近在思考一个问题，人为什么在面对不确定性的时候会格外紧张？是不是大脑的一种保护机制？", "hints": {}, "notes": "source_h2=2. 长一点的 Chat; source_h3="}
+{"id": "seed_0131", "query": "有时候觉得法律问题特别复杂，越学越觉得迷茫，这种感觉是不是学习过程中的必经阶段？", "hints": {}, "notes": "source_h2=2. 长一点的 Chat; source_h3="}
+{"id": "seed_0132", "query": "如果一个人总是担心未来会出问题，这种心态应该怎么调整？", "hints": {}, "notes": "source_h2=2. 长一点的 Chat; source_h3="}
+{"id": "seed_0133", "query": "你觉得面对长期压力时，保持理性思考的关键是什么？", "hints": {}, "notes": "source_h2=2. 长一点的 Chat; source_h3="}
+{"id": "seed_0134", "query": "最近工作压力特别大，感觉每天都在处理复杂问题，有时候会怀疑自己的判断能力。这种焦虑是不是正常现象？", "hints": {}, "notes": "source_h2=2. 长一点的 Chat; source_h3="}
+{"id": "seed_0135", "query": "有时候觉得规则很多，但越学习越觉得迷茫，这种状态是不是学习过程的一部分？", "hints": {}, "notes": "source_h2=2. 长一点的 Chat; source_h3="}
+{"id": "seed_0136", "query": "面对复杂问题时，人为什么会倾向于简单结论？", "hints": {}, "notes": "source_h2=2. 长一点的 Chat; source_h3="}
+{"id": "seed_0137", "query": "如果长期处在高压环境下，应该如何调整思维方式？", "hints": {}, "notes": "source_h2=2. 长一点的 Chat; source_h3="}
+{"id": "seed_0138", "query": "你觉得保持理性思考最重要的能力是什么？", "hints": {}, "notes": "source_h2=2. 长一点的 Chat; source_h3="}
+{"id": "seed_0139", "query": "你刚才的依据是什么？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0140", "query": "你确定吗？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0141", "query": "这个结论不对吧？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0142", "query": "你是根据哪条法律说的？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0143", "query": "有出处吗？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0144", "query": "你是不是编的？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0145", "query": "你支持哪些法律版本？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0146", "query": "你能查到最新司法解释吗？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0147", "query": "你的回答有证据吗？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0148", "query": "你是不是搞错了？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0149", "query": "你刚才的说法依据是什么？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0150", "query": "这个结论有明确条文支持吗？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0151", "query": "你确定没有例外情况吗？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0152", "query": "这是最新版本的法律规定吗？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0153", "query": "有没有相关案例可以参考？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0154", "query": "你是不是忽略了某些条件？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0155", "query": "这个规则是否存在地区差异？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0156", "query": "你的信息来源可靠吗？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0157", "query": "这个判断是不是过于绝对？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0158", "query": "你能说明推导逻辑吗？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0159", "query": "你的结论依据是什么？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0160", "query": "有具体条文支持吗？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0161", "query": "这是最新法律规定吗？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0162", "query": "有没有相关案例？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0163", "query": "你是不是忽略了例外？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0164", "query": "这个规则全国都适用吗？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0165", "query": "你的来源可靠吗？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0166", "query": "这个说法是不是太绝对？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0167", "query": "有司法解释支持吗？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0168", "query": "你能说明推导逻辑吗？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0169", "query": "真的假的？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0170", "query": "最新的吗？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0171", "query": "有证据吗？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0172", "query": "为什么这么说？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0173", "query": "来源呢？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0174", "query": "绝对吗？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0175", "query": "有案例吗？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0176", "query": "是条文吗？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0177", "query": "可靠吗？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0178", "query": "有司法解释吗？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0179", "query": "你确定没有例外？", "hints": {}, "notes": "source_h2=1. 短中 Meta; source_h3="}
+{"id": "seed_0180", "query": "你之前提到合同无效的情形包括违反强制性规定，但没有具体说明法律条文。这个结论具体依据的是哪一条法律？是否有司法解释支持？", "hints": {}, "notes": "source_h2=2. 长文本 Meta / Challenge; source_h3="}
+{"id": "seed_0181", "query": "你刚才的回答似乎有些绝对，是否存在例外情况？如果有，能否说明适用条件？", "hints": {}, "notes": "source_h2=2. 长文本 Meta / Challenge; source_h3="}
+{"id": "seed_0182", "query": "你所引用的规则是否已经更新到最新版本？有没有可能存在修订？", "hints": {}, "notes": "source_h2=2. 长文本 Meta / Challenge; source_h3="}
+{"id": "seed_0183", "query": "你给出的赔偿比例有明确出处吗？是否有案例支持？", "hints": {}, "notes": "source_h2=2. 长文本 Meta / Challenge; source_h3="}
+{"id": "seed_0184", "query": "你这个结论是不是基于一般原则推导的，还是有具体条文依据？", "hints": {}, "notes": "source_h2=2. 长文本 Meta / Challenge; source_h3="}
+{"id": "seed_0185", "query": "你之前提到合同无效的情形包括违反强制性规定，但没有具体列出法律条文。请说明你的结论依据的是哪条法律以及是否有最新司法解释支持。", "hints": {}, "notes": "source_h2=2. 长文本 Meta / Challenge; source_h3="}
+{"id": "seed_0186", "query": "你刚才说这种情况一定需要承担赔偿责任，但我看到有案例不是这样。你的说法是否过于绝对？是否存在例外？", "hints": {}, "notes": "source_h2=2. 长文本 Meta / Challenge; source_h3="}
+{"id": "seed_0187", "query": "你引用的规则是最新版本的吗？是否已经更新过？", "hints": {}, "notes": "source_h2=2. 长文本 Meta / Challenge; source_h3="}
+{"id": "seed_0188", "query": "你的赔偿比例是如何得出的？是否有明确数据来源？", "hints": {}, "notes": "source_h2=2. 长文本 Meta / Challenge; source_h3="}
+{"id": "seed_0189", "query": "你这个判断是基于法律条文还是推理结论？有没有出处？", "hints": {}, "notes": "source_h2=2. 长文本 Meta / Challenge; source_h3="}
+{"id": "seed_0190", "query": "你刚才提到合同无效的情形包括违反强制性规定，但没有具体列出法律条文。我想确认一下，这个结论是依据哪一条法律条文得出的？是否有最新司法解释支持？", "hints": {}, "notes": "source_h2=2. 长文本 Meta / Challenge; source_h3="}
+{"id": "seed_0191", "query": "你之前说这种情况一定要承担赔偿责任，但我在网上查到的案例似乎不是这样。我有点怀疑你的说法是否完整，你能否给出更具体的法律依据或者案例来源？", "hints": {}, "notes": "source_h2=2. 长文本 Meta / Challenge; source_h3="}
+{"id": "seed_0192", "query": "你刚才说医疗过失需要证明因果关系，那具体举证责任是怎么分配的？另外，你这个结论是不是基于某个司法解释？如果有的话能具体说明吗？", "hints": {}, "notes": "source_h2=2. 长文本 Meta / Challenge; source_h3="}
+{"id": "seed_0193", "query": "你提到试用期最长不能超过六个月，这个规定是否适用于所有合同期限？如果合同只有一年，是否也可以约定六个月？你确定这个规则没有例外吗？", "hints": {}, "notes": "source_h2=2. 长文本 Meta / Challenge; source_h3="}
+{"id": "seed_0194", "query": "你刚才说合同无效的情形包括违反强制性规定，但没有明确列出具体条文。我在其他资料中看到不同解释。请说明你的依据来源，并解释是否存在适用范围限制或例外情况。", "hints": {}, "notes": "source_h2=2. 长文本 Meta / Challenge; source_h3="}
+{"id": "seed_0195", "query": "你之前说这种情况一定要承担赔偿责任，但我查到有案例法院并未支持赔偿请求。你的结论是否基于特定条件？如果条件不同，是否会得出不同结果？", "hints": {}, "notes": "source_h2=2. 长文本 Meta / Challenge; source_h3="}
+{"id": "seed_0196", "query": "你引用的规则是否已经更新？如果法律条文发生修订，你的判断是否仍然成立？你如何确保引用的是最新版本？", "hints": {}, "notes": "source_h2=2. 长文本 Meta / Challenge; source_h3="}
+{"id": "seed_0197", "query": "你的赔偿计算方式是否基于司法解释，还是仅基于一般原则推导？是否有明确数据支持？", "hints": {}, "notes": "source_h2=2. 长文本 Meta / Challenge; source_h3="}
+{"id": "seed_0198", "query": "你给出的结论看起来比较确定，但法律实践中是否存在裁量空间？如果不同法院理解不同，你的判断是否会调整？", "hints": {}, "notes": "source_h2=2. 长文本 Meta / Challenge; source_h3="}
+{"id": "seed_0199", "query": "我不是说你错，只是感觉你的说法可能有点不完整，能不能再确认一下是不是还有其他情况？", "hints": {}, "notes": "source_h2=3. 极端 Precision 对抗 Meta; source_h3="}
+{"id": "seed_0200", "query": "这个规则我有点没看懂，你是说在任何情况下都适用吗？", "hints": {}, "notes": "source_h2=3. 极端 Precision 对抗 Meta; source_h3="}
+{"id": "seed_0201", "query": "我不太确定是不是理解对了，你刚才说的一定成立吗？", "hints": {}, "notes": "source_h2=3. 极端 Precision 对抗 Meta; source_h3="}
+{"id": "seed_0202", "query": "是不是有可能在某些特殊情况下结果会不同？", "hints": {}, "notes": "source_h2=3. 极端 Precision 对抗 Meta; source_h3="}
+{"id": "seed_0203", "query": "如果换一个事实前提，结论是不是就不一样？", "hints": {}, "notes": "source_h2=3. 极端 Precision 对抗 Meta; source_h3="}
+{"id": "seed_0204", "query": "你刚才那个说法听起来很绝对，法律真的没有例外吗？", "hints": {}, "notes": "source_h2=3. 极端 Precision 对抗 Meta; source_h3="}
+{"id": "seed_0205", "query": "这种情况是不是还要具体分析，而不是直接下结论？", "hints": {}, "notes": "source_h2=3. 极端 Precision 对抗 Meta; source_h3="}
+{"id": "seed_0206", "query": "如果双方都有问题，是不是不能简单说谁承担全部责任？", "hints": {}, "notes": "source_h2=3. 极端 Precision 对抗 Meta; source_h3="}
+{"id": "seed_0207", "query": "我只是有点疑惑，不是质疑你，这个规则是不是存在条件限制？", "hints": {}, "notes": "source_h2=3. 极端 Precision 对抗 Meta; source_h3="}
+{"id": "seed_0208", "query": "如果法院理解不同，你的这个判断会不会变化？", "hints": {}, "notes": "source_h2=3. 极端 Precision 对抗 Meta; source_h3="}
+{"id": "seed_0209", "query": "这个我没看懂，你再解释一下。", "hints": {}, "notes": "source_h2=3. 极端 Precision 对抗 Meta; source_h3="}
+{"id": "seed_0210", "query": "你说的是这个意思吗？", "hints": {}, "notes": "source_h2=3. 极端 Precision 对抗 Meta; source_h3="}
+{"id": "seed_0211", "query": "这个我不熟，能展开吗？", "hints": {}, "notes": "source_h2=3. 极端 Precision 对抗 Meta; source_h3="}
+{"id": "seed_0212", "query": "我有点疑惑，这里的依据是哪个？", "hints": {}, "notes": "source_h2=3. 极端 Precision 对抗 Meta; source_h3="}
+{"id": "seed_0213", "query": "这个说法我没太听懂，是这个意思吗？", "hints": {}, "notes": "source_h2=3. 极端 Precision 对抗 Meta; source_h3="}
+{"id": "seed_0214", "query": "根据你刚才说的逻辑，这是不是说明法律是随便解释的？", "hints": {}, "notes": "source_h2=3. 极端 Precision 对抗 Meta; source_h3="}
+{"id": "seed_0215", "query": "所以你其实也不确定？", "hints": {}, "notes": "source_h2=3. 极端 Precision 对抗 Meta; source_h3="}
+{"id": "seed_0216", "query": "那你为什么之前说一定要赔？", "hints": {}, "notes": "source_h2=3. 极端 Precision 对抗 Meta; source_h3="}
+{"id": "seed_0217", "query": "这是不是系统胡说八道？", "hints": {}, "notes": "source_h2=3. 极端 Precision 对抗 Meta; source_h3="}
+{"id": "seed_0218", "query": "如果法律都能这样理解，那还有什么意义？", "hints": {}, "notes": "source_h2=3. 极端 Precision 对抗 Meta; source_h3="}
+{"id": "seed_0219", "query": "那这种情况呢？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0220", "query": "如果是公司呢？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0221", "query": "那医疗领域也是这样吗？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0222", "query": "那严重一点会怎样？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0223", "query": "如果是未成年人呢？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0224", "query": "那换成刑事责任呢？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0225", "query": "这种情况赔多少？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0226", "query": "那法院一般怎么处理？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0227", "query": "那如果没有证据呢？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0228", "query": "那这个标准是全国统一的吗？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0229", "query": "那如果合同只有一年呢？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0230", "query": "如果患者有基础疾病呢？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0231", "query": "如果双方都有责任呢？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0232", "query": "如果没有书面约定呢？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0233", "query": "如果已经超过诉讼时效呢？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0234", "query": "那这种情况也适用吗？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0235", "query": "那赔偿比例会变吗？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0236", "query": "如果存在特殊条款呢？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0237", "query": "那是不是要分情况讨论？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0238", "query": "如果没有证据怎么办？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0239", "query": "如果没有书面合同呢？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0240", "query": "如果有特殊条款呢？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0241", "query": "那是不是要具体分析？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0242", "query": "那如果是这样呢？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0243", "query": "那未成年人呢？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0244", "query": "那医院呢？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0245", "query": "那公司呢？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0246", "query": "那严重一点呢？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0247", "query": "那赔多少？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0248", "query": "那怎么算？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0249", "query": "那一样吗？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0250", "query": "那怎么办？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0251", "query": "那也适用吗？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0252", "query": "那有没有区别？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0253", "query": "那刑事呢？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0254", "query": "那行政呢？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0255", "query": "那合同呢？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0256", "query": "那这种呢？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0257", "query": "那这个呢？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0258", "query": "这种也可以吗？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0259", "query": "上面那个怎么算？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0260", "query": "那这个情况行不行？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0261", "query": "如果是这样呢？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0262", "query": "还有这种吗？", "hints": {}, "notes": "source_h2=1. 短中 Follow-up; source_h3="}
+{"id": "seed_0263", "query": "如果刚才说的那种情况发生在未成年人身上，责任认定是否会不同？", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0264", "query": "那如果双方都有一定过错，赔偿比例是否会重新计算？", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0265", "query": "如果不是大型医院，而是个体诊所，认定标准是否一样？", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0266", "query": "那如果涉及刑事责任，是不是处理方式会不同？", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0267", "query": "如果合同中存在特别约定，刚才的结论是否仍然适用？", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0268", "query": "如果患者本身就存在基础疾病，而医生只是没有及时发现风险，这种情况下责任是否会减轻？是不是还要看因果关系的程度？", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0269", "query": "那如果不是医院，而是个体诊所出现类似情况，责任认定标准会不会不同？", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0270", "query": "如果刚才讨论的那种情况发生在未成年人身上，而且监护人未尽到注意义务，那么责任分配是否会改变？是否需要区分不同年龄阶段？", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0271", "query": "那如果合同中存在特别约定，比如约定免责或违约金上限，刚才的结论是否仍然适用？是否需要区分条款效力？", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0272", "query": "如果双方都有一定过错，是否按比例承担责任？比例如何确定？是否存在法定上限？", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0273", "query": "如果涉及刑事责任和民事责任同时存在，处理顺序是否会影响赔偿结果？", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0274", "query": "如果不存在书面合同，而是口头约定，刚才说的规则是否同样适用？", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0275", "query": "你刚才说合同无效，那依据是什么？是不是你理解错了？", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0276", "query": "医疗事故是不是都要赔钱？感觉不合理啊。", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0277", "query": "你确定这是最新法律吗？我查的好像不一样。", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0278", "query": "那这种情况是不是违法？如果不是为什么？", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0279", "query": "如果医生误诊，但不是故意的，责任怎么算？", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0280", "query": "你能简单说一下，然后给出法律依据吗？", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0281", "query": "这算侵权吧？还是只是违约？", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0282", "query": "那这种是不是既违法又要赔偿？", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0283", "query": "你说的赔偿比例有数据支持吗？", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0284", "query": "如果合同里写了免责条款，那还有效吗？", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0285", "query": "你刚才说合同无效，那依据是什么？", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0286", "query": "医疗事故是不是都要赔钱？感觉不合理啊。", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0287", "query": "你确定这是最新法律吗？我查的好像不一样。", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0288", "query": "你能简单说一下，并给出依据吗？", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0289", "query": "这种是不是既违法又要赔偿？", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0290", "query": "你支持哪些能力？顺便说下试用期规定。", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0291", "query": "如果医生误诊导致病情加重，但同时医院存在合同违约条款限制责任，这种情况下是适用侵权责任还是合同责任？赔偿计算方式会不同吗？", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0292", "query": "在公司破产清算中，如果员工同时存在医疗纠纷赔偿未结清的情况，这两类债权的优先顺序如何确定？", "hints": {}, "notes": "source_h2=2. 长文本 Follow-up; source_h3="}
+{"id": "seed_0293", "query": "把知识库里的这份文档删掉。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0294", "query": "替换成新版合同模板。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0295", "query": "帮我上传一个文件到系统。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0296", "query": "把数据库里的那条记录改一下。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0297", "query": "给我导出所有医疗案例数据。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0298", "query": "直接帮我修改合同条款。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0299", "query": "帮我删除那份合同模板。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0300", "query": "把数据库数据导出来。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0301", "query": "帮我修改规则配置。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0302", "query": "替换掉系统里的法律文本。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0303", "query": "帮我上传一个文件。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0304", "query": "删除旧版本文档。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0305", "query": "重置测试数据。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0306", "query": "直接更新服务器内容。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0307", "query": "帮我调整系统参数。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0308", "query": "导出全部案例数据。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0309", "query": "删除那份合同模板。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0310", "query": "导出全部医疗案例。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0311", "query": "修改系统规则。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0312", "query": "上传新的法律文本。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0313", "query": "清空数据库。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0314", "query": "替换旧版本文档。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0315", "query": "更新服务器内容。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0316", "query": "调整系统参数。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0317", "query": "导出数据库数据。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0318", "query": "删除文档。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0319", "query": "上传文件。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0320", "query": "导出数据。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0321", "query": "修改规则。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0322", "query": "更新系统。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0323", "query": "清空数据库。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0324", "query": "替换内容。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0325", "query": "删除记录。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0326", "query": "重置数据。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0327", "query": "导出案例。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0328", "query": "修改配置。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0329", "query": "更新条款。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0330", "query": "删除模板。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0331", "query": "导出全部。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0332", "query": "上传合同。", "hints": {}, "notes": "source_h2=1. 短中 Unsupported; source_h3="}
+{"id": "seed_0333", "query": "请把知识库里关于劳动合同解除的所有条款整理出来，并删除过期版本，只保留最新修订内容。", "hints": {}, "notes": "source_h2=2. 长文本 Unsupported; source_h3="}
+{"id": "seed_0334", "query": "帮我把数据库中医疗案例的统计数据导出来，生成一个 Excel 表格。", "hints": {}, "notes": "source_h2=2. 长文本 Unsupported; source_h3="}
+{"id": "seed_0335", "query": "请帮我把知识库中关于劳动合同的条款全部删除，并替换成最新版本。", "hints": {}, "notes": "source_h2=2. 长文本 Unsupported; source_h3="}
+{"id": "seed_0336", "query": "帮我导出数据库里所有医疗案例的原始数据，生成一个 Excel 文件。", "hints": {}, "notes": "source_h2=2. 长文本 Unsupported; source_h3="}
+{"id": "seed_0337", "query": "请修改系统中的规则配置，把挑战模式默认开启。", "hints": {}, "notes": "source_h2=2. 长文本 Unsupported; source_h3="}
+{"id": "seed_0338", "query": "把现有测试数据全部清空，然后重新生成一批。", "hints": {}, "notes": "source_h2=2. 长文本 Unsupported; source_h3="}
+{"id": "seed_0339", "query": "帮我直接更新服务器里的法律文本内容。", "hints": {}, "notes": "source_h2=2. 长文本 Unsupported; source_h3="}
+{"id": "seed_0340", "query": "请把系统中的劳动合同规则全部替换为最新版本，并删除旧版本记录。", "hints": {}, "notes": "source_h2=2. 长文本 Unsupported; source_h3="}
+{"id": "seed_0341", "query": "帮我导出数据库中所有医疗案例数据，并生成报表。", "hints": {}, "notes": "source_h2=2. 长文本 Unsupported; source_h3="}
+{"id": "seed_0342", "query": "请直接修改当前规则配置，把挑战模式设为默认开启。", "hints": {}, "notes": "source_h2=2. 长文本 Unsupported; source_h3="}
+{"id": "seed_0343", "query": "把知识库里的文档按年份重新分类整理。", "hints": {}, "notes": "source_h2=2. 长文本 Unsupported; source_h3="}
+{"id": "seed_0344", "query": "帮我更新服务器上的法律文本内容。", "hints": {}, "notes": "source_h2=2. 长文本 Unsupported; source_h3="}
+{"id": "seed_0345", "query": "请直接修改系统中的规则配置，把挑战模式默认开启，并删除原有版本。", "hints": {}, "notes": "source_h2=2. 长文本 Unsupported; source_h3="}
+{"id": "seed_0346", "query": "帮我把数据库中所有医疗案例导出为结构化文件，并生成统计图表。", "hints": {}, "notes": "source_h2=2. 长文本 Unsupported; source_h3="}
+{"id": "seed_0347", "query": "请删除知识库中过期法律条文，并替换为最新修订版本。", "hints": {}, "notes": "source_h2=2. 长文本 Unsupported; source_h3="}
+{"id": "seed_0348", "query": "把现有测试数据全部清空，然后重新生成一批新的样本。", "hints": {}, "notes": "source_h2=2. 长文本 Unsupported; source_h3="}
+{"id": "seed_0349", "query": "请帮我更新服务器中的法律文本内容，并同步所有节点。", "hints": {}, "notes": "source_h2=2. 长文本 Unsupported; source_h3="}
+{"id": "seed_0350", "query": "我和公司签了三年劳动合同，现在工作一年多，公司说我绩效不达标，准备解除合同。但合同里没有明确绩效考核标准，也没有具体说明不达标的界定方式。我想知道，这种情况下公司单方面解除是否合法？如果不合法，我可以主张什么权利？", "hints": {}, "notes": "source_h2=1. 长文本 QA; source_h3="}
+{"id": "seed_0351", "query": "我父亲在医院做手术，术后出现感染。医院方面表示这是正常并发症，并不属于医疗事故。但我们认为术前消毒措施存在问题。请问在这种情况下，如何判断是否构成医疗过失？需要我们自己举证吗？", "hints": {}, "notes": "source_h2=1. 长文本 QA; source_h3="}
+{"id": "seed_0352", "query": "我在电商平台买到假货，平台说他们只是提供交易服务，不承担责任。我想知道平台在什么情况下需要承担连带责任？如果商家联系不上怎么办？", "hints": {}, "notes": "source_h2=1. 长文本 QA; source_h3="}
+{"id": "seed_0353", "query": "患者长期服用某种降压药出现肝功能异常，医生未及时提醒风险。是否构成医疗过失？", "hints": {}, "notes": "source_h2=1. 长文本 QA; source_h3="}
+{"id": "seed_0354", "query": "医院误诊延误治疗三个月，导致病情加重，但医生称属于误判而非过失，这种情况下如何判断责任？", "hints": {}, "notes": "source_h2=1. 长文本 QA; source_h3="}
+{"id": "seed_0355", "query": "我父亲在医院做手术，术后感染，医生说是正常并发症，但后来病情恶化，我们认为是医院消毒不到位导致的。医院拒绝赔偿，说我们无法证明因果关系。请问这种情况是否属于医疗过错？责任如何认定？", "hints": {}, "notes": "source_h2=1. 长文本 QA; source_h3="}
+{"id": "seed_0356", "query": "我和公司签了三年劳动合同，现在公司单方面解除，说我绩效不达标，但合同里没有具体绩效标准。请问这种解除是否合法？", "hints": {}, "notes": "source_h2=1. 长文本 QA; source_h3="}
+{"id": "seed_0357", "query": "我父亲在医院做手术后出现严重感染，医院称属于正常并发症，但我们怀疑术前消毒存在问题。请问如何判断是否构成医疗过失？举证责任由谁承担？", "hints": {}, "notes": "source_h2=1. 长文本 QA; source_h3="}
+{"id": "seed_0358", "query": "我在电商平台买到假货，平台说他们只是提供交易服务，不承担责任。我想知道平台在什么情况下需要承担连带责任？如果商家联系不上怎么办？", "hints": {}, "notes": "source_h2=1. 长文本 QA; source_h3="}
+{"id": "seed_0359", "query": "公司进入破产程序后拖欠员工工资和社保，请问在清算顺序中员工债权的优先级如何确定？如果资产不足怎么办？", "hints": {}, "notes": "source_h2=1. 长文本 QA; source_h3="}
+{"id": "seed_0360", "query": "医生长期给患者开具某种药物，但后来发现存在严重副作用且未提前告知风险。请问这种情况下是否可能构成医疗过失？", "hints": {}, "notes": "source_h2=1. 长文本 QA; source_h3="}
+{"id": "seed_0361", "query": "患者在手术后出现严重并发症，医院称属于已告知风险范围，但家属认为术前告知不充分。请问如何从告知义务角度判断责任？举证责任如何分配？", "hints": {}, "notes": "source_h2=1. 长文本 QA; source_h3="}
+{"id": "seed_0362", "query": "如果医生误诊导致病情延误治疗，但医生表示属于合理判断误差，这种情况下如何区分误判和医疗过失？", "hints": {}, "notes": "source_h2=1. 长文本 QA; source_h3="}
+{"id": "seed_0363", "query": "合同中约定了免责条款，但对方存在明显过错。请问这种免责条款是否一定有效？", "hints": {}, "notes": "source_h2=1. 长文本 QA; source_h3="}
+{"id": "seed_0364", "query": "我想了解一下劳动合同中的试用期规定，包括试用期最长多久、试用期工资是否可以低于正式员工、以及试用期内解除合同是否需要支付经济补偿？这三点能分别说明一下吗？", "hints": {}, "notes": "source_h2=2. 长文本 Multi / Compound; source_h3="}
+{"id": "seed_0365", "query": "医疗事故和医疗过失有什么区别？在实际赔偿中，两者的责任认定标准是否一样？另外，赔偿金额是如何计算的？", "hints": {}, "notes": "source_h2=2. 长文本 Multi / Compound; source_h3="}
+{"id": "seed_0366", "query": "请分别说明侵权责任和违约责任的构成要件、归责原则以及赔偿方式，并简要对比它们在司法实践中的适用差异。", "hints": {}, "notes": "source_h2=2. 长文本 Multi / Compound; source_h3="}
+{"id": "seed_0367", "query": "我想了解公司破产清算流程，以及员工工资、社保、经济补偿在清算中的优先顺序问题，请分别介绍。", "hints": {}, "notes": "source_h2=2. 长文本 Multi / Compound; source_h3="}
+{"id": "seed_0368", "query": "请系统梳理我国劳动合同解除的全部法定情形，并按照“用人单位解除”“员工解除”“双方协商解除”分类整理。同时说明各自的法律依据和赔偿规则，最好用结构化方式呈现。", "hints": {}, "notes": "source_h2=3. 长文本 Complex; source_h3="}
+{"id": "seed_0369", "query": "结合现行法律规定，设计一个判断医疗事故责任的分析框架，包括举证责任分配、因果关系认定以及赔偿计算步骤。", "hints": {}, "notes": "source_h2=3. 长文本 Complex; source_h3="}
+{"id": "seed_0370", "query": "请对比中国与美国医疗责任制度的差异，从责任认定、赔偿制度、举证规则三个维度展开分析。", "hints": {}, "notes": "source_h2=3. 长文本 Complex; source_h3="}
+{"id": "seed_0371", "query": "请系统梳理我国劳动合同解除的全部法定情形，并按照“用人单位解除”“员工解除”“协商解除”三类进行分类说明。同时说明各类对应的法律依据、是否需要提前通知、是否需要支付经济补偿，并用结构化方式呈现。", "hints": {}, "notes": "source_h2=3. 长文本 Complex; source_h3="}
+{"id": "seed_0372", "query": "请构建一个判断医疗过失责任的完整分析框架，包括：举证责任分配、过错认定标准、因果关系判断逻辑、赔偿计算步骤，并说明在不同情形下如何适用。", "hints": {}, "notes": "source_h2=3. 长文本 Complex; source_h3="}
+{"id": "seed_0373", "query": "请对比侵权责任与违约责任的构成要件、归责原则、赔偿范围以及举证规则，并结合司法实践分析两者的适用差异。", "hints": {}, "notes": "source_h2=3. 长文本 Complex; source_h3="}
+{"id": "seed_0374", "query": "结合现行法律与司法解释，设计一个判断合同免责条款效力的决策路径，包括是否违反强制性规定、是否显失公平、是否存在重大过失等情形。", "hints": {}, "notes": "source_h2=3. 长文本 Complex; source_h3="}
+{"id": "seed_0375", "query": "请对比中国与美国医疗责任制度在责任认定、赔偿机制和诉讼制度方面的差异，并分析制度设计背后的逻辑。", "hints": {}, "notes": "source_h2=3. 长文本 Complex; source_h3="}
+{"id": "seed_0376", "query": "我最近在处理一个合同纠纷，感觉对方做法不太合理，但也说不上具体违法在哪里。只是觉得不公平。这种情况一般怎么判断是否合法？", "hints": {}, "notes": "source_h2=3. 长文本 Complex; source_h3="}
+{"id": "seed_0377", "query": "医生诊断后建议保守治疗，但后来发现病情恶化。我不确定这是不是误诊，也不清楚是不是医疗过失。一般怎么区分判断？", "hints": {}, "notes": "source_h2=3. 长文本 Complex; source_h3="}
+{"id": "seed_0378", "query": "我有点困惑，你之前的说法好像有些绝对。是不是法律其实也存在例外情况？如果有例外，那是不是不能简单地说“一定要赔偿”？", "hints": {}, "notes": "source_h2=3. 长文本 Complex; source_h3="}
+{"id": "seed_0379", "query": "如果医生已经尽到注意义务，但患者仍然发生不良后果，这种情况下是否一定构成过失？还是说有可能属于风险自负？", "hints": {}, "notes": "source_h2=3. 长文本 Complex; source_h3="}
+{"id": "seed_0380", "query": "这种情况我总觉得不太对，但又说不出具体问题在哪里。是不是法律上其实也有灰色地带？", "hints": {}, "notes": "source_h2=3. 长文本 Complex; source_h3="}
+{"id": "seed_0381", "query": "如果双方都有责任，那怎么分？", "hints": {}, "notes": "source_h2=3. 长文本 Complex; source_h3="}
+{"id": "seed_0382", "query": "我总觉得这件事情有问题，但具体违反了什么规定说不上来，只是感觉对方处理方式不太合理。法律上一般如何判断这种模糊的不公平情形？", "hints": {}, "notes": "source_h2=3. 长文本 Complex; source_h3="}
+{"id": "seed_0383", "query": "医生做出了诊断，但后来发现结果并不理想。我不确定这是误诊还是单纯治疗效果不好。这种情况一般怎么区分？", "hints": {}, "notes": "source_h2=3. 长文本 Complex; source_h3="}
+{"id": "seed_0384", "query": "合同双方在履行过程中出现争议，但并没有明显违法行为，只是对条款理解不同。这种情况一般如何处理？", "hints": {}, "notes": "source_h2=3. 长文本 Complex; source_h3="}
+{"id": "seed_0385", "query": "如果结果不好，但过程看起来没有明显违规，这种情形是否一定构成责任？", "hints": {}, "notes": "source_h2=3. 长文本 Complex; source_h3="}
+{"id": "seed_0386", "query": "当法律条文比较抽象时，实际判断会不会存在较大弹性空间？", "hints": {}, "notes": "source_h2=3. 长文本 Complex; source_h3="}
+{"id": "seed_0387", "query": "我和公司签了三年劳动合同，合同中约定六个月试用期。我现在已经工作一年多，公司突然以“能力不匹配”为由准备解除合同，但没有提供具体考核记录。与此同时，公司还拖欠了两个月工资，并且在合同中有一条免责条款，说“公司可根据经营情况调整或解除合同”。", "hints": {}, "notes": "source_h2=1. 极端超长 + 三层嵌套; source_h3="}
+{"id": "seed_0388", "query": "患者在医院接受手术，术前签署了风险告知书，术后出现严重并发症。医院表示已履行告知义务，并且并发症属于正常风险范围。但家属认为告知书内容过于概括，没有具体说明概率，也未说明替代治疗方案。", "hints": {}, "notes": "source_h2=1. 极端超长 + 三层嵌套; source_h3="}
+{"id": "seed_0389", "query": "我在电商平台购买商品后发现是假货，平台称其仅提供技术服务，不承担连带责任。但我查到部分案例中法院判平台承担责任。", "hints": {}, "notes": "source_h2=1. 极端超长 + 三层嵌套; source_h3="}
+{"id": "seed_0390", "query": "公司进入破产程序，拖欠员工工资、社保、公积金，同时还存在银行贷款和侵权赔偿债务。", "hints": {}, "notes": "source_h2=1. 极端超长 + 三层嵌套; source_h3="}
+{"id": "seed_0391", "query": "医生对患者长期使用某种药物，但未说明潜在副作用。后来患者出现严重并发症。医院表示属于合理医疗判断。", "hints": {}, "notes": "source_h2=1. 极端超长 + 三层嵌套; source_h3="}
+{"id": "seed_0392", "query": "你刚才说合同无效的情形包括违反强制性规定，但没有列出具体条文。我查到不同版本的解释，似乎并非所有违反规定的条款都当然无效。", "hints": {}, "notes": "source_h2=2. Intent 冲突型超长文本; source_h3="}
+{"id": "seed_0393", "query": "你刚才说这种情况一定需要承担赔偿责任，但我看到案例中法院并未支持赔偿请求。", "hints": {}, "notes": "source_h2=2. Intent 冲突型超长文本; source_h3="}
+{"id": "seed_0394", "query": "你提到医疗过失必须证明因果关系，但现实中患者很难举证。", "hints": {}, "notes": "source_h2=2. Intent 冲突型超长文本; source_h3="}
+{"id": "seed_0395", "query": "你说试用期最长不能超过六个月，但如果合同期限不足三年，是否也可以约定六个月？", "hints": {}, "notes": "source_h2=2. Intent 冲突型超长文本; source_h3="}
+{"id": "seed_0396", "query": "你提到免责条款在存在重大过失时无效，但如何界定重大过失？", "hints": {}, "notes": "source_h2=2. Intent 冲突型超长文本; source_h3="}
+{"id": "seed_0397", "query": "我总觉得这件事情处理得不太对，但具体哪里不合法说不上来。合同本身没有明显违法条款，只是在履行过程中对方解释方式和我理解不同。", "hints": {}, "notes": "source_h2=3. 多逻辑分支 + 强歧义; source_h3="}
+{"id": "seed_0398", "query": "医生做出诊断后建议保守治疗，但后来病情恶化。我不确定这是误诊还是单纯治疗效果不理想。", "hints": {}, "notes": "source_h2=3. 多逻辑分支 + 强歧义; source_h3="}
+{"id": "seed_0399", "query": "合同中存在免责条款，但条款表述较为笼统。对方主张免责，我认为条款无效。", "hints": {}, "notes": "source_h2=3. 多逻辑分支 + 强歧义; source_h3="}
+{"id": "seed_0400", "query": "公司解除合同的理由是经营困难，但同时招聘了新员工。", "hints": {}, "notes": "source_h2=3. 多逻辑分支 + 强歧义; source_h3="}
+{"id": "seed_0401", "query": "医院声称已经履行告知义务，但告知内容较为概括。患者签字确认，但表示并未真正理解。", "hints": {}, "notes": "source_h2=3. 多逻辑分支 + 强歧义; source_h3="}
+{"id": "seed_0402", "query": "你刚才提到合同无效的情形包括违反强制性规定，但没有具体列出条文。我查到有不同解释版本，所以想确认一下：", "hints": {}, "notes": "source_h2=4. 四层冲突型超长文本; source_h3="}
+{"id": "seed_0403", "query": "患者在手术前签署了风险告知书，术后出现并发症。医院称属于已告知风险，但家属认为告知过于概括。", "hints": {}, "notes": "source_h2=4. 四层冲突型超长文本; source_h3="}
+{"id": "seed_0404", "query": "公司进入破产程序，拖欠工资和社保，同时存在侵权赔偿和银行债务。", "hints": {}, "notes": "source_h2=4. 四层冲突型超长文本; source_h3="}
+{"id": "seed_0405", "query": "你提到试用期最长不能超过六个月，但如果合同期限只有一年，是否仍然可以约定六个月？", "hints": {}, "notes": "source_h2=4. 四层冲突型超长文本; source_h3="}
+{"id": "seed_0406", "query": "合同中存在免责条款，但条款内容较为笼统。对方主张免责，我认为条款无效。", "hints": {}, "notes": "source_h2=4. 四层冲突型超长文本; source_h3="}
+{"id": "seed_0407", "query": "医生根据当时通行医学标准做出诊断，但后来研究证明风险更高。", "hints": {}, "notes": "source_h2=4. 四层冲突型超长文本; source_h3="}
+{"id": "seed_0408", "query": "我在电商平台买到假货，平台称仅提供技术服务不承担责任。", "hints": {}, "notes": "source_h2=4. 四层冲突型超长文本; source_h3="}
+{"id": "seed_0409", "query": "公司以员工能力不匹配为由解除合同，但未提供具体考核记录。", "hints": {}, "notes": "source_h2=4. 四层冲突型超长文本; source_h3="}

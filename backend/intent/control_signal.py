@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from intent.types import ControlSignal, ResolvedIntent
+from intent.types import ControlSignal, PlanningLevel, ResolvedIntent, ResolvedTask
 
 
 def build_control_signal(
@@ -31,16 +31,19 @@ def build_control_signal(
             force_citation=True,
             use_planner=False,
             decompose_query=False,
+            planning_level="none",
         )
 
     if task.needs_agent_planning:
+        planning_level = _planning_level_for_task(task)
         return ControlSignal(
             route="agent",
             mode="normal",
             rewrite=modifiers.follow_up or resolved.context_dependency != "none",
             force_citation=force_qa_citation,
-            use_planner=True,
+            use_planner=planning_level == "full",
             decompose_query=False,
+            planning_level=planning_level,
         )
 
     return ControlSignal(
@@ -50,4 +53,15 @@ def build_control_signal(
         force_citation=force_qa_citation or modifiers.ask_source,
         use_planner=False,
         decompose_query=task.needs_query_decomposition,
+        planning_level="none",
     )
+
+
+def _planning_level_for_task(task: ResolvedTask) -> PlanningLevel:
+    if task.complexity != "complex":
+        return "none"
+    if task.shape in {"compare", "mixed"}:
+        return "full"
+    if task.shape in {"verify", "extract"}:
+        return "light"
+    return "none"

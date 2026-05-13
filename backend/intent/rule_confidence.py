@@ -125,16 +125,15 @@ def _clamp_score(score: float) -> float:
 def _build_explanations(signal_confidences: list[SignalConfidence]) -> list[str]:
     explanations: list[str] = []
     for item in signal_confidences:
-        parts = [
-            f"{item.signal}: base={item.base_score:.2f}",
-            f"bonus=+{item.support_bonus:.2f}",
-        ]
-        if item.conflict_penalty:
-            parts.append(f"conflict=-{item.conflict_penalty:.2f}")
-        if item.context_adjustment > 0:
-            parts.append(f"context=+{item.context_adjustment:.2f}")
-        elif item.context_adjustment < 0:
-            parts.append(f"context={item.context_adjustment:.2f}")
-        parts.append(f"final={item.final_score:.2f}")
-        explanations.append("; ".join(parts))
+        explanations.append(
+            (
+                f"signal={item.signal}; "
+                f"rules=[{', '.join(item.supporting_rule_ids)}]; "
+                f"[Final: {item.final_score:.2f}] = "
+                f"Base({item.base_score:.2f}) + "
+                f"Bonus({item.support_bonus:+.2f}) - "
+                f"Conflict({item.conflict_penalty:.2f}) + "
+                f"Context({item.context_adjustment:+.2f})"
+            )
+        )
     return explanations
