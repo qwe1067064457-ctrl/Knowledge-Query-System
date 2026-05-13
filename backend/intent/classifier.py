@@ -4,6 +4,18 @@ import re
 from typing import Any, Iterable, Pattern
 
 from intent.control_signal import build_control_signal
+from intent.rule_assets import (
+    ASK_SOURCE_PATTERNS,
+    CAPABILITY_PATTERNS,
+    CHALLENGE_PATTERNS,
+    CHAT_PATTERNS,
+    DOMAIN_HINT_TOKENS,
+    DOMAIN_QA_PATTERNS,
+    FOLLOW_UP_PATTERNS,
+    JUDGMENT_QA_PATTERNS,
+    META_ANALYSIS_QA_PATTERNS,
+    SELF_ANCHOR_TOKENS,
+)
 from intent.rule_confidence import calculate_rule_confidence
 from intent.resolver import resolve_intent
 from intent.types import (
@@ -23,57 +35,6 @@ from intent.types import (
 
 
 RULE_STRENGTH_SCORES = {"high": 0.9, "medium": 0.6, "low": 0.3}
-
-DOMAIN_QA_PATTERNS: tuple[Pattern[str], ...] = tuple(
-    re.compile(pattern, re.IGNORECASE)
-    for pattern in (
-        r"(查|检索|引用|提取|分析|解释|说明|梳理|总结|对比|归纳).{0,12}(法律|法规|法条|合同|条款|制度|政策|医疗|诊断|药品|治疗|指南|病例)",
-        r"(什么是|怎么理解|如何定义|如何判断|怎么认定|是否构成|是否有效).{0,16}(法条|规定|程序|合同|医疗事故|医疗过失|侵权|违约|试用期|赔偿)",
-        r"(法律|法规|法条|合同|条款|制度|政策|医疗事故|医疗过失|侵权责任|违约责任|试用期|赔偿).{0,16}(是什么|怎么写|哪一条|如何|怎么算|多久|区别|条件|情形)",
-        r"(民法典|劳动合同法|司法解释|医保|高血压|糖尿病|非法行医|破产清算|电子合同|医疗事故|医疗过失)",
-    )
-)
-CHALLENGE_PATTERNS: tuple[Pattern[str], ...] = tuple(
-    re.compile(pattern, re.IGNORECASE)
-    for pattern in (
-        r"你(确定|肯定)吗|确定吗",
-        r"(不对吧|不正确|错了|错误|有问题|不严谨|瞎说|胡说|乱说)",
-        r"是不是.{0,10}(错|不对|有问题|搞错了)",
-        r"你刚才.{0,12}(不对|错|矛盾|不一致|说反了|搞错了)",
-        r"(和|跟).{0,12}(不一致|矛盾|冲突)",
-        r"(理解错了|漏掉了?限制条件)",
-        r"(并不|不太|并不觉得).{0,8}(对|准确|严谨|合理)",
-    )
-)
-ASK_SOURCE_PATTERNS: tuple[Pattern[str], ...] = tuple(
-    re.compile(pattern, re.IGNORECASE)
-    for pattern in (
-        r"依据是什么|依据呢|什么依据|有依据吗|为什么这么说",
-        r"来源|出处|引用|证据|司法解释|法条依据|条文依据",
-        r"哪一条|哪条|哪个文件|哪份资料|哪部司法解释",
-        r"\b(source|citation|reference)\b",
-    )
-)
-JUDGMENT_QA_PATTERNS: tuple[Pattern[str], ...] = tuple(
-    re.compile(pattern, re.IGNORECASE)
-    for pattern in (
-        r"(算不算|是否|合理吗|合规吗|合法吗|违法吗|有责任吗|怎么赔|赔多少|怎么处理)",
-    )
-)
-DOMAIN_ACTOR_PATTERNS: tuple[Pattern[str], ...] = tuple(
-    re.compile(pattern, re.IGNORECASE)
-    for pattern in (
-        r"(医院|医生|公司|老板|物业|学校|法院|平台|商家|患者|员工|合同|医疗事故|医疗过失)",
-    )
-)
-CAPABILITY_PATTERNS: tuple[Pattern[str], ...] = tuple(
-    re.compile(pattern, re.IGNORECASE)
-    for pattern in (
-        r"你能做什么|你可以做什么|能干什么",
-        r"有什么功能|支持什么|怎么用",
-        r"你是谁|介绍一下你自己",
-    )
-)
 UNSUPPORTED_RULES: tuple[tuple[str, Pattern[str], str], ...] = (
     (
         "unsupported.file_delete_request",
@@ -100,22 +61,6 @@ UNSUPPORTED_RULES: tuple[tuple[str, Pattern[str], str], ...] = (
         re.compile(r"(帮我操作|替我执行|调用外部系统)", re.IGNORECASE),
         "unknown_external_action",
     ),
-)
-FOLLOW_UP_PATTERNS: tuple[Pattern[str], ...] = tuple(
-    re.compile(pattern, re.IGNORECASE)
-    for pattern in (
-        r"^(那|那么|如果|要是|这种|这个|上述|刚才|前面)",
-        r"(这种情况|这个情况|那种情况|上述情况|刚才说的|前面说的)",
-        r"^(继续|还有吗|还有呢|再说|展开说)",
-        r"(它|这个|那个|上述|前者|后者).{0,8}(呢|吗|如何|怎么|是否|多久|多少)",
-    )
-)
-CHAT_PATTERNS: tuple[Pattern[str], ...] = tuple(
-    re.compile(pattern, re.IGNORECASE)
-    for pattern in (
-        r"^(你好|您好|嗨|hello|hi)[！!。,.，\s]*$",
-        r"^(谢谢|感谢|辛苦了|好的|明白了)[！!。,.，\s]*$",
-    )
 )
 MULTI_QUESTION_PATTERNS: tuple[Pattern[str], ...] = tuple(
     re.compile(pattern, re.IGNORECASE)
@@ -533,7 +478,7 @@ def _looks_like_generic_qa(text: str) -> bool:
         "最长多少天",
         "承担哪些法律责任",
     )
-    if any(token in text for token in generic_tokens):
+    if any(token in text for token in generic_tokens) or _matches(text, META_ANALYSIS_QA_PATTERNS):
         return True
     return bool(
         (_contains_domain_hint(text) or _contains_self_anchor(text))
@@ -552,77 +497,11 @@ def _looks_like_soft_challenge(text: str) -> bool:
 
 
 def _contains_domain_hint(text: str) -> bool:
-    tokens = (
-        "医疗事故",
-        "医疗过失",
-        "侵权",
-        "违约",
-        "合同",
-        "试用期",
-        "赔偿",
-        "拘留",
-        "破产",
-        "清算",
-        "劳动合同",
-        "法院",
-        "法条",
-        "司法解释",
-        "医院",
-        "医生",
-        "公司",
-        "平台",
-        "著作权",
-        "刑事拘留",
-        "行政拘留",
-        "重大疾病",
-        "电子合同",
-        "免责条款",
-        "员工工资",
-        "保险",
-        "房子",
-        "社保",
-        "公积金",
-        "绩效",
-        "辞退",
-        "欠条",
-        "发票",
-        "逾期",
-        "违约金",
-        "流程",
-        "手续",
-    )
-    return any(token in text for token in tokens)
+    return any(token in text for token in DOMAIN_HINT_TOKENS)
 
 
 def _contains_self_anchor(text: str) -> bool:
-    tokens = (
-        "保险",
-        "假货",
-        "合同",
-        "房子",
-        "社保",
-        "公积金",
-        "绩效",
-        "辞退",
-        "欠条",
-        "发票",
-        "逾期",
-        "违约金",
-        "流程",
-        "手续",
-        "责任",
-        "赔偿",
-        "拘留",
-        "医院",
-        "公司",
-        "平台",
-        "条款",
-        "效力",
-        "疾病",
-        "著作权",
-        "重大疾病",
-    )
-    return any(token in text for token in tokens)
+    return any(token in text for token in SELF_ANCHOR_TOKENS)
 
 
 def _should_block_missing_history(text: str) -> bool:

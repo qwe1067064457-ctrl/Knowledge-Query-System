@@ -223,3 +223,10 @@ def test_enumerated_design_query_resolves_to_complex_mixed() -> None:
     assert result.resolved.task.complexity == "complex"
     assert result.resolved.task.shape in {"mixed", "summarize", "compare", "verify"}
     assert result.control.route == "agent"
+
+
+def test_meta_analysis_query_stays_qa_not_chat() -> None:
+    result = classify_intent("我是想看代码解析，不看它做了什么，这个 query 我现在的规则能做好的判断吗？")
+
+    assert result.resolved.main_intent == "qa"
+    assert result.control.route == "rag"
