@@ -302,6 +302,35 @@ simple < compound < complex
 - 生成 evidence
 - 决定后续识别模式
 
+当前规则资产建议分成两层来理解：
+
+- `global stable rules`
+- `group_shared / domain bootstrap rules`
+
+`global stable rules` 指跨知识域仍然成立的规则，例如：
+
+- `ask_source`
+- `ask_capability`
+- `follow_up`
+- `unsupported`
+- 明确 `challenge`
+- 明确的多问 / 结构型任务信号
+
+`group_shared / domain bootstrap rules` 指当前知识组共享、但不应被误认为全局稳定语义的规则，例如：
+
+- 法律 / 医疗 / 合同等领域词锚点
+- domain hint / self anchor 词表
+- 依赖当前知识域高频实体的 QA bootstrap 规则
+
+这一层目前仍保留，用来支撑冷启动召回；
+后续应逐步迁移到更动态的维护机制，而不是继续把领域词直接堆进全局规则。
+
+当前已经先推进半步：
+
+- 规则逻辑仍保留在 `classifier.py`
+- `domain bootstrap` 资产已外提成独立配置文件与加载器
+- 后续动态调优 agent 应优先修改配置资产，而不是直接改主分类逻辑
+
 当前已经明确三类模式：
 
 - `rule_only`
@@ -605,6 +634,10 @@ unsupported
 - `agent.py` 已接入新 intent 流水线
 - 模型分类器占位和 prompt 文件
 - 规则评估脚本与种子数据
+- `signal_buckets` / `context_signals` 分桶与类型化重构
+- `global stable rules` 与 `group_shared / domain bootstrap rules` 的资产分层
+- `domain bootstrap` 资产文件化与配置加载
+- 面向 meta-analysis QA 的基础规则补强
 
 当前还没有继续做的内容：
 
@@ -613,6 +646,9 @@ unsupported
 - agent/planner 细粒度执行优化
 - 小模型 SFT
 - 真实大规模规则质量验证后的系统性调参
+- layer-isolated eval 所需的中间层金标体系
+- 动态领域规则维护机制
+- rule-maintenance agent / 自动规则提案链路
 
 原因是：
 
@@ -624,6 +660,15 @@ unsupported
 ## 八、后续重点
 
 当前最重要的后续方向，不是继续扩执行流，而是：
+
+### 0. 当前已澄清的关键判断
+
+- `control` 层相对最清楚，它负责执行流映射，不负责重新理解 query
+- `resolved` 层负责收敛，不负责凭空补回上游没识别出的语义
+- `evidence` 层是当前最难、也是最容易成为瓶颈的部分
+- 规则层的主要瓶颈不只是长文本，而是“表面简单、表达开放、语义偏隐式”的 query
+- 领域词表当前仍有价值，但它们应被理解为 `group_shared / domain bootstrap` 资产，而不是全局稳定规则
+- 规则层不应再追求覆盖所有开放表达，而应转向“稳定、可迁移、可供训练”
 
 ### 1. 做真实数据评估
 
@@ -646,6 +691,8 @@ unsupported
 - 覆盖率
 - 命中表现
 - 冲突情况
+- 是否已有 `expected_positive / expected_negative`
+- 是否只是有 `hits` 但还无法严格算质量
 
 ### 3. 决定是否真的需要加大模型占比
 
@@ -654,6 +701,32 @@ unsupported
 - 哪些批次规则够用
 - 哪些批次必须依赖模型
 - 是否值得做小模型或 SFT
+
+### 4. 继续做规则层收尾，而不是无限细调
+
+下一阶段规则层还值得做的事情：
+
+- 继续清理规则资产归属
+- 把领域 bootstrap 规则从核心逻辑中继续外提
+- 补小类样本分布
+- 补规则级监督
+- 让训练集导出和后续 SFT 对接更顺畅
+
+不再优先做的事情：
+
+- 为了追最后几个点继续堆专业词
+- 试图让规则层单独解决所有 meta/open-ended query
+- 在没有新增监督的情况下继续盲目手调表达覆盖
+
+### 5. TODO 列表
+
+- [ ] 为新增规则建立更完整的规则级监督，尤其是 `intent.qa.generic` / `intent.qa.judgment` / `challenge.soft_doubt`
+- [ ] 补齐小类评估样本：`challenge` / `mixed_intent` / `fuzzy_qa` / `chat-meta boundary`
+- [ ] 设计并实现 `rule_tuning` 持续记录机制与准入标准
+- [ ] 为 `domain bootstrap` 资产设计可配置承载方式
+- [ ] 评估是否需要小范围 `layer-isolated eval` 切片，而不是全面铺开
+- [ ] 准备 SFT 前的数据导出格式、标签分层和 held-out eval 集
+- [ ] 规划动态规则维护 / rule-maintenance agent 的接口与职责
 
 ---
 
