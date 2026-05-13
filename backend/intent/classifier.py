@@ -9,6 +9,7 @@ from intent.resolver import resolve_intent
 from intent.types import (
     CandidateIntent,
     ClassifierMode,
+    ContextSignals,
     ContextState,
     IntentAnalysis,
     IntentEvidence,
@@ -16,6 +17,7 @@ from intent.types import (
     IntentModifiers,
     ModelContext,
     RuleMatch,
+    SignalBuckets,
     TaskCandidate,
 )
 
@@ -25,30 +27,43 @@ RULE_STRENGTH_SCORES = {"high": 0.9, "medium": 0.6, "low": 0.3}
 DOMAIN_QA_PATTERNS: tuple[Pattern[str], ...] = tuple(
     re.compile(pattern, re.IGNORECASE)
     for pattern in (
-        r"知识库|文档|资料|制度|流程|报告|政策",
-        r"法律|法规|法条|条款|合同|劳动|试用期|赔偿|仲裁|诉讼|法院|判决",
-        r"医学|病例|诊断|药品|治疗|检查|指南",
-        r"根据.+?(规定|资料|知识库|文档|法律|制度)",
-        r"(查|检索|引用|总结|对比|提取|整理|分析).+?(资料|文档|知识库|文件|报告|制度)",
+        r"(查|检索|引用|提取|分析|解释|说明|梳理|总结|对比|归纳).{0,12}(法律|法规|法条|合同|条款|制度|政策|医疗|诊断|药品|治疗|指南|病例)",
+        r"(什么是|怎么理解|如何定义|如何判断|怎么认定|是否构成|是否有效).{0,16}(法条|规定|程序|合同|医疗事故|医疗过失|侵权|违约|试用期|赔偿)",
+        r"(法律|法规|法条|合同|条款|制度|政策|医疗事故|医疗过失|侵权责任|违约责任|试用期|赔偿).{0,16}(是什么|怎么写|哪一条|如何|怎么算|多久|区别|条件|情形)",
+        r"(民法典|劳动合同法|司法解释|医保|高血压|糖尿病|非法行医|破产清算|电子合同|医疗事故|医疗过失)",
     )
 )
 CHALLENGE_PATTERNS: tuple[Pattern[str], ...] = tuple(
     re.compile(pattern, re.IGNORECASE)
     for pattern in (
-        r"你确定吗|确定吗|真的吗|靠谱么|靠谱吗",
-        r"不对吧|不正确|错了|错误|有问题|不严谨",
-        r"是不是.+?(错|不对|有问题)",
-        r"你刚才.+?(不对|错|矛盾|不一致)",
-        r"和.+?(不一致|矛盾|冲突)",
+        r"你(确定|肯定)吗|确定吗",
+        r"(不对吧|不正确|错了|错误|有问题|不严谨|瞎说|胡说|乱说)",
+        r"是不是.{0,10}(错|不对|有问题|搞错了)",
+        r"你刚才.{0,12}(不对|错|矛盾|不一致|说反了|搞错了)",
+        r"(和|跟).{0,12}(不一致|矛盾|冲突)",
+        r"(理解错了|漏掉了?限制条件)",
+        r"(并不|不太|并不觉得).{0,8}(对|准确|严谨|合理)",
     )
 )
 ASK_SOURCE_PATTERNS: tuple[Pattern[str], ...] = tuple(
     re.compile(pattern, re.IGNORECASE)
     for pattern in (
-        r"依据是什么|依据呢|什么依据",
-        r"来源|出处|引用|证据",
-        r"哪一条|哪条|哪个文件|哪份资料",
+        r"依据是什么|依据呢|什么依据|有依据吗|为什么这么说",
+        r"来源|出处|引用|证据|司法解释|法条依据|条文依据",
+        r"哪一条|哪条|哪个文件|哪份资料|哪部司法解释",
         r"\b(source|citation|reference)\b",
+    )
+)
+JUDGMENT_QA_PATTERNS: tuple[Pattern[str], ...] = tuple(
+    re.compile(pattern, re.IGNORECASE)
+    for pattern in (
+        r"(算不算|是否|合理吗|合规吗|合法吗|违法吗|有责任吗|怎么赔|赔多少|怎么处理)",
+    )
+)
+DOMAIN_ACTOR_PATTERNS: tuple[Pattern[str], ...] = tuple(
+    re.compile(pattern, re.IGNORECASE)
+    for pattern in (
+        r"(医院|医生|公司|老板|物业|学校|法院|平台|商家|患者|员工|合同|医疗事故|医疗过失)",
     )
 )
 CAPABILITY_PATTERNS: tuple[Pattern[str], ...] = tuple(
@@ -108,7 +123,16 @@ MULTI_QUESTION_PATTERNS: tuple[Pattern[str], ...] = tuple(
         r"\?.+\?",
         r"？.+？",
         r"^\s*1\.",
-        r"[；;].+[？?]",
+        r"(首先|其次|第一|第二|第三|最后|还有就是|一方面|另一方面)",
+        r"(\d\.|[①②③④⑤]).+?(\d\.|[①②③④⑤])",
+        r"[；;].*?[？?]",
+        r"[？?].{0,20}(另外|还有|以及|同时).{0,20}[？?]",
+    )
+)
+GENERIC_QA_PATTERNS: tuple[Pattern[str], ...] = tuple(
+    re.compile(pattern, re.IGNORECASE)
+    for pattern in (
+        r"(怎么(办|处理|解决)|如何(申请|办理|认定|处理|解决)|有哪些(要求|条件|风险|责任)|能不能|会.{0,6}(什么后果|怎样)|要赔吗|有责任吗|合法吗|违法吗|有效吗|对吗|有问题吗|区别是什么|最长多少天|承担哪些法律责任)",
     )
 )
 COMPLEX_TASK_PATTERNS: tuple[Pattern[str], ...] = tuple(
@@ -116,9 +140,9 @@ COMPLEX_TASK_PATTERNS: tuple[Pattern[str], ...] = tuple(
     for pattern in (
         r"对比|比较|差异|异同",
         r"总结|归纳|提炼|整理",
-        r"验证|核对|判断对错|逐条分析",
-        r"表格|清单|分步骤|逐层|结构化",
-        r"如何收敛|合理性评估|每一层|走一遍|设计说明",
+        r"验证|核对|判断对错|逐条分析|举证责任|因果关系",
+        r"表格|清单|分步骤|逐层|结构化|决策树|分析框架",
+        r"如何收敛|合理性评估|每一层|走一遍|设计说明|关键事实|争议点|判断依据",
     )
 )
 
@@ -184,7 +208,10 @@ def _build_rule_evidence(intent_input: IntentInput, history: list[dict[str, Any]
     ctx = intent_input.context_state
 
     matched_rules: list[RuleMatch] = []
-    raw_signals: list[str] = []
+    intent_signals: list[str] = []
+    task_signals: list[str] = []
+    context_signals: list[str] = []
+    safety_signals: list[str] = []
     unsupported_signals = {
         "file_write_request": False,
         "file_delete_request": False,
@@ -204,38 +231,65 @@ def _build_rule_evidence(intent_input: IntentInput, history: list[dict[str, Any]
     chat = _matches(text, CHAT_PATTERNS)
     ask_capability = _matches(text, CAPABILITY_PATTERNS)
     ask_source = _matches(text, ASK_SOURCE_PATTERNS)
-    challenge_requested = _matches(text, CHALLENGE_PATTERNS)
+    judgment_qa = _looks_like_judgment_qa(text)
+    generic_qa = _looks_like_generic_qa(text)
+    hard_challenge_requested = _matches(text, CHALLENGE_PATTERNS)
+    soft_challenge_requested = _looks_like_soft_challenge(text)
+    challenge_requested = hard_challenge_requested or soft_challenge_requested
     follow_up_requested = _matches(text, FOLLOW_UP_PATTERNS)
     multi_question = _is_multi_question(text)
-    complex_task = _matches(text, COMPLEX_TASK_PATTERNS) or _looks_like_design_review_query(text)
+    qa_signal_detected = (
+        domain_qa
+        or judgment_qa
+        or generic_qa
+        or ask_source
+        or challenge_requested
+        or _contains_domain_hint(text)
+        or _question_phrase_count(text) >= 1
+    )
+    long_complex_fallback = _should_force_complex_qa(text, qa_signal_detected)
+    complex_task = _matches(text, COMPLEX_TASK_PATTERNS) or _looks_like_design_review_query(text) or long_complex_fallback
 
-    if domain_qa:
-        raw_signals.append("qa")
-        matched_rules.append(_rule("intent.qa.domain", "qa", "medium", text))
+    if domain_qa or judgment_qa or generic_qa:
+        _append_signal(intent_signals, "qa")
+        if generic_qa and not (domain_qa or judgment_qa):
+            rule_id = "intent.qa.generic"
+        else:
+            rule_id = "intent.qa.judgment" if judgment_qa and not domain_qa else "intent.qa.domain"
+        matched_rules.append(_rule(rule_id, "qa", "medium", text))
     if chat:
-        raw_signals.append("chat")
+        _append_signal(intent_signals, "chat")
         matched_rules.append(_rule("intent.chat.greeting", "chat", "high", text))
     if ask_capability:
-        raw_signals.extend(["system", "ask_capability"])
+        _append_signal(intent_signals, "system")
+        _append_signal(intent_signals, "ask_capability")
         matched_rules.append(_rule("system.capability.ask", "ask_capability", "high", text))
     if ask_source:
-        raw_signals.append("ask_source")
+        _append_signal(intent_signals, "ask_source")
+        _append_signal(context_signals, "ask_source")
         matched_rules.append(_rule("source.ask_basis", "ask_source", "high", text))
     if challenge_requested:
         if ctx.has_previous_answer:
-            raw_signals.append("challenge")
+            _append_signal(intent_signals, "challenge" if hard_challenge_requested else "soft_doubt")
+            _append_signal(context_signals, "challenge" if hard_challenge_requested else "soft_doubt")
             dependency_signals["previous_answer"] = True
-            matched_rules.append(_rule("challenge.disagree", "challenge", "high", text))
+            if hard_challenge_requested:
+                matched_rules.append(_rule("challenge.disagree", "challenge", "high", text))
+            else:
+                matched_rules.append(_rule("challenge.soft_doubt", "soft_doubt", "low", text))
+        elif _should_rescue_self_contained_long_query(text):
+            _append_signal(intent_signals, "qa")
+            matched_rules.append(_rule("intent.qa.long_context_rescue", "qa", "medium", text))
         else:
-            raw_signals.append("needs_clarification")
+            _append_signal(context_signals, "needs_clarification")
             dependency_signals["ambiguous"] = True
             matched_rules.append(_rule("challenge.missing_context", "needs_clarification", "medium", text))
     if follow_up_requested and ctx.has_history:
-        raw_signals.append("follow_up")
+        _append_signal(context_signals, "follow_up")
         dependency_signals["history_reference"] = True
         matched_rules.append(_rule("context.follow_up.reference", "follow_up", "medium", text))
-    elif follow_up_requested:
-        raw_signals.append("needs_clarification")
+    elif follow_up_requested and not _should_block_missing_history(text):
+        _append_signal(context_signals, "needs_clarification")
         dependency_signals["ambiguous"] = True
         matched_rules.append(_rule("context.follow_up.missing_history", "needs_clarification", "medium", text))
 
@@ -243,42 +297,81 @@ def _build_rule_evidence(intent_input: IntentInput, history: list[dict[str, Any]
         match = pattern.search(text)
         if match:
             unsupported_signals[unsupported_key] = True
-            raw_signals.extend(["unsupported", "out_of_scope"])
+            _append_signal(safety_signals, "unsupported")
+            _append_signal(safety_signals, "out_of_scope")
             matched_rules.append(_rule(rule_id, "out_of_scope", "high", match.group(0)))
 
     if multi_question:
-        raw_signals.append("multi_question")
+        _append_signal(task_signals, "multi_question")
         matched_rules.append(_rule("task.enumerated_questions", "multi_question", "high", text[:80]))
     if complex_task:
-        raw_signals.append("complex")
+        _append_signal(task_signals, "complex")
         matched_rules.append(_rule("task.complex.request", "complex", "medium", text[:80]))
+    if long_complex_fallback and "qa" not in intent_signals:
+        _append_signal(intent_signals, "qa")
+        matched_rules.append(_rule("intent.qa.long_form", "qa", "medium", text[:80]))
 
     if ask_source and ctx.has_previous_answer:
         dependency_signals["previous_answer"] = True
-    if ask_source and not ctx.has_previous_answer and not domain_qa:
-        raw_signals.append("needs_clarification")
+    if ask_source and not ctx.has_previous_answer and not (domain_qa or judgment_qa or generic_qa):
+        _append_signal(context_signals, "needs_clarification")
         dependency_signals["ambiguous"] = True
         matched_rules.append(_rule("source.missing_context", "needs_clarification", "medium", text))
+
+    if (
+        judgment_qa
+        and "needs_clarification" not in context_signals
+        and not ctx.has_history
+        and not long_complex_fallback
+        and not multi_question
+        and not complex_task
+        and _should_request_judgment_clarification(text)
+    ):
+        _append_signal(context_signals, "needs_clarification")
+        dependency_signals["ambiguous"] = True
+        matched_rules.append(_rule("intent.qa.judgment_clarify", "needs_clarification", "medium", text))
 
     if not any(dependency_signals.values()):
         dependency_signals["none"] = True
 
+    typed_context_signals = ContextSignals(
+        has_reference=dependency_signals["history_reference"],
+        has_previous_intent=ctx.last_main_intent is not None,
+        has_implicit_history=dependency_signals["ambiguous"],
+        is_direct_followup="follow_up" in context_signals,
+        previous_answer=dependency_signals["previous_answer"],
+        previous_retrieval=dependency_signals["previous_retrieval"],
+        ambiguous=dependency_signals["ambiguous"],
+        none=dependency_signals["none"],
+    )
+    signal_buckets = SignalBuckets(
+        intent=tuple(intent_signals),
+        task=tuple(task_signals),
+        context=tuple(context_signals),
+        safety=tuple(safety_signals),
+    )
+    raw_signals = signal_buckets.all_signals()
+
     candidate_intents = _build_rule_candidate_intents(
-        raw_signals=raw_signals,
-        domain_qa=domain_qa,
+        signal_buckets=signal_buckets,
+        domain_qa=domain_qa or judgment_qa or generic_qa,
         chat=chat,
         ask_capability=ask_capability,
         unsupported=any(unsupported_signals.values()),
+        multi_question=multi_question,
+        complex_task=complex_task,
+        long_complex_fallback=long_complex_fallback,
     )
     task_candidates = _build_task_candidates(
         text=text,
         multi_question=multi_question,
         complex_task=complex_task,
+        long_complex_fallback=long_complex_fallback,
     )
     classifier_mode = _determine_classifier_mode(matched_rules)
     rule_confidence = calculate_rule_confidence(
         matched_rules=tuple(matched_rules),
-        raw_signals=tuple(dict.fromkeys(raw_signals)),
+        raw_signals=raw_signals,
         context_state=ctx,
         dependency_signals=dependency_signals,
     )
@@ -286,9 +379,11 @@ def _build_rule_evidence(intent_input: IntentInput, history: list[dict[str, Any]
     return IntentEvidence(
         classifier_mode=classifier_mode,
         matched_rules=tuple(matched_rules),
-        raw_signals=tuple(dict.fromkeys(raw_signals)),
+        raw_signals=raw_signals,
+        signal_buckets=signal_buckets,
         unsupported_signals=unsupported_signals,
         dependency_signals=dependency_signals,
+        context_signals=typed_context_signals,
         candidate_intents=tuple(candidate_intents),
         task_candidates=tuple(task_candidates),
         model_result=None,
@@ -298,18 +393,33 @@ def _build_rule_evidence(intent_input: IntentInput, history: list[dict[str, Any]
 
 def _build_rule_candidate_intents(
     *,
-    raw_signals: list[str],
+    signal_buckets: SignalBuckets,
     domain_qa: bool,
     chat: bool,
     ask_capability: bool,
     unsupported: bool,
+    multi_question: bool,
+    complex_task: bool,
+    long_complex_fallback: bool,
 ) -> list[CandidateIntent]:
+    intent_signals = set(signal_buckets.intent)
+    context_signals = set(signal_buckets.context)
     if unsupported:
         return [CandidateIntent(intent="unsupported", score=0.95)]
     if ask_capability:
         return [CandidateIntent(intent="system", score=0.95)]
-    if "challenge" in raw_signals or "ask_source" in raw_signals or domain_qa:
+    if (
+        "challenge" in intent_signals
+        or "ask_source" in intent_signals
+        or "soft_doubt" in intent_signals
+        or "follow_up" in context_signals
+        or domain_qa
+        or complex_task
+        or long_complex_fallback
+    ):
         return [CandidateIntent(intent="qa", score=0.85)]
+    if multi_question and "chat" not in intent_signals:
+        return [CandidateIntent(intent="qa", score=0.75), CandidateIntent(intent="chat", score=0.25)]
     if chat:
         return [CandidateIntent(intent="chat", score=0.9)]
     return [CandidateIntent(intent="chat", score=0.55), CandidateIntent(intent="qa", score=0.45)]
@@ -320,6 +430,7 @@ def _build_task_candidates(
     text: str,
     multi_question: bool,
     complex_task: bool,
+    long_complex_fallback: bool,
 ) -> list[TaskCandidate]:
     candidates: list[TaskCandidate] = []
     if multi_question:
@@ -327,6 +438,9 @@ def _build_task_candidates(
     if complex_task:
         shape = _infer_complex_shape(text)
         candidates.append(TaskCandidate(complexity="complex", shape=shape, score=0.8))
+    elif long_complex_fallback:
+        shape = _infer_complex_shape(text)
+        candidates.append(TaskCandidate(complexity="complex", shape=("summarize" if shape == "mixed" else shape), score=0.7))
     if not candidates:
         candidates.append(TaskCandidate(complexity="simple", shape="single_question", score=0.8))
     return candidates
@@ -341,15 +455,239 @@ def _determine_classifier_mode(matched_rules: list[RuleMatch]) -> ClassifierMode
 
 
 def _infer_complex_shape(text: str) -> str:
-    if re.search(r"对比|比较|差异|异同", text, re.IGNORECASE):
-        return "compare"
-    if re.search(r"总结|归纳|提炼|整理", text, re.IGNORECASE):
-        return "summarize"
-    if re.search(r"提取|抽取|摘出", text, re.IGNORECASE):
-        return "extract"
-    if re.search(r"验证|核对|判断对错|逐条分析", text, re.IGNORECASE):
-        return "verify"
-    return "mixed"
+    compare_score = _shape_signal_score(
+        text,
+        (
+            r"对比|比较|差异|异同|横向(?:对比|比较)|区别在于|优劣|取舍|平衡点|选(?:哪一个|哪种)|相比",
+        ),
+    )
+    summarize_score = _shape_signal_score(
+        text,
+        (
+            r"总结|归纳|提炼|整理|梳理|清单|脉络|要点|全集|所有情形|分门别类|框架|逻辑线|关键事实|争议点",
+        ),
+    )
+    extract_score = _shape_signal_score(
+        text,
+        (
+            r"提取|抽取|摘出|列出|找出",
+        ),
+    )
+    verify_score = _shape_signal_score(
+        text,
+        (
+            r"验证|核对|判断对错|逐条分析|举证责任|因果关系|司法解释|是否(?:成立|支持|违背|冲突|一致)|法律效力|定性|逻辑(?:是否)?自洽|能不能认定|是否合法|责任|赔偿|连带责任",
+        ),
+    )
+
+    if summarize_score and (verify_score or compare_score) and (
+        len(text) >= 80 or re.search(r"请按步骤|结构化|关键事实|争议点|判断依据", text, re.IGNORECASE)
+    ):
+        return "mixed"
+
+    scores = {
+        "compare": compare_score,
+        "summarize": summarize_score,
+        "extract": extract_score,
+        "verify": verify_score,
+    }
+    shape, score = max(scores.items(), key=lambda item: item[1])
+    if score <= 0:
+        return "mixed"
+    return shape
+
+
+def _looks_like_judgment_qa(text: str) -> bool:
+    if not (_matches(text, JUDGMENT_QA_PATTERNS) or text.startswith(("这算", "这样算", "这种情况算"))):
+        return False
+    return bool(
+        re.search(r"(医院|医生|公司|老板|物业|学校|法院|平台|商家|患者|员工|这样|这种做法|这件事|这情况)", text)
+        or _contains_domain_hint(text)
+        or _contains_self_anchor(text)
+    )
+
+
+def _looks_like_generic_qa(text: str) -> bool:
+    generic_tokens = (
+        "怎么办",
+        "怎么处理",
+        "怎么解决",
+        "如何申请",
+        "如何办理",
+        "如何认定",
+        "如何处理",
+        "如何解决",
+        "有哪些要求",
+        "有哪些条件",
+        "有哪些风险",
+        "有哪些责任",
+        "能不能",
+        "要赔吗",
+        "有责任吗",
+        "合法吗",
+        "违法吗",
+        "有效吗",
+        "对吗",
+        "有问题吗",
+        "区别是什么",
+        "最长多少天",
+        "承担哪些法律责任",
+    )
+    if any(token in text for token in generic_tokens):
+        return True
+    return bool(
+        (_contains_domain_hint(text) or _contains_self_anchor(text))
+        and _question_phrase_count(text) >= 1
+    )
+
+
+def _looks_like_soft_challenge(text: str) -> bool:
+    return bool(
+        re.search(
+            r"(真的吗|确定吗|是吗|未必|不一定|不见得|两说|太绝对|太武断|站不住|我看未必)",
+            text,
+            re.IGNORECASE,
+        )
+    )
+
+
+def _contains_domain_hint(text: str) -> bool:
+    tokens = (
+        "医疗事故",
+        "医疗过失",
+        "侵权",
+        "违约",
+        "合同",
+        "试用期",
+        "赔偿",
+        "拘留",
+        "破产",
+        "清算",
+        "劳动合同",
+        "法院",
+        "法条",
+        "司法解释",
+        "医院",
+        "医生",
+        "公司",
+        "平台",
+        "著作权",
+        "刑事拘留",
+        "行政拘留",
+        "重大疾病",
+        "电子合同",
+        "免责条款",
+        "员工工资",
+        "保险",
+        "房子",
+        "社保",
+        "公积金",
+        "绩效",
+        "辞退",
+        "欠条",
+        "发票",
+        "逾期",
+        "违约金",
+        "流程",
+        "手续",
+    )
+    return any(token in text for token in tokens)
+
+
+def _contains_self_anchor(text: str) -> bool:
+    tokens = (
+        "保险",
+        "假货",
+        "合同",
+        "房子",
+        "社保",
+        "公积金",
+        "绩效",
+        "辞退",
+        "欠条",
+        "发票",
+        "逾期",
+        "违约金",
+        "流程",
+        "手续",
+        "责任",
+        "赔偿",
+        "拘留",
+        "医院",
+        "公司",
+        "平台",
+        "条款",
+        "效力",
+        "疾病",
+        "著作权",
+        "重大疾病",
+    )
+    return any(token in text for token in tokens)
+
+
+def _should_block_missing_history(text: str) -> bool:
+    return bool(
+        re.search(
+            r"(定义|算不算|医疗事故|医疗过失|因果关系|举证责任|司法解释|是什么|怎么认定|怎么处理|有责任吗|赔多少|合法吗|违法吗)",
+            text,
+            re.IGNORECASE,
+        )
+    ) or (len(text) >= 80 and (_contains_domain_hint(text) or _question_phrase_count(text) >= 2))
+
+
+def _should_request_judgment_clarification(text: str) -> bool:
+    if len(text) >= 30:
+        return False
+    if _contains_self_anchor(text):
+        return False
+    if re.search(r"^(这样|这算|这种|这件事|这个情况|我这种情况|这种情况)", text, re.IGNORECASE):
+        return True
+    return not bool(
+        re.search(
+            r"(医疗事故|医疗过失|法律效力|免责条款|电子合同|重大疾病|公司破产|员工工资|著作权|刑事拘留|行政拘留|侵权责任|违约责任)",
+            text,
+            re.IGNORECASE,
+        )
+    )
+
+
+def _should_force_complex_qa(text: str, has_qa_signal: bool) -> bool:
+    if not has_qa_signal or len(text) < 80:
+        return False
+    return bool(
+        re.search(
+            r"(举证责任|司法解释|争议点|判断依据|因果关系|请按步骤|结构化|分别说明|第一|第二|第三|另外|同时|是否合法|是否成立|是否支持|是否一致|法律效力|定性|连带责任|主张什么权利|关键事实)",
+            text,
+            re.IGNORECASE,
+        )
+        or _question_phrase_count(text) >= 2
+        or text.count("？") + text.count("?") >= 2
+    )
+
+
+def _should_rescue_self_contained_long_query(text: str) -> bool:
+    return len(text) >= 80 and (
+        _contains_domain_hint(text)
+        or _question_phrase_count(text) >= 2
+        or _infer_complex_shape(text) in {"verify", "compare", "mixed", "summarize"}
+    )
+
+
+def _shape_signal_score(text: str, patterns: tuple[str, ...]) -> int:
+    score = 0
+    tail = _tail_slice(text)
+    for pattern in patterns:
+        if re.search(pattern, text, re.IGNORECASE):
+            score += 1
+        if tail and re.search(pattern, tail, re.IGNORECASE):
+            score += 1
+    return score
+
+
+def _tail_slice(text: str) -> str:
+    if len(text) < 150:
+        return ""
+    return text[int(len(text) * 0.8) :]
 
 
 def _rule(rule_id: str, signal: str, strength: str, matched_text: str) -> RuleMatch:
@@ -360,6 +698,11 @@ def _rule(rule_id: str, signal: str, strength: str, matched_text: str) -> RuleMa
         score=RULE_STRENGTH_SCORES[strength],
         matched_text=matched_text,
     )
+
+
+def _append_signal(bucket: list[str], signal: str) -> None:
+    if signal not in bucket:
+        bucket.append(signal)
 
 
 def _normalize(message: str) -> str:
@@ -373,8 +716,15 @@ def _matches(text: str, patterns: tuple[Pattern[str], ...]) -> bool:
 def _is_multi_question(text: str) -> bool:
     if _matches(text, MULTI_QUESTION_PATTERNS):
         return True
+    if _question_phrase_count(text) >= 2:
+        return True
     question_count = text.count("?") + text.count("？")
     return question_count >= 2
+
+
+def _question_phrase_count(text: str) -> int:
+    pattern = r"(最长多少天|算不算|合理吗|是否|哪些|多少|多大|怎么|如何|什么|谁|哪|几|吗)"
+    return len(re.findall(pattern, text, re.IGNORECASE))
 
 
 def _looks_like_design_review_query(text: str) -> bool:

@@ -69,6 +69,7 @@
 - `classifier_mode`
 - `matched_rules`
 - `raw_signals`
+- `signal_buckets`
 - `unsupported_signals`
 - `dependency_signals`
 - `candidate_intents`
@@ -83,6 +84,43 @@
 - `safety_evidence`
 
 只是当前代码还没有把 `evidence` 物理拆成四个子对象，而是逻辑上已经这样划分。
+
+从当前实现开始，我们额外提供两种阅读方式：
+
+- `to_dict()`
+  - 保持兼容的扁平结构，方便旧测试、旧评估脚本继续使用
+- `to_grouped_dict()`
+  - 提供按 `meta / intent / task / context / safety` 分组后的结构，方便调试和后续重构
+
+并且从这一版开始，规则层已经优先产出 `signal_buckets`：
+
+- `signal_buckets.intent`
+- `signal_buckets.task`
+- `signal_buckets.context`
+- `signal_buckets.safety`
+
+`raw_signals` 仍然保留，但角色已经下沉为：
+
+- 兼容旧测试 / 旧评估脚本
+- 给 `rule_confidence` 这类仍按扁平信号集工作的模块使用
+- 作为调试日志的“拍平视图”
+
+#### 2.1 `evidence` 的子域分类（推荐心智模型）
+
+这套分类的目的，是让我们在评估/调优时能明确“薄弱点到底在意图、任务、上下文还是安全拦截”，避免把所有问题都混在 `raw_signals` 里。
+
+- `intent_evidence`：回答“它大概是什么意图？”
+  - 典型字段：`candidate_intents`、`raw_signals`（`qa/chat/system/...` 相关）、部分 `matched_rules`
+  - 典型规则：`intent.*`、`system.*`、`challenge.*`、`source.*`
+- `task_evidence`：回答“它要做什么形状/复杂度的任务？”
+  - 典型字段：`task_candidates`、部分 `raw_signals`（`multi_question/complex`）、部分 `matched_rules`
+  - 典型规则：`task.*`
+- `context_evidence`：回答“它是否依赖上文？依赖哪种上文？”
+  - 典型字段：`dependency_signals`、与上下文相关的 `matched_rules`、部分 `raw_signals`（如 `follow_up`）
+  - 典型规则：`context.*`、`source.missing_context`、`challenge.missing_context`
+- `safety_evidence`：回答“是否越权/不支持/需要拒绝或拦截？”
+  - 典型字段：`unsupported_signals`、部分 `raw_signals`（`unsupported/out_of_scope`）、相关 `matched_rules`
+  - 典型规则：`unsupported.*`
 
 ### 3. `resolved`
 
@@ -106,6 +144,28 @@
 - `task.shape` 单值
 - `context_dependency` 单值
 
+#### 3.1 `resolved` 的分类（Intent / Task / Context / Decision）
+
+`resolved` 虽然是一个对象，但在调试和评估时建议按以下四块拆开看（对应我们常说的 intent/task/context 三维，再加上决策解释）：
+
+- `intent`
+  - `main_intent`（单值）
+  - `modifiers`（多布尔并存）
+- `task`
+  - `task.complexity`（单值）
+  - `task.shape`（单值）
+- `context`
+  - `context_dependency`（单值）
+- `decision`
+  - `decision.strength/source/reason`（用于可解释性、回归对比、灰度分析）
+
+同样地，`resolved` 现在也同时支持：
+
+- `to_dict()`
+  - 保持现有扁平结构
+- `to_grouped_dict()`
+  - 按 `intent / task / context / decision` 输出
+
 ### 4. `control`
 
 表示给执行流使用的粗分流信号。
@@ -122,6 +182,18 @@
 当前原则是：
 
 > `control` 只做粗分流，不提前决定所有执行细节。
+
+为降低阅读成本，`control` 现在建议按两块理解：
+
+- `dispatch`
+  - `route`
+  - `mode`
+- `policy`
+  - `rewrite`
+  - `force_citation`
+  - `use_planner`
+  - `decompose_query`
+  - `planning_level`
 
 ---
 

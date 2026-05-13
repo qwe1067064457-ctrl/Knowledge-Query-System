@@ -20,6 +20,7 @@ from intent.types import (
     ResolvedIntent,
     ResolvedTask,
     RuleMatch,
+    SignalBuckets,
     SignalConfidence,
     TaskCandidate,
 )
@@ -40,6 +41,7 @@ __all__ = [
     "ResolvedIntent",
     "ResolvedTask",
     "RuleMatch",
+    "SignalBuckets",
     "SignalConfidence",
     "TaskCandidate",
     "build_control_signal",

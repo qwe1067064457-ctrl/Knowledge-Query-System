@@ -124,3 +124,23 @@ def test_explanation_lists_supporting_rules_and_context_term() -> None:
     assert "rules=[challenge.disagree, challenge.confirmation]" in explanation
     assert "Bonus(+0.05)" in explanation
     assert "Context(+0.10)" in explanation
+
+
+def test_soft_doubt_gets_smaller_context_bonus_than_hard_challenge() -> None:
+    confidence = calculate_rule_confidence(
+        matched_rules=(
+            _rule("challenge.soft_doubt", "soft_doubt", "low", 0.3),
+        ),
+        raw_signals=("soft_doubt",),
+        context_state=ContextState(has_history=True, has_previous_answer=True),
+        dependency_signals={
+            "none": False,
+            "history_reference": False,
+            "previous_answer": True,
+            "previous_retrieval": False,
+            "ambiguous": False,
+        },
+    )
+
+    signal_score = confidence.signal_confidences[0]
+    assert signal_score.context_adjustment == 0.05

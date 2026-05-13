@@ -29,14 +29,17 @@ def resolve_intent(evidence: IntentEvidence) -> ResolvedIntent:
 
 def _resolve_modifiers(evidence: IntentEvidence) -> IntentModifiers:
     model_modifiers = evidence.model_result.modifiers if evidence.model_result else IntentModifiers()
-    raw = set(evidence.raw_signals)
+    intent_signals = set(evidence.signal_buckets.intent)
+    context_signals = set(evidence.signal_buckets.context)
+    safety_signals = set(evidence.signal_buckets.safety)
     return IntentModifiers(
-        follow_up=("follow_up" in raw) or model_modifiers.follow_up,
-        challenge=("challenge" in raw) or model_modifiers.challenge,
-        ask_source=("ask_source" in raw) or model_modifiers.ask_source,
-        ask_capability=("ask_capability" in raw) or model_modifiers.ask_capability,
-        needs_clarification=("needs_clarification" in raw) or model_modifiers.needs_clarification,
-        out_of_scope=("out_of_scope" in raw) or model_modifiers.out_of_scope,
+        follow_up=("follow_up" in context_signals) or model_modifiers.follow_up,
+        challenge=("challenge" in intent_signals) or model_modifiers.challenge,
+        soft_doubt=("soft_doubt" in intent_signals) or model_modifiers.soft_doubt,
+        ask_source=("ask_source" in intent_signals) or model_modifiers.ask_source,
+        ask_capability=("ask_capability" in intent_signals) or model_modifiers.ask_capability,
+        needs_clarification=("needs_clarification" in context_signals) or model_modifiers.needs_clarification,
+        out_of_scope=("out_of_scope" in safety_signals) or model_modifiers.out_of_scope,
     )
 
 
@@ -45,18 +48,19 @@ def _resolve_main_intent(evidence: IntentEvidence, modifiers: IntentModifiers) -
         return "unsupported"
     if modifiers.ask_capability:
         return "system"
-    if modifiers.challenge or modifiers.ask_source:
+    if modifiers.challenge or modifiers.soft_doubt or modifiers.ask_source:
         return "qa"
 
     if evidence.candidate_intents:
         return max(evidence.candidate_intents, key=lambda item: item.score).intent
 
-    raw = set(evidence.raw_signals)
-    if "qa" in raw:
+    intent_signals = set(evidence.signal_buckets.intent)
+    safety_signals = set(evidence.signal_buckets.safety)
+    if "qa" in intent_signals:
         return "qa"
-    if "system" in raw:
+    if "system" in intent_signals:
         return "system"
-    if "unsupported" in raw:
+    if "unsupported" in safety_signals:
         return "unsupported"
     return "chat"
 
@@ -78,7 +82,8 @@ def _resolve_task(
             needs_agent_planning=False,
         )
     if not candidates:
-        shape = "single_question" if "multi_question" not in evidence.raw_signals else "multi_question"
+        task_signals = set(evidence.signal_buckets.task)
+        shape = "single_question" if "multi_question" not in task_signals else "multi_question"
         complexity = "compound" if shape == "multi_question" else "simple"
         return ResolvedTask(
             complexity=complexity,
@@ -118,25 +123,26 @@ def _resolve_context_dependency(
     evidence: IntentEvidence,
     modifiers: IntentModifiers,
 ) -> ContextDependency:
+    context = evidence.context_signals
     if modifiers.challenge:
         return "previous_answer"
     if modifiers.follow_up:
-        if evidence.dependency_signals.get("previous_retrieval"):
+        if context.previous_retrieval:
             return "previous_retrieval"
-        if evidence.dependency_signals.get("previous_answer"):
+        if context.previous_answer:
             return "previous_answer"
-        if evidence.dependency_signals.get("history_reference"):
+        if context.has_reference:
             return "history_reference"
         return "history_reference"
 
-    for candidate in (
-        "previous_retrieval",
-        "previous_answer",
-        "history_reference",
-        "ambiguous",
-    ):
-        if evidence.dependency_signals.get(candidate):
-            return candidate
+    if context.previous_retrieval:
+        return "previous_retrieval"
+    if context.previous_answer:
+        return "previous_answer"
+    if context.has_reference:
+        return "history_reference"
+    if context.ambiguous or context.has_implicit_history:
+        return "ambiguous"
     return "none"
 
 

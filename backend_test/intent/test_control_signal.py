@@ -78,6 +78,20 @@ def test_complex_verify_uses_light_planning_without_explicit_planner() -> None:
     assert signal.planning_level == "light"
 
 
+def test_complex_verify_with_clarification_flag_is_rescued_to_agent() -> None:
+    signal = build_control_signal(
+        _resolved(
+            modifiers=IntentModifiers(needs_clarification=True),
+            task=ResolvedTask(complexity="complex", shape="verify", needs_agent_planning=True),
+        )
+    )
+
+    assert signal.route == "agent"
+    assert signal.mode == "normal"
+    assert signal.use_planner is False
+    assert signal.planning_level == "light"
+
+
 def test_complex_summarize_stays_agent_without_planner() -> None:
     signal = build_control_signal(
         _resolved(task=ResolvedTask(complexity="complex", shape="summarize", needs_agent_planning=True))
