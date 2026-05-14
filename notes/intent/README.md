@@ -108,6 +108,19 @@ CandidateIntent.score 和 rule_confidence 有什么区别？
 
 - 这是规则级监督和标注口径说明文档
 
+### [sft_preparation.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/sft_preparation.md)
+
+适合看什么：
+
+- 训练集导出字段
+- `gold / silver / weak` 分层
+- 冻结 held-out 的使用方式
+- 第一版小模型的任务边界
+
+一句话：
+
+- 这是 intent 小模型训练准备文档
+
 ---
 
 ## 3. 推荐阅读顺序
@@ -119,6 +132,7 @@ CandidateIntent.score 和 rule_confidence 有什么区别？
 3. [rule_tuning.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/rule_tuning.md)
 4. [rule_supervision.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/rule_supervision.md)
 5. [intent_rule_confidence.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/intent_rule_confidence.md)
+6. [sft_preparation.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/sft_preparation.md)
 
 原因：
 

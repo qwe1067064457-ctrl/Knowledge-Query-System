@@ -183,9 +183,148 @@
 
 ## 6. TODO
 
-- [ ] 给 `intent.qa.generic` / `intent.qa.judgment` / `challenge.soft_doubt` 补规则级监督
+- [x] 给 `intent.qa.generic` / `intent.qa.judgment` / `challenge.soft_doubt` 补规则级监督
 - [ ] 补 `challenge` / `mixed_intent` / `fuzzy_qa` / `chat-meta boundary` 小类样本
 - [ ] 为 `domain bootstrap` 配置增加版本化与变更记录
 - [ ] 评估是否需要对 `resolver` / `control` 做小范围 layer-isolated eval
 - [ ] 为后续 rule-maintenance agent 设计配置修改接口与审核流程
 - [ ] 在开始 SFT 前，整理训练集导出字段与标签分层规范
+
+## 7. 最新进展
+
+### 7.1 外部规则监督已接入 `rule_stats`
+
+当前 [evaluate_intent_rules.py](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/evaluation/intent/evaluate_intent_rules.py) 已支持额外读取外部规则监督文件：
+
+- `overall / per_batch` 仍只统计主数据集样本
+- 外部监督样本只增强 `rule_stats`
+- 这样可以逐步给新增规则补 `precision / recall / f1`，而不污染主评估口径
+
+### 7.2 首批监督规则状态
+
+当前已接入并开始严格评估的规则：
+
+- `intent.qa.generic`
+- `intent.qa.judgment`
+- `challenge.soft_doubt`
+
+阶段性现象：
+
+- `intent.qa.judgment` 在首批已批准监督上已稳定命中
+- `intent.qa.generic` 和 `challenge.soft_doubt` 已从“只有 hits”进入“可严格评估”，但召回仍偏低
+- 这说明当前更值钱的是继续补 approved 监督，而不是先继续膨胀词表
+
+在仅看原始 36 条监督时的阶段性状态：
+
+- `intent.qa.generic`
+  - `precision = 1.0`
+  - `recall = 1.0`
+  - `f1 = 1.0`
+- `intent.qa.judgment`
+  - `precision = 1.0`
+  - `recall = 0.8571`
+  - `f1 = 0.9231`
+- `challenge.soft_doubt`
+  - `precision = 1.0`
+  - `recall = 1.0`
+  - `f1 = 1.0`
+
+这说明：
+
+- `generic` 已从“召回不足”进入“监督集上稳定命中”状态
+- `judgment` 依然保持较高稳定性
+- `soft_doubt` 已从“低召回”进入“监督集上稳定命中”状态
+
+但在把 `seed_query_20260514_gold_v1` 的 15 条四层 gold 草稿扁平化接入后，监督规模扩大到 `81` 条，分数回落到更真实的水平：
+
+- `intent.qa.generic`
+  - `precision = 0.7692`
+  - `recall = 0.8333`
+  - `f1 = 0.8`
+- `intent.qa.judgment`
+  - `precision = 0.6667`
+  - `recall = 0.6667`
+  - `f1 = 0.6667`
+- `challenge.soft_doubt`
+  - `precision = 1.0`
+  - `recall = 0.5833`
+  - `f1 = 0.7368`
+
+这说明：
+
+- 之前的 `1.0` 更像是“小而干净的局部监督集”结果
+- 一旦加入更长、更难、更接近真实边界的 gold 草稿，规则泛化差距会立刻暴露
+- 当前最该继续提的是 `intent.qa.judgment` 和 `challenge.soft_doubt` 在更复杂长句上的泛化
+
+### 7.3 `judgment` / `soft_doubt` 真实泛化修复（2026-05-14）
+
+针对 `seed_query_20260514_gold_v1` 暴露出的真实泛化缺口，本轮做了 3 类最小修复：
+
+- `judgment` 去掉“只要出现 `是否` 就容易偏向判断型问答”的过宽入口
+- 为“会被认定为 / 是否可能构成 / 是否可以认为存在风险”这类自包含判断句补强正向识别
+- 为 `soft_doubt` 补充自然表达：
+  - `我有点不确定`
+  - `是不是还需要考虑`
+  - `我理解有偏差`
+  - `是否会误判`
+  - `会不会有点过于理想化`
+
+同时做了一个关键降噪：
+
+- 当 query 同时带有弱质疑表达和宽泛 hard challenge 命中时，优先保留 `soft_doubt`，避免像“界限并不绝对，会不会过于理想化”这种句子被误收成 `challenge.disagree`
+
+在 `81` 条严格规则监督上的最新结果：
+
+- `intent.qa.generic`
+  - `precision = 0.7692`
+  - `recall = 0.8333`
+  - `f1 = 0.8`
+- `intent.qa.judgment`
+  - `precision = 1.0`
+  - `recall = 1.0`
+  - `f1 = 1.0`
+- `challenge.soft_doubt`
+  - `precision = 1.0`
+  - `recall = 1.0`
+  - `f1 = 1.0`
+
+这说明：
+
+- `judgment` 在当前 `81` 条严格监督上，已覆盖“自包含判断句 / 风险判断 / 长句解释型混合问法”的主要短板
+- `soft_doubt` 已经明显摆脱“监督集上高分、真实长句上掉召回”的状态，并覆盖了“是不是意味着 / 会不会有瓶颈 / 会不会过于理想化”这类自然表达
+- 下一轮如果继续深挖，优先级应重新回到 `generic` 的 false positive / false negative
+
+### 7.4 held-out 最后一轮收口（2026-05-14）
+
+为了避免继续在已参与调优的 `81` 条严格监督上自我强化，本轮额外建立了：
+
+- [heldout_judgment_soft_doubt_20260514.jsonl](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/evaluation/intent/query_inputs/heldout_judgment_soft_doubt_20260514.jsonl)
+- [heldout_judgment_soft_doubt_gold_v1](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/backend_test/intent/test_data/heldout_judgment_soft_doubt_gold_v1)
+
+这批 held-out 暴露出的最后一轮 `soft_doubt` 真缺口是：
+
+- `授权` 语义被过宽的 `unsupported.privileged_operation` 误伤
+- `我有点拿不准`
+- `我不太确定`
+- `会不会让 … 被忽略掉`
+
+修复后，在 `heldout_judgment_soft_doubt_gold_v1` 上：
+
+- `intent.qa.judgment`
+  - `precision = 1.0`
+  - `recall = 1.0`
+  - `f1 = 1.0`
+- `challenge.soft_doubt`
+  - `precision = 1.0`
+  - `recall = 1.0`
+  - `f1 = 1.0`
+
+但这里要明确一个工程口径：
+
+- 这套 held-out 已经参与了本轮最后的规则收口
+- 因此它不再是“完全未触碰的最终泛化证明”
+- 从现在开始，应冻结当前规则口径，不再继续围绕 `judgment / soft_doubt` 加规则
+- 后续重心转向：
+  - `generic` 的精度治理
+  - SFT 数据导出
+  - 新的 held-out / 真实流量验证集准备

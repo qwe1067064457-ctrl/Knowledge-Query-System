@@ -1,0 +1,332 @@
+[
+  {
+    "id": "seed_20260514_sd_001_gold",
+    "batch": "soft_doubt_seed",
+    "input": {
+      "user_query": "你刚才说在这种情况下法院通常会支持违约金请求，但我有点不确定，是不是还需要考虑违约金是否明显过高的问题？",
+      "history": [
+        {
+          "role": "assistant",
+          "content": "在这种情况下，法院通常会支持违约金请求。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "soft_doubt"
+        ],
+        "required_rule_ids": [
+          "challenge.soft_doubt"
+        ],
+        "rule_expectations": {
+          "challenge.soft_doubt": true,
+          "intent.qa.generic": false,
+          "intent.qa.judgment": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": true
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "软质疑：对前面结论做保留式求证。",
+    "source_query_id": "seed_20260514_sd_001"
+  },
+  {
+    "id": "seed_20260514_sd_002_gold",
+    "batch": "soft_doubt_seed",
+    "input": {
+      "user_query": "如果按照你前面的解释，似乎只要存在因果关系就可以认定侵权。但我理解中好像还需要有主观过错，这里是不是我理解有偏差？",
+      "history": [
+        {
+          "role": "assistant",
+          "content": "前面我先按因果关系这条线解释了侵权认定。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "soft_doubt"
+        ],
+        "required_rule_ids": [
+          "challenge.soft_doubt"
+        ],
+        "rule_expectations": {
+          "challenge.soft_doubt": true,
+          "intent.qa.generic": false,
+          "intent.qa.judgment": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": true
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "软质疑：带“是不是我理解有偏差”的温和求证。",
+    "source_query_id": "seed_20260514_sd_002"
+  },
+  {
+    "id": "seed_20260514_sd_003_gold",
+    "batch": "soft_doubt_seed",
+    "input": {
+      "user_query": "你前面提到系统可以通过规则层解决大部分意图分类问题。但如果遇到比较模糊的表达，比如既有质疑又有求证，这种规则是否会误判？",
+      "history": [
+        {
+          "role": "assistant",
+          "content": "前面我说规则层可以解决大部分意图分类问题。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "soft_doubt"
+        ],
+        "required_rule_ids": [
+          "challenge.soft_doubt"
+        ],
+        "rule_expectations": {
+          "challenge.soft_doubt": true,
+          "intent.qa.generic": false,
+          "intent.qa.judgment": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": true
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "软质疑：不是直接反驳，而是质疑规则泛化边界。",
+    "source_query_id": "seed_20260514_sd_003"
+  },
+  {
+    "id": "seed_20260514_sd_004_gold",
+    "batch": "soft_doubt_seed",
+    "input": {
+      "user_query": "我在想，你说的“会话恢复”是按需从磁盘重建对象，那是不是意味着在高并发场景下可能会出现性能瓶颈？",
+      "history": [
+        {
+          "role": "assistant",
+          "content": "前面我说会话恢复是按需从磁盘重建对象。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "soft_doubt"
+        ],
+        "required_rule_ids": [
+          "challenge.soft_doubt"
+        ],
+        "rule_expectations": {
+          "challenge.soft_doubt": true,
+          "intent.qa.generic": false,
+          "intent.qa.judgment": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": true
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "软质疑：架构域的保留式性能担忧。",
+    "source_query_id": "seed_20260514_sd_004"
+  },
+  {
+    "id": "seed_20260514_sd_005_gold",
+    "batch": "soft_doubt_seed",
+    "input": {
+      "user_query": "按照你给的分层策略，intent.qa.judgment 和 intent.qa.generic 区别主要在于是否包含判断性表达，但在一些复杂场景里两者好像界限并不绝对，这样的区分会不会有点过于理想化？",
+      "history": [
+        {
+          "role": "assistant",
+          "content": "前面我说 judgment 和 generic 可以按是否包含判断性表达来区分。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "soft_doubt"
+        ],
+        "required_rule_ids": [
+          "challenge.soft_doubt"
+        ],
+        "rule_expectations": {
+          "challenge.soft_doubt": true,
+          "intent.qa.generic": false,
+          "intent.qa.judgment": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": true
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "软质疑：对策略边界提出温和怀疑。",
+    "source_query_id": "seed_20260514_sd_005"
+  }
+]

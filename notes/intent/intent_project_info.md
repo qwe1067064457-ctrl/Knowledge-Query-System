@@ -720,12 +720,12 @@ unsupported
 
 ### 5. TODO 列表
 
-- [ ] 为新增规则建立更完整的规则级监督，尤其是 `intent.qa.generic` / `intent.qa.judgment` / `challenge.soft_doubt`
+- [x] 为 `intent.qa.generic` / `intent.qa.judgment` / `challenge.soft_doubt` 建立首轮规则级监督
 - [ ] 补齐小类评估样本：`challenge` / `mixed_intent` / `fuzzy_qa` / `chat-meta boundary`
 - [ ] 设计并实现 `rule_tuning` 持续记录机制与准入标准
 - [ ] 为 `domain bootstrap` 资产设计可配置承载方式
 - [ ] 评估是否需要小范围 `layer-isolated eval` 切片，而不是全面铺开
-- [ ] 准备 SFT 前的数据导出格式、标签分层和 held-out eval 集
+- [x] 准备 SFT 前的数据导出格式、标签分层和新的 held-out eval 集
 - [ ] 规划动态规则维护 / rule-maintenance agent 的接口与职责
 
 ---

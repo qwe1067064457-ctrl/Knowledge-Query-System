@@ -1,0 +1,674 @@
+[
+  {
+    "id": "seed_20260514_qa_001_standard_qa_supportive",
+    "batch": "standard_qa",
+    "input": {
+      "user_query": "我们之前讨论了公司在合同履行过程中可能承担的违约责任。现在我想更系统地理解一下：在我国合同法体系下，如果一方延迟履行义务但最终仍然履行完成，另一方主张违约责任时通常可以请求哪些救济方式？是否包括实际履行、违约金以及损害赔偿？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "基于原始 query 的标准 QA 草稿",
+    "source_query_id": "seed_20260514_qa_001",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_20260514_qa_001_standard_qa_cost_focused",
+    "batch": "standard_qa",
+    "input": {
+      "user_query": "我想先确认一个定义问题：我们之前讨论了公司在合同履行过程中可能承担的违约责任。现在我想更系统地理解一下：在我国合同法体系下，如果一方延迟履行义务但最终仍然履行完成，另一方主张违约责任时通常可以请求哪些救济方式？是否包括实际履行、违约金以及损害赔偿？。背景情况很多，但核心只是确认这个概念本身怎么定义。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "成本偏差样本：表面长，核心仍是简单定义问答，容易被误送到 agent。",
+    "source_query_id": "seed_20260514_qa_001",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "cost_focused",
+      "risk_flags": [
+        "CONTROL_ROUTE_COST_RISK",
+        "POSSIBLE_COMPLEX_TASK_MISS_ROUTED"
+      ]
+    }
+  },
+  {
+    "id": "seed_20260514_qa_002_standard_qa_supportive",
+    "batch": "standard_qa",
+    "input": {
+      "user_query": "在你刚才提到的医疗侵权案例里，医生未尽到说明义务是否一定构成侵权？我想知道，从法律构成要件的角度来看，医疗侵权责任的认定一般需要满足哪些要素？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "基于原始 query 的标准 QA 草稿",
+    "source_query_id": "seed_20260514_qa_002",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_20260514_qa_002_standard_qa_cost_focused",
+    "batch": "standard_qa",
+    "input": {
+      "user_query": "我想先确认一个定义问题：在你刚才提到的医疗侵权案例里，医生未尽到说明义务是否一定构成侵权？我想知道，从法律构成要件的角度来看，医疗侵权责任的认定一般需要满足哪些要素？。背景情况很多，但核心只是确认这个概念本身怎么定义。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "成本偏差样本：表面长，核心仍是简单定义问答，容易被误送到 agent。",
+    "source_query_id": "seed_20260514_qa_002",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "cost_focused",
+      "risk_flags": [
+        "CONTROL_ROUTE_COST_RISK"
+      ]
+    }
+  },
+  {
+    "id": "seed_20260514_qa_003_standard_qa_supportive",
+    "batch": "standard_qa",
+    "input": {
+      "user_query": "假设一个企业在数据出境时未进行安全评估，但数据规模较小，且未造成实际损害。根据现行法规，这种行为是否属于行政违法？一般会面临什么类型的处罚？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "基于原始 query 的标准 QA 草稿",
+    "source_query_id": "seed_20260514_qa_003",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_20260514_qa_003_standard_qa_cost_focused",
+    "batch": "standard_qa",
+    "input": {
+      "user_query": "我想先确认一个定义问题：假设一个企业在数据出境时未进行安全评估，但数据规模较小，且未造成实际损害。根据现行法规，这种行为是否属于行政违法？一般会面临什么类型的处罚？。背景情况很多，但核心只是确认这个概念本身怎么定义。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "成本偏差样本：表面长，核心仍是简单定义问答，容易被误送到 agent。",
+    "source_query_id": "seed_20260514_qa_003",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "cost_focused",
+      "risk_flags": [
+        "CONTROL_ROUTE_COST_RISK"
+      ]
+    }
+  },
+  {
+    "id": "seed_20260514_qa_004_standard_qa_supportive",
+    "batch": "standard_qa",
+    "input": {
+      "user_query": "你之前说到“因果关系的举证责任倒置”问题。我想进一步了解，在民事诉讼中，在哪些特定情形下法院会适用举证责任倒置？有没有典型案例可以说明？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "基于原始 query 的标准 QA 草稿",
+    "source_query_id": "seed_20260514_qa_004",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_20260514_qa_004_standard_qa_cost_focused",
+    "batch": "standard_qa",
+    "input": {
+      "user_query": "我想先确认一个定义问题：你之前说到“因果关系的举证责任倒置”问题。我想进一步了解，在民事诉讼中，在哪些特定情形下法院会适用举证责任倒置？有没有典型案例可以说明？。背景情况很多，但核心只是确认这个概念本身怎么定义。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "成本偏差样本：表面长，核心仍是简单定义问答，容易被误送到 agent。",
+    "source_query_id": "seed_20260514_qa_004",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "cost_focused",
+      "risk_flags": [
+        "CONTROL_ROUTE_COST_RISK"
+      ]
+    }
+  },
+  {
+    "id": "seed_20260514_qa_005_standard_qa_supportive",
+    "batch": "standard_qa",
+    "input": {
+      "user_query": "我们正在设计一个多租户知识库系统。从架构角度看，session 隔离是否必须依赖 group_id？如果系统未来扩展为 SaaS 多企业版本，session 主键设计应该考虑哪些因素？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "基于原始 query 的标准 QA 草稿",
+    "source_query_id": "seed_20260514_qa_005",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_20260514_qa_005_standard_qa_cost_focused",
+    "batch": "standard_qa",
+    "input": {
+      "user_query": "我想先确认一个定义问题：我们正在设计一个多租户知识库系统。从架构角度看，session 隔离是否必须依赖 group_id？如果系统未来扩展为 SaaS 多企业版本，session 主键设计应该考虑哪些因素？。背景情况很多，但核心只是确认这个概念本身怎么定义。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "成本偏差样本：表面长，核心仍是简单定义问答，容易被误送到 agent。",
+    "source_query_id": "seed_20260514_qa_005",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "cost_focused",
+      "risk_flags": [
+        "CONTROL_ROUTE_COST_RISK",
+        "POSSIBLE_COMPLEX_TASK_MISS_ROUTED"
+      ]
+    }
+  }
+]

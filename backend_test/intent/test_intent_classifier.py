@@ -230,3 +230,250 @@ def test_meta_analysis_query_stays_qa_not_chat() -> None:
 
     assert result.resolved.main_intent == "qa"
     assert result.control.route == "rag"
+
+
+def test_generic_qa_supervision_sample_hits_generic_rule() -> None:
+    result = classify_intent("如果公司拖欠工资，我可以怎么处理？")
+
+    assert "intent.qa.generic" in {match.rule_id for match in result.evidence.matched_rules}
+    assert "intent.qa.judgment" not in {match.rule_id for match in result.evidence.matched_rules}
+
+
+def test_judgment_qa_supervision_sample_hits_judgment_rule() -> None:
+    result = classify_intent("这样算医疗事故吗？")
+
+    assert "intent.qa.judgment" in {match.rule_id for match in result.evidence.matched_rules}
+
+
+def test_soft_doubt_supervision_sample_hits_soft_doubt_rule() -> None:
+    result = classify_intent(
+        "这个说法是不是太绝对了？",
+        [{"role": "assistant", "content": "这种情况一定要赔偿。"}],
+    )
+
+    assert "challenge.soft_doubt" in {match.rule_id for match in result.evidence.matched_rules}
+
+
+def test_generic_qa_how_to_calculate_hits_generic_rule() -> None:
+    result = classify_intent("医保报销比例如何计算？")
+
+    assert "intent.qa.generic" in {match.rule_id for match in result.evidence.matched_rules}
+
+
+def test_generic_qa_how_to_determine_hits_generic_rule() -> None:
+    result = classify_intent("赔偿金额通常如何确定？")
+
+    assert "intent.qa.generic" in {match.rule_id for match in result.evidence.matched_rules}
+
+
+def test_generic_qa_how_to_apply_hits_generic_rule() -> None:
+    result = classify_intent("工伤认定一般怎么申请？")
+
+    assert "intent.qa.generic" in {match.rule_id for match in result.evidence.matched_rules}
+
+
+def test_generic_qa_self_contained_consequence_question_avoids_missing_history() -> None:
+    result = classify_intent("这种情况通常会有什么后果？")
+
+    matched_rule_ids = {match.rule_id for match in result.evidence.matched_rules}
+    assert "intent.qa.generic" in matched_rule_ids
+    assert "context.follow_up.missing_history" not in matched_rule_ids
+
+
+def test_soft_doubt_confirm_no_exception_hits_soft_doubt_rule() -> None:
+    result = classify_intent(
+        "你确定没有例外情况吗？",
+        [{"role": "assistant", "content": "这个规则在所有情况下都适用。"}],
+    )
+
+    assert "challenge.soft_doubt" in {match.rule_id for match in result.evidence.matched_rules}
+
+
+def test_soft_doubt_can_follow_previous_absolute_answer() -> None:
+    result = classify_intent(
+        "这个规则我有点没看懂，你是说在任何情况下都适用吗？",
+        [{"role": "assistant", "content": "这种规则在任何情况下都适用。"}],
+    )
+
+    assert "challenge.soft_doubt" in {match.rule_id for match in result.evidence.matched_rules}
+
+
+def test_soft_doubt_exception_probe_hits_soft_doubt_rule() -> None:
+    result = classify_intent(
+        "难道就没有别的例外吗？",
+        [{"role": "assistant", "content": "这里没有任何例外。"}],
+    )
+
+    assert "challenge.soft_doubt" in {match.rule_id for match in result.evidence.matched_rules}
+
+
+def test_self_contained_judgment_question_avoids_missing_history() -> None:
+    result = classify_intent("这种情况会被认定为工伤吗？")
+
+    matched_rule_ids = {match.rule_id for match in result.evidence.matched_rules}
+    assert "intent.qa.judgment" in matched_rule_ids
+    assert "context.follow_up.missing_history" not in matched_rule_ids
+
+
+def test_long_explanatory_qa_with_whether_clause_does_not_hit_judgment() -> None:
+    result = classify_intent(
+        "我们之前讨论了公司在合同履行过程中可能承担的违约责任。现在我想更系统地理解一下："
+        "在我国合同法体系下，如果一方延迟履行义务但最终仍然履行完成，另一方主张违约责任时"
+        "通常可以请求哪些救济方式？是否包括实际履行、违约金以及损害赔偿？"
+    )
+
+    matched_rule_ids = {match.rule_id for match in result.evidence.matched_rules}
+    assert "intent.qa.generic" in matched_rule_ids
+    assert "intent.qa.judgment" not in matched_rule_ids
+
+
+def test_risk_classification_question_hits_judgment_rule() -> None:
+    result = classify_intent(
+        "在一个知识问答系统中，如果检索结果来自两条互相矛盾的法规解释，而系统只返回其中一条，"
+        "是否可以认为系统存在误导性输出的风险？"
+    )
+
+    assert "intent.qa.judgment" in {match.rule_id for match in result.evidence.matched_rules}
+
+
+def test_self_contained_major_fault_question_hits_judgment_rule() -> None:
+    result = classify_intent(
+        "如果开发团队明知模型存在明显的 hallucination 风险，但仍然将其用于自动生成法律建议，"
+        "这种行为是否可能构成重大过失？"
+    )
+
+    matched_rule_ids = {match.rule_id for match in result.evidence.matched_rules}
+    assert "intent.qa.judgment" in matched_rule_ids
+    assert "context.follow_up.missing_history" not in matched_rule_ids
+
+
+def test_soft_doubt_uncertain_follow_up_hits_soft_doubt_rule() -> None:
+    result = classify_intent(
+        "你刚才说在这种情况下法院通常会支持违约金请求，但我有点不确定，是不是还需要考虑违约金是否明显过高的问题？",
+        [{"role": "assistant", "content": "这种情况下法院通常会支持违约金请求。"}],
+    )
+
+    matched_rule_ids = {match.rule_id for match in result.evidence.matched_rules}
+    assert "challenge.soft_doubt" in matched_rule_ids
+    assert "intent.qa.judgment" not in matched_rule_ids
+
+
+def test_soft_doubt_bias_check_hits_soft_doubt_rule() -> None:
+    result = classify_intent(
+        "如果按照你前面的解释，似乎只要存在因果关系就可以认定侵权。但我理解中好像还需要有主观过错，这里是不是我理解有偏差？",
+        [{"role": "assistant", "content": "只要存在因果关系就可以认定侵权。"}],
+    )
+
+    assert "challenge.soft_doubt" in {match.rule_id for match in result.evidence.matched_rules}
+
+
+def test_soft_doubt_misclassification_probe_hits_soft_doubt_rule() -> None:
+    result = classify_intent(
+        "你前面提到系统可以通过规则层解决大部分意图分类问题。但如果遇到比较模糊的表达，比如既有质疑又有求证，这种规则是否会误判？",
+        [{"role": "assistant", "content": "规则层可以解决大部分意图分类问题。"}],
+    )
+
+    assert "challenge.soft_doubt" in {match.rule_id for match in result.evidence.matched_rules}
+
+
+def test_soft_doubt_idealized_boundary_hits_soft_doubt_not_judgment() -> None:
+    result = classify_intent(
+        "按照你给的分层策略，intent.qa.judgment 和 intent.qa.generic 区别主要在于是否包含判断性表达，"
+        "但在一些复杂场景里两者好像界限并不绝对，这样的区分会不会有点过于理想化？",
+        [{"role": "assistant", "content": "两者的区别主要在于是否包含判断性表达。"}],
+    )
+
+    matched_rule_ids = {match.rule_id for match in result.evidence.matched_rules}
+    assert "challenge.soft_doubt" in matched_rule_ids
+    assert "intent.qa.judgment" not in matched_rule_ids
+
+
+def test_explanatory_penalty_query_stays_generic_not_judgment() -> None:
+    result = classify_intent(
+        "假设一个企业在数据出境时未进行安全评估，但数据规模较小，且未造成实际损害。根据现行法规，"
+        "这种行为是否属于行政违法？一般会面临什么类型的处罚？"
+    )
+
+    matched_rule_ids = {match.rule_id for match in result.evidence.matched_rules}
+    assert "intent.qa.generic" in matched_rule_ids or result.resolved.main_intent == "qa"
+    assert "intent.qa.judgment" not in matched_rule_ids
+
+
+def test_soft_doubt_implication_perf_probe_hits_soft_doubt_rule() -> None:
+    result = classify_intent(
+        "我在想，你说的“会话恢复”是按需从磁盘重建对象，那是不是意味着在高并发场景下可能会出现性能瓶颈？",
+        [{"role": "assistant", "content": "会话恢复是按需从磁盘重建对象。"}],
+    )
+
+    assert "challenge.soft_doubt" in {match.rule_id for match in result.evidence.matched_rules}
+
+
+def test_soft_doubt_authorization_scope_probe_is_not_privileged_operation() -> None:
+    result = classify_intent(
+        "你前面说这种授权链路只要有一次用户确认就够了，但我有点拿不准，是不是还得区分后续用途有没有超出原始授权范围？",
+        [{"role": "assistant", "content": "这种授权链路只要有一次用户确认，通常就可以覆盖后续处理。"}],
+    )
+
+    matched_rule_ids = {match.rule_id for match in result.evidence.matched_rules}
+    assert "challenge.soft_doubt" in matched_rule_ids
+    assert "unsupported.privileged_operation" not in matched_rule_ids
+
+
+def test_soft_doubt_cautious_understanding_probe_hits_soft_doubt_rule() -> None:
+    result = classify_intent(
+        "按你刚才那个判断逻辑，似乎只要留痕完整就能证明合规。可我理解里好像还得看留痕内容本身是不是充分，这里是不是我理解得更谨慎一些？",
+        [{"role": "assistant", "content": "只要留痕完整，就能证明整体流程合规。"}],
+    )
+
+    assert "challenge.soft_doubt" in {match.rule_id for match in result.evidence.matched_rules}
+
+
+def test_soft_doubt_weak_signal_ignored_probe_hits_soft_doubt_rule() -> None:
+    result = classify_intent(
+        "按照你刚才的说法，这类输出风险主要靠 route 控制来兜住。我不太确定，这会不会让 evidence 层里的一些弱信号被忽略掉？",
+        [{"role": "assistant", "content": "这类输出风险主要还是靠 route 控制来兜底。"}],
+    )
+
+    assert "challenge.soft_doubt" in {match.rule_id for match in result.evidence.matched_rules}
+
+
+def test_generic_explanatory_penalty_question_hits_generic_rule() -> None:
+    result = classify_intent(
+        "假设一个企业在数据出境时未进行安全评估，但数据规模较小，且未造成实际损害。根据现行法规，"
+        "这种行为是否属于行政违法？一般会面临什么类型的处罚？"
+    )
+
+    matched_rule_ids = {match.rule_id for match in result.evidence.matched_rules}
+    assert "intent.qa.generic" in matched_rule_ids
+
+
+def test_generic_architecture_design_question_hits_generic_rule() -> None:
+    result = classify_intent(
+        "我们正在设计一个多租户知识库系统。从架构角度看，session 隔离是否必须依赖 group_id？"
+        "如果系统未来扩展为 SaaS 多企业版本，session 主键设计应该考虑哪些因素？"
+    )
+
+    matched_rule_ids = {match.rule_id for match in result.evidence.matched_rules}
+    assert "intent.qa.generic" in matched_rule_ids
+
+
+def test_judgment_question_does_not_also_hit_generic_rule() -> None:
+    result = classify_intent(
+        "某电商平台未经用户明确同意，将用户购买记录用于精准广告推荐，但未泄露给第三方，"
+        "这种行为是否违反个人信息保护法？"
+    )
+
+    matched_rule_ids = {match.rule_id for match in result.evidence.matched_rules}
+    assert "intent.qa.judgment" in matched_rule_ids
+    assert "intent.qa.generic" not in matched_rule_ids
+
+
+def test_soft_doubt_follow_up_does_not_also_hit_generic_rule() -> None:
+    result = classify_intent(
+        "你刚才说在这种情况下法院通常会支持违约金请求，但我有点不确定，是不是还需要考虑违约金是否明显过高的问题？",
+        [{"role": "assistant", "content": "在这种情况下，法院通常会支持违约金请求。"}],
+    )
+
+    matched_rule_ids = {match.rule_id for match in result.evidence.matched_rules}
+    assert "challenge.soft_doubt" in matched_rule_ids
+    assert "intent.qa.generic" not in matched_rule_ids

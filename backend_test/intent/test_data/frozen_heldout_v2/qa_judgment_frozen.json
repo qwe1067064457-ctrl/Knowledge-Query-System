@@ -1,0 +1,173 @@
+[
+  {
+    "id": "frozen_judgment_001",
+    "batch": "qa_judgment_frozen",
+    "input": {
+      "user_query": "如果企业明知内部规则没有完成法务审查，仍然把自动生成的答复直接面向客户开放，这种做法是否可能构成合规管理上的重大疏漏？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["qa"],
+        "required_rule_ids": ["intent.qa.judgment"],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "intent.qa.generic": false,
+          "challenge.soft_doubt": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "冻结 judgment：重大疏漏风险判断。",
+    "source_query_id": "frozen_judgment_001"
+  },
+  {
+    "id": "frozen_judgment_002",
+    "batch": "qa_judgment_frozen",
+    "input": {
+      "user_query": "医院在未告知额外用途的情况下，把患者咨询记录同步给外部模型供应商，这是否可以认定为超范围处理个人信息？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["qa"],
+        "required_rule_ids": ["intent.qa.judgment"],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "intent.qa.generic": false,
+          "challenge.soft_doubt": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "冻结 judgment：超范围处理认定。",
+    "source_query_id": "frozen_judgment_002"
+  },
+  {
+    "id": "frozen_judgment_003",
+    "batch": "qa_judgment_frozen",
+    "input": {
+      "user_query": "如果租户隔离只在应用层做，而底层索引没有任何物理或逻辑分段，这是否足以说明系统存在越权查询风险？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["qa"],
+        "required_rule_ids": ["intent.qa.judgment"],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "intent.qa.generic": false,
+          "challenge.soft_doubt": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "冻结 judgment：越权查询风险判断。",
+    "source_query_id": "frozen_judgment_003"
+  }
+]

@@ -42,7 +42,61 @@ def load_dataset(dataset_dir: str | Path) -> list[dict[str, Any]]:
     return rows
 
 
-def evaluate_dataset(rows: list[dict[str, Any]]) -> dict[str, Any]:
+def load_rule_supervision(annotation_path: str | Path) -> list[dict[str, Any]]:
+    path = Path(annotation_path)
+    rows: list[dict[str, Any]] = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        if not line.strip():
+            continue
+        payload = json.loads(line)
+        if payload.get("review_status") not in {"approved", "approved_with_note"}:
+            continue
+        rows.append(payload)
+    return rows
+
+
+def build_rule_supervision_rows_from_dataset(
+    rows: list[dict[str, Any]],
+    *,
+    reviewer: str = "gold_dataset",
+    review_status: str = "approved",
+    notes_prefix: str = "imported from gold dataset",
+) -> list[dict[str, Any]]:
+    flattened: list[dict[str, Any]] = []
+    for row in rows:
+        batch = row["batch"]
+        input_payload = row["input"]
+        evidence = row["gold"]["evidence"]
+        source_query_id = row.get("source_query_id", "")
+        for rule_id, expected in evidence.get("rule_expectations", {}).items():
+            flattened.append(
+                {
+                    "id": f"{row['id']}__{rule_id}",
+                    "batch": batch,
+                    "input": {
+                        "user_query": input_payload["user_query"],
+                        "history": input_payload.get("history") or [],
+                    },
+                    "target_rule_id": rule_id,
+                    "expected": expected,
+                    "rationale": row.get("notes", ""),
+                    "review_status": review_status,
+                    "reviewer": reviewer,
+                    "notes": f"{notes_prefix}; source_query_id={source_query_id or row['id']}",
+                }
+            )
+    return flattened
+
+
+def load_rule_supervision_dataset(dataset_dir: str | Path) -> list[dict[str, Any]]:
+    return build_rule_supervision_rows_from_dataset(load_dataset(dataset_dir))
+
+
+def evaluate_dataset(
+    rows: list[dict[str, Any]],
+    *,
+    rule_supervision_rows: list[dict[str, Any]] | None = None,
+) -> dict[str, Any]:
     overall_counts = _new_metric_counter()
     per_batch_counts: dict[str, dict[str, int]] = defaultdict(_new_metric_counter)
     rule_stats: dict[str, dict[str, int | float]] = defaultdict(_new_rule_stat_counter)
@@ -88,6 +142,18 @@ def evaluate_dataset(rows: list[dict[str, Any]]) -> dict[str, Any]:
             expected_rules=gold["evidence"].get("rule_expectations", {}),
             matched_rule_ids={match.rule_id for match in analysis.evidence.matched_rules},
             required_rule_ids=set(gold["evidence"].get("required_rule_ids", [])),
+        )
+
+    for supervision in rule_supervision_rows or []:
+        analysis = classify_intent(
+            supervision["input"]["user_query"],
+            supervision["input"].get("history") or [],
+        )
+        _accumulate_rule_stats(
+            rule_stats,
+            expected_rules={supervision["target_rule_id"]: supervision["expected"]},
+            matched_rule_ids={match.rule_id for match in analysis.evidence.matched_rules},
+            required_rule_ids=set(),
         )
 
     overall = _finalize_metrics(overall_counts)
@@ -224,9 +290,13 @@ def _dict_equal(expected: dict[str, Any], actual: dict[str, Any]) -> bool:
 def main() -> int:
     parser = argparse.ArgumentParser(description="Evaluate intent dataset rows against the current classifier.")
     parser.add_argument("dataset_dir", type=Path)
+    parser.add_argument("--rule-supervision-file", type=Path, default=None)
     args = parser.parse_args()
 
-    summary = evaluate_dataset(load_dataset(args.dataset_dir))
+    summary = evaluate_dataset(
+        load_dataset(args.dataset_dir),
+        rule_supervision_rows=load_rule_supervision(args.rule_supervision_file) if args.rule_supervision_file else None,
+    )
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     return 0
 

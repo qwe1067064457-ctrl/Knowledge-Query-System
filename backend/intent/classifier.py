@@ -53,7 +53,7 @@ UNSUPPORTED_RULES: tuple[tuple[str, Pattern[str], str], ...] = (
     ),
     (
         "unsupported.privileged_operation",
-        re.compile(r"(授权|审批|管理员|权限变更)", re.IGNORECASE),
+        re.compile(r"(权限授权|审批流程|管理员权限|权限变更|开通管理员|授予权限)", re.IGNORECASE),
         "privileged_operation",
     ),
     (
@@ -77,7 +77,7 @@ MULTI_QUESTION_PATTERNS: tuple[Pattern[str], ...] = tuple(
 GENERIC_QA_PATTERNS: tuple[Pattern[str], ...] = tuple(
     re.compile(pattern, re.IGNORECASE)
     for pattern in (
-        r"(怎么(办|处理|解决)|如何(申请|办理|认定|处理|解决)|有哪些(要求|条件|风险|责任)|能不能|会.{0,6}(什么后果|怎样)|要赔吗|有责任吗|合法吗|违法吗|有效吗|对吗|有问题吗|区别是什么|最长多少天|承担哪些法律责任)",
+        r"(怎么(办|处理|解决|申请|计算|确定)|如何(申请|办理|认定|处理|解决|计算|确定)|有哪些(要求|条件|风险|责任)|能不能|会.{0,6}(什么后果|怎样)|要赔吗|有责任吗|合法吗|违法吗|有效吗|对吗|有问题吗|区别是什么|最长多少天|承担哪些法律责任)",
     )
 )
 COMPLEX_TASK_PATTERNS: tuple[Pattern[str], ...] = tuple(
@@ -176,11 +176,17 @@ def _build_rule_evidence(intent_input: IntentInput, history: list[dict[str, Any]
     chat = _matches(text, CHAT_PATTERNS)
     ask_capability = _matches(text, CAPABILITY_PATTERNS)
     ask_source = _matches(text, ASK_SOURCE_PATTERNS)
-    judgment_qa = _looks_like_judgment_qa(text)
-    generic_qa = _looks_like_generic_qa(text)
     hard_challenge_requested = _matches(text, CHALLENGE_PATTERNS)
     soft_challenge_requested = _looks_like_soft_challenge(text)
+    if hard_challenge_requested and soft_challenge_requested and _prefer_soft_doubt(text):
+        hard_challenge_requested = False
     challenge_requested = hard_challenge_requested or soft_challenge_requested
+    judgment_qa = _looks_like_judgment_qa(text)
+    generic_qa = _looks_like_generic_qa(
+        text,
+        judgment_qa=judgment_qa,
+        challenge_requested=challenge_requested,
+    )
     follow_up_requested = _matches(text, FOLLOW_UP_PATTERNS)
     multi_question = _is_multi_question(text)
     qa_signal_detected = (
@@ -197,11 +203,12 @@ def _build_rule_evidence(intent_input: IntentInput, history: list[dict[str, Any]
 
     if domain_qa or judgment_qa or generic_qa:
         _append_signal(intent_signals, "qa")
-        if generic_qa and not (domain_qa or judgment_qa):
-            rule_id = "intent.qa.generic"
-        else:
-            rule_id = "intent.qa.judgment" if judgment_qa and not domain_qa else "intent.qa.domain"
-        matched_rules.append(_rule(rule_id, "qa", "medium", text))
+        if generic_qa:
+            matched_rules.append(_rule("intent.qa.generic", "qa", "medium", text))
+        if judgment_qa:
+            matched_rules.append(_rule("intent.qa.judgment", "qa", "medium", text))
+        elif domain_qa:
+            matched_rules.append(_rule("intent.qa.domain", "qa", "medium", text))
     if chat:
         _append_signal(intent_signals, "chat")
         matched_rules.append(_rule("intent.chat.greeting", "chat", "high", text))
@@ -443,42 +450,76 @@ def _infer_complex_shape(text: str) -> str:
 
 
 def _looks_like_judgment_qa(text: str) -> bool:
-    if not (_matches(text, JUDGMENT_QA_PATTERNS) or text.startswith(("这算", "这样算", "这种情况算"))):
+    if re.search(r"(怎么处理|如何处理|怎么申请|如何申请|依据是什么|为什么这么说)", text, re.IGNORECASE):
+        return False
+    if _looks_like_explanatory_qa(text):
+        return False
+
+    strong_judgment_patterns = (
+        r"(算不算|合理吗|合规吗|合法吗|违法吗|有责任吗|要赔吗|赔多少|有效吗|还有效吗|成立吗)",
+        r"(会不会|会被).{0,8}(拘留|处罚|认定|判定|支持)",
+        r"会被认定为.{0,12}(工伤|侵权|违法|过失|责任)",
+        r"是否.{0,12}(合法|合规|有效|成立|构成|认定|支持|属于|算|赔偿|承担责任|违反|可能构成|可以认为|存在|具有法律效力)",
+        r"是否.{0,12}(行政违法|重大过失|误导性输出|数据安全风险)",
+        r"是否.{0,16}(构成|属于|存在).{0,10}(风险|重大过失)",
+    )
+    if not (
+        any(re.search(pattern, text, re.IGNORECASE) for pattern in strong_judgment_patterns)
+        or text.startswith(("这算", "这样算", "这种情况算"))
+    ):
         return False
     return bool(
         re.search(r"(医院|医生|公司|老板|物业|学校|法院|平台|商家|患者|员工|这样|这种做法|这件事|这情况)", text)
         or _contains_domain_hint(text)
         or _contains_self_anchor(text)
+        or _looks_like_risk_judgment(text)
     )
 
 
-def _looks_like_generic_qa(text: str) -> bool:
+def _looks_like_generic_qa(
+    text: str,
+    *,
+    judgment_qa: bool,
+    challenge_requested: bool,
+) -> bool:
+    if challenge_requested:
+        return False
+    if judgment_qa and not _looks_like_explanatory_qa(text):
+        return False
+
     generic_tokens = (
         "怎么办",
         "怎么处理",
         "怎么解决",
+        "怎么申请",
+        "怎么计算",
+        "怎么确定",
         "如何申请",
         "如何办理",
         "如何认定",
         "如何处理",
         "如何解决",
+        "如何计算",
+        "如何确定",
         "有哪些要求",
         "有哪些条件",
         "有哪些风险",
         "有哪些责任",
         "能不能",
-        "要赔吗",
-        "有责任吗",
-        "合法吗",
-        "违法吗",
-        "有效吗",
         "对吗",
         "有问题吗",
         "区别是什么",
         "最长多少天",
         "承担哪些法律责任",
+        "应该考虑哪些因素",
+        "一般会面临什么类型的处罚",
     )
-    if any(token in text for token in generic_tokens) or _matches(text, META_ANALYSIS_QA_PATTERNS):
+    if (
+        any(token in text for token in generic_tokens)
+        or _matches(text, GENERIC_QA_PATTERNS)
+        or _matches(text, META_ANALYSIS_QA_PATTERNS)
+        or _looks_like_explanatory_qa(text)
+    ):
         return True
     return bool(
         (_contains_domain_hint(text) or _contains_self_anchor(text))
@@ -489,7 +530,7 @@ def _looks_like_generic_qa(text: str) -> bool:
 def _looks_like_soft_challenge(text: str) -> bool:
     return bool(
         re.search(
-            r"(真的吗|确定吗|是吗|未必|不一定|不见得|两说|太绝对|太武断|站不住|我看未必)",
+            r"(真的吗|真的是|确定吗|你确定|是吗|未必|不一定|不见得|两说|太绝对|太武断|站不住|我看未必|会不会还有|难道就没有|漏掉(了)?|别的例外|任何情况下都适用吗|我有点不确定|我有点拿不准|我不太确定|我理解有偏差|更谨慎一些|是不是还需要考虑|是不是意味着|是否会误判|会不会让.{0,16}(被)?(忽略|漏掉)(掉)?|会不会有.{0,8}(瓶颈|偏差|问题)|会不会有点过于理想化)",
             text,
             re.IGNORECASE,
         )
@@ -507,11 +548,41 @@ def _contains_self_anchor(text: str) -> bool:
 def _should_block_missing_history(text: str) -> bool:
     return bool(
         re.search(
-            r"(定义|算不算|医疗事故|医疗过失|因果关系|举证责任|司法解释|是什么|怎么认定|怎么处理|有责任吗|赔多少|合法吗|违法吗)",
+            r"(定义|算不算|医疗事故|医疗过失|因果关系|举证责任|司法解释|是什么|怎么认定|怎么处理|怎么申请|如何计算|如何确定|会.{0,6}(什么后果|怎样)|有责任吗|赔多少|合法吗|违法吗|会被认定为|是否可能构成|是否可以认为|是否属于行政违法|是否存在.{0,8}风险|是否构成.{0,8}风险)",
             text,
             re.IGNORECASE,
         )
     ) or (len(text) >= 80 and (_contains_domain_hint(text) or _question_phrase_count(text) >= 2))
+
+
+def _looks_like_explanatory_qa(text: str) -> bool:
+    return bool(
+        re.search(
+            r"(我想更系统地理解|我想进一步了解|从.+角度来看|哪些救济方式|是否包括|需要满足哪些要素|一般需要满足哪些要素|有没有典型案例|应该考虑哪些因素|一般会面临什么类型的处罚)",
+            text,
+            re.IGNORECASE,
+        )
+    )
+
+
+def _looks_like_risk_judgment(text: str) -> bool:
+    return bool(
+        re.search(
+            r"(风险|过失|违法|侵权|工伤|误导性输出|数据安全).{0,12}(吗|？|\?)?$|是否.{0,16}(风险|过失|违法|侵权|工伤|误导性输出|数据安全)",
+            text,
+            re.IGNORECASE,
+        )
+    )
+
+
+def _prefer_soft_doubt(text: str) -> bool:
+    return bool(
+        re.search(
+            r"(我有点不确定|我理解有偏差|是否会误判|会不会有.{0,8}(瓶颈|问题)|会不会有点过于理想化|是不是还需要考虑)",
+            text,
+            re.IGNORECASE,
+        )
+    )
 
 
 def _should_request_judgment_clarification(text: str) -> bool:
