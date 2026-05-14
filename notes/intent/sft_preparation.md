@@ -1,5 +1,8 @@
 # Intent SFT Preparation
 
+> 如果你是新开一个对话，或需要一份可直接接手当前阶段的完整文档，请先读：
+> [intent_sft_delivery.md](C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/intent_sft_delivery.md)
+
 ## 1. 当前目标
 
 当前 intent 模块进入 SFT 准备阶段后的目标不是“让模型接管全部逻辑”，而是先做一个轻量、边界清楚的小模型路由器。
@@ -24,6 +27,12 @@
 ### 可训练 gold
 
 - [seed_query_20260514_gold_v1](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/backend_test/intent/test_data/seed_query_20260514_gold_v1)
+
+### 项目级 query 输入源
+
+- [intent_query_full_set.md](C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/evaluation/intent/query_inputs/intent_query_full_set.md)
+- [seed_query_20260514.jsonl](C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/evaluation/intent/query_inputs/seed_query_20260514.jsonl)
+- [heldout_judgment_soft_doubt_20260514.jsonl](C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/evaluation/intent/query_inputs/heldout_judgment_soft_doubt_20260514.jsonl)
 
 ### 冻结 held-out
 

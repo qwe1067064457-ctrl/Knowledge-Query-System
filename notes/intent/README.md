@@ -121,6 +121,19 @@ CandidateIntent.score 和 rule_confidence 有什么区别？
 
 - 这是 intent 小模型训练准备文档
 
+### [intent_sft_delivery.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/intent_sft_delivery.md)
+
+适合看什么：
+
+- 新开对话时如何快速接手当前 SFT 阶段
+- 当前规则层、query 输入源、gold、strict supervision、held-out、导出文件之间的关系
+- 哪些内容已经可以训练，哪些内容仍然缺规范
+- 后续进入训练前还缺哪些执行文档
+
+一句话：
+
+- 这是当前 `intent` 小模型阶段的完整交付与交接文档。
+
 ---
 
 ## 3. 推荐阅读顺序
@@ -132,7 +145,8 @@ CandidateIntent.score 和 rule_confidence 有什么区别？
 3. [rule_tuning.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/rule_tuning.md)
 4. [rule_supervision.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/rule_supervision.md)
 5. [intent_rule_confidence.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/intent_rule_confidence.md)
-6. [sft_preparation.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/sft_preparation.md)
+6. [intent_sft_delivery.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/intent_sft_delivery.md)
+7. [sft_preparation.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/sft_preparation.md)
 
 原因：
 

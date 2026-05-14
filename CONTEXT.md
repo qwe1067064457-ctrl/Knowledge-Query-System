@@ -9,11 +9,12 @@ When the topic is clear, prefer entering the project through `notes/` instead of
 Read in this order:
 
 1. `notes/intent/README.md`
-2. `notes/intent/intent_project_info.md`
-3. `notes/intent/intent_testing_and_evaluation.md`
-4. `notes/intent/rule_tuning.md`
-5. `notes/intent/rule_supervision.md`
-6. `notes/intent/sft_preparation.md`
+2. `notes/intent/intent_sft_delivery.md`
+3. `notes/intent/intent_project_info.md`
+4. `notes/intent/intent_testing_and_evaluation.md`
+5. `notes/intent/rule_tuning.md`
+6. `notes/intent/rule_supervision.md`
+7. `notes/intent/sft_preparation.md`
 
 ### Knowledge Construct / Crawling / Knowledge Layout
 
