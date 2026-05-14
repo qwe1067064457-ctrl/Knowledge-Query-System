@@ -1,11 +1,27 @@
 from __future__ import annotations
 
 from intent import build_control_signal
-from intent.types import IntentModifiers, IntentResult
+from intent.types import DecisionTrace, IntentModifiers, ResolvedIntent, ResolvedTask
 
 
-def test_qa_routes_to_rag_with_citation_by_default() -> None:
-    signal = build_control_signal(IntentResult(main_intent="qa"))
+def _resolved(
+    *,
+    main_intent: str = "qa",
+    modifiers: IntentModifiers | None = None,
+    task: ResolvedTask | None = None,
+    context_dependency: str = "none",
+) -> ResolvedIntent:
+    return ResolvedIntent(
+        main_intent=main_intent,
+        modifiers=modifiers or IntentModifiers(),
+        task=task or ResolvedTask(complexity="simple", shape="single_question"),
+        context_dependency=context_dependency,
+        decision=DecisionTrace(strength="high", source="rule", reason="test"),
+    )
+
+
+def test_simple_qa_routes_to_rag_with_citation() -> None:
+    signal = build_control_signal(_resolved())
 
     assert signal.route == "rag"
     assert signal.mode == "normal"
@@ -14,71 +30,98 @@ def test_qa_routes_to_rag_with_citation_by_default() -> None:
 
 
 def test_follow_up_qa_requires_rewrite() -> None:
-    intent = IntentResult(
-        main_intent="qa",
-        modifiers=IntentModifiers(follow_up=True),
+    signal = build_control_signal(
+        _resolved(modifiers=IntentModifiers(follow_up=True), context_dependency="history_reference")
     )
-
-    signal = build_control_signal(intent)
 
     assert signal.route == "rag"
     assert signal.rewrite is True
     assert signal.mode == "normal"
 
 
-def test_challenge_forces_rag_rewrite_and_citation() -> None:
-    intent = IntentResult(
-        main_intent="qa",
-        modifiers=IntentModifiers(challenge=True, ask_source=True),
+def test_challenge_forces_rag_challenge_mode() -> None:
+    signal = build_control_signal(
+        _resolved(modifiers=IntentModifiers(challenge=True, ask_source=True))
     )
 
-    signal = build_control_signal(intent)
-
     assert signal.route == "rag"
-    assert signal.rewrite is True
     assert signal.mode == "challenge"
+    assert signal.rewrite is True
     assert signal.force_citation is True
 
 
-def test_chat_routes_to_chat() -> None:
-    signal = build_control_signal(IntentResult(main_intent="chat"))
-
-    assert signal.route == "chat"
-    assert signal.mode == "normal"
-    assert signal.force_citation is False
-
-
-def test_capability_request_routes_to_direct_capability() -> None:
-    intent = IntentResult(
-        main_intent="chat",
-        modifiers=IntentModifiers(ask_capability=True),
-    )
-
-    signal = build_control_signal(intent)
+def test_system_routes_to_direct_capability() -> None:
+    signal = build_control_signal(_resolved(main_intent="system"))
 
     assert signal.route == "direct"
     assert signal.mode == "capability"
 
 
-def test_unclear_meta_routes_to_clarify() -> None:
-    intent = IntentResult(
-        main_intent="chat",
-        modifiers=IntentModifiers(needs_clarification=True),
+def test_complex_qa_routes_to_agent() -> None:
+    signal = build_control_signal(
+        _resolved(task=ResolvedTask(complexity="complex", shape="mixed", needs_agent_planning=True))
     )
 
-    signal = build_control_signal(intent)
+    assert signal.route == "agent"
+    assert signal.use_planner is True
+    assert signal.decompose_query is False
+    assert signal.planning_level == "full"
 
-    assert signal.route == "direct"
-    assert signal.mode == "clarify"
 
-
-def test_out_of_scope_routes_to_reject() -> None:
-    intent = IntentResult(
-        main_intent="chat",
-        modifiers=IntentModifiers(out_of_scope=True),
+def test_complex_verify_uses_light_planning_without_explicit_planner() -> None:
+    signal = build_control_signal(
+        _resolved(task=ResolvedTask(complexity="complex", shape="verify", needs_agent_planning=True))
     )
 
-    signal = build_control_signal(intent)
+    assert signal.route == "agent"
+    assert signal.use_planner is False
+    assert signal.planning_level == "light"
+
+
+def test_complex_verify_with_clarification_flag_is_rescued_to_agent() -> None:
+    signal = build_control_signal(
+        _resolved(
+            modifiers=IntentModifiers(needs_clarification=True),
+            task=ResolvedTask(complexity="complex", shape="verify", needs_agent_planning=True),
+        )
+    )
+
+    assert signal.route == "agent"
+    assert signal.mode == "normal"
+    assert signal.use_planner is False
+    assert signal.planning_level == "light"
+
+
+def test_complex_summarize_stays_agent_without_planner() -> None:
+    signal = build_control_signal(
+        _resolved(task=ResolvedTask(complexity="complex", shape="summarize", needs_agent_planning=True))
+    )
+
+    assert signal.route == "agent"
+    assert signal.use_planner is False
+    assert signal.planning_level == "none"
+
+
+def test_compound_multi_question_routes_to_rag_with_decomposition() -> None:
+    signal = build_control_signal(
+        _resolved(
+            task=ResolvedTask(
+                complexity="compound",
+                shape="multi_question",
+                needs_query_decomposition=True,
+            )
+        )
+    )
+
+    assert signal.route == "rag"
+    assert signal.decompose_query is True
+    assert signal.use_planner is False
+
+
+def test_unsupported_routes_to_reject() -> None:
+    signal = build_control_signal(
+        _resolved(main_intent="unsupported", modifiers=IntentModifiers(out_of_scope=True))
+    )
 
     assert signal.route == "reject"
-    assert signal.mode == "normal"
+    assert signal.mode == "clarify"

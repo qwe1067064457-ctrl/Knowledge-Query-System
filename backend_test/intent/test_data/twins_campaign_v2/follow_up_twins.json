@@ -1,0 +1,638 @@
+[
+  {
+    "id": "twins_follow_up_001_follow_up_supportive",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那如果是未成年人呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同责任和证据条件。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按合同责任和证据规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 配强相关历史，验证有效追问召回",
+    "source_query_id": "twins_follow_up_001",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "twins_follow_up_001_ambiguous_twin",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那这个呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "前面提过这个问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面简单说了一下，但没有展开。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.missing_history"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": false,
+          "context.follow_up.missing_history": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "Twin pair: valid follow-up versus vague referential phrase with insufficient grounding.",
+    "source_query_id": "twins_follow_up_001",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK",
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "twins_follow_up_002_follow_up_supportive",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那如果没有证据呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同责任和证据条件。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按合同责任和证据规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 配强相关历史，验证有效追问召回",
+    "source_query_id": "twins_follow_up_002",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "twins_follow_up_002_ambiguous_twin",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那这个标准呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "前面提过这个问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面简单说了一下，但没有展开。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.missing_history"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": false,
+          "context.follow_up.missing_history": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "Twin pair: valid follow-up versus vague referential phrase with insufficient grounding.",
+    "source_query_id": "twins_follow_up_002",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK",
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "twins_follow_up_003_follow_up_supportive",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "如果换成公司主体呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同责任和证据条件。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按合同责任和证据规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 配强相关历史，验证有效追问召回",
+    "source_query_id": "twins_follow_up_003",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "twins_follow_up_003_ambiguous_twin",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "如果换一种情况呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "前面提过这个问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面简单说了一下，但没有展开。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.missing_history"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": false,
+          "context.follow_up.missing_history": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "Twin pair: valid follow-up versus vague referential phrase with insufficient grounding.",
+    "source_query_id": "twins_follow_up_003",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK",
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "twins_follow_up_004_follow_up_supportive",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那法院一般怎么处理？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同责任和证据条件。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按合同责任和证据规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 配强相关历史，验证有效追问召回",
+    "source_query_id": "twins_follow_up_004",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "twins_follow_up_004_ambiguous_twin",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那上面那个情况呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "前面提过这个问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面简单说了一下，但没有展开。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.missing_history"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": false,
+          "context.follow_up.missing_history": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "Twin pair: valid follow-up versus vague referential phrase with insufficient grounding.",
+    "source_query_id": "twins_follow_up_004",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK",
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  }
+]

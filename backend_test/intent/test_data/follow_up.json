@@ -1,0 +1,180 @@
+[
+  {
+    "id": "follow_up_001",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那如果合同只有一年呢？",
+      "history": [
+        {"role": "user", "content": "劳动合同法中试用期最长多久？"},
+        {"role": "assistant", "content": "试用期最长可能为六个月，但要看合同期限。"}
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["qa", "follow_up"],
+        "required_rule_ids": ["intent.qa.domain", "context.follow_up.reference"],
+        "rule_expectations": {
+          "intent.qa.domain": true,
+          "context.follow_up.reference": true,
+          "context.follow_up.missing_history": false,
+          "challenge.disagree": false,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "法律追问"
+  },
+  {
+    "id": "follow_up_002",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那这种治疗一般需要多久？",
+      "history": [
+        {"role": "user", "content": "医学指南里这种治疗推荐给什么人群？"},
+        {"role": "assistant", "content": "一般适用于症状较重且需要长期管理的人群。"}
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["qa", "follow_up"],
+        "required_rule_ids": ["intent.qa.domain", "context.follow_up.reference"],
+        "rule_expectations": {
+          "intent.qa.domain": true,
+          "context.follow_up.reference": true,
+          "context.follow_up.missing_history": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "医学追问"
+  },
+  {
+    "id": "follow_up_003",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "继续说劳动合同解除的赔偿标准",
+      "history": [
+        {"role": "user", "content": "劳动合同解除后经济补偿怎么计算？"},
+        {"role": "assistant", "content": "通常与工作年限和工资基数有关。"}
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["qa", "follow_up"],
+        "required_rule_ids": ["intent.qa.domain", "context.follow_up.reference"],
+        "rule_expectations": {
+          "intent.qa.domain": true,
+          "context.follow_up.reference": true,
+          "context.follow_up.missing_history": false,
+          "task.complex.request": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "延续上一轮知识问答"
+  }
+]

@@ -1,0 +1,15 @@
+{"id": "seed_20260514_qa_001", "query": "我们之前讨论了公司在合同履行过程中可能承担的违约责任。现在我想更系统地理解一下：在我国合同法体系下，如果一方延迟履行义务但最终仍然履行完成，另一方主张违约责任时通常可以请求哪些救济方式？是否包括实际履行、违约金以及损害赔偿？", "hints": {"preferred_batch": "standard_qa"}, "notes": "label=intent.qa.generic"}
+{"id": "seed_20260514_qa_002", "query": "在你刚才提到的医疗侵权案例里，医生未尽到说明义务是否一定构成侵权？我想知道，从法律构成要件的角度来看，医疗侵权责任的认定一般需要满足哪些要素？", "hints": {"preferred_batch": "standard_qa"}, "notes": "label=intent.qa.generic; borderline=judgment+explain"}
+{"id": "seed_20260514_qa_003", "query": "假设一个企业在数据出境时未进行安全评估，但数据规模较小，且未造成实际损害。根据现行法规，这种行为是否属于行政违法？一般会面临什么类型的处罚？", "hints": {"preferred_batch": "standard_qa"}, "notes": "label=intent.qa.generic; borderline=judgment+explain"}
+{"id": "seed_20260514_qa_004", "query": "你之前说到“因果关系的举证责任倒置”问题。我想进一步了解，在民事诉讼中，在哪些特定情形下法院会适用举证责任倒置？有没有典型案例可以说明？", "hints": {"preferred_batch": "standard_qa"}, "notes": "label=intent.qa.generic"}
+{"id": "seed_20260514_qa_005", "query": "我们正在设计一个多租户知识库系统。从架构角度看，session 隔离是否必须依赖 group_id？如果系统未来扩展为 SaaS 多企业版本，session 主键设计应该考虑哪些因素？", "hints": {"preferred_batch": "standard_qa"}, "notes": "label=intent.qa.generic; architecture domain"}
+{"id": "seed_20260514_j_001", "query": "如果员工在试用期内多次迟到，公司未事先制定明确的规章制度，但直接解除劳动合同，这种解除行为是否合法？", "hints": {"preferred_batch": "fuzzy_qa"}, "notes": "label=intent.qa.judgment"}
+{"id": "seed_20260514_j_002", "query": "某电商平台未经用户明确同意，将用户购买记录用于精准广告推荐，但未泄露给第三方，这种行为是否违反个人信息保护法？", "hints": {"preferred_batch": "fuzzy_qa"}, "notes": "label=intent.qa.judgment"}
+{"id": "seed_20260514_j_003", "query": "在一个知识问答系统中，如果检索结果来自两条互相矛盾的法规解释，而系统只返回其中一条，是否可以认为系统存在“误导性输出”的风险？", "hints": {"preferred_batch": "fuzzy_qa"}, "notes": "label=intent.qa.judgment; architecture/legal hybrid"}
+{"id": "seed_20260514_j_004", "query": "如果开发团队明知模型存在明显的 hallucination 风险，但仍然将其用于自动生成法律建议，这种行为是否可能构成重大过失？", "hints": {"preferred_batch": "fuzzy_qa"}, "notes": "label=intent.qa.judgment"}
+{"id": "seed_20260514_j_005", "query": "在你前面提到的架构设计中，如果没有设置权限隔离，而允许不同租户共享同一个向量库，这是否构成数据安全风险？", "hints": {"preferred_batch": "fuzzy_qa"}, "notes": "label=intent.qa.judgment; follow-up flavored but self-contained"}
+{"id": "seed_20260514_sd_001", "query": "你刚才说在这种情况下法院通常会支持违约金请求，但我有点不确定，是不是还需要考虑违约金是否明显过高的问题？", "hints": {"preferred_batch": "challenge"}, "notes": "label=challenge.soft_doubt"}
+{"id": "seed_20260514_sd_002", "query": "如果按照你前面的解释，似乎只要存在因果关系就可以认定侵权。但我理解中好像还需要有主观过错，这里是不是我理解有偏差？", "hints": {"preferred_batch": "challenge"}, "notes": "label=challenge.soft_doubt"}
+{"id": "seed_20260514_sd_003", "query": "你前面提到系统可以通过规则层解决大部分意图分类问题。但如果遇到比较模糊的表达，比如既有质疑又有求证，这种规则是否会误判？", "hints": {"preferred_batch": "challenge"}, "notes": "label=challenge.soft_doubt"}
+{"id": "seed_20260514_sd_004", "query": "我在想，你说的“会话恢复”是按需从磁盘重建对象，那是不是意味着在高并发场景下可能会出现性能瓶颈？", "hints": {"preferred_batch": "challenge"}, "notes": "label=challenge.soft_doubt"}
+{"id": "seed_20260514_sd_005", "query": "按照你给的分层策略，intent.qa.judgment 和 intent.qa.generic 区别主要在于是否包含判断性表达，但在一些复杂场景里两者好像界限并不绝对，这样的区分会不会有点过于理想化？", "hints": {"preferred_batch": "challenge"}, "notes": "label=challenge.soft_doubt"}

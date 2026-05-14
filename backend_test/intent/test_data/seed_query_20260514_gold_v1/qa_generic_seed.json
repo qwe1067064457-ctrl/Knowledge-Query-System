@@ -1,0 +1,343 @@
+[
+  {
+    "id": "seed_20260514_qa_001_gold",
+    "batch": "qa_generic_seed",
+    "input": {
+      "user_query": "我们之前讨论了公司在合同履行过程中可能承担的违约责任。现在我想更系统地理解一下：在我国合同法体系下，如果一方延迟履行义务但最终仍然履行完成，另一方主张违约责任时通常可以请求哪些救济方式？是否包括实际履行、违约金以及损害赔偿？",
+      "history": [
+        {
+          "role": "user",
+          "content": "前面我们在讨论合同履行迟延后的责任承担。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先概括了违约责任的一般框架。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "intent.qa.judgment": false,
+          "challenge.soft_doubt": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "generic QA：有上下文但不依赖上下文完成分类。",
+    "source_query_id": "seed_20260514_qa_001"
+  },
+  {
+    "id": "seed_20260514_qa_002_gold",
+    "batch": "qa_generic_seed",
+    "input": {
+      "user_query": "在你刚才提到的医疗侵权案例里，医生未尽到说明义务是否一定构成侵权？我想知道，从法律构成要件的角度来看，医疗侵权责任的认定一般需要满足哪些要素？",
+      "history": [
+        {
+          "role": "user",
+          "content": "前面我们提到过医疗侵权和说明义务的问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才只简要提到了说明义务可能影响责任认定。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "intent.qa.judgment": false,
+          "challenge.soft_doubt": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "generic QA 边界样本：含“是否一定”但主诉求是构成要件解释。",
+    "source_query_id": "seed_20260514_qa_002"
+  },
+  {
+    "id": "seed_20260514_qa_003_gold",
+    "batch": "qa_generic_seed",
+    "input": {
+      "user_query": "假设一个企业在数据出境时未进行安全评估，但数据规模较小，且未造成实际损害。根据现行法规，这种行为是否属于行政违法？一般会面临什么类型的处罚？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "intent.qa.judgment": false,
+          "challenge.soft_doubt": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "generic QA 边界样本：含“是否违法”但后半句核心是法规解释与处罚类型说明。",
+    "source_query_id": "seed_20260514_qa_003"
+  },
+  {
+    "id": "seed_20260514_qa_004_gold",
+    "batch": "qa_generic_seed",
+    "input": {
+      "user_query": "你之前说到“因果关系的举证责任倒置”问题。我想进一步了解，在民事诉讼中，在哪些特定情形下法院会适用举证责任倒置？有没有典型案例可以说明？",
+      "history": [
+        {
+          "role": "user",
+          "content": "前面我们讨论了因果关系证明和举证责任问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才只提到了举证责任倒置的概念。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "intent.qa.judgment": false,
+          "challenge.soft_doubt": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "generic QA：求规则解释与案例说明。",
+    "source_query_id": "seed_20260514_qa_004"
+  },
+  {
+    "id": "seed_20260514_qa_005_gold",
+    "batch": "qa_generic_seed",
+    "input": {
+      "user_query": "我们正在设计一个多租户知识库系统。从架构角度看，session 隔离是否必须依赖 group_id？如果系统未来扩展为 SaaS 多企业版本，session 主键设计应该考虑哪些因素？",
+      "history": [
+        {
+          "role": "user",
+          "content": "前面我们在讨论多租户知识库的 session 和 group 设计。"
+        },
+        {
+          "role": "assistant",
+          "content": "我之前先说了 group_id 可以帮助做隔离。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "intent.qa.judgment": false,
+          "challenge.soft_doubt": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "架构域 generic QA：两问相连，但仍是解释型而非质疑型。",
+    "source_query_id": "seed_20260514_qa_005"
+  }
+]

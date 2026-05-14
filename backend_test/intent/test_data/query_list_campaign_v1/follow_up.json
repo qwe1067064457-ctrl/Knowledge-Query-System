@@ -1,0 +1,383 @@
+[
+  {
+    "id": "bench_001_follow_up_supportive",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那这种情况呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同责任和证据条件。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按合同责任和证据规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 配强相关历史，验证有效追问召回",
+    "source_query_id": "bench_001",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "bench_001_follow_up_weak",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那这种情况呢？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.missing_history"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": false,
+          "context.follow_up.missing_history": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 缺少历史，重点测误判成 follow_up 的风险",
+    "source_query_id": "bench_001",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "INPUT_TOO_WEAK",
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "bench_001_follow_up_conflicting",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那这种情况呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在聊推荐哪本书更适合入门。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才给了两本非法律类书籍的建议。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 配冲突历史，测试系统是否会因为存在历史而强行关联",
+    "source_query_id": "bench_001",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "conflicting",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "bench_001_follow_up_near_miss",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "你能再解释一下刚才那个意思吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "context.follow_up.reference": false,
+          "context.follow_up.missing_history": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：看起来像追问，实际更像请求解释",
+    "source_query_id": "bench_001",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK",
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "bench_001_follow_up_mixed",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那这种情况呢，如果不是的话为什么？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同责任和证据条件。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按合同责任和证据规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up",
+          "multi_question"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference",
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "混合变体：追问叠加双问题",
+    "source_query_id": "bench_001",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "mixed",
+      "risk_flags": []
+    }
+  }
+]

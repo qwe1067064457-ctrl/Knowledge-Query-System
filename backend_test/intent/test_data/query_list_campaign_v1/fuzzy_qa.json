@@ -1,0 +1,141 @@
+[
+  {
+    "id": "bench_004_fuzzy_weak",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "这样算不算医疗事故？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "qa",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 信息不足，预填为模糊 QA 草稿",
+    "source_query_id": "bench_004",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "INPUT_TOO_WEAK",
+        "QUERY_NEEDS_MANUAL_REVIEW"
+      ]
+    }
+  },
+  {
+    "id": "bench_004_fuzzy_qa_cost_focused",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "我想先确认一个定义问题：这样算不算医疗事故？。背景情况很多，但核心只是确认这个概念本身怎么定义。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.qa.domain": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "成本偏差样本：表面长，核心仍是简单定义问答，容易被误送到 agent。",
+    "source_query_id": "bench_004",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "cost_focused",
+      "risk_flags": [
+        "CONTROL_ROUTE_COST_RISK"
+      ]
+    }
+  }
+]

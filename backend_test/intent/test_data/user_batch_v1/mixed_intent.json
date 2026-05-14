@@ -1,0 +1,649 @@
+[
+  {
+    "id": "user_batch_mixed_001",
+    "batch": "mixed_intent",
+    "input": {
+      "user_query": "你刚才说合同无效，那依据是什么？是不是你理解错了？",
+      "history": [
+        {
+          "role": "user",
+          "content": "合同无效之后违约责任还要不要承担？"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才解释过合同无效、违约责任和缔约过失责任的基本区别。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "challenge",
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis",
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "质疑与索引依据同时出现"
+  },
+  {
+    "id": "user_batch_mixed_002",
+    "batch": "mixed_intent",
+    "input": {
+      "user_query": "医疗事故是不是都要赔钱？感觉不合理啊。",
+      "history": [
+        {
+          "role": "user",
+          "content": "医疗事故责任和一般医疗风险怎么区分？"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才已经说明了医疗事故认定通常要看过错、损害结果和因果关系。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "intent.qa.domain": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "事实问答加态度质疑"
+  },
+  {
+    "id": "user_batch_mixed_003",
+    "batch": "mixed_intent",
+    "input": {
+      "user_query": "你确定这是最新法律吗？我查的好像不一样。",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编的规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "版本一致性质疑"
+  },
+  {
+    "id": "user_batch_mixed_004",
+    "batch": "mixed_intent",
+    "input": {
+      "user_query": "那这种情况是不是违法？如果不是为什么？",
+      "history": [
+        {
+          "role": "user",
+          "content": "合同无效之后违约责任还要不要承担？"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才解释过合同无效、违约责任和缔约过失责任的基本区别。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up",
+          "multi_question"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference",
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "追问加双问题"
+  },
+  {
+    "id": "user_batch_mixed_005",
+    "batch": "mixed_intent",
+    "input": {
+      "user_query": "如果医生误诊，但不是故意的，责任怎么算？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [
+          "intent.qa.domain"
+        ],
+        "rule_expectations": {
+          "intent.qa.domain": true,
+          "task.complex.request": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "带条件的责任问答"
+  },
+  {
+    "id": "user_batch_mixed_006",
+    "batch": "mixed_intent",
+    "input": {
+      "user_query": "你能简单说一下，然后给出法律依据吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "合同无效之后违约责任还要不要承担？"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才解释过合同无效、违约责任和缔约过失责任的基本区别。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source",
+          "multi_question"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis",
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "task.enumerated_questions": true,
+          "system.capability.ask": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "回答方式加索引依据"
+  },
+  {
+    "id": "user_batch_mixed_007",
+    "batch": "mixed_intent",
+    "input": {
+      "user_query": "这算侵权吧？还是只是违约？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "qa",
+          "complex"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "task.complex.request": false,
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "compare"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "notes": "比较型法律判断"
+  },
+  {
+    "id": "user_batch_mixed_008",
+    "batch": "mixed_intent",
+    "input": {
+      "user_query": "那这种是不是既违法又要赔偿？",
+      "history": [
+        {
+          "role": "user",
+          "content": "合同无效之后违约责任还要不要承担？"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才解释过合同无效、违约责任和缔约过失责任的基本区别。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "task.enumerated_questions": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "追问且同时问违法与赔偿"
+  },
+  {
+    "id": "user_batch_mixed_009",
+    "batch": "mixed_intent",
+    "input": {
+      "user_query": "你说的赔偿比例有数据支持吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "解除劳动合同后经济补偿一般怎么算？"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按常见经济补偿规则解释了一遍。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "追问数据依据"
+  },
+  {
+    "id": "user_batch_mixed_010",
+    "batch": "mixed_intent",
+    "input": {
+      "user_query": "如果合同里写了免责条款，那还有效吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [
+          "intent.qa.domain"
+        ],
+        "rule_expectations": {
+          "intent.qa.domain": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "带条件的合同效力问答"
+  }
+]

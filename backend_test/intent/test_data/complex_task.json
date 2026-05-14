@@ -1,0 +1,229 @@
+[
+  {
+    "id": "complex_001",
+    "batch": "complex_task",
+    "input": {
+      "user_query": "请对比三份制度差异并整理成表格",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["qa", "complex"],
+        "required_rule_ids": ["intent.qa.domain", "task.complex.request"],
+        "rule_expectations": {
+          "intent.qa.domain": true,
+          "task.complex.request": true,
+          "task.enumerated_questions": false,
+          "intent.chat.greeting": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "compare"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "notes": "对比型复杂任务"
+  },
+  {
+    "id": "complex_002",
+    "batch": "complex_task",
+    "input": {
+      "user_query": "根据知识库总结劳动合同解除的流程并提炼风险点",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["qa", "complex"],
+        "required_rule_ids": ["intent.qa.domain", "task.complex.request"],
+        "rule_expectations": {
+          "intent.qa.domain": true,
+          "task.complex.request": true,
+          "task.enumerated_questions": false,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "summarize"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "notes": "总结归纳型复杂任务"
+  },
+  {
+    "id": "complex_003",
+    "batch": "complex_task",
+    "input": {
+      "user_query": "请逐条验证知识库中关于试用期的说法是否准确",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["qa", "complex"],
+        "required_rule_ids": ["intent.qa.domain", "task.complex.request"],
+        "rule_expectations": {
+          "intent.qa.domain": true,
+          "task.complex.request": true,
+          "challenge.disagree": false,
+          "task.enumerated_questions": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "notes": "验证型复杂任务"
+  },
+  {
+    "id": "complex_004",
+    "batch": "complex_task",
+    "input": {
+      "user_query": "1. 结合知识库场景说明 rule_id 是否完善 2. resolver 如何收敛 3. 每一层怎么走一遍",
+      "history": [
+        {"role": "user", "content": "我们前面在讨论知识库系统的意图识别设计。"},
+        {"role": "assistant", "content": "已经定义了 input、evidence、resolved、control 四层。"}
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["qa", "complex", "multi_question"],
+        "required_rule_ids": ["intent.qa.domain", "task.complex.request", "task.enumerated_questions"],
+        "rule_expectations": {
+          "intent.qa.domain": true,
+          "task.complex.request": true,
+          "task.enumerated_questions": true,
+          "context.follow_up.reference": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "mixed"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "notes": "分点设计评审类复杂请求"
+  }
+]

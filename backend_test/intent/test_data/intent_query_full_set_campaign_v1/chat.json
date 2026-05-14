@@ -1,0 +1,538 @@
+[
+  {
+    "id": "seed_0097_chat_supportive",
+    "batch": "chat",
+    "input": {
+      "user_query": "最近压力有点大。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "chat"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.chat.greeting": false,
+          "intent.qa.domain": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "chat",
+        "mode": "normal"
+      }
+    },
+    "notes": "基于原始 query 的闲聊草稿",
+    "source_query_id": "seed_0097",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0099_chat_supportive",
+    "batch": "chat",
+    "input": {
+      "user_query": "聊聊吧。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "chat"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.chat.greeting": false,
+          "intent.qa.domain": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "chat",
+        "mode": "normal"
+      }
+    },
+    "notes": "基于原始 query 的闲聊草稿",
+    "source_query_id": "seed_0099",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0100_chat_supportive",
+    "batch": "chat",
+    "input": {
+      "user_query": "你是谁？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "chat"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.chat.greeting": false,
+          "intent.qa.domain": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "chat",
+        "mode": "normal"
+      }
+    },
+    "notes": "基于原始 query 的闲聊草稿",
+    "source_query_id": "seed_0100",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0101_chat_supportive",
+    "batch": "chat",
+    "input": {
+      "user_query": "哈哈哈。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "chat"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.chat.greeting": false,
+          "intent.qa.domain": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "chat",
+        "mode": "normal"
+      }
+    },
+    "notes": "基于原始 query 的闲聊草稿",
+    "source_query_id": "seed_0101",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0104_chat_supportive",
+    "batch": "chat",
+    "input": {
+      "user_query": "今天天气不错。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "chat"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.chat.greeting": false,
+          "intent.qa.domain": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "chat",
+        "mode": "normal"
+      }
+    },
+    "notes": "基于原始 query 的闲聊草稿",
+    "source_query_id": "seed_0104",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0105_chat_supportive",
+    "batch": "chat",
+    "input": {
+      "user_query": "推荐一本书。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "chat"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.chat.greeting": false,
+          "intent.qa.domain": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "chat",
+        "mode": "normal"
+      }
+    },
+    "notes": "基于原始 query 的闲聊草稿",
+    "source_query_id": "seed_0105",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0110_chat_supportive",
+    "batch": "chat",
+    "input": {
+      "user_query": "压力有点大。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "chat"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.chat.greeting": false,
+          "intent.qa.domain": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "chat",
+        "mode": "normal"
+      }
+    },
+    "notes": "基于原始 query 的闲聊草稿",
+    "source_query_id": "seed_0110",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0113_chat_supportive",
+    "batch": "chat",
+    "input": {
+      "user_query": "想聊聊。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [
+          "chat"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "intent.chat.greeting": false,
+          "intent.qa.domain": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "chat",
+        "mode": "normal"
+      }
+    },
+    "notes": "基于原始 query 的闲聊草稿",
+    "source_query_id": "seed_0113",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  }
+]

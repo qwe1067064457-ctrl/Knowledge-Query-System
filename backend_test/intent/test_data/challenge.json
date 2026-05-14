@@ -1,0 +1,178 @@
+[
+  {
+    "id": "challenge_001",
+    "batch": "challenge",
+    "input": {
+      "user_query": "你确定吗？",
+      "history": [
+        {"role": "user", "content": "劳动合同法中试用期最长多久？"},
+        {"role": "assistant", "content": "试用期最长为六个月。"}
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": ["challenge"],
+        "required_rule_ids": ["challenge.disagree"],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "challenge.missing_context": false,
+          "source.ask_basis": false,
+          "context.follow_up.reference": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "纯质疑"
+  },
+  {
+    "id": "challenge_002",
+    "batch": "challenge",
+    "input": {
+      "user_query": "你刚才说的不对吧？",
+      "history": [
+        {"role": "user", "content": "公司制度里年假怎么计算？"},
+        {"role": "assistant", "content": "年假一律按十天计算。"}
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": ["challenge"],
+        "required_rule_ids": ["challenge.disagree"],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "challenge.missing_context": false,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "明确否定上一轮回答"
+  },
+  {
+    "id": "challenge_003",
+    "batch": "challenge",
+    "input": {
+      "user_query": "你刚才这个依据是什么，是不是不对？",
+      "history": [
+        {"role": "user", "content": "劳动合同法中试用期最长多久？"},
+        {"role": "assistant", "content": "试用期最长为六个月。"}
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": ["challenge", "ask_source"],
+        "required_rule_ids": ["challenge.disagree", "source.ask_basis"],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": true,
+          "challenge.missing_context": false,
+          "source.missing_context": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "质疑和要依据并存"
+  }
+]

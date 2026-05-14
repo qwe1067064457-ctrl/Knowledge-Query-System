@@ -1,0 +1,120 @@
+[
+  {
+    "id": "ask_source_001",
+    "batch": "ask_source",
+    "input": {
+      "user_query": "依据是什么？",
+      "history": [
+        {"role": "user", "content": "劳动合同法中试用期最长多久？"},
+        {"role": "assistant", "content": "试用期最长可能为六个月，但要看合同期限。"}
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["ask_source"],
+        "required_rule_ids": ["source.ask_basis"],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "source.missing_context": false,
+          "challenge.disagree": false,
+          "intent.qa.domain": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "对上一轮回答要依据"
+  },
+  {
+    "id": "ask_source_002",
+    "batch": "ask_source",
+    "input": {
+      "user_query": "你引用的是哪一条？",
+      "history": [
+        {"role": "user", "content": "根据公司制度，婚假一般有几天？"},
+        {"role": "assistant", "content": "一般按照公司婚假制度执行。"}
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["ask_source"],
+        "required_rule_ids": ["source.ask_basis"],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "source.missing_context": false,
+          "challenge.disagree": false,
+          "system.capability.ask": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "引用型 ask_source"
+  }
+]

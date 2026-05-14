@@ -1,0 +1,672 @@
+[
+  {
+    "id": "user_batch_follow_up_001",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那这种情况呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "合同无效之后违约责任还要不要承担？"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才解释过合同无效、违约责任和缔约过失责任的基本区别。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "典型追问"
+  },
+  {
+    "id": "user_batch_follow_up_002",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "如果是公司呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "合同无效之后违约责任还要不要承担？"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才解释过合同无效、违约责任和缔约过失责任的基本区别。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "条件变体追问"
+  },
+  {
+    "id": "user_batch_follow_up_003",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那医疗领域也是这样吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才那段合同规则我还想继续问。"
+        },
+        {
+          "role": "assistant",
+          "content": "可以，我们继续围绕合同责任来讨论。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "跨领域追问"
+  },
+  {
+    "id": "user_batch_follow_up_004",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那严重一点会怎样？",
+      "history": [
+        {
+          "role": "user",
+          "content": "医疗事故责任和一般医疗风险怎么区分？"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才已经说明了医疗事故认定通常要看过错、损害结果和因果关系。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "结果追问"
+  },
+  {
+    "id": "user_batch_follow_up_005",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "如果是未成年人呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "合同无效之后违约责任还要不要承担？"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才解释过合同无效、违约责任和缔约过失责任的基本区别。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "主体变体追问"
+  },
+  {
+    "id": "user_batch_follow_up_006",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那换成刑事责任呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "合同无效之后违约责任还要不要承担？"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才解释过合同无效、违约责任和缔约过失责任的基本区别。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "责任类型切换"
+  },
+  {
+    "id": "user_batch_follow_up_007",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "这种情况赔多少？",
+      "history": [
+        {
+          "role": "user",
+          "content": "解除劳动合同后经济补偿一般怎么算？"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按常见经济补偿规则解释了一遍。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "金额追问"
+  },
+  {
+    "id": "user_batch_follow_up_008",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那法院一般怎么处理？",
+      "history": [
+        {
+          "role": "user",
+          "content": "合同无效之后违约责任还要不要承担？"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才解释过合同无效、违约责任和缔约过失责任的基本区别。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "裁判倾向追问"
+  },
+  {
+    "id": "user_batch_follow_up_009",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那如果没有证据呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编的规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "证据条件追问"
+  },
+  {
+    "id": "user_batch_follow_up_010",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那这个标准是全国统一的吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "医疗事故责任和一般医疗风险怎么区分？"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才已经说明了医疗事故认定通常要看过错、损害结果和因果关系。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "标准范围追问"
+  }
+]

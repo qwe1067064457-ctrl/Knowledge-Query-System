@@ -1,0 +1,173 @@
+[
+  {
+    "id": "frozen_generic_001",
+    "batch": "qa_generic_frozen",
+    "input": {
+      "user_query": "如果一个平台准备把历史问答沉淀成知识库，从治理角度看，应该先梳理哪些字段和元信息，才能保证后续检索和审计可追溯？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["qa"],
+        "required_rule_ids": ["intent.qa.generic"],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "intent.qa.judgment": false,
+          "challenge.soft_doubt": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "冻结 generic：治理与审计导向的解释型问答。",
+    "source_query_id": "frozen_generic_001"
+  },
+  {
+    "id": "frozen_generic_002",
+    "batch": "qa_generic_frozen",
+    "input": {
+      "user_query": "在多租户知识库系统里，如果我们希望后续支持案件级别的审计回放，session 和 message 的主键设计一般需要预留哪些扩展位？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["qa"],
+        "required_rule_ids": ["intent.qa.generic"],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "intent.qa.judgment": false,
+          "challenge.soft_doubt": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "冻结 generic：架构设计里的解释型因素提问。",
+    "source_query_id": "frozen_generic_002"
+  },
+  {
+    "id": "frozen_generic_003",
+    "batch": "qa_generic_frozen",
+    "input": {
+      "user_query": "如果一个合规问答系统需要支持多版本法规并存，检索层通常要提供哪些能力，才能让上层回答时区分时效和适用范围？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["qa"],
+        "required_rule_ids": ["intent.qa.generic"],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "intent.qa.judgment": false,
+          "challenge.soft_doubt": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "冻结 generic：产品/检索能力说明型问答。",
+    "source_query_id": "frozen_generic_003"
+  }
+]

@@ -1,0 +1,630 @@
+[
+  {
+    "id": "twins_challenge_001_challenge_supportive",
+    "batch": "challenge",
+    "input": {
+      "user_query": "你刚才这个结论不太对吧？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "原始 query 配回答历史，验证标准 challenge 路由",
+    "source_query_id": "twins_challenge_001",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "twins_challenge_001_clarify_twin",
+    "batch": "challenge",
+    "input": {
+      "user_query": "你刚才这个结论我没太听懂。",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "challenge.disagree": false,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "Twin pair: challenge wording versus clarify wording under the same prior answer.",
+    "source_query_id": "twins_challenge_001",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK",
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "twins_challenge_002_challenge_supportive",
+    "batch": "challenge",
+    "input": {
+      "user_query": "这和你前面说的不一致吧？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "原始 query 配回答历史，验证标准 challenge 路由",
+    "source_query_id": "twins_challenge_002",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "twins_challenge_002_clarify_twin",
+    "batch": "challenge",
+    "input": {
+      "user_query": "这和你前面说的是一个意思吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "challenge.disagree": false,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "Twin pair: challenge wording versus clarify wording under the same prior answer.",
+    "source_query_id": "twins_challenge_002",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK",
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "twins_challenge_003_challenge_supportive",
+    "batch": "challenge",
+    "input": {
+      "user_query": "你是不是把条件搞反了？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "原始 query 配回答历史，验证标准 challenge 路由",
+    "source_query_id": "twins_challenge_003",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "twins_challenge_003_clarify_twin",
+    "batch": "challenge",
+    "input": {
+      "user_query": "你是不是把条件说得太快了？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "challenge.disagree": false,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "Twin pair: challenge wording versus clarify wording under the same prior answer.",
+    "source_query_id": "twins_challenge_003",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK",
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "twins_challenge_004_challenge_supportive",
+    "batch": "challenge",
+    "input": {
+      "user_query": "这个说法站不住吧？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "原始 query 配回答历史，验证标准 challenge 路由",
+    "source_query_id": "twins_challenge_004",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "twins_challenge_004_clarify_twin",
+    "batch": "challenge",
+    "input": {
+      "user_query": "这个说法能不能再展开一点？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "challenge.disagree": false,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "Twin pair: challenge wording versus clarify wording under the same prior answer.",
+    "source_query_id": "twins_challenge_004",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK",
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  }
+]

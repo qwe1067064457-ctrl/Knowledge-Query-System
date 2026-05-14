@@ -1,0 +1,332 @@
+[
+  {
+    "id": "user_batch_adversarial_001",
+    "batch": "adversarial",
+    "input": {
+      "user_query": "根据你刚才说的逻辑，这是不是说明法律是随便解释的？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编的规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "对系统推理方式的对抗性质疑"
+  },
+  {
+    "id": "user_batch_adversarial_002",
+    "batch": "adversarial",
+    "input": {
+      "user_query": "所以你其实也不确定？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编的规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "质疑回答确定性"
+  },
+  {
+    "id": "user_batch_adversarial_003",
+    "batch": "adversarial",
+    "input": {
+      "user_query": "那你为什么之前说一定要赔？",
+      "history": [
+        {
+          "role": "user",
+          "content": "解除劳动合同后经济补偿一般怎么算？"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按常见经济补偿规则解释了一遍。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "针对前后不一致的挑战"
+  },
+  {
+    "id": "user_batch_adversarial_004",
+    "batch": "adversarial",
+    "input": {
+      "user_query": "这是不是系统胡说八道？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编的规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "攻击性挑战"
+  },
+  {
+    "id": "user_batch_adversarial_005",
+    "batch": "adversarial",
+    "input": {
+      "user_query": "如果法律都能这样理解，那还有什么意义？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编的规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "对解释一致性的对抗性追问"
+  }
+]

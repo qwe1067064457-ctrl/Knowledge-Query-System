@@ -28,5 +28,4 @@ AGENTS.md
 backend/temp_*.txt
 .DS_Store
 Thumbs.db
-notes/
 backend/demo/

@@ -1,0 +1,114 @@
+[
+  {
+    "id": "system_001",
+    "batch": "system",
+    "input": {
+      "user_query": "你能做什么？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": ["system", "ask_capability"],
+        "required_rule_ids": ["system.capability.ask"],
+        "rule_expectations": {
+          "system.capability.ask": true,
+          "intent.qa.domain": false,
+          "intent.chat.greeting": false,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "system",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": true,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "capability"
+      }
+    },
+    "notes": "系统能力问答"
+  },
+  {
+    "id": "system_002",
+    "batch": "system",
+    "input": {
+      "user_query": "支持什么功能？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": ["system", "ask_capability"],
+        "required_rule_ids": ["system.capability.ask"],
+        "rule_expectations": {
+          "system.capability.ask": true,
+          "intent.qa.domain": false,
+          "intent.chat.greeting": false,
+          "task.complex.request": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "system",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": true,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "capability"
+      }
+    },
+    "notes": "能力范围说明"
+  }
+]

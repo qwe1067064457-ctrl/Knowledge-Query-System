@@ -1,0 +1,1572 @@
+[
+  {
+    "id": "heldout_sd_001_challenge_supportive",
+    "batch": "challenge",
+    "input": {
+      "user_query": "你前面说这种授权链路只要有一次用户确认就够了，但我有点拿不准，是不是还得区分后续用途有没有超出原始授权范围？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "原始 query 配回答历史，验证标准 challenge 路由",
+    "source_query_id": "heldout_sd_001",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "heldout_sd_001_challenge_weak",
+    "batch": "challenge",
+    "input": {
+      "user_query": "你前面说这种授权链路只要有一次用户确认就够了，但我有点拿不准，是不是还得区分后续用途有没有超出原始授权范围？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面提过这个问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面简单提了一下，但没有展开法条依据。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "challenge.disagree": false,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "看起来像 challenge，但历史不足以支撑验证流",
+    "source_query_id": "heldout_sd_001",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "heldout_sd_001_challenge_near_miss",
+    "batch": "challenge",
+    "input": {
+      "user_query": "你前面说这种授权链路只要有一次用户确认就够了，但我有点拿不准，是不是还得区分后续用途有没有超出原始授权范围，你能换个说法解释一下吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面提过这个问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面简单提了一下，但没有展开法条依据。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "challenge.disagree": false,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：看起来像质疑，实际更像没听清",
+    "source_query_id": "heldout_sd_001",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "heldout_sd_001_challenge_mixed",
+    "batch": "challenge",
+    "input": {
+      "user_query": "你前面说这种授权链路只要有一次用户确认就够了，但我有点拿不准，是不是还得区分后续用途有没有超出原始授权范围，依据是哪条？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "challenge",
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree",
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "混合变体：challenge 与 ask_source 叠加",
+    "source_query_id": "heldout_sd_001",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "mixed",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "heldout_sd_002_challenge_supportive",
+    "batch": "challenge",
+    "input": {
+      "user_query": "按你刚才那个判断逻辑，似乎只要留痕完整就能证明合规。可我理解里好像还得看留痕内容本身是不是充分，这里是不是我理解得更谨慎一些？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "原始 query 配回答历史，验证标准 challenge 路由",
+    "source_query_id": "heldout_sd_002",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "heldout_sd_002_challenge_weak",
+    "batch": "challenge",
+    "input": {
+      "user_query": "按你刚才那个判断逻辑，似乎只要留痕完整就能证明合规。可我理解里好像还得看留痕内容本身是不是充分，这里是不是我理解得更谨慎一些？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面提过这个问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面简单提了一下，但没有展开法条依据。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "challenge.disagree": false,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "看起来像 challenge，但历史不足以支撑验证流",
+    "source_query_id": "heldout_sd_002",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "heldout_sd_002_challenge_near_miss",
+    "batch": "challenge",
+    "input": {
+      "user_query": "按你刚才那个判断逻辑，似乎只要留痕完整就能证明合规。可我理解里好像还得看留痕内容本身是不是充分，这里是不是我理解得更谨慎一些，你能换个说法解释一下吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面提过这个问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面简单提了一下，但没有展开法条依据。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "challenge.disagree": false,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：看起来像质疑，实际更像没听清",
+    "source_query_id": "heldout_sd_002",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "heldout_sd_002_challenge_mixed",
+    "batch": "challenge",
+    "input": {
+      "user_query": "按你刚才那个判断逻辑，似乎只要留痕完整就能证明合规。可我理解里好像还得看留痕内容本身是不是充分，这里是不是我理解得更谨慎一些，依据是哪条？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "challenge",
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree",
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "混合变体：challenge 与 ask_source 叠加",
+    "source_query_id": "heldout_sd_002",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "mixed",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "heldout_sd_003_challenge_supportive",
+    "batch": "challenge",
+    "input": {
+      "user_query": "你前面把这个问题归到 generic qa，我在想，如果用户其实是在试探系统边界，这种分法会不会把一部分弱质疑漏掉？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "原始 query 配回答历史，验证标准 challenge 路由",
+    "source_query_id": "heldout_sd_003",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "heldout_sd_003_challenge_weak",
+    "batch": "challenge",
+    "input": {
+      "user_query": "你前面把这个问题归到 generic qa，我在想，如果用户其实是在试探系统边界，这种分法会不会把一部分弱质疑漏掉？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面提过这个问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面简单提了一下，但没有展开法条依据。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "challenge.disagree": false,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "看起来像 challenge，但历史不足以支撑验证流",
+    "source_query_id": "heldout_sd_003",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "heldout_sd_003_challenge_near_miss",
+    "batch": "challenge",
+    "input": {
+      "user_query": "你前面把这个问题归到 generic qa，我在想，如果用户其实是在试探系统边界，这种分法会不会把一部分弱质疑漏掉，你能换个说法解释一下吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面提过这个问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面简单提了一下，但没有展开法条依据。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "challenge.disagree": false,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：看起来像质疑，实际更像没听清",
+    "source_query_id": "heldout_sd_003",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "heldout_sd_003_challenge_mixed",
+    "batch": "challenge",
+    "input": {
+      "user_query": "你前面把这个问题归到 generic qa，我在想，如果用户其实是在试探系统边界，这种分法会不会把一部分弱质疑漏掉，依据是哪条？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "challenge",
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree",
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "混合变体：challenge 与 ask_source 叠加",
+    "source_query_id": "heldout_sd_003",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "mixed",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "heldout_sd_004_challenge_supportive",
+    "batch": "challenge",
+    "input": {
+      "user_query": "如果照你刚才的设计，规则和模型是分层兜底的，那是不是意味着一旦规则先入为主，后面的模型判断空间会被压得比较小？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "原始 query 配回答历史，验证标准 challenge 路由",
+    "source_query_id": "heldout_sd_004",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "heldout_sd_004_challenge_weak",
+    "batch": "challenge",
+    "input": {
+      "user_query": "如果照你刚才的设计，规则和模型是分层兜底的，那是不是意味着一旦规则先入为主，后面的模型判断空间会被压得比较小？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面提过这个问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面简单提了一下，但没有展开法条依据。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "challenge.disagree": false,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "看起来像 challenge，但历史不足以支撑验证流",
+    "source_query_id": "heldout_sd_004",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "heldout_sd_004_challenge_near_miss",
+    "batch": "challenge",
+    "input": {
+      "user_query": "如果照你刚才的设计，规则和模型是分层兜底的，那是不是意味着一旦规则先入为主，后面的模型判断空间会被压得比较小，你能换个说法解释一下吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面提过这个问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面简单提了一下，但没有展开法条依据。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "challenge.disagree": false,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：看起来像质疑，实际更像没听清",
+    "source_query_id": "heldout_sd_004",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "heldout_sd_004_challenge_mixed",
+    "batch": "challenge",
+    "input": {
+      "user_query": "如果照你刚才的设计，规则和模型是分层兜底的，那是不是意味着一旦规则先入为主，后面的模型判断空间会被压得比较小，依据是哪条？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "challenge",
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree",
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "混合变体：challenge 与 ask_source 叠加",
+    "source_query_id": "heldout_sd_004",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "mixed",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "heldout_sd_005_challenge_supportive",
+    "batch": "challenge",
+    "input": {
+      "user_query": "按照你刚才的说法，这类输出风险主要靠 route 控制来兜住。我不太确定，这会不会让 evidence 层里的一些弱信号被忽略掉？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "challenge"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "原始 query 配回答历史，验证标准 challenge 路由",
+    "source_query_id": "heldout_sd_005",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "heldout_sd_005_challenge_weak",
+    "batch": "challenge",
+    "input": {
+      "user_query": "按照你刚才的说法，这类输出风险主要靠 route 控制来兜住。我不太确定，这会不会让 evidence 层里的一些弱信号被忽略掉？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面提过这个问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面简单提了一下，但没有展开法条依据。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "challenge.disagree": false,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "看起来像 challenge，但历史不足以支撑验证流",
+    "source_query_id": "heldout_sd_005",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "heldout_sd_005_challenge_near_miss",
+    "batch": "challenge",
+    "input": {
+      "user_query": "我没太听懂，你能再说清楚一点吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面提过这个问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面简单提了一下，但没有展开法条依据。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "challenge.disagree": false,
+          "source.ask_basis": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：看起来像质疑，实际更像没听清",
+    "source_query_id": "heldout_sd_005",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "heldout_sd_005_challenge_mixed",
+    "batch": "challenge",
+    "input": {
+      "user_query": "按照你刚才的说法，这类输出风险主要靠 route 控制来兜住。我不太确定，这会不会让 evidence 层里的一些弱信号被忽略掉，依据是哪条？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "challenge",
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "challenge.disagree",
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "source.ask_basis": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "混合变体：challenge 与 ask_source 叠加",
+    "source_query_id": "heldout_sd_005",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "mixed",
+      "risk_flags": []
+    }
+  }
+]

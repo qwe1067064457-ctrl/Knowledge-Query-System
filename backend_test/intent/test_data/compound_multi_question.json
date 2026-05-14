@@ -1,0 +1,114 @@
+[
+  {
+    "id": "compound_001",
+    "batch": "compound_multi_question",
+    "input": {
+      "user_query": "试用期最长多久？解除劳动合同怎么赔？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["qa", "multi_question"],
+        "required_rule_ids": ["intent.qa.domain", "task.enumerated_questions"],
+        "rule_expectations": {
+          "intent.qa.domain": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": false,
+          "intent.chat.greeting": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "两个独立问题"
+  },
+  {
+    "id": "compound_002",
+    "batch": "compound_multi_question",
+    "input": {
+      "user_query": "1. 劳动合同怎么签 2. 试用期多久 3. 竞业限制怎么补偿",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["qa", "multi_question"],
+        "required_rule_ids": ["intent.qa.domain", "task.enumerated_questions"],
+        "rule_expectations": {
+          "intent.qa.domain": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "编号式多问题"
+  }
+]

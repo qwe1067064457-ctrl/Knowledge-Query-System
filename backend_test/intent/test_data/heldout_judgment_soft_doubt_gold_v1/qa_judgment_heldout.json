@@ -1,0 +1,307 @@
+[
+  {
+    "id": "heldout_j_001_gold",
+    "batch": "qa_judgment_heldout",
+    "input": {
+      "user_query": "如果平台在用户未明确授权的情况下，把浏览记录和搜索历史结合起来做个性化定价，这种做法是否可能被认定为侵犯用户权益？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "challenge.soft_doubt": false,
+          "intent.qa.generic": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "held-out judgment: consumer-rights judgment with personalized pricing risk.",
+    "source_query_id": "heldout_j_001"
+  },
+  {
+    "id": "heldout_j_002_gold",
+    "batch": "qa_judgment_heldout",
+    "input": {
+      "user_query": "某公司在员工离职后继续保留其人脸识别门禁数据，且没有说明保存期限，这种处理方式是否违反个人信息保护的最小必要原则？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "challenge.soft_doubt": false,
+          "intent.qa.generic": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "held-out judgment: privacy retention and minimal-necessity compliance.",
+    "source_query_id": "heldout_j_002"
+  },
+  {
+    "id": "heldout_j_003_gold",
+    "batch": "qa_judgment_heldout",
+    "input": {
+      "user_query": "如果一个问答系统把仅供内部培训使用的操作指引当作正式规范向外部用户输出，是否可以认为这会带来合规风险？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "challenge.soft_doubt": false,
+          "intent.qa.generic": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "held-out judgment: risk-classification wording without canonical legality phrase.",
+    "source_query_id": "heldout_j_003"
+  },
+  {
+    "id": "heldout_j_004_gold",
+    "batch": "qa_judgment_heldout",
+    "input": {
+      "user_query": "在没有补充告知义务的前提下，医院直接把患者影像资料用于科研展示，这种行为是否可能构成对患者知情同意权的侵害？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "challenge.soft_doubt": false,
+          "intent.qa.generic": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "held-out judgment: medical consent infringement phrasing.",
+    "source_query_id": "heldout_j_004"
+  },
+  {
+    "id": "heldout_j_005_gold",
+    "batch": "qa_judgment_heldout",
+    "input": {
+      "user_query": "如果多租户系统没有做租户级索引隔离，只依赖前端参数过滤结果，这是否足以认定存在数据越权访问风险？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "challenge.soft_doubt": false,
+          "intent.qa.generic": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "held-out judgment: architecture risk and sufficiency judgment.",
+    "source_query_id": "heldout_j_005"
+  }
+]

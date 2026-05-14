@@ -1,0 +1,6610 @@
+[
+  {
+    "id": "seed_0055_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "有依据吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0055",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0055_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "有依据吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0055",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0055_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "有解释吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0055",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  },
+  {
+    "id": "seed_0139_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "你刚才的依据是什么？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0139",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0139_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "你刚才的依据是什么？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0139",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0139_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "你刚才的解释是什么？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0139",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  },
+  {
+    "id": "seed_0142_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "你是根据哪条法律说的？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0142",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0142_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "你是根据哪条法律说的？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0142",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0142_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "你是根据哪条法律说的？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0142",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  },
+  {
+    "id": "seed_0143_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "有出处吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0143",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0143_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "有出处吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0143",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0143_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "有意思吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0143",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  },
+  {
+    "id": "seed_0147_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "你的回答有证据吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0147",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0147_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "你的回答有证据吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0147",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0147_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "你的回答有证据吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0147",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  },
+  {
+    "id": "seed_0149_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "你刚才的说法依据是什么？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0149",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0149_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "你刚才的说法依据是什么？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0149",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0149_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "你刚才的说法解释是什么？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0149",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  },
+  {
+    "id": "seed_0156_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "你的信息来源可靠吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0156",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0156_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "你的信息来源可靠吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0156",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0156_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "你的信息来源可靠吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0156",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  },
+  {
+    "id": "seed_0159_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "你的结论依据是什么？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0159",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0159_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "你的结论依据是什么？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0159",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0159_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "你的结论解释是什么？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0159",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  },
+  {
+    "id": "seed_0165_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "你的来源可靠吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0165",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0165_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "你的来源可靠吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0165",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0165_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "你的来源可靠吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0165",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  },
+  {
+    "id": "seed_0171_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "有证据吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0171",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0171_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "有证据吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0171",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0171_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "有证据吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0171",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  },
+  {
+    "id": "seed_0173_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "来源呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0173",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0173_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "来源呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0173",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0173_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "来源呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0173",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  },
+  {
+    "id": "seed_0180_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "你之前提到合同无效的情形包括违反强制性规定，但没有具体说明法律条文。这个结论具体依据的是哪一条法律？是否有司法解释支持？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0180",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0180_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "你之前提到合同无效的情形包括违反强制性规定，但没有具体说明法律条文。这个结论具体依据的是哪一条法律？是否有司法解释支持？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0180",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0180_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "你之前提到合同无效的情形包括违反强制性规定，但没有具体说明法律条文。这个结论具体解释的是哪一条法律？是否有司法解释支持？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0180",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  },
+  {
+    "id": "seed_0183_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "你给出的赔偿比例有明确出处吗？是否有案例支持？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0183",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0183_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "你给出的赔偿比例有明确出处吗？是否有案例支持？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0183",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0183_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "你给出的赔偿比例有明确意思吗？是否有案例支持？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0183",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  },
+  {
+    "id": "seed_0184_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "你这个结论是不是基于一般原则推导的，还是有具体条文依据？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0184",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0184_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "你这个结论是不是基于一般原则推导的，还是有具体条文依据？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0184",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0184_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "你这个结论是不是基于一般原则推导的，还是有具体条文解释？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0184",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  },
+  {
+    "id": "seed_0185_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "你之前提到合同无效的情形包括违反强制性规定，但没有具体列出法律条文。请说明你的结论依据的是哪条法律以及是否有最新司法解释支持。",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0185",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0185_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "你之前提到合同无效的情形包括违反强制性规定，但没有具体列出法律条文。请说明你的结论依据的是哪条法律以及是否有最新司法解释支持。",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0185",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0185_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "你之前提到合同无效的情形包括违反强制性规定，但没有具体列出法律条文。请说明你的结论解释的是哪条法律以及是否有最新司法解释支持。",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0185",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  },
+  {
+    "id": "seed_0188_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "你的赔偿比例是如何得出的？是否有明确数据来源？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0188",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0188_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "你的赔偿比例是如何得出的？是否有明确数据来源？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0188",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0188_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "你的赔偿比例是如何得出的？是否有明确数据来源？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0188",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  },
+  {
+    "id": "seed_0189_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "你这个判断是基于法律条文还是推理结论？有没有出处？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0189",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0189_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "你这个判断是基于法律条文还是推理结论？有没有出处？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0189",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0189_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "你这个判断是基于法律条文还是推理结论？有没有意思？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0189",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  },
+  {
+    "id": "seed_0190_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "你刚才提到合同无效的情形包括违反强制性规定，但没有具体列出法律条文。我想确认一下，这个结论是依据哪一条法律条文得出的？是否有最新司法解释支持？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0190",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0190_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "你刚才提到合同无效的情形包括违反强制性规定，但没有具体列出法律条文。我想确认一下，这个结论是依据哪一条法律条文得出的？是否有最新司法解释支持？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0190",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0190_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "你刚才提到合同无效的情形包括违反强制性规定，但没有具体列出法律条文。我想确认一下，这个结论是解释哪一条法律条文得出的？是否有最新司法解释支持？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0190",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  },
+  {
+    "id": "seed_0191_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "你之前说这种情况一定要承担赔偿责任，但我在网上查到的案例似乎不是这样。我有点怀疑你的说法是否完整，你能否给出更具体的法律依据或者案例来源？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0191",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0191_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "你之前说这种情况一定要承担赔偿责任，但我在网上查到的案例似乎不是这样。我有点怀疑你的说法是否完整，你能否给出更具体的法律依据或者案例来源？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0191",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0191_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "你之前说这种情况一定要承担赔偿责任，但我在网上查到的案例似乎不是这样。我有点怀疑你的说法是否完整，你能否给出更具体的法律解释或者案例来源？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0191",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  },
+  {
+    "id": "seed_0194_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "你刚才说合同无效的情形包括违反强制性规定，但没有明确列出具体条文。我在其他资料中看到不同解释。请说明你的依据来源，并解释是否存在适用范围限制或例外情况。",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0194",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0194_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "你刚才说合同无效的情形包括违反强制性规定，但没有明确列出具体条文。我在其他资料中看到不同解释。请说明你的依据来源，并解释是否存在适用范围限制或例外情况。",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0194",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0194_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "你刚才说合同无效的情形包括违反强制性规定，但没有明确列出具体条文。我在其他资料中看到不同解释。请说明你的解释来源，并解释是否存在适用范围限制或例外情况。",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0194",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  },
+  {
+    "id": "seed_0212_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "我有点疑惑，这里的依据是哪个？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0212",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0212_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "我有点疑惑，这里的依据是哪个？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0212",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0212_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "我有点疑惑，这里的解释是哪个？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0212",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  },
+  {
+    "id": "seed_0275_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "你刚才说合同无效，那依据是什么？是不是你理解错了？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0275",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0275_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "你刚才说合同无效，那依据是什么？是不是你理解错了？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0275",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0275_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "你刚才说合同无效，那解释是什么？是不是你理解错了？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0275",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  },
+  {
+    "id": "seed_0280_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "你能简单说一下，然后给出法律依据吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0280",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0280_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "你能简单说一下，然后给出法律依据吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0280",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0280_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "你能简单说一下，然后给出法律解释吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0280",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  },
+  {
+    "id": "seed_0285_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "你刚才说合同无效，那依据是什么？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0285",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0285_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "你刚才说合同无效，那依据是什么？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0285",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0285_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "你刚才说合同无效，那解释是什么？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0285",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  },
+  {
+    "id": "seed_0288_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "你能简单说一下，并给出依据吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0288",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0288_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "你能简单说一下，并给出依据吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0288",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0288_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "你能简单说一下，并给出解释吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0288",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  },
+  {
+    "id": "seed_0368_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "请系统梳理我国劳动合同解除的全部法定情形，并按照“用人单位解除”“员工解除”“双方协商解除”分类整理。同时说明各自的法律依据和赔偿规则，最好用结构化方式呈现。",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0368",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0368_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "请系统梳理我国劳动合同解除的全部法定情形，并按照“用人单位解除”“员工解除”“双方协商解除”分类整理。同时说明各自的法律依据和赔偿规则，最好用结构化方式呈现。",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0368",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0368_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "请系统梳理我国劳动合同解除的全部法定情形，并按照“用人单位解除”“员工解除”“双方协商解除”分类整理。同时说明各自的法律解释和赔偿规则，最好用结构化方式呈现。",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0368",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  },
+  {
+    "id": "seed_0371_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "请系统梳理我国劳动合同解除的全部法定情形，并按照“用人单位解除”“员工解除”“协商解除”三类进行分类说明。同时说明各类对应的法律依据、是否需要提前通知、是否需要支付经济补偿，并用结构化方式呈现。",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0371",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0371_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "请系统梳理我国劳动合同解除的全部法定情形，并按照“用人单位解除”“员工解除”“协商解除”三类进行分类说明。同时说明各类对应的法律依据、是否需要提前通知、是否需要支付经济补偿，并用结构化方式呈现。",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0371",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0371_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "请系统梳理我国劳动合同解除的全部法定情形，并按照“用人单位解除”“员工解除”“协商解除”三类进行分类说明。同时说明各类对应的法律解释、是否需要提前通知、是否需要支付经济补偿，并用结构化方式呈现。",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0371",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  },
+  {
+    "id": "seed_0397_meta_supportive",
+    "batch": "meta",
+    "input": {
+      "user_query": "我总觉得这件事情处理得不太对，但具体哪里不合法说不上来。合同本身没有明显违法条款，只是在履行过程中对方解释方式和我理解不同。",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说合同无效要分情形判断。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才根据民法典合同编做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0397",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "supportive",
+      "generation_mode": "positive",
+      "risk_flags": []
+    }
+  },
+  {
+    "id": "seed_0397_meta_weak",
+    "batch": "meta",
+    "input": {
+      "user_query": "我总觉得这件事情处理得不太对，但具体哪里不合法说不上来。合同本身没有明显违法条款，只是在履行过程中对方解释方式和我理解不同。",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "source.ask_basis": true,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "原始 query 作为 ask_source 草稿",
+    "source_query_id": "seed_0397",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "positive",
+      "risk_flags": [
+        "HISTORY_SUPPORT_UNCLEAR"
+      ]
+    }
+  },
+  {
+    "id": "seed_0397_meta_near_miss",
+    "batch": "meta",
+    "input": {
+      "user_query": "我总觉得这件事情处理得不太对，但具体哪里不合法说不上来。合同本身没有明显违法条款，只是在履行过程中对方解释方式和我理解不同。",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面讲过一点。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提了一句，但没有给细节。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "source.ask_basis": false,
+          "challenge.disagree": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "notes": "近邻负例：从 ask_source 偏到说明请求",
+    "source_query_id": "seed_0397",
+    "review_hints": {
+      "consistency_checks": [
+        "input 是否足以支撑 resolved",
+        "evidence 是否是最小充分证据",
+        "control 是否符合错误路由成本预期"
+      ],
+      "history_template": "weak",
+      "generation_mode": "near_miss",
+      "risk_flags": [
+        "INPUT_TOO_WEAK"
+      ]
+    }
+  }
+]

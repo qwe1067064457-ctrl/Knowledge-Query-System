@@ -1,5 +1,18 @@
 # Ragclaw
 
+## Documentation Map
+
+当前项目采用“`notes/` 为主知识库、`CONTEXT.md` 为 AI 导航、`docs/` 为轻量正式文档区”的结构。
+
+- [README.md](C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/README.md)
+  - 人类入口：项目介绍、启动方式、文档导航
+- [CONTEXT.md](C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/CONTEXT.md)
+  - AI 入口：主题入口、术语最小定义、当前主线
+- [notes/README.md](C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/README.md)
+  - 主知识库入口：告诉你不同主题该去哪个 `notes/` 目录
+- `docs/`
+  - 轻量正式文档区，目前只承接相对稳定的内容
+
 本项目是一个面向本地运行、文件优先、可审计的 Agent 工作台。
 
 - 对话、工具调用、检索过程都会落到本地文件
@@ -8,6 +21,11 @@
 - 前端可以直接看到流式回复、工具链路和检索证据
 
 如果你想做一个“能解释自己为什么这样回答”的 Agent，这个仓库就是为这种方向准备的。
+
+项目级上下文与决策入口：
+
+- 领域上下文：[CONTEXT.md](CONTEXT.md)
+- 架构决策记录：[docs/adr/README.md](docs/adr/README.md)
 
 ## 项目特点
 
