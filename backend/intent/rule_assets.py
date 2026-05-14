@@ -14,6 +14,11 @@ def _compile_patterns(patterns: tuple[str, ...]) -> tuple[Pattern[str], ...]:
 
 @dataclass(frozen=True)
 class DomainBootstrapAssets:
+    version: str
+    asset_group: str
+    scope: str
+    description: str
+    last_updated: str
     domain_qa_patterns: tuple[Pattern[str], ...]
     domain_actor_patterns: tuple[Pattern[str], ...]
     domain_hint_tokens: tuple[str, ...]
@@ -26,11 +31,17 @@ DOMAIN_BOOTSTRAP_CONFIG_PATH = Path(__file__).with_name("domain_bootstrap_rules.
 @lru_cache(maxsize=1)
 def load_domain_bootstrap_assets() -> DomainBootstrapAssets:
     payload = json.loads(DOMAIN_BOOTSTRAP_CONFIG_PATH.read_text(encoding="utf-8"))
+    assets = payload["assets"]
     return DomainBootstrapAssets(
-        domain_qa_patterns=_compile_patterns(tuple(payload["domain_qa_patterns"])),
-        domain_actor_patterns=_compile_patterns(tuple(payload["domain_actor_patterns"])),
-        domain_hint_tokens=tuple(payload["domain_hint_tokens"]),
-        self_anchor_tokens=tuple(payload["self_anchor_tokens"]),
+        version=str(payload["version"]),
+        asset_group=str(payload["asset_group"]),
+        scope=str(payload["scope"]),
+        description=str(payload["description"]),
+        last_updated=str(payload["last_updated"]),
+        domain_qa_patterns=_compile_patterns(tuple(assets["domain_qa_patterns"])),
+        domain_actor_patterns=_compile_patterns(tuple(assets["domain_actor_patterns"])),
+        domain_hint_tokens=tuple(assets["domain_hint_tokens"]),
+        self_anchor_tokens=tuple(assets["self_anchor_tokens"]),
     )
 
 
@@ -102,4 +113,3 @@ DOMAIN_QA_PATTERNS = _DOMAIN_BOOTSTRAP.domain_qa_patterns
 DOMAIN_ACTOR_PATTERNS = _DOMAIN_BOOTSTRAP.domain_actor_patterns
 DOMAIN_HINT_TOKENS = _DOMAIN_BOOTSTRAP.domain_hint_tokens
 SELF_ANCHOR_TOKENS = _DOMAIN_BOOTSTRAP.self_anchor_tokens
-
