@@ -1,5 +1,45 @@
 # Ragclaw Context
 
+## 0. Topic Entry
+
+When the topic is clear, prefer entering the project through `notes/` instead of trying to scan the whole repository.
+
+### Intent / Rule Tuning / Evaluation / Small-Model SFT
+
+Read in this order:
+
+1. `notes/intent/README.md`
+2. `notes/intent/intent_project_info.md`
+3. `notes/intent/intent_testing_and_evaluation.md`
+4. `notes/intent/rule_tuning.md`
+5. `notes/intent/rule_supervision.md`
+6. `notes/intent/sft_preparation.md`
+
+### Knowledge Construct / Crawling / Knowledge Layout
+
+Read in this order:
+
+1. `notes/knowledge_construct/README.md`
+2. `notes/knowledge_construct/crawler/README.md`
+3. `notes/knowledge_construct/knowledge/README.md`
+
+### Context / Memory / Session / Group
+
+Read in this order:
+
+1. `notes/modules/README.md`
+2. `notes/modules/context_manager.md`
+3. `notes/modules/memory_system.md`
+4. `notes/modules/session_manager.md`
+5. `notes/modules/group_management.md`
+
+### Working Notes / Transitional Documents
+
+If the user is discussing a temporary plan, an unfinished design, or a document in progress, check:
+
+1. `notes/working/README.md`
+2. the relevant files under `notes/working/`
+
 ## 1. Product
 
 Ragclaw is a local-first, file-first, auditable agent workbench.
@@ -140,6 +180,7 @@ The current priorities are:
 - keep knowledge and memory file-native
 - improve testability and AI navigability
 - prepare the system for a future small intent model without losing rule guardrails
+- keep `notes/` as the primary knowledge base until more topics are stable enough to move into `docs/`
 
 ---
 
@@ -156,4 +197,4 @@ The codebase does not yet assume:
 - fully mature production SaaS constraints
 - final intent modeling architecture
 - complete ADR coverage
-
+- a fully mature documentation taxonomy beyond `README.md`, `CONTEXT.md`, `notes/`, and a light `docs/`
