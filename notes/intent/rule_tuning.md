@@ -90,6 +90,7 @@
 - 将稳定规则与领域 bootstrap 规则分开理解
 - 新增 [rule_assets.py](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/backend/intent/rule_assets.py)
 - 将 `domain bootstrap` 资产外提到 [domain_bootstrap_rules.json](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/backend/intent/domain_bootstrap_rules.json)
+- 为 `domain bootstrap` 资产补充版本、作用域、描述和变更记录结构
 
 目标：
 
@@ -105,6 +106,18 @@
 目标：
 
 - 修复“表面简单但实际上是分析型 QA”的 query 掉进 `chat`
+
+### 3.7 规则级监督准备
+
+已完成：
+
+- 新增 [rule_supervision.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/rule_supervision.md)
+- 新增 [rule_expectation_annotation_template.jsonl](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/evaluation/intent/rule_expectation_annotation_template.jsonl)
+
+目标：
+
+- 让 `intent.qa.generic` / `intent.qa.judgment` / `challenge.soft_doubt` 从“只有 hits”过渡到“可严格评估”
+- 把人工参与压缩到最小，只保留最终 true/false 裁决
 
 ---
 
@@ -176,4 +189,3 @@
 - [ ] 评估是否需要对 `resolver` / `control` 做小范围 layer-isolated eval
 - [ ] 为后续 rule-maintenance agent 设计配置修改接口与审核流程
 - [ ] 在开始 SFT 前，整理训练集导出字段与标签分层规范
-

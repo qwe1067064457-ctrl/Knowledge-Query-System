@@ -1,5 +1,32 @@
 # Intent Notes README
 
+## 信号说明入口
+
+细粒度信号说明放在：
+
+- [signal_info](./signal_info/README.md)
+- [evidence_signal_info](./signal_info/evidence_signal_info/README.md)
+
+其中 `evidence_signal_info` 重点说明：
+
+- `matched_rules`
+- `signal_buckets`
+- `dependency_signals`
+- `ContextSignals`
+- `unsupported_signals`
+- `candidate_intents`
+- `task_candidates`
+- `rule_confidence`
+
+这组文档用于回答：
+
+```text
+某个 evidence 字段属于哪一层？
+它是规则命中、业务信号、解释约束，还是候选结果？
+哪些信号容易混淆？
+CandidateIntent.score 和 rule_confidence 有什么区别？
+```
+
 ## 1. 目录目标
 
 `notes/intent` 用来沉淀当前 `intent` 模块的：
@@ -68,6 +95,19 @@
 
 - 这是规则维护和调优日志
 
+### [rule_supervision.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/rule_supervision.md)
+
+适合看什么：
+
+- 为什么有些规则目前只有 `hits`
+- 规则级监督该怎么补
+- 哪些规则优先补
+- 人工参与需要裁决什么
+
+一句话：
+
+- 这是规则级监督和标注口径说明文档
+
 ---
 
 ## 3. 推荐阅读顺序
@@ -77,7 +117,8 @@
 1. [intent_project_info.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/intent_project_info.md)
 2. [intent_testing_and_evaluation.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/intent_testing_and_evaluation.md)
 3. [rule_tuning.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/rule_tuning.md)
-4. [intent_rule_confidence.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/intent_rule_confidence.md)
+4. [rule_supervision.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/rule_supervision.md)
+5. [intent_rule_confidence.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/intent_rule_confidence.md)
 
 原因：
 
@@ -127,4 +168,3 @@
 这个目录记录的是：
 
 > `intent` 模块如何从“规则分类器”演化成“有结构、有评估、有调优记录、可接小模型和动态规则维护”的意图识别系统。
-
