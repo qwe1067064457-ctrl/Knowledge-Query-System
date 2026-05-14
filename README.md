@@ -9,6 +9,11 @@
 
 如果你想做一个“能解释自己为什么这样回答”的 Agent，这个仓库就是为这种方向准备的。
 
+项目级上下文与决策入口：
+
+- 领域上下文：[CONTEXT.md](CONTEXT.md)
+- 架构决策记录：[docs/adr/README.md](docs/adr/README.md)
+
 ## 项目特点
 
 - 本地优先：后端和前端都可以直接本地启动，不依赖 MySQL / Redis
