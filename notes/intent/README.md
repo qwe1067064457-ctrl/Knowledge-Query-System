@@ -1,198 +1,98 @@
 # Intent Notes README
 
-## 信号说明入口
+`notes/intent/` 是 `intent` 这条工作线的主主题目录。
 
-细粒度信号说明放在：
+这一层应尽量只保留相对稳定的理解，包括：
 
-- [signal_info](./signal_info/README.md)
-- [evidence_signal_info](./signal_info/evidence_signal_info/README.md)
+- `input -> evidence -> resolved -> control` 四层链路
+- 当前 intent 架构与边界
+- confidence 与评估口径
+- 当前小模型 SFT 讨论的最佳交接入口
 
-其中 `evidence_signal_info` 重点说明：
+阶段推进中的文档、还在变化的过程材料，不要继续堆在这一层，而是放到 `../working/intent/`。
 
-- `matched_rules`
-- `signal_buckets`
-- `dependency_signals`
-- `ContextSignals`
-- `unsupported_signals`
-- `candidate_intents`
-- `task_candidates`
-- `rule_confidence`
+## 主入口文档
 
-这组文档用于回答：
+### `intent_project_info.md`
 
-```text
-某个 evidence 字段属于哪一层？
-它是规则命中、业务信号、解释约束，还是候选结果？
-哪些信号容易混淆？
-CandidateIntent.score 和 rule_confidence 有什么区别？
-```
+适合先读它的场景：
 
-## 1. 目录目标
+- 想快速理解 `intent` 全貌
+- 想看四层结构
+- 想看当前架构边界
+- 想看长期 TODO 方向
 
-`notes/intent` 用来沉淀当前 `intent` 模块的：
+### `intent_testing_and_evaluation.md`
 
-- 架构说明
-- 规则与 confidence 设计
-- 测试与评估口径
-- 规则调优记录
-- 后续 TODO 和迁移方向
+适合先读它的场景：
 
-如果后面继续做规则层优化、小模型接入、动态规则维护，这个目录就是主入口。
+- 想看当前测试分层
+- 想理解 `overall / per_batch / rule_stats`
+- 想看当前数据与评估边界
 
----
+### `intent_rule_confidence.md`
 
-## 2. 文档索引
+适合先读它的场景：
 
-### [intent_project_info.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/intent_project_info.md)
+- 想理解规则侧 confidence 的含义
+- 想看 support bonus、conflict、context adjustment 怎么工作
 
-适合看什么：
+### `intent_sft_delivery.md`
 
-- `input -> evidence -> resolved -> control` 四层结构
-- evidence / resolved / control 的字段分类
-- `global stable rules` 与 `group_shared / domain bootstrap rules` 的分层
-- 当前实现范围
-- 当前长期 TODO
+适合先读它的场景：
 
-一句话：
+- 想从一个新对话快速接手当前 SFT 阶段
+- 想看当前 rules、query inputs、gold、supervision、held-out、export 之间的关系
 
-- 这是 `intent` 模块的总览文档
+## 参考子目录
 
-### [intent_rule_confidence.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/intent_rule_confidence.md)
+### `signal_info/`
 
-适合看什么：
+这是细粒度 signal 参考区。
 
-- 规则版 `confidence` 是什么
-- 它为什么不是统计概率
-- base / support bonus / conflict / context adjustment 是怎么工作的
+适合回答这类问题：
 
-一句话：
+- 某个 signal 属于哪一层
+- 某个字段是 matched rule、business signal、dependency signal，还是 candidate result
+- `candidate_intents`、`signal_buckets`、`rule_confidence` 的区别是什么
 
-- 这是“规则强度解释器”的说明文档
+推荐先看：
 
-### [intent_testing_and_evaluation.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/intent_testing_and_evaluation.md)
+1. `signal_info/README.md`
+2. `signal_info/evidence_signal_info/README.md`
 
-适合看什么：
+### `test_data_generate/`
 
-- 单元测试覆盖了什么
-- `overall / per_batch / rule_stats` 怎么理解
-- 当前评估是端到端口径，不是全面的 layer-isolated eval
-- 数据集四层标注结构
+这是 intent 测试数据生成与 campaign 使用区。
 
-一句话：
+推荐先看：
 
-- 这是测试与评估口径文档
+1. `test_data_generate/README.md`
+2. `test_data_generate/campaigns_and_results.md`
 
-### [rule_tuning.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/rule_tuning.md)
+## 已移出的 working 文档
 
-适合看什么：
+下面这些文档仍然重要，但更适合当作过渡材料看待：
 
-- 每轮规则优化改了什么
-- 当前瓶颈是什么
-- 哪些规则已可严格评估，哪些还只是部分可评估
-- 下一步还值得继续调什么
+- `../working/intent/rule_tuning.md`
+- `../working/intent/rule_supervision.md`
+- `../working/intent/rule_lessons.md`
+- `../working/intent/sft_preparation.md`
 
-一句话：
+## 推荐阅读顺序
 
-- 这是规则维护和调优日志
+如果是第一次进入 `intent` 主题，建议：
 
-### [rule_supervision.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/rule_supervision.md)
+1. `intent_project_info.md`
+2. `intent_testing_and_evaluation.md`
+3. `intent_rule_confidence.md`
+4. `intent_sft_delivery.md`
+5. 只有当前话题已经进入调优、监督、经验复盘或过渡性 SFT 准备时，再进入 `../working/intent/`
 
-适合看什么：
+## 当前定位
 
-- 为什么有些规则目前只有 `hits`
-- 规则级监督该怎么补
-- 哪些规则优先补
-- 人工参与需要裁决什么
+当前的 `intent` 主题，最好理解为：
 
-一句话：
-
-- 这是规则级监督和标注口径说明文档
-
-### [sft_preparation.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/sft_preparation.md)
-
-适合看什么：
-
-- 训练集导出字段
-- `gold / silver / weak` 分层
-- 冻结 held-out 的使用方式
-- 第一版小模型的任务边界
-
-一句话：
-
-- 这是 intent 小模型训练准备文档
-
-### [intent_sft_delivery.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/intent_sft_delivery.md)
-
-适合看什么：
-
-- 新开对话时如何快速接手当前 SFT 阶段
-- 当前规则层、query 输入源、gold、strict supervision、held-out、导出文件之间的关系
-- 哪些内容已经可以训练，哪些内容仍然缺规范
-- 后续进入训练前还缺哪些执行文档
-
-一句话：
-
-- 这是当前 `intent` 小模型阶段的完整交付与交接文档。
-
----
-
-## 3. 推荐阅读顺序
-
-如果你第一次接手 `intent` 模块，建议按下面顺序看：
-
-1. [intent_project_info.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/intent_project_info.md)
-2. [intent_testing_and_evaluation.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/intent_testing_and_evaluation.md)
-3. [rule_tuning.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/rule_tuning.md)
-4. [rule_supervision.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/rule_supervision.md)
-5. [intent_rule_confidence.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/intent_rule_confidence.md)
-6. [intent_sft_delivery.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/intent_sft_delivery.md)
-7. [sft_preparation.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/sft_preparation.md)
-
-原因：
-
-- 先理解结构
-- 再理解评估口径
-- 再看当前问题和调优历史
-- 最后再看 `confidence` 细节
-
----
-
-## 4. 当前重点
-
-当前 `intent` 模块已经明确了几件事：
-
-- `control` 层相对清楚，主要负责执行流映射
-- `resolved` 层主要做收敛，不负责补全缺失语义
-- `evidence` 层是当前主要瓶颈
-- 规则层已经不再追求覆盖所有开放表达，而是转向：
-  - 稳定
-  - 可迁移
-  - 可供训练
-
-当前规则资产也已经分层：
-
-- `global stable rules`
-- `group_shared / domain bootstrap rules`
-
-其中 `domain bootstrap` 这层已经开始配置化外提，后续动态调优 agent 应优先修改配置资产，而不是直接改主分类逻辑。
-
----
-
-## 5. 当前 TODO 入口
-
-如果要继续推进，优先去看：
-
-- [intent_project_info.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/intent_project_info.md)
-  - 看长期 TODO 和架构方向
-- [rule_tuning.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/rule_tuning.md)
-  - 看规则层还值得做什么
-- [intent_testing_and_evaluation.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/intent_testing_and_evaluation.md)
-  - 看当前评估口径和数据边界
-
----
-
-## 6. 一句话总结
-
-这个目录记录的是：
-
-> `intent` 模块如何从“规则分类器”演化成“有结构、有评估、有调优记录、可接小模型和动态规则维护”的意图识别系统。
+- 一个结构化 intent pipeline，而不只是分类器
+- 一个正在为未来小模型接入做准备的规则与评估系统
+- 一个以 `notes/intent/` 为稳定入口、以 `notes/working/intent/` 为过渡层的专题工作区

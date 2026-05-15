@@ -12,9 +12,11 @@ Read in this order:
 2. `notes/intent/intent_sft_delivery.md`
 3. `notes/intent/intent_project_info.md`
 4. `notes/intent/intent_testing_and_evaluation.md`
-5. `notes/intent/rule_tuning.md`
-6. `notes/intent/rule_supervision.md`
-7. `notes/intent/sft_preparation.md`
+5. `notes/intent/intent_rule_confidence.md`
+6. `notes/working/intent/README.md`
+7. `notes/working/intent/rule_tuning.md`
+8. `notes/working/intent/rule_supervision.md`
+9. `notes/working/intent/sft_preparation.md`
 
 ### Knowledge Construct / Crawling / Knowledge Layout
 
@@ -148,7 +150,7 @@ When discussing retrieval, prefer this flow:
 4. Hybrid Retrieval combines vector, BM25, and RRF
 5. The answer returns with visible Evidence
 
-Avoid calling this simply “search”.
+Avoid calling this simply "search".
 
 ---
 
@@ -168,7 +170,7 @@ Use:
 - `signal_buckets`
 - `context_signals`
 
-Avoid flattening everything into “classifier output”.
+Avoid flattening everything into "classifier output".
 
 ---
 

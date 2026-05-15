@@ -475,12 +475,12 @@
 如果是新开一个对话，建议按下面顺序进入：
 
 1. 先读本文件
-2. 再读 [sft_preparation.md](C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/sft_preparation.md)
+2. 再读 [sft_preparation.md](C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/working/intent/sft_preparation.md)
 3. 再读 [intent_project_info.md](C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/intent_project_info.md)
 4. 再读 [intent_testing_and_evaluation.md](C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/intent_testing_and_evaluation.md)
 5. 最后根据任务类型进入：
-   - 规则细节：看 [rule_tuning.md](C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/rule_tuning.md)
-   - 监督口径：看 [rule_supervision.md](C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/rule_supervision.md)
+   - 规则细节：看 [rule_tuning.md](C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/working/intent/rule_tuning.md)
+   - 监督口径：看 [rule_supervision.md](C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/working/intent/rule_supervision.md)
    - 数据输入源：看 [intent_query_full_set.md](C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/evaluation/intent/query_inputs/intent_query_full_set.md)
 
 ---

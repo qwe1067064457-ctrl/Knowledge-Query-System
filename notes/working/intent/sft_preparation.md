@@ -1,7 +1,7 @@
 # Intent SFT Preparation
 
 > 如果你是新开一个对话，或需要一份可直接接手当前阶段的完整文档，请先读：
-> [intent_sft_delivery.md](C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/intent_sft_delivery.md)
+> [intent_sft_delivery.md](/notes/working/intent/intent_sft_delivery.md)
 
 ## 1. 当前目标
 
