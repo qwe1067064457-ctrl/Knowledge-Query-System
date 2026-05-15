@@ -6,7 +6,7 @@ from evaluation.intent.evaluate_intent_rules import evaluate_dataset, load_datas
 
 
 ROOT = Path(__file__).resolve().parents[2]
-DATASET_DIR = ROOT / "backend_test" / "intent" / "test_data" / "user_batch_v1"
+DATASET_DIR = ROOT / "backend_test" / "intent" / "test_data" / "experiments" / "user_batch_v1"
 
 
 def test_user_batch_v1_dataset_has_expected_batches() -> None:

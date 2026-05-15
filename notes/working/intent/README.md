@@ -1,26 +1,19 @@
-# Intent Working Notes README
+# Working Intent Docs README
 
-这里存放的是 `intent` 主题下仍在变化、仍在推进中的文档。
+这个目录用于存放 `intent` 模块仍处于中间态的执行文档。
 
-这些文件很有价值，但它们不应该成为理解 `intent` 稳定结构时的第一入口。
+它和 `notes/intent/` 的区别是：
 
-## 这里适合放什么
+- `notes/intent/`
+  - 记录当前已经相对稳定的结构、评估、规则调优与交付信息
+- `notes/working/intent/`
+  - 记录仍在冻结口径中的执行协议
+  - 例如标签规范、切分规则、训练评估协议
 
-- 临时的 SFT 准备方案
-- 规则调优日志
-- 规则监督过程文档
-- 阶段总结与 lessons learned
+当前放在这里的文档，默认都还可能继续调整：
 
-## 推荐阅读顺序
+- `sft_label_spec.md`
+- `sft_split_policy.md`
+- `sft_eval_protocol.md`
 
-1. 先读 `../../intent/README.md`
-2. 再按当前话题进入这里的具体文档
-
-## 后续去向
-
-如果这里的某份文档已经足够稳定，可以：
-
-- 把其中结论提炼回 `notes/intent/`
-- 或者抽一份更正式的版本进入 `docs/`
-
-如果它已经不再是当前材料，但仍值得保留，就移到 `../../archives/`
+等这些协议经过一轮样本扩充和 baseline 训练验证后，再考虑提升到 `notes/intent/`。

@@ -1,0 +1,2604 @@
+[
+  {
+    "id": "seed_0192_long_case_supportive",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "你刚才说医疗过失需要证明因果关系，那具体举证责任是怎么分配的？另外，你这个结论是不是基于某个司法解释？如果有的话能具体说明吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "ask_source",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "intent.qa.domain",
+          "source.ask_basis",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "intent.qa.domain": true,
+          "source.ask_basis": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0192",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0192_long_case_complex_cost_focused",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "你刚才说医疗过失需要证明因果关系，那具体举证责任是怎么分配的？另外，你这个结论是不是基于某个司法解释？如果有的话能具体说明吗？ 请按步骤整理关键事实、争议点和判断依据。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "ask_source",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "intent.qa.domain",
+          "source.ask_basis",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "intent.qa.domain": true,
+          "source.ask_basis": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "mixed"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0192",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0195_long_case_supportive",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "你之前说这种情况一定要承担赔偿责任，但我查到有案例法院并未支持赔偿请求。你的结论是否基于特定条件？如果条件不同，是否会得出不同结果？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "intent.qa.domain",
+          "context.follow_up.missing_history",
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "intent.qa.domain": true,
+          "context.follow_up.missing_history": true,
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0195",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0195_long_case_complex_cost_focused",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "你之前说这种情况一定要承担赔偿责任，但我查到有案例法院并未支持赔偿请求。你的结论是否基于特定条件？如果条件不同，是否会得出不同结果？ 请按步骤整理关键事实、争议点和判断依据。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "intent.qa.domain",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "intent.qa.domain": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "mixed"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0195",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0350_long_case_supportive",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "我和公司签了三年劳动合同，现在工作一年多，公司说我绩效不达标，准备解除合同。但合同里没有明确绩效考核标准，也没有具体说明不达标的界定方式。我想知道，这种情况下公司单方面解除是否合法？如果不合法，我可以主张什么权利？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0350",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0350_long_case_complex_cost_focused",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "我和公司签了三年劳动合同，现在工作一年多，公司说我绩效不达标，准备解除合同。但合同里没有明确绩效考核标准，也没有具体说明不达标的界定方式。我想知道，这种情况下公司单方面解除是否合法？如果不合法，我可以主张什么权利？ 请按步骤整理关键事实、争议点和判断依据。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "mixed"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0350",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0351_long_case_supportive",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "我父亲在医院做手术，术后出现感染。医院方面表示这是正常并发症，并不属于医疗事故。但我们认为术前消毒措施存在问题。请问在这种情况下，如何判断是否构成医疗过失？需要我们自己举证吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "mixed"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0351",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0351_long_case_complex_cost_focused",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "我父亲在医院做手术，术后出现感染。医院方面表示这是正常并发症，并不属于医疗事故。但我们认为术前消毒措施存在问题。请问在这种情况下，如何判断是否构成医疗过失？需要我们自己举证吗？ 请按步骤整理关键事实、争议点和判断依据。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "summarize"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0351",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0352_long_case_supportive",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "我在电商平台买到假货，平台说他们只是提供交易服务，不承担责任。我想知道平台在什么情况下需要承担连带责任？如果商家联系不上怎么办？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0352",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0352_long_case_complex_cost_focused",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "我在电商平台买到假货，平台说他们只是提供交易服务，不承担责任。我想知道平台在什么情况下需要承担连带责任？如果商家联系不上怎么办？ 请按步骤整理关键事实、争议点和判断依据。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "mixed"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0352",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0354_long_case_supportive",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "医院误诊延误治疗三个月，导致病情加重，但医生称属于误判而非过失，这种情况下如何判断责任？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "context.follow_up.missing_history"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "context.follow_up.missing_history": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0354",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0354_long_case_complex_cost_focused",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "医院误诊延误治疗三个月，导致病情加重，但医生称属于误判而非过失，这种情况下如何判断责任？ 请按步骤整理关键事实、争议点和判断依据。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "complex",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "context.follow_up.missing_history",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "context.follow_up.missing_history": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "mixed"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0354",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0355_long_case_supportive",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "我父亲在医院做手术，术后感染，医生说是正常并发症，但后来病情恶化，我们认为是医院消毒不到位导致的。医院拒绝赔偿，说我们无法证明因果关系。请问这种情况是否属于医疗过错？责任如何认定？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0355",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0355_long_case_complex_cost_focused",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "我父亲在医院做手术，术后感染，医生说是正常并发症，但后来病情恶化，我们认为是医院消毒不到位导致的。医院拒绝赔偿，说我们无法证明因果关系。请问这种情况是否属于医疗过错？责任如何认定？ 请按步骤整理关键事实、争议点和判断依据。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "mixed"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0355",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0356_long_case_supportive",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "我和公司签了三年劳动合同，现在公司单方面解除，说我绩效不达标，但合同里没有具体绩效标准。请问这种解除是否合法？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0356",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0356_long_case_complex_cost_focused",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "我和公司签了三年劳动合同，现在公司单方面解除，说我绩效不达标，但合同里没有具体绩效标准。请问这种解除是否合法？ 请按步骤整理关键事实、争议点和判断依据。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "mixed"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0356",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0357_long_case_supportive",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "我父亲在医院做手术后出现严重感染，医院称属于正常并发症，但我们怀疑术前消毒存在问题。请问如何判断是否构成医疗过失？举证责任由谁承担？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0357",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0357_long_case_complex_cost_focused",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "我父亲在医院做手术后出现严重感染，医院称属于正常并发症，但我们怀疑术前消毒存在问题。请问如何判断是否构成医疗过失？举证责任由谁承担？ 请按步骤整理关键事实、争议点和判断依据。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "mixed"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0357",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0358_long_case_supportive",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "我在电商平台买到假货，平台说他们只是提供交易服务，不承担责任。我想知道平台在什么情况下需要承担连带责任？如果商家联系不上怎么办？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0358",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0358_long_case_complex_cost_focused",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "我在电商平台买到假货，平台说他们只是提供交易服务，不承担责任。我想知道平台在什么情况下需要承担连带责任？如果商家联系不上怎么办？ 请按步骤整理关键事实、争议点和判断依据。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "mixed"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0358",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0361_long_case_supportive",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "患者在手术后出现严重并发症，医院称属于已告知风险范围，但家属认为术前告知不充分。请问如何从告知义务角度判断责任？举证责任如何分配？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0361",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0361_long_case_complex_cost_focused",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "患者在手术后出现严重并发症，医院称属于已告知风险范围，但家属认为术前告知不充分。请问如何从告知义务角度判断责任？举证责任如何分配？ 请按步骤整理关键事实、争议点和判断依据。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "mixed"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0361",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0364_long_case_supportive",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "我想了解一下劳动合同中的试用期规定，包括试用期最长多久、试用期工资是否可以低于正式员工、以及试用期内解除合同是否需要支付经济补偿？这三点能分别说明一下吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "intent.qa.domain",
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "intent.qa.domain": true,
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0364",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0364_long_case_complex_cost_focused",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "我想了解一下劳动合同中的试用期规定，包括试用期最长多久、试用期工资是否可以低于正式员工、以及试用期内解除合同是否需要支付经济补偿？这三点能分别说明一下吗？ 请按步骤整理关键事实、争议点和判断依据。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "intent.qa.domain",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "intent.qa.domain": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "summarize"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0364",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0372_long_case_supportive",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "请构建一个判断医疗过失责任的完整分析框架，包括：举证责任分配、过错认定标准、因果关系判断逻辑、赔偿计算步骤，并说明在不同情形下如何适用。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "intent.qa.domain",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "intent.qa.domain": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "summarize"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0372",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0372_long_case_complex_cost_focused",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "请构建一个判断医疗过失责任的完整分析框架，包括：举证责任分配、过错认定标准、因果关系判断逻辑、赔偿计算步骤，并说明在不同情形下如何适用。 请按步骤整理关键事实、争议点和判断依据。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "intent.qa.domain",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "intent.qa.domain": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "mixed"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0372",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0374_long_case_supportive",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "结合现行法律与司法解释，设计一个判断合同免责条款效力的决策路径，包括是否违反强制性规定、是否显失公平、是否存在重大过失等情形。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "ask_source",
+          "multi_question"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "source.ask_basis",
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "source.ask_basis": true,
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0374",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0374_long_case_complex_cost_focused",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "结合现行法律与司法解释，设计一个判断合同免责条款效力的决策路径，包括是否违反强制性规定、是否显失公平、是否存在重大过失等情形。 请按步骤整理关键事实、争议点和判断依据。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "ask_source",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "source.ask_basis",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "source.ask_basis": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "mixed"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0374",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0376_long_case_supportive",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "我最近在处理一个合同纠纷，感觉对方做法不太合理，但也说不上具体违法在哪里。只是觉得不公平。这种情况一般怎么判断是否合法？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "challenge.missing_context",
+          "context.follow_up.missing_history",
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "challenge.missing_context": true,
+          "context.follow_up.missing_history": true,
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0376",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0376_long_case_complex_cost_focused",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "我最近在处理一个合同纠纷，感觉对方做法不太合理，但也说不上具体违法在哪里。只是觉得不公平。这种情况一般怎么判断是否合法？ 请按步骤整理关键事实、争议点和判断依据。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "intent.qa.long_context_rescue",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "intent.qa.long_context_rescue": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "mixed"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0376",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0382_long_case_supportive",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "我总觉得这件事情有问题，但具体违反了什么规定说不上来，只是感觉对方处理方式不太合理。法律上一般如何判断这种模糊的不公平情形？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "intent.qa.domain",
+          "challenge.missing_context",
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "intent.qa.domain": true,
+          "challenge.missing_context": true,
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0382",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0382_long_case_complex_cost_focused",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "我总觉得这件事情有问题，但具体违反了什么规定说不上来，只是感觉对方处理方式不太合理。法律上一般如何判断这种模糊的不公平情形？ 请按步骤整理关键事实、争议点和判断依据。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.domain",
+          "intent.qa.long_context_rescue",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.domain": true,
+          "intent.qa.long_context_rescue": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "summarize"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0382",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0387_long_case_supportive",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "我和公司签了三年劳动合同，合同中约定六个月试用期。我现在已经工作一年多，公司突然以“能力不匹配”为由准备解除合同，但没有提供具体考核记录。与此同时，公司还拖欠了两个月工资，并且在合同中有一条免责条款，说“公司可根据经营情况调整或解除合同”。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "task.complex.request",
+          "intent.qa.long_form"
+        ],
+        "rule_expectations": {
+          "task.complex.request": true,
+          "intent.qa.long_form": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "mixed"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0387",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0387_long_case_complex_cost_focused",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "我和公司签了三年劳动合同，合同中约定六个月试用期。我现在已经工作一年多，公司突然以“能力不匹配”为由准备解除合同，但没有提供具体考核记录。与此同时，公司还拖欠了两个月工资，并且在合同中有一条免责条款，说“公司可根据经营情况调整或解除合同”。 请按步骤整理关键事实、争议点和判断依据。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "task.complex.request",
+          "intent.qa.long_form"
+        ],
+        "rule_expectations": {
+          "task.complex.request": true,
+          "intent.qa.long_form": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "summarize"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0387",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0388_long_case_supportive",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "患者在医院接受手术，术前签署了风险告知书，术后出现严重并发症。医院表示已履行告知义务，并且并发症属于正常风险范围。但家属认为告知书内容过于概括，没有具体说明概率，也未说明替代治疗方案。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [
+          "intent.qa.domain"
+        ],
+        "rule_expectations": {
+          "intent.qa.domain": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0388",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0388_long_case_complex_cost_focused",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "患者在医院接受手术，术前签署了风险告知书，术后出现严重并发症。医院表示已履行告知义务，并且并发症属于正常风险范围。但家属认为告知书内容过于概括，没有具体说明概率，也未说明替代治疗方案。 请按步骤整理关键事实、争议点和判断依据。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.domain",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.domain": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "summarize"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0388",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0392_long_case_supportive",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "你刚才说合同无效的情形包括违反强制性规定，但没有列出具体条文。我查到不同版本的解释，似乎并非所有违反规定的条款都当然无效。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [
+          "intent.qa.domain"
+        ],
+        "rule_expectations": {
+          "intent.qa.domain": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0392",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0392_long_case_complex_cost_focused",
+    "batch": "long_case_complex",
+    "input": {
+      "user_query": "你刚才说合同无效的情形包括违反强制性规定，但没有列出具体条文。我查到不同版本的解释，似乎并非所有违反规定的条款都当然无效。 请按步骤整理关键事实、争议点和判断依据。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.domain",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.domain": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "summarize"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0392",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  }
+]

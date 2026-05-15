@@ -17,6 +17,21 @@
 
 也就是说，我们现在做的不只是“补一些样本”，而是在搭一条可复用的测试工作流。
 
+### 1.1 新增：面向 SFT 的数据生成经验
+
+如果当前关注的是：
+
+- `campaign`
+- `four-layer draft`
+- `silver`
+- `gold`
+- 为什么样本很多但可训练成品不多
+- 为什么要走 `seed -> campaign -> silver -> gold`
+
+优先读：
+
+- [sft_preparation_data_generation_lessons.md](C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/test_data_generate/sft_preparation_data_generation_lessons.md)
+
 ---
 
 ## 2. 当前已经打通的能力
@@ -143,7 +158,7 @@
 
 位置：
 
-- [C:\Users\HUAWEI\PycharmProjects\Skill-First-Hybrid-RAG\backend_test\intent\test_data\query_list_campaign_v1](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/backend_test/intent/test_data/query_list_campaign_v1)
+- [C:\Users\HUAWEI\PycharmProjects\Skill-First-Hybrid-RAG\backend_test\intent\test_data\query_list_campaign_v1](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/backend_test/intent/test_data/campaign/query_list_campaign_v1)
 
 特点：
 
@@ -164,7 +179,7 @@
 
 位置：
 
-- [C:\Users\HUAWEI\PycharmProjects\Skill-First-Hybrid-RAG\backend_test\intent\test_data\twins_campaign_v2](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/backend_test/intent/test_data/twins_campaign_v2)
+- [C:\Users\HUAWEI\PycharmProjects\Skill-First-Hybrid-RAG\backend_test\intent\test_data\twins_campaign_v2](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/backend_test/intent/test_data/experiments/twins_campaign_v2)
 
 特点：
 

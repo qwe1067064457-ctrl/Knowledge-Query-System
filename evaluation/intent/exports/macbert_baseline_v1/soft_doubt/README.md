@@ -1,0 +1,31 @@
+# MacBERT Baseline Dataset: soft_doubt
+
+- source export: `evaluation\intent\exports\intent_training_v7.jsonl`
+- model family: `hfl/chinese-macbert-base`
+- format: one JSONL per split, each row contains `id / text / label / label_name / source_dataset / label_tier`
+
+## Label Map
+
+```json
+{
+  "false": 0,
+  "true": 1
+}
+```
+
+## Split Summary
+
+### train
+
+- rows: `1358`
+- labels: `{"false": 1302, "true": 56}`
+
+### dev
+
+- rows: `14`
+- labels: `{"false": 14}`
+
+### heldout
+
+- rows: `9`
+- labels: `{"false": 6, "true": 3}`

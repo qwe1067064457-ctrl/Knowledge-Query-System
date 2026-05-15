@@ -1,0 +1,132 @@
+[
+  {
+    "id": "seed_20260515_challenge_001_gold",
+    "batch": "challenge_seed",
+    "input": {
+      "user_query": "你刚才把 needs_clarification 说得太绝对了，这个判断不对吧？长 query 也可能信息不足。",
+      "history": [
+        {
+          "role": "user",
+          "content": "你怎么理解 needs_clarification 的触发条件？"
+        },
+        {
+          "role": "assistant",
+          "content": "needs_clarification 只适合极短 query，长一点的都应该直接进 rag。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["challenge"],
+        "required_rule_ids": ["challenge.disagree"],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "challenge.soft_doubt": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "challenge 正例：明确指出前一轮判断不对，属于强质疑而非 soft_doubt。",
+    "source_query_id": "seed_20260515_challenge_001"
+  },
+  {
+    "id": "seed_20260515_challenge_002_gold",
+    "batch": "challenge_seed",
+    "input": {
+      "user_query": "你前面这个结论是不是说反了？如果不补 compare，shape 分布会继续失衡。",
+      "history": [
+        {
+          "role": "user",
+          "content": "第一版 task.shape 最值得先补哪类样本？"
+        },
+        {
+          "role": "assistant",
+          "content": "compare 现在先不重要，第一版只看 verify 就够了。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["challenge"],
+        "required_rule_ids": ["challenge.disagree"],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "challenge.soft_doubt": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "challenge 正例：针对前一轮结论进行强反驳与纠错。",
+    "source_query_id": "seed_20260515_challenge_002"
+  }
+]

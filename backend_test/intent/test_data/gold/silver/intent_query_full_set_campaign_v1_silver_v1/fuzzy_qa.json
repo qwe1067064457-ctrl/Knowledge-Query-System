@@ -1,0 +1,1022 @@
+[
+  {
+    "id": "seed_0026_fuzzy_weak",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "这样算不算医疗事故？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "intent.qa.judgment_clarify"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "intent.qa.judgment_clarify": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0026",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0026_fuzzy_qa_cost_focused",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "我想先确认一个定义问题：这样算不算医疗事故？。背景情况很多，但核心只是确认这个概念本身怎么定义。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0026",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0028_fuzzy_weak",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "医院这么做合理吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0028",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0028_fuzzy_qa_cost_focused",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "我想先确认一个定义问题：医院这么做合理吗？。背景情况很多，但核心只是确认这个概念本身怎么定义。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0028",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0033_fuzzy_weak",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "这样会被拘留吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0033",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0033_fuzzy_qa_cost_focused",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "我想先确认一个定义问题：这样会被拘留吗？。背景情况很多，但核心只是确认这个概念本身怎么定义。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0033",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0038_fuzzy_weak",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "这样要赔钱吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [],
+        "required_rule_ids": [],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "chat",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0038",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0038_fuzzy_qa_cost_focused",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "我想先确认一个定义问题：这样要赔钱吗？。背景情况很多，但核心只是确认这个概念本身怎么定义。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "multi_question"
+        ],
+        "required_rule_ids": [
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0038",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0041_fuzzy_weak",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "这样合理吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "intent.qa.judgment_clarify"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "intent.qa.judgment_clarify": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0041",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0041_fuzzy_qa_cost_focused",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "我想先确认一个定义问题：这样合理吗？。背景情况很多，但核心只是确认这个概念本身怎么定义。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0041",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0054_fuzzy_weak",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "合理吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [],
+        "required_rule_ids": [],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "chat",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0054",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0054_fuzzy_qa_cost_focused",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "我想先确认一个定义问题：合理吗？。背景情况很多，但核心只是确认这个概念本身怎么定义。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "multi_question"
+        ],
+        "required_rule_ids": [
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0054",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0058_fuzzy_weak",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "属于侵权吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0058",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0058_fuzzy_qa_cost_focused",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "我想先确认一个定义问题：属于侵权吗？。背景情况很多，但核心只是确认这个概念本身怎么定义。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0058",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0059_fuzzy_weak",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "会被拘留吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0059",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0059_fuzzy_qa_cost_focused",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "我想先确认一个定义问题：会被拘留吗？。背景情况很多，但核心只是确认这个概念本身怎么定义。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0059",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  }
+]

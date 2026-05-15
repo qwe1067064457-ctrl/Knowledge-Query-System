@@ -1,0 +1,53 @@
+{
+  "source_path": "evaluation\\intent\\exports\\intent_training_v7.jsonl",
+  "tasks": {
+    "soft_doubt": {
+      "train": {
+        "rows": 1358,
+        "labels": {
+          "false": 1302,
+          "true": 56
+        }
+      },
+      "dev": {
+        "rows": 14,
+        "labels": {
+          "false": 14
+        }
+      },
+      "heldout": {
+        "rows": 9,
+        "labels": {
+          "false": 6,
+          "true": 3
+        }
+      }
+    },
+    "task_shape": {
+      "train": {
+        "rows": 855,
+        "labels": {
+          "compare": 40,
+          "multi_question": 241,
+          "single_question": 448,
+          "summarize": 35,
+          "verify": 91
+        }
+      },
+      "dev": {
+        "rows": 6,
+        "labels": {
+          "compare": 2,
+          "summarize": 2,
+          "verify": 2
+        }
+      },
+      "heldout": {
+        "rows": 9,
+        "labels": {
+          "verify": 9
+        }
+      }
+    }
+  }
+}

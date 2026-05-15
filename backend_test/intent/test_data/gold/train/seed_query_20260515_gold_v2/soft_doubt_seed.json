@@ -1,0 +1,546 @@
+[
+  {
+    "id": "seed_20260515_soft_doubt_seed_001_gold",
+    "batch": "soft_doubt_seed",
+    "input": {
+      "user_query": "你刚才说只要有因果关系就能认定侵权，我有点不确定，是不是还要看过错？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "soft_doubt",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "challenge.soft_doubt",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "challenge.soft_doubt": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "notes": "rebuilt from clean 20260515 campaign; source=seed_20260515_sd_001_challenge_supportive",
+    "source_query_id": "seed_20260515_sd_001"
+  },
+  {
+    "id": "seed_20260515_soft_doubt_seed_002_gold",
+    "batch": "soft_doubt_seed",
+    "input": {
+      "user_query": "你刚才说只要有因果关系就能认定侵权，我有点不确定，是不是还要看过错？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面提过这个问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面简单提了一下，但没有展开法条依据。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "soft_doubt",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "challenge.soft_doubt",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "challenge.soft_doubt": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "notes": "rebuilt from clean 20260515 campaign; source=seed_20260515_sd_001_challenge_weak",
+    "source_query_id": "seed_20260515_sd_001"
+  },
+  {
+    "id": "seed_20260515_soft_doubt_seed_003_gold",
+    "batch": "soft_doubt_seed",
+    "input": {
+      "user_query": "按你前面的解释，平台不直接收款就一定免责吗，会不会太绝对了？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "soft_doubt"
+        ],
+        "required_rule_ids": [
+          "challenge.soft_doubt"
+        ],
+        "rule_expectations": {
+          "challenge.soft_doubt": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "rebuilt from clean 20260515 campaign; source=seed_20260515_sd_002_challenge_supportive",
+    "source_query_id": "seed_20260515_sd_002"
+  },
+  {
+    "id": "seed_20260515_soft_doubt_seed_004_gold",
+    "batch": "soft_doubt_seed",
+    "input": {
+      "user_query": "按你前面的解释，平台不直接收款就一定免责吗，会不会太绝对了？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面提过这个问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面简单提了一下，但没有展开法条依据。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "soft_doubt"
+        ],
+        "required_rule_ids": [
+          "challenge.soft_doubt"
+        ],
+        "rule_expectations": {
+          "challenge.soft_doubt": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "rebuilt from clean 20260515 campaign; source=seed_20260515_sd_002_challenge_weak",
+    "source_query_id": "seed_20260515_sd_002"
+  },
+  {
+    "id": "seed_20260515_soft_doubt_seed_005_gold",
+    "batch": "soft_doubt_seed",
+    "input": {
+      "user_query": "你说 mixed 任务一定要 planner，这里是不是有点理想化？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [],
+        "required_rule_ids": [],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "chat",
+        "mode": "normal"
+      }
+    },
+    "notes": "rebuilt from clean 20260515 campaign; source=seed_20260515_sd_003_challenge_supportive",
+    "source_query_id": "seed_20260515_sd_003"
+  },
+  {
+    "id": "seed_20260515_soft_doubt_seed_006_gold",
+    "batch": "soft_doubt_seed",
+    "input": {
+      "user_query": "你说 mixed 任务一定要 planner，这里是不是有点理想化？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面提过这个问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面简单提了一下，但没有展开法条依据。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [],
+        "required_rule_ids": [],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "chat",
+        "mode": "normal"
+      }
+    },
+    "notes": "rebuilt from clean 20260515 campaign; source=seed_20260515_sd_003_challenge_weak",
+    "source_query_id": "seed_20260515_sd_003"
+  },
+  {
+    "id": "seed_20260515_soft_doubt_seed_007_gold",
+    "batch": "soft_doubt_seed",
+    "input": {
+      "user_query": "我理解得可能不对，如果只引用一条法规就下结论，会不会有误导风险？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你刚才说试用期最长可以约定六个月。"
+        },
+        {
+          "role": "assistant",
+          "content": "是的，我刚才按常见劳动合同期限做了概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "intent.qa.domain",
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "intent.qa.domain": true,
+          "source.ask_basis": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "rebuilt from clean 20260515 campaign; source=seed_20260515_sd_004_challenge_supportive",
+    "source_query_id": "seed_20260515_sd_004"
+  },
+  {
+    "id": "seed_20260515_soft_doubt_seed_008_gold",
+    "batch": "soft_doubt_seed",
+    "input": {
+      "user_query": "我理解得可能不对，如果只引用一条法规就下结论，会不会有误导风险？",
+      "history": [
+        {
+          "role": "user",
+          "content": "你前面提过这个问题。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面简单提了一下，但没有展开法条依据。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "intent.qa.domain",
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "intent.qa.domain": true,
+          "source.ask_basis": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "rebuilt from clean 20260515 campaign; source=seed_20260515_sd_004_challenge_weak",
+    "source_query_id": "seed_20260515_sd_004"
+  }
+]

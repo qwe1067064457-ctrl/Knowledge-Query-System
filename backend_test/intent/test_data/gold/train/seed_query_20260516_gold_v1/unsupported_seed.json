@@ -1,0 +1,214 @@
+[
+  {
+    "id": "seed_20260516_unsupported_001_gold",
+    "batch": "unsupported_seed",
+    "input": {
+      "user_query": "把知识库里的这份文档删掉。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_based",
+        "required_signals": ["unsupported"],
+        "required_rule_ids": ["unsupported.file_delete_request"],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": true,
+          "kb_admin_request": true,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "unsupported",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": true,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "reject",
+        "mode": "clarify"
+      }
+    },
+    "notes": "unsupported 正例：删除知识库文档请求。",
+    "source_query_id": "fullset_unsupported_001"
+  },
+  {
+    "id": "seed_20260516_unsupported_002_gold",
+    "batch": "unsupported_seed",
+    "input": {
+      "user_query": "替换成新版合同模板。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_based",
+        "required_signals": ["unsupported"],
+        "required_rule_ids": ["unsupported.file_write_request"],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": true,
+          "file_delete_request": false,
+          "kb_admin_request": true,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "unsupported",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": true,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "reject",
+        "mode": "clarify"
+      }
+    },
+    "notes": "unsupported 正例：替换模板属于外部写操作。",
+    "source_query_id": "fullset_unsupported_002"
+  },
+  {
+    "id": "seed_20260516_unsupported_003_gold",
+    "batch": "unsupported_seed",
+    "input": {
+      "user_query": "帮我上传一个文件到系统。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_based",
+        "required_signals": ["unsupported"],
+        "required_rule_ids": ["unsupported.unknown_external_action"],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": true,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": true
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "unsupported",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": true,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "reject",
+        "mode": "clarify"
+      }
+    },
+    "notes": "unsupported 正例：外部系统上传动作。",
+    "source_query_id": "fullset_unsupported_003"
+  },
+  {
+    "id": "seed_20260516_unsupported_004_gold",
+    "batch": "unsupported_seed",
+    "input": {
+      "user_query": "把数据库里的那条记录改一下。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_based",
+        "required_signals": ["unsupported"],
+        "required_rule_ids": ["unsupported.privileged_operation"],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": true,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": true,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "unsupported",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": true,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "reject",
+        "mode": "clarify"
+      }
+    },
+    "notes": "unsupported 正例：数据库写操作。",
+    "source_query_id": "fullset_unsupported_004"
+  }
+]

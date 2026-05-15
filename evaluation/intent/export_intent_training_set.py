@@ -13,11 +13,20 @@ if str(ROOT) not in sys.path:
 from evaluation.intent.evaluate_intent_rules import load_dataset
 
 DEFAULT_TRAIN_DATASET_DIRS = (
-    ROOT / "backend_test" / "intent" / "test_data" / "seed_query_20260514_gold_v1",
+    ROOT / "backend_test" / "intent" / "test_data" / "gold" / "train" / "seed_query_20260514_gold_v1",
+    ROOT / "backend_test" / "intent" / "test_data" / "gold" / "train" / "seed_query_20260515_gold_v2",
+    ROOT / "backend_test" / "intent" / "test_data" / "gold" / "train" / "seed_query_20260516_gold_v1",
+    ROOT / "backend_test" / "intent" / "test_data" / "gold" / "train" / "seed_query_20260517_gold_v1",
+)
+
+DEFAULT_SILVER_DATASET_ROOT = ROOT / "backend_test" / "intent" / "test_data" / "gold" / "silver"
+
+DEFAULT_DEV_DATASET_DIRS = (
+    ROOT / "backend_test" / "intent" / "test_data" / "gold" / "dev" / "seed_query_20260515_gold_v1",
 )
 
 DEFAULT_HELDOUT_DATASET_DIRS = (
-    ROOT / "backend_test" / "intent" / "test_data" / "frozen_heldout_v2",
+    ROOT / "backend_test" / "intent" / "test_data" / "gold" / "frozen" / "frozen_heldout_v2",
 )
 
 
@@ -25,6 +34,8 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Export intent four-layer datasets into SFT-ready JSONL.")
     parser.add_argument("output_path", type=Path)
     parser.add_argument("--train-dataset-dir", action="append", dest="train_dataset_dirs", type=Path, default=None)
+    parser.add_argument("--silver-dataset-dir", action="append", dest="silver_dataset_dirs", type=Path, default=None)
+    parser.add_argument("--dev-dataset-dir", action="append", dest="dev_dataset_dirs", type=Path, default=None)
     parser.add_argument("--heldout-dataset-dir", action="append", dest="heldout_dataset_dirs", type=Path, default=None)
     return parser.parse_args()
 
@@ -32,17 +43,40 @@ def parse_args() -> argparse.Namespace:
 def export_training_rows(
     *,
     train_dataset_dirs: list[Path] | None = None,
+    silver_dataset_dirs: list[Path] | None = None,
+    dev_dataset_dirs: list[Path] | None = None,
     heldout_dataset_dirs: list[Path] | None = None,
 ) -> list[dict[str, Any]]:
-    train_dirs = train_dataset_dirs or list(DEFAULT_TRAIN_DATASET_DIRS)
-    heldout_dirs = heldout_dataset_dirs or list(DEFAULT_HELDOUT_DATASET_DIRS)
+    use_defaults = (
+        train_dataset_dirs is None
+        and silver_dataset_dirs is None
+        and dev_dataset_dirs is None
+        and heldout_dataset_dirs is None
+    )
+    train_dirs = list(DEFAULT_TRAIN_DATASET_DIRS) if use_defaults else list(train_dataset_dirs or [])
+    silver_dirs = _list_default_silver_dataset_dirs() if use_defaults else list(silver_dataset_dirs or [])
+    dev_dirs = list(DEFAULT_DEV_DATASET_DIRS) if use_defaults else list(dev_dataset_dirs or [])
+    heldout_dirs = list(DEFAULT_HELDOUT_DATASET_DIRS) if use_defaults else list(heldout_dataset_dirs or [])
 
     exported: list[dict[str, Any]] = []
     for dataset_dir in train_dirs:
         exported.extend(_export_dataset_dir(dataset_dir, split="train", is_heldout=False))
+    for dataset_dir in silver_dirs:
+        exported.extend(_export_dataset_dir(dataset_dir, split="train", is_heldout=False))
+    for dataset_dir in dev_dirs:
+        exported.extend(_export_dataset_dir(dataset_dir, split="dev", is_heldout=False))
     for dataset_dir in heldout_dirs:
         exported.extend(_export_dataset_dir(dataset_dir, split="heldout", is_heldout=True))
     return exported
+
+
+def _list_default_silver_dataset_dirs() -> list[Path]:
+    if not DEFAULT_SILVER_DATASET_ROOT.exists():
+        return []
+    return sorted(
+        [path for path in DEFAULT_SILVER_DATASET_ROOT.iterdir() if path.is_dir()],
+        key=lambda path: path.name,
+    )
 
 
 def write_training_jsonl(output_path: Path, rows: list[dict[str, Any]]) -> None:
@@ -68,9 +102,9 @@ def _export_dataset_dir(dataset_dir: Path, *, split: str, is_heldout: bool) -> l
             "metadata": {
                 "source_dataset": dataset_name,
                 "source_query_id": row.get("source_query_id", ""),
-                "label_tier": "gold",
-                "label_source": "gold_dataset",
-                "review_status": "approved",
+                "label_tier": row.get("label_tier", "gold"),
+                "label_source": row.get("label_source", "gold_dataset"),
+                "review_status": row.get("review_status", "approved"),
                 "difficulty": _infer_difficulty(row),
                 "is_heldout": is_heldout,
                 "is_strict_rule_supervision": bool(row["gold"]["evidence"].get("rule_expectations")),
@@ -94,6 +128,8 @@ def main() -> int:
     args = parse_args()
     rows = export_training_rows(
         train_dataset_dirs=args.train_dataset_dirs,
+        silver_dataset_dirs=args.silver_dataset_dirs,
+        dev_dataset_dirs=args.dev_dataset_dirs,
         heldout_dataset_dirs=args.heldout_dataset_dirs,
     )
     write_training_jsonl(args.output_path, rows)

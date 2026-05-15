@@ -1,0 +1,15 @@
+{"id": "seed_20260515_fu_001", "query": "那如果对方不是自然人而是公司呢？", "hints": {"preferred_batch": "follow_up"}, "notes": "label=follow_up"}
+{"id": "seed_20260515_fu_002", "query": "如果没有书面合同，只剩微信聊天记录呢？", "hints": {"preferred_batch": "follow_up"}, "notes": "label=follow_up"}
+{"id": "seed_20260515_fu_003", "query": "那举证责任是不是就落到患者这边了？", "hints": {"preferred_batch": "follow_up"}, "notes": "label=follow_up"}
+{"id": "seed_20260515_fu_004", "query": "如果合同已经履行了一部分，还能主张解除吗？", "hints": {"preferred_batch": "follow_up"}, "notes": "label=follow_up"}
+{"id": "seed_20260515_fu_005", "query": "如果平台只是撮合交易，不直接收款呢？", "hints": {"preferred_batch": "follow_up"}, "notes": "label=follow_up"}
+{"id": "seed_20260515_meta_001", "query": "你刚才关于违约金可以调整的说法，依据是哪一条？", "hints": {"preferred_batch": "meta"}, "notes": "label=ask_source"}
+{"id": "seed_20260515_meta_002", "query": "医疗侵权构成要件那段，你引用的依据是什么？", "hints": {"preferred_batch": "meta"}, "notes": "label=ask_source"}
+{"id": "seed_20260515_meta_003", "query": "你前面说 session 隔离要依赖 group_id，这个结论有出处吗？", "hints": {"preferred_batch": "meta"}, "notes": "label=ask_source"}
+{"id": "seed_20260515_sd_001", "query": "你刚才说只要有因果关系就能认定侵权，我有点不确定，是不是还要看过错？", "hints": {"preferred_batch": "challenge"}, "notes": "label=soft_doubt"}
+{"id": "seed_20260515_sd_002", "query": "按你前面的解释，平台不直接收款就一定免责吗，会不会太绝对了？", "hints": {"preferred_batch": "challenge"}, "notes": "label=soft_doubt"}
+{"id": "seed_20260515_sd_003", "query": "你说 mixed 任务一定要 planner，这里是不是有点理想化？", "hints": {"preferred_batch": "challenge"}, "notes": "label=soft_doubt"}
+{"id": "seed_20260515_sd_004", "query": "我理解得可能不对，如果只引用一条法规就下结论，会不会有误导风险？", "hints": {"preferred_batch": "challenge"}, "notes": "label=soft_doubt"}
+{"id": "seed_20260515_mq_001", "query": "如果员工试用期内多次迟到，公司未提前公示规章制度，能不能解除劳动合同？另外要不要支付补偿？", "hints": {"preferred_batch": "standard_qa"}, "notes": "label=multi_question"}
+{"id": "seed_20260515_mq_002", "query": "多租户知识库里 session 主键为什么不能只用 user_id？如果扩展到 SaaS 多企业，还要考虑哪些字段？", "hints": {"preferred_batch": "standard_qa"}, "notes": "label=multi_question"}
+{"id": "seed_20260515_mq_003", "query": "医疗事故认定里因果关系和过错分别怎么判断？举证责任又怎么分配？", "hints": {"preferred_batch": "standard_qa"}, "notes": "label=multi_question"}

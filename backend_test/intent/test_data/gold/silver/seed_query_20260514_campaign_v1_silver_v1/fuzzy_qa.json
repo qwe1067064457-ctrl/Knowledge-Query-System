@@ -1,0 +1,668 @@
+[
+  {
+    "id": "seed_20260514_j_001_fuzzy_weak",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "如果员工在试用期内多次迟到，公司未事先制定明确的规章制度，但直接解除劳动合同，这种解除行为是否合法？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "context.follow_up.missing_history"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "context.follow_up.missing_history": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260514_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260514_j_001",
+    "source_dataset": "seed_query_20260514_campaign_v1"
+  },
+  {
+    "id": "seed_20260514_j_001_fuzzy_qa_cost_focused",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "我想先确认一个定义问题：如果员工在试用期内多次迟到，公司未事先制定明确的规章制度，但直接解除劳动合同，这种解除行为是否合法？。背景情况很多，但核心只是确认这个概念本身怎么定义。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260514_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260514_j_001",
+    "source_dataset": "seed_query_20260514_campaign_v1"
+  },
+  {
+    "id": "seed_20260514_j_002_fuzzy_weak",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "某电商平台未经用户明确同意，将用户购买记录用于精准广告推荐，但未泄露给第三方，这种行为是否违反个人信息保护法？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260514_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260514_j_002",
+    "source_dataset": "seed_query_20260514_campaign_v1"
+  },
+  {
+    "id": "seed_20260514_j_002_fuzzy_qa_cost_focused",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "我想先确认一个定义问题：某电商平台未经用户明确同意，将用户购买记录用于精准广告推荐，但未泄露给第三方，这种行为是否违反个人信息保护法？。背景情况很多，但核心只是确认这个概念本身怎么定义。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "mixed"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260514_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260514_j_002",
+    "source_dataset": "seed_query_20260514_campaign_v1"
+  },
+  {
+    "id": "seed_20260514_j_003_fuzzy_weak",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "在一个知识问答系统中，如果检索结果来自两条互相矛盾的法规解释，而系统只返回其中一条，是否可以认为系统存在“误导性输出”的风险？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260514_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260514_j_003",
+    "source_dataset": "seed_query_20260514_campaign_v1"
+  },
+  {
+    "id": "seed_20260514_j_003_fuzzy_qa_cost_focused",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "我想先确认一个定义问题：在一个知识问答系统中，如果检索结果来自两条互相矛盾的法规解释，而系统只返回其中一条，是否可以认为系统存在“误导性输出”的风险？。背景情况很多，但核心只是确认这个概念本身怎么定义。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "mixed"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260514_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260514_j_003",
+    "source_dataset": "seed_query_20260514_campaign_v1"
+  },
+  {
+    "id": "seed_20260514_j_004_fuzzy_weak",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "如果开发团队明知模型存在明显的 hallucination 风险，但仍然将其用于自动生成法律建议，这种行为是否可能构成重大过失？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260514_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260514_j_004",
+    "source_dataset": "seed_query_20260514_campaign_v1"
+  },
+  {
+    "id": "seed_20260514_j_004_fuzzy_qa_cost_focused",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "我想先确认一个定义问题：如果开发团队明知模型存在明显的 hallucination 风险，但仍然将其用于自动生成法律建议，这种行为是否可能构成重大过失？。背景情况很多，但核心只是确认这个概念本身怎么定义。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "mixed"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260514_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260514_j_004",
+    "source_dataset": "seed_query_20260514_campaign_v1"
+  },
+  {
+    "id": "seed_20260514_j_005_fuzzy_weak",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "在你前面提到的架构设计中，如果没有设置权限隔离，而允许不同租户共享同一个向量库，这是否构成数据安全风险？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260514_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260514_j_005",
+    "source_dataset": "seed_query_20260514_campaign_v1"
+  },
+  {
+    "id": "seed_20260514_j_005_fuzzy_qa_cost_focused",
+    "batch": "fuzzy_qa",
+    "input": {
+      "user_query": "我想先确认一个定义问题：在你前面提到的架构设计中，如果没有设置权限隔离，而允许不同租户共享同一个向量库，这是否构成数据安全风险？。背景情况很多，但核心只是确认这个概念本身怎么定义。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "mixed"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260514_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260514_j_005",
+    "source_dataset": "seed_query_20260514_campaign_v1"
+  }
+]

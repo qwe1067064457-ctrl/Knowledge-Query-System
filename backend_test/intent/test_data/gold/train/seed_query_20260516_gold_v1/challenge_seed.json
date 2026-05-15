@@ -1,0 +1,246 @@
+[
+  {
+    "id": "seed_20260516_challenge_001_gold",
+    "batch": "challenge_seed",
+    "input": {
+      "user_query": "这个结论不对吧？",
+      "history": [
+        {
+          "role": "assistant",
+          "content": "这种情况一定不需要承担责任。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["challenge"],
+        "required_rule_ids": ["challenge.disagree"],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "challenge.soft_doubt": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "challenge 正例：直接否定前一轮结论。",
+    "source_query_id": "fullset_meta_003"
+  },
+  {
+    "id": "seed_20260516_challenge_002_gold",
+    "batch": "challenge_seed",
+    "input": {
+      "user_query": "你是不是搞错了？",
+      "history": [
+        {
+          "role": "assistant",
+          "content": "这里不存在任何例外情况。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["challenge"],
+        "required_rule_ids": ["challenge.disagree"],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "challenge.soft_doubt": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "challenge 正例：明确质疑系统前一轮判断。",
+    "source_query_id": "fullset_meta_010"
+  },
+  {
+    "id": "seed_20260516_challenge_003_gold",
+    "batch": "challenge_seed",
+    "input": {
+      "user_query": "你之前说这种情况一定要承担赔偿责任，但我看到有案例不是这样。你的说法是否过于绝对？是否存在例外？",
+      "history": [
+        {
+          "role": "assistant",
+          "content": "这种情况一定需要承担赔偿责任。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["challenge"],
+        "required_rule_ids": ["challenge.disagree"],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "challenge.soft_doubt": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "challenge 正例：长文本强质疑，核心是反驳前文过度绝对化结论。",
+    "source_query_id": "fullset_meta_long_007"
+  },
+  {
+    "id": "seed_20260516_challenge_004_gold",
+    "batch": "challenge_seed",
+    "input": {
+      "user_query": "那你为什么之前说一定要赔？",
+      "history": [
+        {
+          "role": "assistant",
+          "content": "只要出现这种情形，就一定要赔偿。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["challenge", "ask_source"],
+        "required_rule_ids": ["challenge.disagree"],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "challenge.soft_doubt": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "challenge 正例：带追问来源色彩，但主语义仍是对前文结论提出反驳。",
+    "source_query_id": "fullset_meta_precision_018"
+  }
+]

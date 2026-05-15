@@ -63,19 +63,23 @@ def _dataset_row(*, row_id: str, batch: str, complexity: str = "simple") -> dict
 
 def test_export_training_rows_marks_train_and_heldout_splits(tmp_path: Path) -> None:
     train_dir = tmp_path / "train_dataset"
+    dev_dir = tmp_path / "dev_dataset"
     heldout_dir = tmp_path / "heldout_dataset"
     train_dir.mkdir()
+    dev_dir.mkdir()
     heldout_dir.mkdir()
     (train_dir / "rows.json").write_text(json.dumps([_dataset_row(row_id="train_001", batch="standard_qa")], ensure_ascii=False), encoding="utf-8")
+    (dev_dir / "rows.json").write_text(json.dumps([_dataset_row(row_id="dev_001", batch="standard_qa")], ensure_ascii=False), encoding="utf-8")
     (heldout_dir / "rows.json").write_text(json.dumps([_dataset_row(row_id="heldout_001", batch="qa_judgment_heldout")], ensure_ascii=False), encoding="utf-8")
 
     exported = export_training_rows(
         train_dataset_dirs=[train_dir],
+        dev_dataset_dirs=[dev_dir],
         heldout_dataset_dirs=[heldout_dir],
     )
 
-    assert len(exported) == 2
-    assert {row["split"] for row in exported} == {"train", "heldout"}
+    assert len(exported) == 3
+    assert {row["split"] for row in exported} == {"train", "dev", "heldout"}
     assert {row["metadata"]["is_heldout"] for row in exported} == {False, True}
 
 
