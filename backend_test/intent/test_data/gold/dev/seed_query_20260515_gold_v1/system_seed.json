@@ -1,0 +1,108 @@
+[
+  {
+    "id": "seed_20260515_system_001_gold",
+    "batch": "system_seed",
+    "input": {
+      "user_query": "你现在能直接读取 notes/working/intent 下的文档吗？先告诉我你支持哪些入口。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["ask_capability"],
+        "required_rule_ids": [],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "system",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": true,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "capability"
+      }
+    },
+    "notes": "system 正例：询问代理当前支持哪些读取能力与入口。",
+    "source_query_id": "seed_20260515_system_001"
+  },
+  {
+    "id": "seed_20260515_system_002_gold",
+    "batch": "system_seed",
+    "input": {
+      "user_query": "你支持把当前 intent 四层样本导出成 JSONL 吗？我想先确认你的能力范围。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["ask_capability"],
+        "required_rule_ids": [],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "system",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": true,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "capability"
+      }
+    },
+    "notes": "system 正例：询问系统是否支持某种操作能力，而不是要求立即执行。",
+    "source_query_id": "seed_20260515_system_002"
+  }
+]

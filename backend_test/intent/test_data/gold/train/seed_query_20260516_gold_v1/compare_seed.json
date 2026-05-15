@@ -1,0 +1,320 @@
+[
+  {
+    "id": "seed_20260516_compare_001_gold",
+    "batch": "compare_seed",
+    "input": {
+      "user_query": "对比侵权责任和违约责任的区别。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["qa"],
+        "required_rule_ids": [],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "compare"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "compare 正例：显式要求对比两类法律责任。",
+    "source_query_id": "fullset_compound_002"
+  },
+  {
+    "id": "seed_20260516_compare_002_gold",
+    "batch": "compare_seed",
+    "input": {
+      "user_query": "比较刑事拘留和行政拘留的不同。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["qa"],
+        "required_rule_ids": [],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "compare"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "compare 正例：比较两种拘留制度。",
+    "source_query_id": "fullset_compound_004"
+  },
+  {
+    "id": "seed_20260516_compare_003_gold",
+    "batch": "compare_seed",
+    "input": {
+      "user_query": "对比我国与美国医疗责任制度的差异。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["qa"],
+        "required_rule_ids": [],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "compare"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "notes": "compare 正例：跨法域制度对比，复杂度更高。",
+    "source_query_id": "fullset_compound_008"
+  },
+  {
+    "id": "seed_20260516_compare_004_gold",
+    "batch": "compare_seed",
+    "input": {
+      "user_query": "对比医疗事故和医疗过失的认定标准。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["qa"],
+        "required_rule_ids": [],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "compare"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "compare 正例：医疗领域中的显式对比问题。",
+    "source_query_id": "fullset_compound_013"
+  },
+  {
+    "id": "seed_20260516_compare_005_gold",
+    "batch": "compare_seed",
+    "input": {
+      "user_query": "对比不同类型拘留的适用条件。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["qa"],
+        "required_rule_ids": [],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "compare"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "compare 正例：同主题不同类型的适用条件对比。",
+    "source_query_id": "fullset_compound_019"
+  },
+  {
+    "id": "seed_20260516_compare_006_gold",
+    "batch": "compare_seed",
+    "input": {
+      "user_query": "侵权责任和违约责任构成要件分别是什么？赔偿方式一样吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["qa", "multi_question"],
+        "required_rule_ids": [],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "compare"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "notes": "compare 正例：虽有多问句形式，但核心任务仍是对比两类责任。",
+    "source_query_id": "fullset_multi_008"
+  }
+]

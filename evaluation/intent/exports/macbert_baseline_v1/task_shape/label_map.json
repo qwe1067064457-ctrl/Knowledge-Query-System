@@ -1,0 +1,7 @@
+{
+  "single_question": 0,
+  "verify": 1,
+  "compare": 2,
+  "summarize": 3,
+  "multi_question": 4
+}

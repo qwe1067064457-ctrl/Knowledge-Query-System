@@ -1,0 +1,465 @@
+[
+  {
+    "id": "seed_0097_chat_supportive",
+    "batch": "chat",
+    "input": {
+      "user_query": "最近压力有点大。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [],
+        "required_rule_ids": [],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "chat",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0097",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0099_chat_supportive",
+    "batch": "chat",
+    "input": {
+      "user_query": "聊聊吧。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [],
+        "required_rule_ids": [],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "chat",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0099",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0100_chat_supportive",
+    "batch": "chat",
+    "input": {
+      "user_query": "你是谁？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_only",
+        "required_signals": [
+          "system",
+          "ask_capability"
+        ],
+        "required_rule_ids": [
+          "system.capability.ask"
+        ],
+        "rule_expectations": {
+          "system.capability.ask": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "system",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": true,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "capability"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0100",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0101_chat_supportive",
+    "batch": "chat",
+    "input": {
+      "user_query": "哈哈哈。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [],
+        "required_rule_ids": [],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "chat",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0101",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0104_chat_supportive",
+    "batch": "chat",
+    "input": {
+      "user_query": "今天天气不错。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [],
+        "required_rule_ids": [],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "chat",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0104",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0105_chat_supportive",
+    "batch": "chat",
+    "input": {
+      "user_query": "推荐一本书。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [],
+        "required_rule_ids": [],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "chat",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0105",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0110_chat_supportive",
+    "batch": "chat",
+    "input": {
+      "user_query": "压力有点大。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [],
+        "required_rule_ids": [],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "chat",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0110",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0113_chat_supportive",
+    "batch": "chat",
+    "input": {
+      "user_query": "想聊聊。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "model_first_with_rule_guard",
+        "required_signals": [],
+        "required_rule_ids": [],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "chat",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0113",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  }
+]

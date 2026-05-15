@@ -1,0 +1,1748 @@
+[
+  {
+    "id": "seed_20260515_fu_001_follow_up_supportive",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那如果对方不是自然人而是公司呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同责任和证据条件。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按合同责任和证据规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_fu_001",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_fu_001_follow_up_weak",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那如果对方不是自然人而是公司呢？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.missing_history"
+        ],
+        "rule_expectations": {
+          "context.follow_up.missing_history": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_fu_001",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_fu_001_follow_up_conflicting",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那如果对方不是自然人而是公司呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在聊推荐哪本书更适合入门。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才给了两本非法律类书籍的建议。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_fu_001",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_fu_001_follow_up_near_miss",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "你能再解释一下刚才那个意思吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.missing_history"
+        ],
+        "rule_expectations": {
+          "context.follow_up.missing_history": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_fu_001",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_fu_001_follow_up_mixed",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那如果对方不是自然人而是公司呢，如果不是的话为什么？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同责任和证据条件。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按合同责任和证据规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "context.follow_up.reference": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_fu_001",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_fu_002_follow_up_supportive",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "如果没有书面合同，只剩微信聊天记录呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同责任和证据条件。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按合同责任和证据规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_fu_002",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_fu_002_follow_up_weak",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "如果没有书面合同，只剩微信聊天记录呢？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.missing_history"
+        ],
+        "rule_expectations": {
+          "context.follow_up.missing_history": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_fu_002",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_fu_002_follow_up_conflicting",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "如果没有书面合同，只剩微信聊天记录呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在聊推荐哪本书更适合入门。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才给了两本非法律类书籍的建议。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_fu_002",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_fu_002_follow_up_near_miss",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "你能再解释一下刚才那个意思吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.missing_history"
+        ],
+        "rule_expectations": {
+          "context.follow_up.missing_history": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_fu_002",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_fu_002_follow_up_mixed",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "如果没有书面合同，只剩微信聊天记录呢，如果不是的话为什么？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同责任和证据条件。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按合同责任和证据规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "context.follow_up.reference": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_fu_002",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_fu_003_follow_up_supportive",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那举证责任是不是就落到患者这边了？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同责任和证据条件。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按合同责任和证据规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "complex",
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "verify"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_fu_003",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_fu_003_follow_up_weak",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那举证责任是不是就落到患者这边了？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "complex"
+        ],
+        "required_rule_ids": [
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_fu_003",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_fu_003_follow_up_conflicting",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那举证责任是不是就落到患者这边了？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在聊推荐哪本书更适合入门。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才给了两本非法律类书籍的建议。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "complex",
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "verify"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_fu_003",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_fu_003_follow_up_near_miss",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "你能再解释一下刚才那个意思吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.missing_history"
+        ],
+        "rule_expectations": {
+          "context.follow_up.missing_history": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_fu_003",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_fu_003_follow_up_mixed",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "那举证责任是不是就落到患者这边了，如果不是的话为什么？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同责任和证据条件。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按合同责任和证据规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "complex",
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "context.follow_up.reference",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "context.follow_up.reference": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "verify"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_fu_003",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_fu_004_follow_up_supportive",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "如果合同已经履行了一部分，还能主张解除吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同责任和证据条件。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按合同责任和证据规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "context.follow_up.reference": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_fu_004",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_fu_004_follow_up_weak",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "如果合同已经履行了一部分，还能主张解除吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "context.follow_up.missing_history"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "context.follow_up.missing_history": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_fu_004",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_fu_004_follow_up_conflicting",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "如果合同已经履行了一部分，还能主张解除吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在聊推荐哪本书更适合入门。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才给了两本非法律类书籍的建议。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "context.follow_up.reference": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_fu_004",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_fu_004_follow_up_near_miss",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "你能再解释一下刚才那个意思吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.missing_history"
+        ],
+        "rule_expectations": {
+          "context.follow_up.missing_history": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_fu_004",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_fu_004_follow_up_mixed",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "如果合同已经履行了一部分，还能主张解除吗，如果不是的话为什么？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同责任和证据条件。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按合同责任和证据规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "context.follow_up.reference",
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "context.follow_up.reference": true,
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_fu_004",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_fu_005_follow_up_supportive",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "如果平台只是撮合交易，不直接收款呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同责任和证据条件。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按合同责任和证据规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_fu_005",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_fu_005_follow_up_weak",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "如果平台只是撮合交易，不直接收款呢？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.missing_history"
+        ],
+        "rule_expectations": {
+          "context.follow_up.missing_history": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_fu_005",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_fu_005_follow_up_conflicting",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "如果平台只是撮合交易，不直接收款呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在聊推荐哪本书更适合入门。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才给了两本非法律类书籍的建议。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_fu_005",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_fu_005_follow_up_near_miss",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "你能再解释一下刚才那个意思吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.missing_history"
+        ],
+        "rule_expectations": {
+          "context.follow_up.missing_history": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_fu_005",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_fu_005_follow_up_mixed",
+    "batch": "follow_up",
+    "input": {
+      "user_query": "如果平台只是撮合交易，不直接收款呢，如果不是的话为什么？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同责任和证据条件。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按合同责任和证据规则做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "context.follow_up.reference": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_fu_005",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  }
+]

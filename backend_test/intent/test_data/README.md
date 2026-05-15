@@ -1,38 +1,42 @@
-# Intent 测试数据
+# Intent Test Data
 
-这个目录用于存放 `intent` 模块的评估测试数据。
+`backend_test/intent/test_data/` 现在按数据角色分区，而不是按时间或脚手架来源平铺。
 
-当前按批次分类：
+## 目录约定
 
-- `simple_qa.json`
-- `chat.json`
-- `follow_up.json`
-- `challenge.json`
-- `ask_source.json`
-- `system.json`
-- `unsupported.json`
-- `compound_multi_question.json`
-- `complex_task.json`
-- `ambiguous.json`
+- `legacy/`
+  - 历史平铺数据与旧 campaign
+  - 保留参考价值，但不作为当前训练或评估主入口
+- `campaign/`
+  - 从 `seed` 派生出来的对抗草案和增强池
+  - 适合压测、找 badcase、继续提升成 `gold` 或 `silver`
+- `gold/`
+  - 当前最重要的标注区
+  - `train/`：高质量 `gold` 训练样本
+  - `silver/`：由 `auto-uplift` 批量生成的 `silver` 训练样本
+  - `dev/`：从非冻结高质量样本中切出的开发集
+  - `calibration/`：参与过调优的开发校准集
+  - `frozen/`：真正冻结的 benchmark / held-out
+- `experiments/`
+  - 专项实验、用户批次、脚手架 smoke
 
-每个文件都是一个 JSON 数组，元素结构与 `evaluation/intent/dataset_schema.md` 保持一致。
 
-当前额外补充了：
 
-- `gold.evidence.rule_expectations`
 
-这个字段用于严格规则评估，支持后续统计：
+## 当前使用建议
 
-- `tp`
-- `fp`
-- `fn`
-- `tn`
-- `precision`
-- `recall`
+如果你的目标是：
 
-建议用法：
+- 继续补训练集：先看 `gold/train/` 和 `gold/silver/`
+- 做开发验证：先看 `gold/dev/`
+- 做最终验证：先看 `gold/frozen/`
+- 找待提升样本：先看 `campaign/`
+- 查历史资产：看 `legacy/`
+- 看专项批次：看 `experiments/`
 
-```bat
-py evaluation\intent\evaluate_intent_rules.py --dataset backend_test\intent\test_data
-py evaluation\intent\evaluate_intent_rules.py --dataset backend_test\intent\test_data --markdown-out backend_test\intent\test_data\intent_eval_report.md
-```
+## 说明
+
+- `gold/frozen/` 下的数据不得参与规则调优
+- `campaign/` 下的数据默认不直接进入最终 benchmark
+- `silver` 可以进入训练，但默认权重低于 `gold`
+- `legacy/` 下的数据保留，但不再作为主入口

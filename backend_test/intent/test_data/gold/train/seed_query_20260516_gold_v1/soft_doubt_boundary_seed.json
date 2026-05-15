@@ -1,0 +1,468 @@
+[
+  {
+    "id": "seed_20260516_sdb_001_gold",
+    "batch": "soft_doubt_boundary_seed",
+    "input": {
+      "user_query": "免责条款是否一定有效？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["qa"],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "challenge.soft_doubt": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "soft_doubt 负例：普通判断型 QA，只有“是否”结构，没有质疑前文。",
+    "source_query_id": "fullset_simple_019"
+  },
+  {
+    "id": "seed_20260516_sdb_002_gold",
+    "batch": "soft_doubt_boundary_seed",
+    "input": {
+      "user_query": "那这个标准是全国统一的吗？",
+      "history": [
+        {
+          "role": "assistant",
+          "content": "这个标准一般按照现行统一规则判断。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["follow_up"],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "challenge.soft_doubt": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "soft_doubt 负例：follow-up 求知，不是保留式质疑。",
+    "source_query_id": "fullset_followup_010"
+  },
+  {
+    "id": "seed_20260516_sdb_003_gold",
+    "batch": "soft_doubt_boundary_seed",
+    "input": {
+      "user_query": "这个规则全国都适用吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["qa"],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "challenge.soft_doubt": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "soft_doubt 负例：普通规则适用范围提问。",
+    "source_query_id": "fullset_meta_026"
+  },
+  {
+    "id": "seed_20260516_sdb_004_gold",
+    "batch": "soft_doubt_boundary_seed",
+    "input": {
+      "user_query": "你刚才的依据是什么？",
+      "history": [
+        {
+          "role": "assistant",
+          "content": "这种情况下通常会认定合同无效。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["ask_source"],
+        "required_rule_ids": ["system.source.ask"],
+        "rule_expectations": {
+          "challenge.soft_doubt": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "system",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "source"
+      }
+    },
+    "notes": "soft_doubt 负例：追问依据，不属于软质疑。",
+    "source_query_id": "fullset_meta_001"
+  },
+  {
+    "id": "seed_20260516_sdb_005_gold",
+    "batch": "soft_doubt_boundary_seed",
+    "input": {
+      "user_query": "这个结论不对吧？",
+      "history": [
+        {
+          "role": "assistant",
+          "content": "这种情况一定不需要承担责任。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["challenge"],
+        "required_rule_ids": ["challenge.disagree"],
+        "rule_expectations": {
+          "challenge.disagree": true,
+          "challenge.soft_doubt": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "challenge"
+      }
+    },
+    "notes": "soft_doubt 负例：这是强质疑，不是软质疑。",
+    "source_query_id": "fullset_meta_003"
+  },
+  {
+    "id": "seed_20260516_sdb_006_gold",
+    "batch": "soft_doubt_boundary_seed",
+    "input": {
+      "user_query": "如果没有证据怎么办？",
+      "history": [
+        {
+          "role": "assistant",
+          "content": "这种情况下通常需要由主张方先举证。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["follow_up"],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "challenge.soft_doubt": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "soft_doubt 负例：普通追问，不表达对前文保留态度。",
+    "source_query_id": "fullset_followup_020"
+  },
+  {
+    "id": "seed_20260516_sdb_007_gold",
+    "batch": "soft_doubt_boundary_seed",
+    "input": {
+      "user_query": "这是最新版本的法律规定吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["ask_source"],
+        "required_rule_ids": ["system.source.ask"],
+        "rule_expectations": {
+          "challenge.soft_doubt": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "system",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "source"
+      }
+    },
+    "notes": "soft_doubt 负例：来源/时效性追问，不是软质疑。",
+    "source_query_id": "fullset_meta_014"
+  },
+  {
+    "id": "seed_20260516_sdb_008_gold",
+    "batch": "soft_doubt_boundary_seed",
+    "input": {
+      "user_query": "如果合同中存在特别约定，刚才的结论是否仍然适用？",
+      "history": [
+        {
+          "role": "assistant",
+          "content": "一般情况下，合同解除规则会直接适用。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": ["follow_up"],
+        "required_rule_ids": [],
+        "rule_expectations": {
+          "challenge.soft_doubt": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "soft_doubt 负例：有上下文回指，但核心是 follow-up 追问。",
+    "source_query_id": "fullset_followup_long_005"
+  }
+]

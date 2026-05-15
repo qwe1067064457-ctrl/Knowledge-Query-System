@@ -1,0 +1,413 @@
+[
+  {
+    "id": "seed_0197_mixed_intent_supportive",
+    "batch": "mixed_intent",
+    "input": {
+      "user_query": "你的赔偿计算方式是否基于司法解释，还是仅基于一般原则推导？是否有明确数据支持？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "ask_source",
+          "multi_question"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "source.ask_basis",
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "source.ask_basis": true,
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0197",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0197_mixed_intent_cost_focused",
+    "batch": "mixed_intent",
+    "input": {
+      "user_query": "你的赔偿计算方式是否基于司法解释，还是仅基于一般原则推导？是否有明确数据支持？ 请按步骤整理关键事实、争议点和判断依据。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "ask_source",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "source.ask_basis",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "source.ask_basis": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "mixed"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0197",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0281_mixed_intent_supportive",
+    "batch": "mixed_intent",
+    "input": {
+      "user_query": "这算侵权吧？还是只是违约？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0281",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0281_mixed_intent_cost_focused",
+    "batch": "mixed_intent",
+    "input": {
+      "user_query": "这算侵权吧？还是只是违约？ 请按步骤整理关键事实、争议点和判断依据。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.judgment",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.judgment": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "summarize"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0281",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0383_mixed_intent_supportive",
+    "batch": "mixed_intent",
+    "input": {
+      "user_query": "医生做出了诊断，但后来发现结果并不理想。我不确定这是误诊还是单纯治疗效果不好。这种情况一般怎么区分？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "context.follow_up.missing_history"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "context.follow_up.missing_history": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0383",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  },
+  {
+    "id": "seed_0383_mixed_intent_cost_focused",
+    "batch": "mixed_intent",
+    "input": {
+      "user_query": "医生做出了诊断，但后来发现结果并不理想。我不确定这是误诊还是单纯治疗效果不好。这种情况一般怎么区分？ 请按步骤整理关键事实、争议点和判断依据。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "complex",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "context.follow_up.missing_history",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "context.follow_up.missing_history": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "summarize"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset intent_query_full_set_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_0383",
+    "source_dataset": "intent_query_full_set_campaign_v1"
+  }
+]

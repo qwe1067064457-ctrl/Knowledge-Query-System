@@ -1,0 +1,320 @@
+[
+  {
+    "id": "seed_20260517_chat_001_gold",
+    "batch": "chat_seed",
+    "input": {
+      "user_query": "最近一直在补训练数据，感觉脑子有点转不动了，先陪我缓一缓吧。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_based",
+        "required_signals": ["chat"],
+        "required_rule_ids": ["intent.chat.emotion"],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "chat",
+        "mode": "normal"
+      }
+    },
+    "notes": "chat 正例：情绪支持请求，不是知识问答。",
+    "source_query_id": "fullset_chat_20260517_001"
+  },
+  {
+    "id": "seed_20260517_chat_002_gold",
+    "batch": "chat_seed",
+    "input": {
+      "user_query": "这两天一直盯着规则和样本，越看越烦，先别讲方案了，陪我聊两句。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_based",
+        "required_signals": ["chat"],
+        "required_rule_ids": ["intent.chat.request"],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "chat",
+        "mode": "normal"
+      }
+    },
+    "notes": "chat 正例：明确要求闲聊和陪伴。",
+    "source_query_id": "fullset_chat_20260517_002"
+  },
+  {
+    "id": "seed_20260517_chat_003_gold",
+    "batch": "chat_seed",
+    "input": {
+      "user_query": "我有点怀疑自己是不是把这件事做得太复杂了，想先听你安慰一下。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_based",
+        "required_signals": ["chat"],
+        "required_rule_ids": ["intent.chat.emotion"],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "chat",
+        "mode": "normal"
+      }
+    },
+    "notes": "chat 正例：安抚情绪，不要求知识解释。",
+    "source_query_id": "fullset_chat_20260517_003"
+  },
+  {
+    "id": "seed_20260517_chat_004_gold",
+    "batch": "chat_seed",
+    "input": {
+      "user_query": "今天状态不太好，不想继续聊规则了，先随便陪我说说话。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_based",
+        "required_signals": ["chat"],
+        "required_rule_ids": ["intent.chat.request"],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "chat",
+        "mode": "normal"
+      }
+    },
+    "notes": "chat 正例：明确非任务化闲聊。",
+    "source_query_id": "fullset_chat_20260517_004"
+  },
+  {
+    "id": "seed_20260517_chat_005_gold",
+    "batch": "chat_seed",
+    "input": {
+      "user_query": "最近补数据补得我有点怀疑人生，你觉得这种焦虑正常吗？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_based",
+        "required_signals": ["chat"],
+        "required_rule_ids": ["intent.chat.emotion"],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "chat",
+        "mode": "normal"
+      }
+    },
+    "notes": "chat 正例：情绪型求安慰。",
+    "source_query_id": "fullset_chat_20260517_005"
+  },
+  {
+    "id": "seed_20260517_chat_006_gold",
+    "batch": "chat_seed",
+    "input": {
+      "user_query": "我现在只想找个人吐槽一下，不想继续分析方案了。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_based",
+        "required_signals": ["chat"],
+        "required_rule_ids": ["intent.chat.request"],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "chat",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "chat",
+        "mode": "normal"
+      }
+    },
+    "notes": "chat 正例：表达倾诉需求。",
+    "source_query_id": "fullset_chat_20260517_006"
+  }
+]

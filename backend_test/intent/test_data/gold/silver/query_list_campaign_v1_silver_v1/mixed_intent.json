@@ -1,0 +1,137 @@
+[
+  {
+    "id": "bench_005_mixed_intent_supportive",
+    "batch": "mixed_intent",
+    "input": {
+      "user_query": "如果医生误诊，但不是故意的，责任怎么算？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "context.follow_up.missing_history"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "context.follow_up.missing_history": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset query_list_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "bench_005",
+    "source_dataset": "query_list_campaign_v1"
+  },
+  {
+    "id": "bench_005_mixed_intent_cost_focused",
+    "batch": "mixed_intent",
+    "input": {
+      "user_query": "如果医生误诊，但不是故意的，责任怎么算？ 请按步骤整理关键事实、争议点和判断依据。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "complex",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "context.follow_up.missing_history",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "context.follow_up.missing_history": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "mixed"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset query_list_campaign_v1; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "bench_005",
+    "source_dataset": "query_list_campaign_v1"
+  }
+]

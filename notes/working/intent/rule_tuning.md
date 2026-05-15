@@ -299,7 +299,7 @@
 为了避免继续在已参与调优的 `81` 条严格监督上自我强化，本轮额外建立了：
 
 - [heldout_judgment_soft_doubt_20260514.jsonl](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/evaluation/intent/query_inputs/heldout_judgment_soft_doubt_20260514.jsonl)
-- [heldout_judgment_soft_doubt_gold_v1](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/backend_test/intent/test_data/heldout_judgment_soft_doubt_gold_v1)
+- [heldout_judgment_soft_doubt_gold_v1](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/backend_test/intent/test_data/gold/calibration/heldout_judgment_soft_doubt_gold_v1)
 
 这批 held-out 暴露出的最后一轮 `soft_doubt` 真缺口是：
 

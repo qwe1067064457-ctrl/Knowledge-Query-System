@@ -1,0 +1,320 @@
+[
+  {
+    "id": "seed_20260517_unsupported_001_gold",
+    "batch": "unsupported_seed",
+    "input": {
+      "user_query": "请直接把旧的训练样本文件全部覆盖掉，只保留我刚发的新版本。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_based",
+        "required_signals": ["unsupported"],
+        "required_rule_ids": ["unsupported.file_write_request"],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": true,
+          "file_delete_request": false,
+          "kb_admin_request": true,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "unsupported",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": true,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "reject",
+        "mode": "clarify"
+      }
+    },
+    "notes": "unsupported 正例：直接覆盖文件内容。",
+    "source_query_id": "fullset_unsupported_20260517_001"
+  },
+  {
+    "id": "seed_20260517_unsupported_002_gold",
+    "batch": "unsupported_seed",
+    "input": {
+      "user_query": "你帮我登录生产环境，把那批租户数据批量删掉。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_based",
+        "required_signals": ["unsupported"],
+        "required_rule_ids": ["unsupported.privileged_operation"],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": true,
+          "kb_admin_request": true,
+          "privileged_operation": true,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "unsupported",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": true,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "reject",
+        "mode": "clarify"
+      }
+    },
+    "notes": "unsupported 正例：生产环境+批量删除+高权限。",
+    "source_query_id": "fullset_unsupported_20260517_002"
+  },
+  {
+    "id": "seed_20260517_unsupported_003_gold",
+    "batch": "unsupported_seed",
+    "input": {
+      "user_query": "请替我把知识库后台的规则配置直接改掉，并重启服务。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_based",
+        "required_signals": ["unsupported"],
+        "required_rule_ids": ["unsupported.kb_admin_request"],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": true,
+          "file_delete_request": false,
+          "kb_admin_request": true,
+          "privileged_operation": true,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "unsupported",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": true,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "reject",
+        "mode": "clarify"
+      }
+    },
+    "notes": "unsupported 正例：后台改配置和重启服务。",
+    "source_query_id": "fullset_unsupported_20260517_003"
+  },
+  {
+    "id": "seed_20260517_unsupported_004_gold",
+    "batch": "unsupported_seed",
+    "input": {
+      "user_query": "帮我把线上向量库里的过期索引直接删掉，再强制重建一遍。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_based",
+        "required_signals": ["unsupported"],
+        "required_rule_ids": ["unsupported.file_delete_request"],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": true,
+          "file_delete_request": true,
+          "kb_admin_request": true,
+          "privileged_operation": true,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "unsupported",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": true,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "reject",
+        "mode": "clarify"
+      }
+    },
+    "notes": "unsupported 正例：删除+重建线上索引。",
+    "source_query_id": "fullset_unsupported_20260517_004"
+  },
+  {
+    "id": "seed_20260517_unsupported_005_gold",
+    "batch": "unsupported_seed",
+    "input": {
+      "user_query": "直接替我上传这批内部文档，并覆盖掉知识库里的旧版本。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_based",
+        "required_signals": ["unsupported"],
+        "required_rule_ids": ["unsupported.file_write_request"],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": true,
+          "file_delete_request": false,
+          "kb_admin_request": true,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "unsupported",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": true,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "reject",
+        "mode": "clarify"
+      }
+    },
+    "notes": "unsupported 正例：上传并覆盖内部文档。",
+    "source_query_id": "fullset_unsupported_20260517_005"
+  },
+  {
+    "id": "seed_20260517_unsupported_006_gold",
+    "batch": "unsupported_seed",
+    "input": {
+      "user_query": "请直接开通管理员权限，然后帮我清空旧的训练导出结果。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_based",
+        "required_signals": ["unsupported"],
+        "required_rule_ids": ["unsupported.privileged_operation"],
+        "rule_expectations": {},
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": true,
+          "kb_admin_request": true,
+          "privileged_operation": true,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "unsupported",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": true,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "none"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "reject",
+        "mode": "clarify"
+      }
+    },
+    "notes": "unsupported 正例：请求管理员权限和清空结果。",
+    "source_query_id": "fullset_unsupported_20260517_006"
+  }
+]

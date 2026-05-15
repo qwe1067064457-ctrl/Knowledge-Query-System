@@ -1,0 +1,414 @@
+[
+  {
+    "id": "seed_20260515_mq_001_standard_qa_supportive",
+    "batch": "standard_qa",
+    "input": {
+      "user_query": "如果员工试用期内多次迟到，公司未提前公示规章制度，能不能解除劳动合同？另外要不要支付补偿？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "needs_clarification"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "context.follow_up.missing_history",
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "context.follow_up.missing_history": true,
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": true
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": true,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "ambiguous"
+      },
+      "control": {
+        "route": "direct",
+        "mode": "clarify"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_mq_001",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_mq_001_standard_qa_cost_focused",
+    "batch": "standard_qa",
+    "input": {
+      "user_query": "我想先确认一个定义问题：如果员工试用期内多次迟到，公司未提前公示规章制度，能不能解除劳动合同？另外要不要支付补偿？。背景情况很多，但核心只是确认这个概念本身怎么定义。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "mixed"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_mq_001",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_mq_002_standard_qa_supportive",
+    "batch": "standard_qa",
+    "input": {
+      "user_query": "多租户知识库里 session 主键为什么不能只用 user_id？如果扩展到 SaaS 多企业，还要考虑哪些字段？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "multi_question"
+        ],
+        "required_rule_ids": [
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_mq_002",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_mq_002_standard_qa_cost_focused",
+    "batch": "standard_qa",
+    "input": {
+      "user_query": "我想先确认一个定义问题：多租户知识库里 session 主键为什么不能只用 user_id？如果扩展到 SaaS 多企业，还要考虑哪些字段？。背景情况很多，但核心只是确认这个概念本身怎么定义。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "task.enumerated_questions",
+          "task.complex.request",
+          "intent.qa.long_form"
+        ],
+        "rule_expectations": {
+          "task.enumerated_questions": true,
+          "task.complex.request": true,
+          "intent.qa.long_form": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "mixed"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_mq_002",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_mq_003_standard_qa_supportive",
+    "batch": "standard_qa",
+    "input": {
+      "user_query": "医疗事故认定里因果关系和过错分别怎么判断？举证责任又怎么分配？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "intent.qa.domain",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "intent.qa.domain": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_mq_003",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  },
+  {
+    "id": "seed_20260515_mq_003_standard_qa_cost_focused",
+    "batch": "standard_qa",
+    "input": {
+      "user_query": "我想先确认一个定义问题：医疗事故认定里因果关系和过错分别怎么判断？举证责任又怎么分配？。背景情况很多，但核心只是确认这个概念本身怎么定义。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "intent.qa.domain",
+          "task.enumerated_questions",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "intent.qa.domain": true,
+          "task.enumerated_questions": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "label_tier": "silver",
+    "label_source": "auto_uplift_rule_pipeline",
+    "review_status": "draft",
+    "notes": "auto uplifted from campaign dataset seed_query_20260515_campaign_v2; existing campaign gold is ignored and current rule pipeline output is used",
+    "source_query_id": "seed_20260515_mq_003",
+    "source_dataset": "seed_query_20260515_campaign_v2"
+  }
+]
