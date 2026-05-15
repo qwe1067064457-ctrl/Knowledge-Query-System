@@ -16,7 +16,7 @@
 
 规则口径说明在：
 
-- [rule_supervision.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/intent/rule_supervision.md)
+- [rule_supervision.md](/C:/Users/HUAWEI/.codex/worktrees/2a18/Skill-First-Hybrid-RAG/notes/working/intent/rule_supervision.md)
 
 ---
 
