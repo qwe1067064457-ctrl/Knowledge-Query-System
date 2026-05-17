@@ -47,16 +47,10 @@ def export_training_rows(
     dev_dataset_dirs: list[Path] | None = None,
     heldout_dataset_dirs: list[Path] | None = None,
 ) -> list[dict[str, Any]]:
-    use_defaults = (
-        train_dataset_dirs is None
-        and silver_dataset_dirs is None
-        and dev_dataset_dirs is None
-        and heldout_dataset_dirs is None
-    )
-    train_dirs = list(DEFAULT_TRAIN_DATASET_DIRS) if use_defaults else list(train_dataset_dirs or [])
-    silver_dirs = _list_default_silver_dataset_dirs() if use_defaults else list(silver_dataset_dirs or [])
-    dev_dirs = list(DEFAULT_DEV_DATASET_DIRS) if use_defaults else list(dev_dataset_dirs or [])
-    heldout_dirs = list(DEFAULT_HELDOUT_DATASET_DIRS) if use_defaults else list(heldout_dataset_dirs or [])
+    train_dirs = list(DEFAULT_TRAIN_DATASET_DIRS) if train_dataset_dirs is None else list(train_dataset_dirs)
+    silver_dirs = _list_default_silver_dataset_dirs() if silver_dataset_dirs is None else list(silver_dataset_dirs)
+    dev_dirs = list(DEFAULT_DEV_DATASET_DIRS) if dev_dataset_dirs is None else list(dev_dataset_dirs)
+    heldout_dirs = list(DEFAULT_HELDOUT_DATASET_DIRS) if heldout_dataset_dirs is None else list(heldout_dataset_dirs)
 
     exported: list[dict[str, Any]] = []
     for dataset_dir in train_dirs:
