@@ -71,52 +71,99 @@ def _resolve_task(
     modifiers: IntentModifiers,
 ) -> ResolvedTask:
     if main_intent in {"chat", "system", "unsupported"}:
-        return ResolvedTask(complexity="simple", shape="none")
+        return ResolvedTask(complexity="simple", shape="none", topology="single")
 
     candidates = list(evidence.task_candidates)
     if modifiers.challenge:
         return ResolvedTask(
             complexity="simple",
             shape="verify",
-            needs_query_decomposition=False,
-            needs_agent_planning=False,
+            topology="single",
         )
     if not candidates:
         task_signals = set(evidence.signal_buckets.task)
-        shape = "single_question" if "multi_question" not in task_signals else "multi_question"
-        complexity = "compound" if shape == "multi_question" else "simple"
+        topology = _fallback_topology(task_signals)
+        shape = "multi_question" if topology in {"parallel_queries", "parallel_subtasks"} else "single_question"
+        complexity = "compound" if topology in {"parallel_queries", "parallel_subtasks"} else "simple"
         return ResolvedTask(
             complexity=complexity,
             shape=shape,
-            needs_query_decomposition=shape == "multi_question",
-            needs_agent_planning=False,
+            topology=topology,
         )
 
     complexity = _resolve_complexity(candidates)
-    shape = _resolve_shape(candidates, complexity)
+    topology = _resolve_topology(candidates, complexity)
+    shape = _resolve_shape(candidates, complexity, topology)
     return ResolvedTask(
         complexity=complexity,
         shape=shape,
-        needs_query_decomposition=complexity == "compound" and shape == "multi_question",
-        needs_agent_planning=complexity == "complex",
+        topology=topology,
     )
 
 
 def _resolve_complexity(candidates: list[TaskCandidate]) -> str:
-    order = {"simple": 0, "compound": 1, "complex": 2}
-    return max(candidates, key=lambda item: (order[item.complexity], item.score)).complexity
+    complex_candidates = [item for item in candidates if item.complexity == "complex"]
+    parallel_candidates = [
+        item for item in candidates if item.topology in {"parallel_queries", "parallel_subtasks"}
+    ]
+    if any(item.topology == "staged" for item in candidates):
+        return "complex"
+    if any(item.complexity == "complex" and item.shape in {"compare", "mixed"} for item in candidates):
+        return "complex"
+    if parallel_candidates and complex_candidates:
+        best_complex = max(complex_candidates, key=lambda item: item.score)
+        if best_complex.shape in {"verify", "extract", "summarize", "mixed"} and best_complex.score >= 0.8:
+            return "complex"
+        return "compound"
+    if parallel_candidates:
+        return "compound"
+    if complex_candidates:
+        return "complex"
+    if any(item.complexity == "compound" for item in candidates):
+        return "compound"
+    return "simple"
 
 
-def _resolve_shape(candidates: list[TaskCandidate], complexity: str) -> str:
+def _resolve_topology(candidates: list[TaskCandidate], complexity: str) -> str:
     if complexity == "complex":
-        non_multi = [item for item in candidates if item.shape != "multi_question"]
+        if any(item.topology == "staged" for item in candidates):
+            return "staged"
+        return "single"
+    if complexity == "compound":
+        if any(item.topology == "parallel_subtasks" for item in candidates):
+            return "parallel_subtasks"
+        return "parallel_queries"
+    return "single"
+
+
+def _resolve_shape(candidates: list[TaskCandidate], complexity: str, topology: str) -> str:
+    if complexity == "complex":
+        non_multi = [
+            item
+            for item in candidates
+            if item.complexity == "complex" and item.shape != "multi_question"
+        ]
         if not non_multi:
             return "mixed"
         best = max(non_multi, key=lambda item: item.score)
         return "mixed" if best.shape == "single_question" else best.shape
 
+    if complexity == "compound":
+        if topology in {"parallel_queries", "parallel_subtasks"}:
+            return "multi_question"
+
     best = max(candidates, key=lambda item: item.score)
     return best.shape
+
+
+def _fallback_topology(task_signals: set[str]) -> str:
+    if "staged" in task_signals:
+        return "staged"
+    if "parallel_subtasks" in task_signals:
+        return "parallel_subtasks"
+    if "multi_question" in task_signals:
+        return "parallel_queries"
+    return "single"
 
 
 def _resolve_context_dependency(
@@ -170,7 +217,10 @@ def _resolve_decision(
     strength = _max_strength(strengths) if strengths else "low"
 
     active_modifiers = [name for name, enabled in modifiers.to_dict().items() if enabled]
-    reason_parts = [f"main_intent={main_intent}", f"task={task.complexity}/{task.shape}"]
+    reason_parts = [
+        f"main_intent={main_intent}",
+        f"task={task.complexity}/{task.shape}/{task.topology}",
+    ]
     if active_modifiers:
         reason_parts.append("modifiers=" + ",".join(active_modifiers))
     if context_dependency != "none":

@@ -102,6 +102,7 @@ def test_multi_question_becomes_compound_and_decomposable() -> None:
     assert result.resolved.main_intent == "qa"
     assert result.resolved.task.complexity == "compound"
     assert result.resolved.task.shape == "multi_question"
+    assert result.resolved.task.topology == "parallel_queries"
     assert result.control.decompose_query is True
 
 
@@ -109,8 +110,9 @@ def test_sequence_words_count_as_multi_question() -> None:
     result = classify_intent("第一，试用期最长多久？第二，公司解除合同要赔吗？")
 
     assert result.resolved.main_intent == "qa"
-    assert result.resolved.task.complexity in {"compound", "complex"}
-    assert result.resolved.task.shape in {"multi_question", "mixed", "verify"}
+    assert result.resolved.task.complexity == "compound"
+    assert result.resolved.task.shape == "multi_question"
+    assert result.resolved.task.topology == "parallel_queries"
 
 
 def test_complex_query_uses_agent_route() -> None:
@@ -477,3 +479,29 @@ def test_soft_doubt_follow_up_does_not_also_hit_generic_rule() -> None:
     matched_rule_ids = {match.rule_id for match in result.evidence.matched_rules}
     assert "challenge.soft_doubt" in matched_rule_ids
     assert "intent.qa.generic" not in matched_rule_ids
+
+
+def test_parallel_subtasks_stay_compound_instead_of_becoming_complex() -> None:
+    result = classify_intent("请分别说明试用期的条件、流程、时限。")
+
+    assert result.resolved.main_intent == "qa"
+    assert result.resolved.task.complexity == "compound"
+    assert result.resolved.task.topology == "parallel_subtasks"
+    assert result.control.route == "rag"
+    assert result.control.decompose_query is True
+
+
+def test_answer_structure_request_is_not_misclassified_as_staged_task() -> None:
+    result = classify_intent("请先说是否成立，再说依据，再说风险。")
+
+    assert result.resolved.task.topology != "staged"
+    assert result.control.route != "agent"
+
+
+def test_explicit_staged_task_is_marked_as_staged_complex() -> None:
+    result = classify_intent("请先判断是否成立，再说明依据，最后给出风险提示。")
+
+    assert result.resolved.main_intent == "qa"
+    assert result.resolved.task.complexity == "complex"
+    assert result.resolved.task.topology == "staged"
+    assert result.control.route == "agent"

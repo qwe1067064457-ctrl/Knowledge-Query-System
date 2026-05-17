@@ -130,6 +130,7 @@ def test_evaluate_dataset_returns_expected_metric_sections(tmp_path: Path) -> No
     assert "per_batch" in summary
     assert "rule_stats" in summary
     assert summary["overall"]["resolved_main_intent_accuracy"] >= 0.5
+    assert "resolved_topology_accuracy" in summary["overall"]
     assert "intent.qa.domain" in summary["rule_stats"]
 
 

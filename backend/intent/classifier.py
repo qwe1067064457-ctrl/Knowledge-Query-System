@@ -4,6 +4,7 @@ import re
 from typing import Any, Iterable, Pattern
 
 from intent.control_signal import build_control_signal
+from intent.model_adapter import IntentModelAdapter, is_model_evidence_enabled, merge_model_evidence
 from intent.rule_assets import (
     ASK_SOURCE_PATTERNS,
     CAPABILITY_PATTERNS,
@@ -74,6 +75,24 @@ MULTI_QUESTION_PATTERNS: tuple[Pattern[str], ...] = tuple(
         r"[？?].{0,20}(另外|还有|以及|同时).{0,20}[？?]",
     )
 )
+PARALLEL_SUBTASK_PATTERNS: tuple[Pattern[str], ...] = tuple(
+    re.compile(pattern, re.IGNORECASE)
+    for pattern in (
+        r"分别(?:说明|列出|给出|整理|分析)",
+        r"从.{0,12}(方面|维度|角度)(?:说明|分析|展开)",
+        r"(条件|流程|时限|依据|风险|例外)(?:、|,|，)(条件|流程|时限|依据|风险|例外)",
+        r"(逐条|逐项)(?:说明|列出|分析)",
+    )
+)
+STAGED_TASK_PATTERNS: tuple[Pattern[str], ...] = tuple(
+    re.compile(pattern, re.IGNORECASE)
+    for pattern in (
+        r"先.{0,24}(再|然后).{0,24}(最后|再)",
+        r"按步骤|分步骤|一步一步|逐步",
+        r"先判断.{0,20}再说明",
+        r"先核验.{0,20}再",
+    )
+)
 GENERIC_QA_PATTERNS: tuple[Pattern[str], ...] = tuple(
     re.compile(pattern, re.IGNORECASE)
     for pattern in (
@@ -95,6 +114,9 @@ COMPLEX_TASK_PATTERNS: tuple[Pattern[str], ...] = tuple(
 def classify_intent(
     message: str,
     history: Iterable[dict[str, Any]] | None = None,
+    *,
+    model_adapter: IntentModelAdapter | None = None,
+    enable_model_evidence: bool | None = None,
 ) -> IntentAnalysis:
     history_items = list(history or [])
     normalized = _normalize(message)
@@ -104,6 +126,13 @@ def classify_intent(
         model_context=_build_model_context(history_items),
     )
     evidence = _build_rule_evidence(intent_input, history_items)
+    evidence = _attach_model_evidence(
+        evidence,
+        intent_input=intent_input,
+        history_items=history_items,
+        model_adapter=model_adapter,
+        enable_model_evidence=enable_model_evidence,
+    )
     resolved = resolve_intent(evidence)
     control = build_control_signal(resolved)
     return IntentAnalysis(
@@ -112,6 +141,26 @@ def classify_intent(
         resolved=resolved,
         control=control,
     )
+
+
+def _attach_model_evidence(
+    evidence: IntentEvidence,
+    *,
+    intent_input: IntentInput,
+    history_items: list[dict[str, Any]],
+    model_adapter: IntentModelAdapter | None,
+    enable_model_evidence: bool | None,
+) -> IntentEvidence:
+    if model_adapter is None:
+        return evidence
+    enabled = is_model_evidence_enabled() if enable_model_evidence is None else enable_model_evidence
+    if not enabled:
+        return evidence
+    try:
+        model_result = model_adapter.predict(intent_input, history_items)
+    except Exception:
+        return evidence
+    return merge_model_evidence(evidence, model_result)
 
 
 def _build_context_state(history: list[dict[str, Any]]) -> ContextState:
@@ -128,22 +177,28 @@ def _build_context_state(history: list[dict[str, Any]]) -> ContextState:
 
 def _build_model_context(history: list[dict[str, Any]]) -> ModelContext:
     last_user_query = ""
+    last_user_goal = ""
     last_answer_summary = ""
+    last_assistant_claim = ""
     last_retrieval_summary = ""
     for item in reversed(history):
         role = item.get("role")
         content = str(item.get("content", "")).strip()
         if role == "assistant" and not last_answer_summary and content:
             last_answer_summary = content[:200]
+            last_assistant_claim = _extract_claim_summary(content)
         elif role == "user" and not last_user_query and content:
             last_user_query = content[:200]
+            last_user_goal = _extract_goal_summary(content)
         if item.get("retrieval_steps") and not last_retrieval_summary:
             last_retrieval_summary = "has_retrieval_steps"
         if last_user_query and last_answer_summary and last_retrieval_summary:
             break
     return ModelContext(
         last_user_query=last_user_query,
+        last_user_goal=last_user_goal,
         last_answer_summary=last_answer_summary,
+        last_assistant_claim=last_assistant_claim,
         last_retrieval_summary=last_retrieval_summary,
     )
 
@@ -189,6 +244,7 @@ def _build_rule_evidence(intent_input: IntentInput, history: list[dict[str, Any]
     )
     follow_up_requested = _matches(text, FOLLOW_UP_PATTERNS)
     multi_question = _is_multi_question(text)
+    parallel_subtasks = _looks_like_parallel_subtasks(text)
     qa_signal_detected = (
         domain_qa
         or judgment_qa
@@ -199,6 +255,7 @@ def _build_rule_evidence(intent_input: IntentInput, history: list[dict[str, Any]
         or _question_phrase_count(text) >= 1
     )
     long_complex_fallback = _should_force_complex_qa(text, qa_signal_detected)
+    staged_task = _looks_like_staged_task(text)
     complex_task = _matches(text, COMPLEX_TASK_PATTERNS) or _looks_like_design_review_query(text) or long_complex_fallback
 
     if domain_qa or judgment_qa or generic_qa:
@@ -256,6 +313,12 @@ def _build_rule_evidence(intent_input: IntentInput, history: list[dict[str, Any]
     if multi_question:
         _append_signal(task_signals, "multi_question")
         matched_rules.append(_rule("task.enumerated_questions", "multi_question", "high", text[:80]))
+    if parallel_subtasks:
+        _append_signal(task_signals, "parallel_subtasks")
+        matched_rules.append(_rule("task.parallel_subtasks", "parallel_subtasks", "medium", text[:80]))
+    if staged_task:
+        _append_signal(task_signals, "staged")
+        matched_rules.append(_rule("task.staged.request", "staged", "medium", text[:80]))
     if complex_task:
         _append_signal(task_signals, "complex")
         matched_rules.append(_rule("task.complex.request", "complex", "medium", text[:80]))
@@ -317,6 +380,8 @@ def _build_rule_evidence(intent_input: IntentInput, history: list[dict[str, Any]
     task_candidates = _build_task_candidates(
         text=text,
         multi_question=multi_question,
+        parallel_subtasks=parallel_subtasks,
+        staged_task=staged_task,
         complex_task=complex_task,
         long_complex_fallback=long_complex_fallback,
     )
@@ -381,20 +446,55 @@ def _build_task_candidates(
     *,
     text: str,
     multi_question: bool,
+    parallel_subtasks: bool,
+    staged_task: bool,
     complex_task: bool,
     long_complex_fallback: bool,
 ) -> list[TaskCandidate]:
     candidates: list[TaskCandidate] = []
     if multi_question:
-        candidates.append(TaskCandidate(complexity="compound", shape="multi_question", score=0.9))
+        candidates.append(
+            TaskCandidate(
+                complexity="compound",
+                shape="multi_question",
+                score=0.9,
+                topology="parallel_queries",
+            )
+        )
+    if parallel_subtasks:
+        candidates.append(
+            TaskCandidate(
+                complexity="compound",
+                shape="multi_question",
+                score=0.85,
+                topology="parallel_subtasks",
+            )
+        )
+    if staged_task:
+        shape = _infer_complex_shape(text)
+        candidates.append(
+            TaskCandidate(
+                complexity="complex",
+                shape=("verify" if shape == "single_question" else shape),
+                score=0.88,
+                topology="staged",
+            )
+        )
     if complex_task:
         shape = _infer_complex_shape(text)
-        candidates.append(TaskCandidate(complexity="complex", shape=shape, score=0.8))
+        candidates.append(TaskCandidate(complexity="complex", shape=shape, score=0.8, topology="single"))
     elif long_complex_fallback:
         shape = _infer_complex_shape(text)
-        candidates.append(TaskCandidate(complexity="complex", shape=("summarize" if shape == "mixed" else shape), score=0.7))
+        candidates.append(
+            TaskCandidate(
+                complexity="complex",
+                shape=("summarize" if shape == "mixed" else shape),
+                score=0.7,
+                topology="single",
+            )
+        )
     if not candidates:
-        candidates.append(TaskCandidate(complexity="simple", shape="single_question", score=0.8))
+        candidates.append(TaskCandidate(complexity="simple", shape="single_question", score=0.8, topology="single"))
     return candidates
 
 
@@ -682,6 +782,36 @@ def _looks_like_design_review_query(text: str) -> bool:
         re.search(r"^\s*1\.", text)
         and re.search(r"(如何|为什么|评估|设计|收敛|每一层|走一遍)", text, re.IGNORECASE)
     )
+
+
+def _looks_like_parallel_subtasks(text: str) -> bool:
+    if _matches(text, PARALLEL_SUBTASK_PATTERNS):
+        return True
+    return bool(
+        re.search(r"分别.{0,20}(说明|列出|给出|整理)", text, re.IGNORECASE)
+        or re.search(r"从.{0,12}(方面|维度|角度).{0,20}(说明|分析|展开)", text, re.IGNORECASE)
+    )
+
+
+def _looks_like_staged_task(text: str) -> bool:
+    if _looks_like_answer_structure_request(text):
+        return False
+    return _matches(text, STAGED_TASK_PATTERNS)
+
+
+def _looks_like_answer_structure_request(text: str) -> bool:
+    return bool(
+        re.search(r"先说.{0,20}再说.{0,20}再说", text, re.IGNORECASE)
+        and re.search(r"(是否成立|依据|风险|结论|争议点|建议)", text, re.IGNORECASE)
+    )
+
+
+def _extract_goal_summary(content: str) -> str:
+    return _normalize(content)[:120]
+
+
+def _extract_claim_summary(content: str) -> str:
+    return _normalize(content)[:120]
 
 
 def _history_last_main_intent(history: list[dict[str, Any]]) -> str | None:

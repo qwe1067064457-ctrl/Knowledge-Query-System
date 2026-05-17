@@ -6,6 +6,7 @@ from typing import Any, Literal
 
 MainIntent = Literal["qa", "chat", "system", "unsupported"]
 TaskComplexity = Literal["simple", "compound", "complex"]
+TaskTopology = Literal["single", "parallel_queries", "parallel_subtasks", "staged"]
 TaskShape = Literal[
     "single_question",
     "multi_question",
@@ -46,7 +47,9 @@ class ContextState:
 @dataclass(frozen=True)
 class ModelContext:
     last_user_query: str = ""
+    last_user_goal: str = ""
     last_answer_summary: str = ""
+    last_assistant_claim: str = ""
     last_retrieval_summary: str = ""
 
     def to_dict(self) -> dict[str, Any]:
@@ -94,6 +97,7 @@ class TaskCandidate:
     complexity: TaskComplexity
     shape: TaskShape
     score: float
+    topology: TaskTopology = "single"
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -349,6 +353,19 @@ class IntentEvidence:
             "rule_confidence": self.rule_confidence.to_dict() if self.rule_confidence else None,
         }
 
+    def to_v2_dict(self) -> dict[str, Any]:
+        return {
+            "classifier_mode": self.classifier_mode,
+            "matched_rules": [item.to_dict() for item in self.matched_rules],
+            "signal_buckets": self.signal_buckets.to_dict(),
+            "unsupported_signals": dict(self.unsupported_signals),
+            "context_signals": self.context_signals.to_dict(),
+            "candidate_intents": [item.to_dict() for item in self.candidate_intents],
+            "task_candidates": [item.to_dict() for item in self.task_candidates],
+            "model_result": self.model_result.to_dict() if self.model_result else None,
+            "rule_confidence": self.rule_confidence.to_dict() if self.rule_confidence else None,
+        }
+
     def to_grouped_dict(self) -> dict[str, Any]:
         return {
             "meta": self.meta.to_dict(),
@@ -363,11 +380,19 @@ class IntentEvidence:
 class ResolvedTask:
     complexity: TaskComplexity
     shape: TaskShape
-    needs_query_decomposition: bool = False
-    needs_agent_planning: bool = False
+    topology: TaskTopology = "single"
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+    def to_v1_dict(self) -> dict[str, Any]:
+        return {
+            "complexity": self.complexity,
+            "shape": self.shape,
+            "needs_query_decomposition": self.complexity == "compound"
+            and self.topology in {"parallel_queries", "parallel_subtasks"},
+            "needs_agent_planning": self.complexity == "complex",
+        }
 
 
 @dataclass(frozen=True)
@@ -429,6 +454,15 @@ class ResolvedIntent:
             "main_intent": self.main_intent,
             "modifiers": self.modifiers.to_dict(),
             "task": self.task.to_dict(),
+            "context_dependency": self.context_dependency,
+            "decision": self.decision.to_dict(),
+        }
+
+    def to_v1_dict(self) -> dict[str, Any]:
+        return {
+            "main_intent": self.main_intent,
+            "modifiers": self.modifiers.to_dict(),
+            "task": self.task.to_v1_dict(),
             "context_dependency": self.context_dependency,
             "decision": self.decision.to_dict(),
         }

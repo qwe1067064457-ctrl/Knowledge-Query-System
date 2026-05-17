@@ -14,6 +14,7 @@ if str(BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(BACKEND_DIR))
 
 from intent import classify_intent  # noqa: E402
+from intent.task_compat import infer_topology_from_legacy_task  # noqa: E402
 
 
 OVERALL_KEYS = (
@@ -25,6 +26,7 @@ OVERALL_KEYS = (
     "resolved_main_intent",
     "resolved_complexity",
     "resolved_shape",
+    "resolved_topology",
     "resolved_context",
     "control_route",
     "control_mode",
@@ -130,6 +132,7 @@ def evaluate_dataset(
             "resolved_main_intent": analysis.resolved.main_intent == gold["resolved"]["main_intent"],
             "resolved_complexity": analysis.resolved.task.complexity == gold["resolved"]["task"]["complexity"],
             "resolved_shape": analysis.resolved.task.shape == gold["resolved"]["task"]["shape"],
+            "resolved_topology": analysis.resolved.task.topology == _expected_topology(gold["resolved"]["task"]),
             "resolved_context": analysis.resolved.context_dependency == gold["resolved"]["context_dependency"],
             "control_route": analysis.control.route == gold["control"]["route"],
             "control_mode": analysis.control.mode == gold["control"]["mode"],
@@ -285,6 +288,10 @@ def _dict_equal(expected: dict[str, Any], actual: dict[str, Any]) -> bool:
         if actual.get(key) != expected_value:
             return False
     return True
+
+
+def _expected_topology(task_payload: dict[str, Any]) -> str:
+    return infer_topology_from_legacy_task(task_payload)
 
 
 def main() -> int:
