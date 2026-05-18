@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from intent import calculate_rule_confidence
-from intent.types import ContextState, RuleMatch
+from intent.types import ContextSignals, ContextState, RuleMatch
 
 
 def _rule(rule_id: str, signal: str, strength: str, score: float) -> RuleMatch:
@@ -19,15 +19,9 @@ def test_single_high_rule_keeps_high_confidence() -> None:
         matched_rules=(
             _rule("challenge.disagree", "challenge", "high", 0.9),
         ),
-        raw_signals=("challenge",),
+        active_signals=("challenge",),
         context_state=ContextState(has_history=True, has_previous_answer=True),
-        dependency_signals={
-            "none": False,
-            "history_reference": False,
-            "previous_answer": True,
-            "previous_retrieval": False,
-            "ambiguous": False,
-        },
+        context_signals=ContextSignals(needs_previous_answer=True),
     )
 
     assert confidence.final_signal == "challenge"
@@ -44,15 +38,9 @@ def test_same_signal_gets_support_bonus() -> None:
             _rule("challenge.disagree", "challenge", "high", 0.9),
             _rule("challenge.confirmation", "challenge", "medium", 0.6),
         ),
-        raw_signals=("challenge",),
+        active_signals=("challenge",),
         context_state=ContextState(has_history=True, has_previous_answer=True),
-        dependency_signals={
-            "none": False,
-            "history_reference": False,
-            "previous_answer": True,
-            "previous_retrieval": False,
-            "ambiguous": False,
-        },
+        context_signals=ContextSignals(needs_previous_answer=True),
     )
 
     signal_score = confidence.signal_confidences[0]
@@ -66,15 +54,9 @@ def test_conflict_penalty_reduces_signal_score() -> None:
             _rule("intent.qa.domain", "qa", "medium", 0.6),
             _rule("intent.chat.greeting", "chat", "high", 0.9),
         ),
-        raw_signals=("qa", "chat"),
+        active_signals=("qa", "chat"),
         context_state=ContextState(),
-        dependency_signals={
-            "none": True,
-            "history_reference": False,
-            "previous_answer": False,
-            "previous_retrieval": False,
-            "ambiguous": False,
-        },
+        context_signals=ContextSignals(),
     )
 
     scores = {item.signal: item for item in confidence.signal_confidences}
@@ -87,20 +69,18 @@ def test_missing_context_reduces_follow_up_confidence() -> None:
         matched_rules=(
             _rule("context.follow_up.reference", "follow_up", "medium", 0.6),
         ),
-        raw_signals=("follow_up", "needs_clarification"),
+        active_signals=("follow_up", "clarify_hint"),
         context_state=ContextState(has_history=False, has_previous_answer=False),
-        dependency_signals={
-            "none": False,
-            "history_reference": False,
-            "previous_answer": False,
-            "previous_retrieval": False,
-            "ambiguous": True,
-        },
+        context_signals=ContextSignals(
+            clarify_hint=True,
+            ambiguity_states=("history_dependent",),
+            missing_context_types=("missing_history_target",),
+        ),
     )
 
-    signal_score = confidence.signal_confidences[0]
-    assert signal_score.context_adjustment < 0
-    assert signal_score.level in {"low", "medium"}
+    scores = {item.signal: item for item in confidence.signal_confidences}
+    assert scores["follow_up"].context_adjustment < 0
+    assert "clarify_hint" not in scores
 
 
 def test_explanation_lists_supporting_rules_and_context_term() -> None:
@@ -109,15 +89,9 @@ def test_explanation_lists_supporting_rules_and_context_term() -> None:
             _rule("challenge.disagree", "challenge", "high", 0.9),
             _rule("challenge.confirmation", "challenge", "medium", 0.6),
         ),
-        raw_signals=("challenge",),
+        active_signals=("challenge",),
         context_state=ContextState(has_history=True, has_previous_answer=True),
-        dependency_signals={
-            "none": False,
-            "history_reference": False,
-            "previous_answer": True,
-            "previous_retrieval": False,
-            "ambiguous": False,
-        },
+        context_signals=ContextSignals(needs_previous_answer=True),
     )
 
     explanation = confidence.explanation[0]
@@ -131,15 +105,9 @@ def test_soft_doubt_gets_smaller_context_bonus_than_hard_challenge() -> None:
         matched_rules=(
             _rule("challenge.soft_doubt", "soft_doubt", "low", 0.3),
         ),
-        raw_signals=("soft_doubt",),
+        active_signals=("soft_doubt",),
         context_state=ContextState(has_history=True, has_previous_answer=True),
-        dependency_signals={
-            "none": False,
-            "history_reference": False,
-            "previous_answer": True,
-            "previous_retrieval": False,
-            "ambiguous": False,
-        },
+        context_signals=ContextSignals(needs_previous_answer=True),
     )
 
     signal_score = confidence.signal_confidences[0]

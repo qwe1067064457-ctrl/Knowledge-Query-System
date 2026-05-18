@@ -14,33 +14,33 @@ CONFLICT_PENALTIES: dict[str, dict[str, float]] = {
     "qa": {"chat": 0.2, "system": 0.15, "unsupported": 0.2},
     "chat": {"qa": 0.2, "system": 0.15, "unsupported": 0.2},
     "system": {"qa": 0.15, "chat": 0.15},
-    "follow_up": {"needs_clarification": 0.1},
-    "challenge": {"needs_clarification": 0.2},
-    "soft_doubt": {"needs_clarification": 0.1},
-    "ask_source": {"needs_clarification": 0.1},
+    "follow_up": {"clarify_hint": 0.1},
+    "challenge": {"clarify_hint": 0.2},
+    "soft_doubt": {"clarify_hint": 0.1},
+    "ask_source": {"clarify_hint": 0.1},
 }
 
 
 def calculate_rule_confidence(
     *,
     matched_rules: tuple[RuleMatch, ...],
-    raw_signals: tuple[str, ...],
+    active_signals: tuple[str, ...],
     context_state: ContextState,
-    dependency_signals: dict[str, bool] | ContextSignals,
+    context_signals: ContextSignals,
 ) -> RuleConfidence:
     grouped: dict[str, list[RuleMatch]] = defaultdict(list)
     for match in matched_rules:
         grouped[match.signal].append(match)
 
     signal_confidences: list[SignalConfidence] = []
-    active_signals = set(raw_signals)
+    active_signals_set = set(active_signals)
 
     for signal, rules in grouped.items():
         scores = [rule.score for rule in rules]
         base_score = max(scores) if scores else 0.0
         support_bonus = _support_bonus(len(rules))
-        conflict_penalty = _conflict_penalty(signal, active_signals)
-        context_adjustment = _context_adjustment(signal, rules, context_state, dependency_signals)
+        conflict_penalty = _conflict_penalty(signal, active_signals_set)
+        context_adjustment = _context_adjustment(signal, rules, context_state, context_signals)
         final_score = _clamp_score(base_score + support_bonus - conflict_penalty + context_adjustment)
         signal_confidences.append(
             SignalConfidence(
@@ -88,7 +88,7 @@ def _context_adjustment(
     signal: str,
     rules: list[RuleMatch],
     context_state: ContextState,
-    dependency_signals: dict[str, bool] | ContextSignals,
+    context_signals: ContextSignals,
 ) -> float:
     if signal == "challenge":
         only_soft_doubt = bool(rules) and all(rule.rule_id == "challenge.soft_doubt" for rule in rules)
@@ -100,35 +100,21 @@ def _context_adjustment(
     if signal == "ask_source":
         if context_state.has_previous_answer:
             return 0.05
-        if _context_flag(dependency_signals, "ambiguous"):
+        if context_signals.ambiguous:
             return -0.2
         return 0.0
     if signal == "follow_up":
         if context_state.has_history:
             bonus = 0.05
-            if context_state.last_main_intent == "qa" or _context_flag(dependency_signals, "history_reference"):
+            if context_state.last_main_intent == "qa" or context_signals.history_reference:
                 bonus += 0.05
             return bonus
         return -0.2
-    if signal == "needs_clarification":
-        return 0.1 if _context_flag(dependency_signals, "ambiguous") else 0.0
+    if signal == "clarify_hint":
+        return 0.1 if context_signals.ambiguous else 0.0
     if signal == "qa":
         return 0.05 if context_state.last_main_intent == "qa" else 0.0
     return 0.0
-
-
-def _context_flag(dependency_signals: dict[str, bool] | ContextSignals, key: str) -> bool:
-    if isinstance(dependency_signals, dict):
-        return bool(dependency_signals.get(key))
-
-    alias_map = {
-        "history_reference": dependency_signals.has_reference,
-        "previous_answer": dependency_signals.previous_answer,
-        "previous_retrieval": dependency_signals.previous_retrieval,
-        "ambiguous": dependency_signals.ambiguous or dependency_signals.has_implicit_history,
-        "none": dependency_signals.none,
-    }
-    return bool(alias_map.get(key, False))
 
 
 def _level_for_score(score: float) -> Strength:

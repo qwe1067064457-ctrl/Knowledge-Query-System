@@ -6,6 +6,7 @@ from typing import Any, Literal
 
 MainIntent = Literal["qa", "chat", "system", "unsupported"]
 TaskComplexity = Literal["simple", "compound", "complex"]
+TaskTopology = Literal["single", "parallel_queries", "parallel_subtasks", "staged"]
 TaskShape = Literal[
     "single_question",
     "multi_question",
@@ -23,6 +24,7 @@ ContextDependency = Literal[
     "previous_retrieval",
     "ambiguous",
 ]
+AnswerShapeHint = Literal["none", "structured_sections"]
 Route = Literal["rag", "chat", "direct", "agent", "reject"]
 Mode = Literal["normal", "challenge", "capability", "clarify"]
 PlanningLevel = Literal["none", "light", "full"]
@@ -46,7 +48,9 @@ class ContextState:
 @dataclass(frozen=True)
 class ModelContext:
     last_user_query: str = ""
+    last_user_goal: str = ""
     last_answer_summary: str = ""
+    last_assistant_claim: str = ""
     last_retrieval_summary: str = ""
 
     def to_dict(self) -> dict[str, Any]:
@@ -94,6 +98,7 @@ class TaskCandidate:
     complexity: TaskComplexity
     shape: TaskShape
     score: float
+    topology: TaskTopology = "single"
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -106,7 +111,6 @@ class IntentModifiers:
     soft_doubt: bool = False
     ask_source: bool = False
     ask_capability: bool = False
-    needs_clarification: bool = False
     out_of_scope: bool = False
 
     def to_dict(self) -> dict[str, bool]:
@@ -137,26 +141,67 @@ class ModelResult:
 
 @dataclass(frozen=True)
 class ContextSignals:
-    has_reference: bool = False
-    has_previous_intent: bool = False
-    has_implicit_history: bool = False
-    is_direct_followup: bool = False
-    previous_answer: bool = False
+    history_reference: bool = False
+    needs_previous_answer: bool = False
     previous_retrieval: bool = False
-    ambiguous: bool = False
-    none: bool = False
+    clarify_hint: bool = False
+    ambiguity_states: tuple[str, ...] = ()
+    missing_context_types: tuple[str, ...] = ()
+
+    @property
+    def has_reference(self) -> bool:
+        return self.history_reference
+
+    @property
+    def previous_answer(self) -> bool:
+        return self.needs_previous_answer
+
+    @property
+    def ambiguous(self) -> bool:
+        return bool(self.ambiguity_states)
+
+    @property
+    def has_previous_intent(self) -> bool:
+        return self.history_reference or self.needs_previous_answer or self.previous_retrieval
+
+    @property
+    def has_implicit_history(self) -> bool:
+        return "history_dependent" in self.ambiguity_states
+
+    @property
+    def is_direct_followup(self) -> bool:
+        return self.history_reference
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            "none": self.none,
-            "history_reference": self.has_reference,
+            "history_reference": self.history_reference,
+            "needs_previous_answer": self.needs_previous_answer,
             "previous_answer": self.previous_answer,
             "previous_retrieval": self.previous_retrieval,
+            "clarify_hint": self.clarify_hint,
+            "ambiguity_states": list(self.ambiguity_states),
+            "missing_context_types": list(self.missing_context_types),
             "ambiguous": self.ambiguous,
             "has_reference": self.has_reference,
             "has_previous_intent": self.has_previous_intent,
             "has_implicit_history": self.has_implicit_history,
             "is_direct_followup": self.is_direct_followup,
+        }
+
+
+@dataclass(frozen=True)
+class AmbiguityState:
+    clarify_hint: bool = False
+    needs_previous_answer: bool = False
+    ambiguity_states: tuple[str, ...] = ()
+    missing_context_types: tuple[str, ...] = ()
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "clarify_hint": self.clarify_hint,
+            "needs_previous_answer": self.needs_previous_answer,
+            "ambiguity_states": list(self.ambiguity_states),
+            "missing_context_types": list(self.missing_context_types),
         }
 
 
@@ -215,6 +260,9 @@ class SignalBuckets:
             "safety": list(self.safety),
         }
 
+    def to_v2_dict(self) -> dict[str, Any]:
+        return self.to_dict()
+
 
 @dataclass(frozen=True)
 class EvidenceMeta:
@@ -234,50 +282,48 @@ class EvidenceMeta:
 
 @dataclass(frozen=True)
 class IntentEvidenceView:
-    raw_signals: tuple[str, ...] = ()
+    signals: tuple[str, ...] = ()
     candidate_intents: tuple[CandidateIntent, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            "raw_signals": list(self.raw_signals),
+            "signals": list(self.signals),
             "candidate_intents": [item.to_dict() for item in self.candidate_intents],
         }
 
 
 @dataclass(frozen=True)
 class TaskEvidenceView:
-    raw_signals: tuple[str, ...] = ()
+    signals: tuple[str, ...] = ()
     task_candidates: tuple[TaskCandidate, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            "raw_signals": list(self.raw_signals),
+            "signals": list(self.signals),
             "task_candidates": [item.to_dict() for item in self.task_candidates],
         }
 
 
 @dataclass(frozen=True)
 class ContextEvidenceView:
-    raw_signals: tuple[str, ...] = ()
-    dependency_signals: dict[str, bool] = field(default_factory=dict)
+    signals: tuple[str, ...] = ()
     context_signals: ContextSignals = field(default_factory=ContextSignals)
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            "raw_signals": list(self.raw_signals),
-            "dependency_signals": dict(self.dependency_signals),
+            "signals": list(self.signals),
             "context_signals": self.context_signals.to_dict(),
         }
 
 
 @dataclass(frozen=True)
 class SafetyEvidenceView:
-    raw_signals: tuple[str, ...] = ()
+    signals: tuple[str, ...] = ()
     unsupported_signals: dict[str, bool] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            "raw_signals": list(self.raw_signals),
+            "signals": list(self.signals),
             "unsupported_signals": dict(self.unsupported_signals),
         }
 
@@ -286,10 +332,8 @@ class SafetyEvidenceView:
 class IntentEvidence:
     classifier_mode: ClassifierMode
     matched_rules: tuple[RuleMatch, ...] = ()
-    raw_signals: tuple[str, ...] = ()
     signal_buckets: SignalBuckets = field(default_factory=SignalBuckets)
     unsupported_signals: dict[str, bool] = field(default_factory=dict)
-    dependency_signals: dict[str, bool] = field(default_factory=dict)
     context_signals: ContextSignals = field(default_factory=ContextSignals)
     candidate_intents: tuple[CandidateIntent, ...] = ()
     task_candidates: tuple[TaskCandidate, ...] = ()
@@ -308,29 +352,28 @@ class IntentEvidence:
     @property
     def intent_evidence(self) -> IntentEvidenceView:
         return IntentEvidenceView(
-            raw_signals=self.signal_buckets.intent,
+            signals=self.signal_buckets.intent,
             candidate_intents=self.candidate_intents,
         )
 
     @property
     def task_evidence(self) -> TaskEvidenceView:
         return TaskEvidenceView(
-            raw_signals=self.signal_buckets.task,
+            signals=self.signal_buckets.task,
             task_candidates=self.task_candidates,
         )
 
     @property
     def context_evidence(self) -> ContextEvidenceView:
         return ContextEvidenceView(
-            raw_signals=self.signal_buckets.context,
-            dependency_signals=self.dependency_signals,
+            signals=self.signal_buckets.context,
             context_signals=self.context_signals,
         )
 
     @property
     def safety_evidence(self) -> SafetyEvidenceView:
         return SafetyEvidenceView(
-            raw_signals=self.signal_buckets.safety,
+            signals=self.signal_buckets.safety,
             unsupported_signals=self.unsupported_signals,
         )
 
@@ -338,10 +381,21 @@ class IntentEvidence:
         return {
             "classifier_mode": self.classifier_mode,
             "matched_rules": [item.to_dict() for item in self.matched_rules],
-            "raw_signals": list(self.raw_signals),
             "signal_buckets": self.signal_buckets.to_dict(),
             "unsupported_signals": dict(self.unsupported_signals),
-            "dependency_signals": dict(self.dependency_signals),
+            "context_signals": self.context_signals.to_dict(),
+            "candidate_intents": [item.to_dict() for item in self.candidate_intents],
+            "task_candidates": [item.to_dict() for item in self.task_candidates],
+            "model_result": self.model_result.to_dict() if self.model_result else None,
+            "rule_confidence": self.rule_confidence.to_dict() if self.rule_confidence else None,
+        }
+
+    def to_v2_dict(self) -> dict[str, Any]:
+        return {
+            "classifier_mode": self.classifier_mode,
+            "matched_rules": [item.to_dict() for item in self.matched_rules],
+            "signal_buckets": self.signal_buckets.to_dict(),
+            "unsupported_signals": dict(self.unsupported_signals),
             "context_signals": self.context_signals.to_dict(),
             "candidate_intents": [item.to_dict() for item in self.candidate_intents],
             "task_candidates": [item.to_dict() for item in self.task_candidates],
@@ -363,11 +417,20 @@ class IntentEvidence:
 class ResolvedTask:
     complexity: TaskComplexity
     shape: TaskShape
-    needs_query_decomposition: bool = False
-    needs_agent_planning: bool = False
+    topology: TaskTopology = "single"
+    answer_shape_hint: AnswerShapeHint = "none"
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+    def to_v1_dict(self) -> dict[str, Any]:
+        return {
+            "complexity": self.complexity,
+            "shape": self.shape,
+            "needs_query_decomposition": self.complexity == "compound"
+            and self.topology in {"parallel_queries", "parallel_subtasks"},
+            "needs_agent_planning": self.complexity == "complex",
+        }
 
 
 @dataclass(frozen=True)
@@ -408,6 +471,7 @@ class ResolvedIntent:
         default_factory=lambda: ResolvedTask(complexity="simple", shape="none")
     )
     context_dependency: ContextDependency = "none"
+    ambiguity_state: AmbiguityState = field(default_factory=AmbiguityState)
     decision: DecisionTrace = field(
         default_factory=lambda: DecisionTrace(
             strength="low",
@@ -430,6 +494,17 @@ class ResolvedIntent:
             "modifiers": self.modifiers.to_dict(),
             "task": self.task.to_dict(),
             "context_dependency": self.context_dependency,
+            "ambiguity_state": self.ambiguity_state.to_dict(),
+            "decision": self.decision.to_dict(),
+        }
+
+    def to_v1_dict(self) -> dict[str, Any]:
+        return {
+            "main_intent": self.main_intent,
+            "modifiers": self.modifiers.to_dict(),
+            "task": self.task.to_v1_dict(),
+            "context_dependency": self.context_dependency,
+            "ambiguity_state": self.ambiguity_state.to_dict(),
             "decision": self.decision.to_dict(),
         }
 
@@ -438,6 +513,7 @@ class ResolvedIntent:
             "intent": self.intent.to_dict(),
             "task": self.task.to_dict(),
             "context": self.context.to_dict(),
+            "ambiguity": self.ambiguity_state.to_dict(),
             "decision": self.decision.to_dict(),
         }
 

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from intent import build_control_signal
-from intent.types import DecisionTrace, IntentModifiers, ResolvedIntent, ResolvedTask
+from intent.types import AmbiguityState, DecisionTrace, IntentModifiers, ResolvedIntent, ResolvedTask
 
 
 def _resolved(
@@ -10,12 +10,14 @@ def _resolved(
     modifiers: IntentModifiers | None = None,
     task: ResolvedTask | None = None,
     context_dependency: str = "none",
+    ambiguity_state: AmbiguityState | None = None,
 ) -> ResolvedIntent:
     return ResolvedIntent(
         main_intent=main_intent,
         modifiers=modifiers or IntentModifiers(),
         task=task or ResolvedTask(complexity="simple", shape="single_question"),
         context_dependency=context_dependency,
+        ambiguity_state=ambiguity_state or AmbiguityState(),
         decision=DecisionTrace(strength="high", source="rule", reason="test"),
     )
 
@@ -59,7 +61,7 @@ def test_system_routes_to_direct_capability() -> None:
 
 def test_complex_qa_routes_to_agent() -> None:
     signal = build_control_signal(
-        _resolved(task=ResolvedTask(complexity="complex", shape="mixed", needs_agent_planning=True))
+        _resolved(task=ResolvedTask(complexity="complex", shape="mixed", topology="staged"))
     )
 
     assert signal.route == "agent"
@@ -70,7 +72,7 @@ def test_complex_qa_routes_to_agent() -> None:
 
 def test_complex_verify_uses_light_planning_without_explicit_planner() -> None:
     signal = build_control_signal(
-        _resolved(task=ResolvedTask(complexity="complex", shape="verify", needs_agent_planning=True))
+        _resolved(task=ResolvedTask(complexity="complex", shape="verify", topology="single"))
     )
 
     assert signal.route == "agent"
@@ -81,8 +83,12 @@ def test_complex_verify_uses_light_planning_without_explicit_planner() -> None:
 def test_complex_verify_with_clarification_flag_is_rescued_to_agent() -> None:
     signal = build_control_signal(
         _resolved(
-            modifiers=IntentModifiers(needs_clarification=True),
-            task=ResolvedTask(complexity="complex", shape="verify", needs_agent_planning=True),
+            task=ResolvedTask(complexity="complex", shape="verify", topology="single"),
+            ambiguity_state=AmbiguityState(
+                clarify_hint=True,
+                ambiguity_states=("history_dependent",),
+                missing_context_types=("missing_history_target",),
+            ),
         )
     )
 
@@ -94,7 +100,7 @@ def test_complex_verify_with_clarification_flag_is_rescued_to_agent() -> None:
 
 def test_complex_summarize_stays_agent_without_planner() -> None:
     signal = build_control_signal(
-        _resolved(task=ResolvedTask(complexity="complex", shape="summarize", needs_agent_planning=True))
+        _resolved(task=ResolvedTask(complexity="complex", shape="summarize", topology="single"))
     )
 
     assert signal.route == "agent"
@@ -108,7 +114,7 @@ def test_compound_multi_question_routes_to_rag_with_decomposition() -> None:
             task=ResolvedTask(
                 complexity="compound",
                 shape="multi_question",
-                needs_query_decomposition=True,
+                topology="parallel_queries",
             )
         )
     )

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from intent.task_compat import build_task_compat
 from intent.types import ControlSignal, PlanningLevel, ResolvedIntent, ResolvedTask
 
 
@@ -10,6 +11,7 @@ def build_control_signal(
 ) -> ControlSignal:
     modifiers = resolved.modifiers
     task = resolved.task
+    compat = build_task_compat(task)
 
     if resolved.main_intent == "unsupported" or modifiers.out_of_scope:
         return ControlSignal(route="reject", mode="clarify")
@@ -26,7 +28,7 @@ def build_control_signal(
             planning_level=planning_level,
         )
 
-    if modifiers.needs_clarification:
+    if resolved.ambiguity_state.clarify_hint:
         return ControlSignal(route="direct", mode="clarify")
 
     if resolved.main_intent == "system" or modifiers.ask_capability:
@@ -46,7 +48,7 @@ def build_control_signal(
             planning_level="none",
         )
 
-    if task.needs_agent_planning:
+    if compat.needs_agent_planning:
         planning_level = _planning_level_for_task(task)
         return ControlSignal(
             route="agent",
@@ -64,7 +66,7 @@ def build_control_signal(
         rewrite=modifiers.follow_up or resolved.context_dependency != "none",
         force_citation=force_qa_citation or modifiers.ask_source,
         use_planner=False,
-        decompose_query=task.needs_query_decomposition,
+        decompose_query=compat.needs_query_decomposition,
         planning_level="none",
     )
 
@@ -80,7 +82,7 @@ def _planning_level_for_task(task: ResolvedTask) -> PlanningLevel:
 
 
 def _should_rescue_complex_qa_route(resolved: ResolvedIntent) -> bool:
-    if resolved.main_intent != "qa" or not resolved.modifiers.needs_clarification:
+    if resolved.main_intent != "qa" or not resolved.ambiguity_state.clarify_hint:
         return False
     task = resolved.task
     return task.complexity == "complex" and task.shape in {"verify", "compare", "mixed"}

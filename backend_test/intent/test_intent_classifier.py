@@ -47,8 +47,10 @@ def test_challenge_requires_previous_assistant_answer() -> None:
 def test_challenge_without_history_needs_clarification() -> None:
     result = classify_intent("你确定吗？")
 
-    assert result.resolved.modifiers.challenge is False
-    assert result.resolved.modifiers.needs_clarification is True
+    assert result.resolved.modifiers.challenge is True
+    assert result.resolved.ambiguity_state.clarify_hint is True
+    assert result.resolved.ambiguity_state.ambiguity_states == ("history_dependent",)
+    assert result.resolved.ambiguity_state.missing_context_types == ("missing_history_target",)
     assert result.control.route == "direct"
     assert result.control.mode == "clarify"
 
@@ -70,10 +72,29 @@ def test_ask_source_is_modifier_and_keeps_qa_with_history() -> None:
     assert result.resolved.context_dependency == "previous_answer"
 
 
+def test_ask_source_without_history_becomes_clarify_candidate() -> None:
+    result = classify_intent("依据是什么？")
+
+    assert result.resolved.main_intent == "qa"
+    assert result.resolved.modifiers.ask_source is True
+    assert result.resolved.ambiguity_state.clarify_hint is True
+    assert result.resolved.ambiguity_state.missing_context_types == ("missing_reference_target",)
+    assert result.control.route == "direct"
+
+
 def test_ask_capability_routes_to_system() -> None:
     result = classify_intent("你能做什么？")
 
     assert result.resolved.main_intent == "system"
+    assert result.control.route == "direct"
+    assert result.control.mode == "capability"
+
+
+def test_capability_support_question_stays_system_not_chat() -> None:
+    result = classify_intent("你支持把当前 intent 四层样本导出成 JSONL 吗？我想先确认你的能力范围。")
+
+    assert result.resolved.main_intent == "system"
+    assert result.resolved.modifiers.ask_capability is True
     assert result.control.route == "direct"
     assert result.control.mode == "capability"
 
@@ -84,6 +105,22 @@ def test_out_of_scope_file_operation_is_unsupported() -> None:
     assert result.resolved.main_intent == "unsupported"
     assert result.resolved.modifiers.out_of_scope is True
     assert result.evidence.unsupported_signals["file_delete_request"] is True
+    assert result.control.route == "reject"
+
+
+def test_unsupported_production_reset_request_is_not_chat() -> None:
+    result = classify_intent("帮我登录生产服务器，把所有租户共享向量库直接重置并覆盖为最新版本。")
+
+    assert result.resolved.main_intent == "unsupported"
+    assert result.resolved.modifiers.out_of_scope is True
+    assert result.control.route == "reject"
+
+
+def test_unsupported_delete_request_is_not_chat() -> None:
+    result = classify_intent("你帮我登录生产环境，把那批租户数据批量删掉。")
+
+    assert result.resolved.main_intent == "unsupported"
+    assert result.resolved.modifiers.out_of_scope is True
     assert result.control.route == "reject"
 
 
@@ -102,6 +139,7 @@ def test_multi_question_becomes_compound_and_decomposable() -> None:
     assert result.resolved.main_intent == "qa"
     assert result.resolved.task.complexity == "compound"
     assert result.resolved.task.shape == "multi_question"
+    assert result.resolved.task.topology == "parallel_queries"
     assert result.control.decompose_query is True
 
 
@@ -109,8 +147,9 @@ def test_sequence_words_count_as_multi_question() -> None:
     result = classify_intent("第一，试用期最长多久？第二，公司解除合同要赔吗？")
 
     assert result.resolved.main_intent == "qa"
-    assert result.resolved.task.complexity in {"compound", "complex"}
-    assert result.resolved.task.shape in {"multi_question", "mixed", "verify"}
+    assert result.resolved.task.complexity == "compound"
+    assert result.resolved.task.shape == "multi_question"
+    assert result.resolved.task.topology == "parallel_queries"
 
 
 def test_complex_query_uses_agent_route() -> None:
@@ -140,7 +179,7 @@ def test_judgment_style_fuzzy_qa_routes_to_clarify_not_chat() -> None:
     result = classify_intent("这样算不算医疗事故？")
 
     assert result.resolved.main_intent == "qa"
-    assert result.resolved.modifiers.needs_clarification is True
+    assert result.resolved.ambiguity_state.clarify_hint is True
     assert result.control.route == "direct"
     assert result.control.mode == "clarify"
 
@@ -156,12 +195,21 @@ def test_explicit_judgment_qa_stays_rag_instead_of_clarify() -> None:
     result = classify_intent("电子合同是否具有法律效力？")
 
     assert result.resolved.main_intent == "qa"
-    assert result.resolved.modifiers.needs_clarification is False
+    assert result.resolved.ambiguity_state.clarify_hint is False
     assert result.control.route == "rag"
 
 
 def test_generic_qa_rescue_keeps_plain_legal_question_out_of_chat() -> None:
     result = classify_intent("刑事拘留最长多少天？")
+
+    assert result.resolved.main_intent == "qa"
+    assert result.control.route == "rag"
+
+
+def test_question_like_architecture_query_defaults_to_qa_not_chat() -> None:
+    result = classify_intent(
+        "在多租户知识库系统里，如果我们希望后续支持案件级别的审计回放，session 和 message 的主键设计一般需要预留哪些扩展位？"
+    )
 
     assert result.resolved.main_intent == "qa"
     assert result.control.route == "rag"
@@ -213,16 +261,17 @@ def test_follow_up_missing_history_does_not_override_self_explanatory_qa() -> No
     assert result.control.route != "chat"
 
 
-def test_enumerated_design_query_resolves_to_complex_mixed() -> None:
+def test_enumerated_design_query_prefers_compound_over_mixed_complex() -> None:
     result = classify_intent(
         "1. rule_id 是否完善 2. qa 不在知识库里怎么办 3. resolver 如何收敛 4. 用这条 query 走每一层",
         LAW_HISTORY,
     )
 
     assert result.resolved.main_intent == "qa"
-    assert result.resolved.task.complexity == "complex"
-    assert result.resolved.task.shape in {"mixed", "summarize", "compare", "verify"}
-    assert result.control.route == "agent"
+    assert result.resolved.task.complexity == "compound"
+    assert result.resolved.task.shape == "multi_question"
+    assert result.resolved.task.topology == "parallel_queries"
+    assert result.control.route == "rag"
 
 
 def test_meta_analysis_query_stays_qa_not_chat() -> None:
@@ -230,6 +279,13 @@ def test_meta_analysis_query_stays_qa_not_chat() -> None:
 
     assert result.resolved.main_intent == "qa"
     assert result.control.route == "rag"
+
+
+def test_plain_thanks_stays_chat_as_negative_case() -> None:
+    result = classify_intent("谢谢，明白了")
+
+    assert result.resolved.main_intent == "chat"
+    assert result.control.route == "chat"
 
 
 def test_generic_qa_supervision_sample_hits_generic_rule() -> None:
@@ -477,3 +533,29 @@ def test_soft_doubt_follow_up_does_not_also_hit_generic_rule() -> None:
     matched_rule_ids = {match.rule_id for match in result.evidence.matched_rules}
     assert "challenge.soft_doubt" in matched_rule_ids
     assert "intent.qa.generic" not in matched_rule_ids
+
+
+def test_parallel_subtasks_stay_compound_instead_of_becoming_complex() -> None:
+    result = classify_intent("请分别说明试用期的条件、流程、时限。")
+
+    assert result.resolved.main_intent == "qa"
+    assert result.resolved.task.complexity == "compound"
+    assert result.resolved.task.topology == "parallel_subtasks"
+    assert result.control.route == "rag"
+    assert result.control.decompose_query is True
+
+
+def test_answer_structure_request_is_not_misclassified_as_staged_task() -> None:
+    result = classify_intent("请先说是否成立，再说依据，再说风险。")
+
+    assert result.resolved.task.topology != "staged"
+    assert result.control.route != "agent"
+
+
+def test_explicit_staged_task_is_marked_as_staged_complex() -> None:
+    result = classify_intent("请先判断是否成立，再说明依据，最后给出风险提示。")
+
+    assert result.resolved.main_intent == "qa"
+    assert result.resolved.task.complexity == "complex"
+    assert result.resolved.task.topology == "staged"
+    assert result.control.route == "agent"

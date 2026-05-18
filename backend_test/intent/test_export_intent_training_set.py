@@ -132,6 +132,7 @@ def test_export_training_rows_keeps_other_default_splits_when_only_train_is_over
         encoding="utf-8",
     )
 
+<<<<<<< HEAD
     original_dev_dirs = export_module.DEFAULT_DEV_DATASET_DIRS
     original_heldout_dirs = export_module.DEFAULT_HELDOUT_DATASET_DIRS
     original_silver_root = export_module.DEFAULT_SILVER_DATASET_ROOT
@@ -151,6 +152,27 @@ def test_export_training_rows_keeps_other_default_splits_when_only_train_is_over
     by_id = {row["id"]: row for row in exported}
     assert by_id["silver_001"]["split"] == "train"
     assert by_id["heldout_001"]["metadata"]["is_heldout"] is True
+
+
+def test_export_training_rows_v2_adds_topology_without_overwriting_v1_shape(tmp_path: Path) -> None:
+    train_dir = tmp_path / "train_dataset"
+    train_dir.mkdir()
+    row = _dataset_row(row_id="compound_001", batch="mixed_intent", complexity="compound")
+    row["gold"]["resolved"]["task"]["shape"] = "multi_question"
+    (train_dir / "rows.json").write_text(json.dumps([row], ensure_ascii=False), encoding="utf-8")
+
+    exported = export_training_rows(
+        train_dataset_dirs=[train_dir],
+        heldout_dataset_dirs=[],
+        schema_version="v2",
+    )
+
+    assert exported[0]["metadata"]["schema_version"] == "v2"
+    assert exported[0]["resolved"]["task"]["shape"] == "multi_question"
+    assert exported[0]["resolved"]["task"]["topology"] == "parallel_queries"
+    assert "context_signals" in exported[0]["evidence"]
+    assert "dependency_signals" not in exported[0]["evidence"]
+    assert "raw_signals" not in exported[0]["evidence"]
 
 
 def test_write_training_jsonl_writes_one_row_per_line(tmp_path: Path) -> None:

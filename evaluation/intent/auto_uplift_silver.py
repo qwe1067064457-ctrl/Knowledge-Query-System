@@ -77,7 +77,7 @@ def _build_silver_row(row: dict[str, Any], *, source_dataset: str) -> dict[str, 
     analysis = classify_intent(user_query, history)
     required_rule_ids = [match.rule_id for match in analysis.evidence.matched_rules]
     rule_expectations = {rule_id: True for rule_id in required_rule_ids}
-    required_signals = list(analysis.evidence.raw_signals)
+    required_signals = list(analysis.evidence.signal_buckets.all_signals())
 
     return {
         "id": row_id,
@@ -93,7 +93,7 @@ def _build_silver_row(row: dict[str, Any], *, source_dataset: str) -> dict[str, 
                 "required_rule_ids": required_rule_ids,
                 "rule_expectations": rule_expectations,
                 "unsupported_signals": dict(analysis.evidence.unsupported_signals),
-                "dependency_signals": dict(analysis.evidence.dependency_signals),
+                "context_signals": analysis.evidence.context_signals.to_dict(),
             },
             "resolved": {
                 "main_intent": analysis.resolved.main_intent,
