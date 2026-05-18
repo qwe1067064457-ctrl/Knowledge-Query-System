@@ -14,9 +14,11 @@
 4. `modifiers` 只能包含以下字段：
    - `follow_up`
    - `challenge`
+   - `soft_doubt`
    - `ask_source`
    - `ask_capability`
-   - `needs_clarification`
+   - `scope_question`
+   - `clarify_candidate`
    - `out_of_scope`
 5. `task_candidates` 中：
    - `complexity` 只能是 `simple | compound | complex`
@@ -27,7 +29,7 @@
    - `previous_answer`
    - `previous_retrieval`
    - `ambiguous`
-7. 如果信息不足，不要编造；可以降低置信度，或给出 `needs_clarification=true`。
+7. 如果信息不足，不要编造；可以降低置信度，或给出 `clarify_candidate=true`。
 8. `unsupported` 只用于当前普通用户入口不支持的操作，例如自然语言文件写入、删除、知识库管理员操作、权限操作等。
 9. 用户问题即使最终可能在知识库中检索不到，也仍可能是 `qa`，不要因为“可能没答案”就改判为 `unsupported`。
 
@@ -41,9 +43,11 @@
   "modifiers": {
     "follow_up": false,
     "challenge": false,
+    "soft_doubt": false,
     "ask_source": false,
     "ask_capability": false,
-    "needs_clarification": false,
+    "scope_question": false,
+    "clarify_candidate": false,
     "out_of_scope": false
   },
   "task_candidates": [

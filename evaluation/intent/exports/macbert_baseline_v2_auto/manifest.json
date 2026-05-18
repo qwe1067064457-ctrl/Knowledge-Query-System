@@ -1,0 +1,263 @@
+{
+  "source_path": "C:\\Users\\HUAWEI\\.codex\\worktrees\\db54\\Skill-First-Hybrid-RAG\\evaluation\\intent\\exports\\v2\\intent_training_v2_auto_20260518.jsonl",
+  "tasks": {
+    "soft_doubt": {
+      "heldout": {
+        "rows": 9,
+        "labels": {
+          "false": 8,
+          "true": 1
+        }
+      },
+      "train": {
+        "rows": 1358,
+        "labels": {
+          "false": 1302,
+          "true": 56
+        }
+      },
+      "dev": {
+        "rows": 14,
+        "labels": {
+          "false": 14
+        }
+      }
+    },
+    "modifier_follow_up": {
+      "heldout": {
+        "rows": 9,
+        "labels": {
+          "false": 8,
+          "true": 1
+        }
+      },
+      "train": {
+        "rows": 1358,
+        "labels": {
+          "false": 1023,
+          "true": 335
+        }
+      },
+      "dev": {
+        "rows": 14,
+        "labels": {
+          "false": 14
+        }
+      }
+    },
+    "modifier_challenge": {
+      "heldout": {
+        "rows": 9,
+        "labels": {
+          "false": 9
+        }
+      },
+      "train": {
+        "rows": 1358,
+        "labels": {
+          "false": 1330,
+          "true": 28
+        }
+      },
+      "dev": {
+        "rows": 14,
+        "labels": {
+          "false": 13,
+          "true": 1
+        }
+      }
+    },
+    "modifier_ask_source": {
+      "heldout": {
+        "rows": 9,
+        "labels": {
+          "false": 9
+        }
+      },
+      "train": {
+        "rows": 1358,
+        "labels": {
+          "false": 1231,
+          "true": 127
+        }
+      },
+      "dev": {
+        "rows": 14,
+        "labels": {
+          "false": 14
+        }
+      }
+    },
+    "modifier_ask_capability": {
+      "heldout": {
+        "rows": 9,
+        "labels": {
+          "false": 9
+        }
+      },
+      "train": {
+        "rows": 1358,
+        "labels": {
+          "false": 1356,
+          "true": 2
+        }
+      },
+      "dev": {
+        "rows": 14,
+        "labels": {
+          "false": 14
+        }
+      }
+    },
+    "modifier_needs_clarification": {
+      "heldout": {
+        "rows": 9,
+        "labels": {
+          "false": 6,
+          "true": 3
+        }
+      },
+      "train": {
+        "rows": 1358,
+        "labels": {
+          "false": 1124,
+          "true": 234
+        }
+      },
+      "dev": {
+        "rows": 14,
+        "labels": {
+          "false": 13,
+          "true": 1
+        }
+      }
+    },
+    "modifier_out_of_scope": {
+      "heldout": {
+        "rows": 9,
+        "labels": {
+          "false": 9
+        }
+      },
+      "train": {
+        "rows": 1358,
+        "labels": {
+          "false": 1335,
+          "true": 23
+        }
+      },
+      "dev": {
+        "rows": 14,
+        "labels": {
+          "false": 13,
+          "true": 1
+        }
+      }
+    },
+    "main_intent": {
+      "heldout": {
+        "rows": 9,
+        "labels": {
+          "chat": 4,
+          "qa": 5
+        }
+      },
+      "train": {
+        "rows": 1358,
+        "labels": {
+          "chat": 428,
+          "qa": 905,
+          "system": 2,
+          "unsupported": 23
+        }
+      },
+      "dev": {
+        "rows": 14,
+        "labels": {
+          "chat": 7,
+          "qa": 6,
+          "unsupported": 1
+        }
+      }
+    },
+    "task_complexity": {
+      "heldout": {
+        "rows": 9,
+        "labels": {
+          "simple": 9
+        }
+      },
+      "train": {
+        "rows": 1358,
+        "labels": {
+          "complex": 169,
+          "compound": 249,
+          "simple": 940
+        }
+      },
+      "dev": {
+        "rows": 14,
+        "labels": {
+          "complex": 4,
+          "compound": 1,
+          "simple": 9
+        }
+      }
+    },
+    "task_shape": {
+      "heldout": {
+        "rows": 9,
+        "labels": {
+          "none": 4,
+          "single_question": 5
+        }
+      },
+      "train": {
+        "rows": 1358,
+        "labels": {
+          "compare": 41,
+          "mixed": 45,
+          "multi_question": 249,
+          "none": 453,
+          "single_question": 459,
+          "summarize": 34,
+          "verify": 77
+        }
+      },
+      "dev": {
+        "rows": 14,
+        "labels": {
+          "compare": 2,
+          "multi_question": 1,
+          "none": 8,
+          "summarize": 2,
+          "verify": 1
+        }
+      }
+    },
+    "task_topology": {
+      "heldout": {
+        "rows": 9,
+        "labels": {
+          "single": 9
+        }
+      },
+      "train": {
+        "rows": 1358,
+        "labels": {
+          "parallel_queries": 245,
+          "parallel_subtasks": 4,
+          "single": 1086,
+          "staged": 23
+        }
+      },
+      "dev": {
+        "rows": 14,
+        "labels": {
+          "parallel_queries": 1,
+          "single": 13
+        }
+      }
+    }
+  }
+}

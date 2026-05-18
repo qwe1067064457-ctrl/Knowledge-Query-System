@@ -1,0 +1,1286 @@
+{
+  "rows": 1381,
+  "violations": [],
+  "warnings": [
+    {
+      "row_id": "frozen_soft_doubt_003",
+      "batch": "soft_doubt_frozen",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_0140_challenge_supportive",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "seed_0140_challenge_weak",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "seed_0140_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0140_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "seed_0148_challenge_supportive",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "seed_0148_challenge_weak",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "seed_0148_challenge_near_miss",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "seed_0148_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0148_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "seed_0151_challenge_supportive",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_0151_challenge_weak",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_0151_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0151_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_0179_challenge_supportive",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_0179_challenge_weak",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_0179_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0179_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_0193_challenge_supportive",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_0193_challenge_weak",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_0193_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0193_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_0277_challenge_supportive",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_0277_challenge_weak",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_0277_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0277_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_0287_challenge_supportive",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_0287_challenge_weak",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_0287_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0287_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_0141_follow_up_supportive",
+      "batch": "follow_up",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "seed_0141_follow_up_conflicting",
+      "batch": "follow_up",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "seed_0141_follow_up_mixed",
+      "batch": "follow_up",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "seed_0166_follow_up_supportive",
+      "batch": "follow_up",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_0166_follow_up_conflicting",
+      "batch": "follow_up",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_0166_follow_up_mixed",
+      "batch": "follow_up",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_0200_follow_up_supportive",
+      "batch": "follow_up",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_0200_follow_up_conflicting",
+      "batch": "follow_up",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_0200_follow_up_mixed",
+      "batch": "follow_up",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_0206_follow_up_supportive",
+      "batch": "follow_up",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "seed_0206_follow_up_conflicting",
+      "batch": "follow_up",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "seed_0206_follow_up_mixed",
+      "batch": "follow_up",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "seed_0227_follow_up_supportive",
+      "batch": "follow_up",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0227_follow_up_weak",
+      "batch": "follow_up",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0227_follow_up_conflicting",
+      "batch": "follow_up",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0227_follow_up_mixed",
+      "batch": "follow_up",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0238_follow_up_supportive",
+      "batch": "follow_up",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0238_follow_up_weak",
+      "batch": "follow_up",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0238_follow_up_conflicting",
+      "batch": "follow_up",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0238_follow_up_mixed",
+      "batch": "follow_up",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0380_follow_up_supportive",
+      "batch": "follow_up",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "seed_0380_follow_up_conflicting",
+      "batch": "follow_up",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "seed_0380_follow_up_mixed",
+      "batch": "follow_up",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "seed_0192_long_case_supportive",
+      "batch": "long_case_complex",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0192_long_case_complex_cost_focused",
+      "batch": "long_case_complex",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0374_long_case_supportive",
+      "batch": "long_case_complex",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0374_long_case_complex_cost_focused",
+      "batch": "long_case_complex",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0055_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0055_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0139_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0139_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0142_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0142_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0142_meta_near_miss",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0143_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0143_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0147_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0147_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0147_meta_near_miss",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0149_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0149_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0156_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0156_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0156_meta_near_miss",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0159_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0159_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0165_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0165_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0165_meta_near_miss",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0171_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0171_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0171_meta_near_miss",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0173_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0173_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0173_meta_near_miss",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0180_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0180_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0180_meta_near_miss",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0183_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0183_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0184_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0184_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0185_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0185_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0185_meta_near_miss",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0188_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0188_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0188_meta_near_miss",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0189_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0189_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0190_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0190_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0190_meta_near_miss",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0191_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0191_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0191_meta_near_miss",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0194_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0194_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0194_meta_near_miss",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0275_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0275_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "seed_0275_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0275_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "seed_0275_meta_near_miss",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "seed_0285_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0285_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0397_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "seed_0397_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "seed_0397_meta_near_miss",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "seed_0197_mixed_intent_supportive",
+      "batch": "mixed_intent",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0197_mixed_intent_cost_focused",
+      "batch": "mixed_intent",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0083_standard_qa_supportive",
+      "batch": "standard_qa",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0083_standard_qa_cost_focused",
+      "batch": "standard_qa",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0146_standard_qa_supportive",
+      "batch": "standard_qa",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0146_standard_qa_cost_focused",
+      "batch": "standard_qa",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0167_standard_qa_supportive",
+      "batch": "standard_qa",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0167_standard_qa_cost_focused",
+      "batch": "standard_qa",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0172_standard_qa_supportive",
+      "batch": "standard_qa",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0172_standard_qa_cost_focused",
+      "batch": "standard_qa",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0178_standard_qa_supportive",
+      "batch": "standard_qa",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0178_standard_qa_cost_focused",
+      "batch": "standard_qa",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0182_standard_qa_supportive",
+      "batch": "standard_qa",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0182_standard_qa_cost_focused",
+      "batch": "standard_qa",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0187_standard_qa_supportive",
+      "batch": "standard_qa",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0187_standard_qa_cost_focused",
+      "batch": "standard_qa",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0196_standard_qa_supportive",
+      "batch": "standard_qa",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_0196_standard_qa_cost_focused",
+      "batch": "standard_qa",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "bench_002_challenge_supportive",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "bench_002_challenge_weak",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "bench_002_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "bench_002_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "bench_003_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "bench_003_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_001_challenge_supportive",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_001_challenge_weak",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_001_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_001_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_002_challenge_supportive",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_002_challenge_weak",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_002_challenge_near_miss",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_002_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_002_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_003_challenge_supportive",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_003_challenge_weak",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_003_challenge_near_miss",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_003_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_003_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_004_challenge_supportive",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_004_challenge_weak",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_004_challenge_near_miss",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_004_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_004_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_005_challenge_supportive",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_005_challenge_weak",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_005_challenge_near_miss",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_005_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_005_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_001_gold",
+      "batch": "soft_doubt_seed",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_002_gold",
+      "batch": "soft_doubt_seed",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_003_gold",
+      "batch": "soft_doubt_seed",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_004_gold",
+      "batch": "soft_doubt_seed",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260514_sd_005_gold",
+      "batch": "soft_doubt_seed",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_sd_001_challenge_supportive",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_sd_001_challenge_weak",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_sd_001_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_sd_001_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_sd_002_challenge_supportive",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_sd_002_challenge_weak",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_sd_002_challenge_near_miss",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_sd_002_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_sd_002_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_sd_003_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_sd_004_challenge_supportive",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_sd_004_challenge_weak",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_sd_004_challenge_mixed",
+      "batch": "challenge",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_meta_001_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_meta_001_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_meta_001_meta_near_miss",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_meta_002_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_meta_002_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_meta_002_meta_near_miss",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_meta_003_meta_supportive",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_meta_003_meta_weak",
+      "batch": "meta",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_challenge_001_gold",
+      "batch": "challenge_seed",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_ask_source_seed_001_gold",
+      "batch": "ask_source_seed",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_ask_source_seed_002_gold",
+      "batch": "ask_source_seed",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_ask_source_seed_003_gold",
+      "batch": "ask_source_seed",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_ask_source_seed_004_gold",
+      "batch": "ask_source_seed",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_ask_source_seed_005_gold",
+      "batch": "ask_source_seed",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_ask_source_seed_006_gold",
+      "batch": "ask_source_seed",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_soft_doubt_seed_001_gold",
+      "batch": "soft_doubt_seed",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_soft_doubt_seed_002_gold",
+      "batch": "soft_doubt_seed",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_soft_doubt_seed_003_gold",
+      "batch": "soft_doubt_seed",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_soft_doubt_seed_004_gold",
+      "batch": "soft_doubt_seed",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "soft_doubt:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_soft_doubt_seed_007_gold",
+      "batch": "soft_doubt_seed",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260515_soft_doubt_seed_008_gold",
+      "batch": "soft_doubt_seed",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260516_challenge_001_gold",
+      "batch": "challenge_seed",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "seed_20260516_challenge_002_gold",
+      "batch": "challenge_seed",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "seed_20260516_sdb_004_gold",
+      "batch": "soft_doubt_boundary_seed",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260516_sdb_005_gold",
+      "batch": "soft_doubt_boundary_seed",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "challenge:intent,context"
+    },
+    {
+      "row_id": "seed_20260516_sdb_006_gold",
+      "batch": "soft_doubt_boundary_seed",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260516_summarize_006_gold",
+      "batch": "summarize_seed",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    },
+    {
+      "row_id": "seed_20260516_system_002_gold",
+      "batch": "system_seed",
+      "kind": "allowed_cross_bucket_signal",
+      "detail": "ask_source:intent,context"
+    }
+  ],
+  "violation_count": 0,
+  "warning_count": 213
+}

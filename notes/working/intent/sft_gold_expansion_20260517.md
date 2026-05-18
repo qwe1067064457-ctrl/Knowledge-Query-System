@@ -33,3 +33,6 @@
 - `campaign` 仍然只是增强池和候选池
 - 训练成品只认 `gold/train`
 - 最终 benchmark 只认 `gold/frozen`
+status: legacy-reference
+related_current_doc: notes/intent/test_data_generate/campaigns_and_results.md
+scope: sft gold expansion snapshot

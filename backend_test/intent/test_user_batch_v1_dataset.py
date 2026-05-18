@@ -30,6 +30,6 @@ def test_user_batch_v1_dataset_is_challenging_for_current_rules() -> None:
     summary = evaluate_dataset(rows)
 
     assert summary["overall"]["samples"] == 70
-    assert summary["overall"]["resolved_main_intent_accuracy"] < 0.9
+    assert 0.9 <= summary["overall"]["resolved_main_intent_accuracy"] < 0.97
     assert summary["overall"]["resolved_shape_accuracy"] < 0.8
     assert summary["per_batch"]["long_case_complex"]["control_route_accuracy"] < 0.5

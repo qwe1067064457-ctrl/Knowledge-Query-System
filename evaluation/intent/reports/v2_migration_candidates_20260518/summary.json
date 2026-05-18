@@ -1,0 +1,42 @@
+﻿[
+    {
+        "dataset_dir":  "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend_test\\intent\\test_data\\gold\\train\\seed_query_20260514_gold_v1",
+        "selected":  11
+    },
+    {
+        "dataset_dir":  "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend_test\\intent\\test_data\\gold\\train\\seed_query_20260515_gold_v2",
+        "selected":  26
+    },
+    {
+        "dataset_dir":  "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend_test\\intent\\test_data\\gold\\train\\seed_query_20260516_gold_v1",
+        "selected":  48
+    },
+    {
+        "dataset_dir":  "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend_test\\intent\\test_data\\gold\\train\\seed_query_20260517_gold_v1",
+        "selected":  18
+    },
+    {
+        "dataset_dir":  "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend_test\\intent\\test_data\\gold\\dev\\seed_query_20260515_gold_v1",
+        "selected":  14
+    },
+    {
+        "dataset_dir":  "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend_test\\intent\\test_data\\gold\\frozen\\frozen_heldout_v2",
+        "selected":  9
+    },
+    {
+        "dataset_dir":  "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend_test\\intent\\test_data\\gold\\silver\\intent_query_full_set_campaign_v1_silver_v1",
+        "selected":  1033
+    },
+    {
+        "dataset_dir":  "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend_test\\intent\\test_data\\gold\\silver\\query_list_campaign_v1_silver_v1",
+        "selected":  16
+    },
+    {
+        "dataset_dir":  "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend_test\\intent\\test_data\\gold\\silver\\seed_query_20260514_campaign_v1_silver_v1",
+        "selected":  32
+    },
+    {
+        "dataset_dir":  "C:\\Users\\HUAWEI\\PycharmProjects\\Skill-First-Hybrid-RAG\\backend_test\\intent\\test_data\\gold\\silver\\seed_query_20260515_campaign_v2_silver_v1",
+        "selected":  54
+    }
+]

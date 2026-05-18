@@ -11,6 +11,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from evaluation.intent.evaluate_intent_rules import load_dataset
+from evaluation.intent.v2_migration import serialize_evidence_v2, serialize_resolved_v2
 
 DEFAULT_TRAIN_DATASET_DIRS = (
     ROOT / "backend_test" / "intent" / "test_data" / "gold" / "train" / "seed_query_20260514_gold_v1",
@@ -33,6 +34,7 @@ DEFAULT_HELDOUT_DATASET_DIRS = (
 def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Export intent four-layer datasets into SFT-ready JSONL.")
     parser.add_argument("output_path", type=Path)
+    parser.add_argument("--schema-version", choices=("v1", "v2"), default="v1")
     parser.add_argument("--train-dataset-dir", action="append", dest="train_dataset_dirs", type=Path, default=None)
     parser.add_argument("--silver-dataset-dir", action="append", dest="silver_dataset_dirs", type=Path, default=None)
     parser.add_argument("--dev-dataset-dir", action="append", dest="dev_dataset_dirs", type=Path, default=None)
@@ -46,6 +48,7 @@ def export_training_rows(
     silver_dataset_dirs: list[Path] | None = None,
     dev_dataset_dirs: list[Path] | None = None,
     heldout_dataset_dirs: list[Path] | None = None,
+    schema_version: str = "v1",
 ) -> list[dict[str, Any]]:
     train_dirs = list(DEFAULT_TRAIN_DATASET_DIRS) if train_dataset_dirs is None else list(train_dataset_dirs)
     silver_dirs = _list_default_silver_dataset_dirs() if silver_dataset_dirs is None else list(silver_dataset_dirs)
@@ -54,13 +57,13 @@ def export_training_rows(
 
     exported: list[dict[str, Any]] = []
     for dataset_dir in train_dirs:
-        exported.extend(_export_dataset_dir(dataset_dir, split="train", is_heldout=False))
+        exported.extend(_export_dataset_dir(dataset_dir, split="train", is_heldout=False, schema_version=schema_version))
     for dataset_dir in silver_dirs:
-        exported.extend(_export_dataset_dir(dataset_dir, split="train", is_heldout=False))
+        exported.extend(_export_dataset_dir(dataset_dir, split="train", is_heldout=False, schema_version=schema_version))
     for dataset_dir in dev_dirs:
-        exported.extend(_export_dataset_dir(dataset_dir, split="dev", is_heldout=False))
+        exported.extend(_export_dataset_dir(dataset_dir, split="dev", is_heldout=False, schema_version=schema_version))
     for dataset_dir in heldout_dirs:
-        exported.extend(_export_dataset_dir(dataset_dir, split="heldout", is_heldout=True))
+        exported.extend(_export_dataset_dir(dataset_dir, split="heldout", is_heldout=True, schema_version=schema_version))
     return exported
 
 
@@ -81,7 +84,7 @@ def write_training_jsonl(output_path: Path, rows: list[dict[str, Any]]) -> None:
     )
 
 
-def _export_dataset_dir(dataset_dir: Path, *, split: str, is_heldout: bool) -> list[dict[str, Any]]:
+def _export_dataset_dir(dataset_dir: Path, *, split: str, is_heldout: bool, schema_version: str) -> list[dict[str, Any]]:
     dataset_rows = load_dataset(dataset_dir)
     dataset_name = dataset_dir.name
     return [
@@ -90,12 +93,13 @@ def _export_dataset_dir(dataset_dir: Path, *, split: str, is_heldout: bool) -> l
             "batch": row["batch"],
             "split": split,
             "input": row["input"],
-            "evidence": row["gold"]["evidence"],
-            "resolved": row["gold"]["resolved"],
+            "evidence": _serialize_evidence(row["gold"]["evidence"], schema_version=schema_version),
+            "resolved": _serialize_resolved(row["gold"]["resolved"], schema_version=schema_version),
             "control": row["gold"]["control"],
             "metadata": {
                 "source_dataset": dataset_name,
                 "source_query_id": row.get("source_query_id", ""),
+                "schema_version": schema_version,
                 "label_tier": row.get("label_tier", "gold"),
                 "label_source": row.get("label_source", "gold_dataset"),
                 "review_status": row.get("review_status", "approved"),
@@ -106,6 +110,18 @@ def _export_dataset_dir(dataset_dir: Path, *, split: str, is_heldout: bool) -> l
         }
         for row in dataset_rows
     ]
+
+
+def _serialize_evidence(evidence: dict[str, Any], *, schema_version: str) -> dict[str, Any]:
+    if schema_version == "v2":
+        return serialize_evidence_v2(evidence)
+    return evidence
+
+
+def _serialize_resolved(resolved: dict[str, Any], *, schema_version: str) -> dict[str, Any]:
+    if schema_version == "v2":
+        return serialize_resolved_v2(resolved)
+    return resolved
 
 
 def _infer_difficulty(row: dict[str, Any]) -> str:
@@ -125,6 +141,7 @@ def main() -> int:
         silver_dataset_dirs=args.silver_dataset_dirs,
         dev_dataset_dirs=args.dev_dataset_dirs,
         heldout_dataset_dirs=args.heldout_dataset_dirs,
+        schema_version=args.schema_version,
     )
     write_training_jsonl(args.output_path, rows)
     print(json.dumps({"output_path": str(args.output_path), "rows": len(rows)}, ensure_ascii=False))

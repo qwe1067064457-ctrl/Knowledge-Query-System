@@ -241,3 +241,6 @@
 
 - `judgment` 和 `soft_doubt` 在更长、更自然、更接近真实对话的样本上已经明显提升
 - 规则级监督的价值已经从“确认规则是否可评估”进入“确认规则是否真的在泛化”阶段
+status: promoted-partially
+related_current_doc: notes/intent/intent_testing_and_evaluation.md
+scope: rule supervision and quality

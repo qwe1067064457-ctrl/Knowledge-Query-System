@@ -102,3 +102,6 @@
 所以这批扩样的意义是：
 
 > 把训练集从“样板级”推进到“baseline 前夜”，而不是直接宣布样本已经充足。
+status: legacy-reference
+related_current_doc: notes/intent/test_data_generate/campaigns_and_results.md
+scope: sft gold expansion snapshot

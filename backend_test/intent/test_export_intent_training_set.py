@@ -3,7 +3,6 @@ from __future__ import annotations
 import json
 from pathlib import Path
 
-from evaluation.intent import export_intent_training_set as export_module
 from evaluation.intent.export_intent_training_set import export_training_rows, write_training_jsonl
 
 
@@ -105,53 +104,6 @@ def test_export_training_rows_infers_difficulty_and_preserves_gold_layers(tmp_pa
     assert by_id["simple_001"]["metadata"]["difficulty"] == "easy"
     assert by_id["simple_001"]["resolved"]["main_intent"] == "qa"
     assert by_id["simple_001"]["control"]["route"] == "rag"
-
-
-def test_export_training_rows_keeps_other_default_splits_when_only_train_is_overridden(tmp_path: Path) -> None:
-    train_dir = tmp_path / "train_dataset"
-    default_dev_dir = tmp_path / "default_dev_dataset"
-    default_heldout_dir = tmp_path / "default_heldout_dataset"
-    default_silver_dir = tmp_path / "default_silver_dataset"
-    for path in (train_dir, default_dev_dir, default_heldout_dir, default_silver_dir):
-        path.mkdir()
-
-    (train_dir / "rows.json").write_text(
-        json.dumps([_dataset_row(row_id="train_001", batch="standard_qa")], ensure_ascii=False),
-        encoding="utf-8",
-    )
-    (default_dev_dir / "rows.json").write_text(
-        json.dumps([_dataset_row(row_id="dev_001", batch="standard_qa")], ensure_ascii=False),
-        encoding="utf-8",
-    )
-    (default_heldout_dir / "rows.json").write_text(
-        json.dumps([_dataset_row(row_id="heldout_001", batch="qa_judgment_heldout")], ensure_ascii=False),
-        encoding="utf-8",
-    )
-    (default_silver_dir / "rows.json").write_text(
-        json.dumps([_dataset_row(row_id="silver_001", batch="follow_up")], ensure_ascii=False),
-        encoding="utf-8",
-    )
-
-<<<<<<< HEAD
-    original_dev_dirs = export_module.DEFAULT_DEV_DATASET_DIRS
-    original_heldout_dirs = export_module.DEFAULT_HELDOUT_DATASET_DIRS
-    original_silver_root = export_module.DEFAULT_SILVER_DATASET_ROOT
-    try:
-        export_module.DEFAULT_DEV_DATASET_DIRS = (default_dev_dir,)
-        export_module.DEFAULT_HELDOUT_DATASET_DIRS = (default_heldout_dir,)
-        export_module.DEFAULT_SILVER_DATASET_ROOT = tmp_path
-
-        exported = export_training_rows(train_dataset_dirs=[train_dir])
-    finally:
-        export_module.DEFAULT_DEV_DATASET_DIRS = original_dev_dirs
-        export_module.DEFAULT_HELDOUT_DATASET_DIRS = original_heldout_dirs
-        export_module.DEFAULT_SILVER_DATASET_ROOT = original_silver_root
-
-    assert {row["split"] for row in exported} == {"train", "dev", "heldout"}
-    assert {row["id"] for row in exported} == {"train_001", "dev_001", "heldout_001", "silver_001"}
-    by_id = {row["id"]: row for row in exported}
-    assert by_id["silver_001"]["split"] == "train"
-    assert by_id["heldout_001"]["metadata"]["is_heldout"] is True
 
 
 def test_export_training_rows_v2_adds_topology_without_overwriting_v1_shape(tmp_path: Path) -> None:

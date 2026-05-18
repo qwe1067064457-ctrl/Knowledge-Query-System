@@ -187,3 +187,6 @@
 1. 同 seed 家族不得跨 split
 2. `frozen_heldout_v2` 永远冻结
 3. 当前 gold 偏少时，probe 可以做，但不能把 probe 结果当正式结论
+status: active-working
+related_current_doc: notes/intent/test_data_generate/README.md
+scope: sft split policy
