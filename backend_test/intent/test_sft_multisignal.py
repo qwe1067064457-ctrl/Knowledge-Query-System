@@ -7,6 +7,8 @@ import pytest
 
 from intent.sft.data import (
     DEFAULT_BOUNDARY_SIGNAL_LABELS,
+    DEFAULT_DEV_DATASET_DIRS,
+    DEFAULT_HELDOUT_DATASET_DIRS,
     build_query_text,
     export_signal_rows,
     extract_required_signal_vector,
@@ -227,6 +229,11 @@ def test_summarize_bundle_reports_signal_counts(tmp_path: Path) -> None:
         "multi_question",
         "complex",
     ]
+
+
+def test_default_split_dirs_point_to_backfilled_dev_and_heldout_v3() -> None:
+    assert DEFAULT_DEV_DATASET_DIRS[0].name == "seed_query_20260517_gold_v2"
+    assert DEFAULT_HELDOUT_DATASET_DIRS[0].name == "frozen_heldout_v3"
 
 
 def test_compute_multilabel_metrics_and_threshold_selection_behave_as_expected() -> None:

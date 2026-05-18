@@ -28,16 +28,17 @@ DEFAULT_TRAIN_DATASET_DIRS = (
     ROOT / "backend_test" / "intent" / "test_data" / "gold" / "train" / "seed_query_20260515_gold_v2",
     ROOT / "backend_test" / "intent" / "test_data" / "gold" / "train" / "seed_query_20260516_gold_v1",
     ROOT / "backend_test" / "intent" / "test_data" / "gold" / "train" / "seed_query_20260517_gold_v1",
+    ROOT / "backend_test" / "intent" / "test_data" / "gold" / "train" / "seed_query_20260518_gold_v1",
 )
 DEFAULT_SILVER_DATASET_ROOT = ROOT / "backend_test" / "intent" / "test_data" / "gold" / "silver"
 DEFAULT_DEV_DATASET_DIRS = (
-    ROOT / "backend_test" / "intent" / "test_data" / "gold" / "dev" / "seed_query_20260515_gold_v1",
+    ROOT / "backend_test" / "intent" / "test_data" / "gold" / "dev" / "seed_query_20260517_gold_v2",
 )
 DEFAULT_CALIBRATION_DATASET_DIRS = (
-    ROOT / "backend_test" / "intent" / "test_data" / "gold" / "calibration" / "heldout_judgment_soft_doubt_gold_v1",
+    ROOT / "backend_test" / "intent" / "test_data" / "gold" / "calibration" / "multisignal_20260517_v2",
 )
 DEFAULT_HELDOUT_DATASET_DIRS = (
-    ROOT / "backend_test" / "intent" / "test_data" / "gold" / "frozen" / "frozen_heldout_v2",
+    ROOT / "backend_test" / "intent" / "test_data" / "gold" / "frozen" / "frozen_heldout_v3",
 )
 DEFAULT_SPLITS = ("train", "dev", "calibration", "heldout")
 

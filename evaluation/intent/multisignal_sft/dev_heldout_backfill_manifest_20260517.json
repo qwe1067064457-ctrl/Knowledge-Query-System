@@ -211,11 +211,44 @@
     "query_inputs": "evaluation/intent/query_inputs/seed_query_20260517_router_augmented_v2.jsonl",
     "heldout_query_inputs": "evaluation/intent/query_inputs/heldout_multisignal_20260517_v3.jsonl",
     "dev_gold_dir": "backend_test/intent/test_data/gold/dev/seed_query_20260517_gold_v2",
-    "heldout_gold_dir": "backend_test/intent/test_data/gold/frozen/frozen_heldout_v3"
+    "heldout_gold_dir": "backend_test/intent/test_data/gold/frozen/frozen_heldout_v3",
+    "calibration_v2_dir": "backend_test/intent/test_data/gold/calibration/multisignal_20260517_v2",
+    "train_backfill_dir": "backend_test/intent/test_data/gold/train/seed_query_20260518_gold_v1"
+  },
+  "post_calibration_v2_coverage": {
+    "calibration_v2": {
+      "soft_doubt": 5,
+      "follow_up": 7,
+      "needs_clarification": 6,
+      "ask_source": 10,
+      "multi_question": 6,
+      "complex": 7
+    }
+  },
+  "post_train_20260518_backfill_delta": {
+    "train_new_rows": 58,
+    "signal_additions": {
+      "soft_doubt": 0,
+      "follow_up": 12,
+      "needs_clarification": 20,
+      "ask_source": 6,
+      "multi_question": 3,
+      "complex": 10
+    },
+    "post_train_coverage": {
+      "soft_doubt": 9,
+      "follow_up": 22,
+      "needs_clarification": 23,
+      "ask_source": 17,
+      "multi_question": 18,
+      "complex": 18
+    }
   },
   "implemented_artifacts": {
     "query_inputs_rows": 24,
     "heldout_query_inputs_rows": 30,
+    "calibration_v2_rows": 49,
+    "train_backfill_rows": 58,
     "dev_files": [
       "backend_test/intent/test_data/gold/dev/seed_query_20260517_gold_v2/follow_up_seed.json",
       "backend_test/intent/test_data/gold/dev/seed_query_20260517_gold_v2/ask_source_seed.json",
@@ -224,6 +257,14 @@
       "backend_test/intent/test_data/gold/dev/seed_query_20260517_gold_v2/complex_seed.json",
       "backend_test/intent/test_data/gold/dev/seed_query_20260517_gold_v2/clarify_seed.json"
     ],
+    "calibration_v2_files": [
+      "backend_test/intent/test_data/gold/calibration/multisignal_20260517_v2/soft_doubt_calibration.json",
+      "backend_test/intent/test_data/gold/calibration/multisignal_20260517_v2/follow_up_calibration.json",
+      "backend_test/intent/test_data/gold/calibration/multisignal_20260517_v2/clarify_calibration.json",
+      "backend_test/intent/test_data/gold/calibration/multisignal_20260517_v2/ask_source_calibration.json",
+      "backend_test/intent/test_data/gold/calibration/multisignal_20260517_v2/multi_question_calibration.json",
+      "backend_test/intent/test_data/gold/calibration/multisignal_20260517_v2/complex_calibration.json"
+    ],
     "heldout_v3_files": [
       "backend_test/intent/test_data/gold/frozen/frozen_heldout_v3/follow_up_frozen.json",
       "backend_test/intent/test_data/gold/frozen/frozen_heldout_v3/ask_source_frozen.json",
@@ -231,6 +272,11 @@
       "backend_test/intent/test_data/gold/frozen/frozen_heldout_v3/multi_question_frozen.json",
       "backend_test/intent/test_data/gold/frozen/frozen_heldout_v3/complex_frozen.json",
       "backend_test/intent/test_data/gold/frozen/frozen_heldout_v3/clarify_frozen.json"
+    ],
+    "train_backfill_files": [
+      "backend_test/intent/test_data/gold/train/seed_query_20260518_gold_v1/clarify_seed.json",
+      "backend_test/intent/test_data/gold/train/seed_query_20260518_gold_v1/complex_seed.json",
+      "backend_test/intent/test_data/gold/train/seed_query_20260518_gold_v1/followup_clarify_contrast.json"
     ]
   }
 }

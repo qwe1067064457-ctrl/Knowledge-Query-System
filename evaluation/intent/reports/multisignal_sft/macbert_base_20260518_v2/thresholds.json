@@ -1,0 +1,8 @@
+{
+  "soft_doubt": 0.45,
+  "follow_up": 0.5,
+  "needs_clarification": 0.45,
+  "ask_source": 0.5,
+  "multi_question": 0.5,
+  "complex": 0.3
+}
