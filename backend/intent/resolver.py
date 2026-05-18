@@ -144,9 +144,24 @@ def _resolve_shape(candidates: list[TaskCandidate], complexity: str, topology: s
             if item.complexity == "complex" and item.shape != "multi_question"
         ]
         if not non_multi:
+            return "single_question"
+        if any(item.shape == "mixed" for item in non_multi):
             return "mixed"
-        best = max(non_multi, key=lambda item: item.score)
-        return "mixed" if best.shape == "single_question" else best.shape
+
+        shape_scores: dict[str, float] = {}
+        for item in non_multi:
+            shape_scores[item.shape] = max(shape_scores.get(item.shape, 0.0), item.score)
+
+        ranked_shapes = sorted(shape_scores.items(), key=lambda item: item[1], reverse=True)
+        best_shape, best_score = ranked_shapes[0]
+        named_ranked = [item for item in ranked_shapes if item[0] != "single_question"]
+        if len(named_ranked) >= 2:
+            (_, top_named_score), (_, second_named_score) = named_ranked[0], named_ranked[1]
+            if top_named_score >= 0.75 and second_named_score >= 0.75 and abs(top_named_score - second_named_score) <= 0.1:
+                return "mixed"
+        if best_shape == "single_question" and named_ranked and named_ranked[0][1] >= 0.7:
+            return named_ranked[0][0]
+        return best_shape
 
     if complexity == "compound":
         if topology in {"parallel_queries", "parallel_subtasks"}:

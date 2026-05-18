@@ -1,0 +1,255 @@
+{
+  "source_path": "evaluation\\intent\\exports\\v2\\intent_training_v2_topology_20260518.jsonl",
+  "tasks": {
+    "soft_doubt": {
+      "train": {
+        "rows": 1358,
+        "labels": {
+          "false": 1302,
+          "true": 56
+        }
+      },
+      "dev": {
+        "rows": 14,
+        "labels": {
+          "false": 14
+        }
+      },
+      "heldout": {
+        "rows": 9,
+        "labels": {
+          "false": 6,
+          "true": 3
+        }
+      }
+    },
+    "modifier_follow_up": {
+      "train": {
+        "rows": 1358,
+        "labels": {
+          "false": 1029,
+          "true": 329
+        }
+      },
+      "dev": {
+        "rows": 14,
+        "labels": {
+          "false": 14
+        }
+      },
+      "heldout": {
+        "rows": 9,
+        "labels": {
+          "false": 9
+        }
+      }
+    },
+    "modifier_challenge": {
+      "train": {
+        "rows": 1358,
+        "labels": {
+          "false": 1328,
+          "true": 30
+        }
+      },
+      "dev": {
+        "rows": 14,
+        "labels": {
+          "false": 12,
+          "true": 2
+        }
+      },
+      "heldout": {
+        "rows": 9,
+        "labels": {
+          "false": 9
+        }
+      }
+    },
+    "modifier_ask_source": {
+      "train": {
+        "rows": 1358,
+        "labels": {
+          "false": 1233,
+          "true": 125
+        }
+      },
+      "dev": {
+        "rows": 14,
+        "labels": {
+          "false": 14
+        }
+      },
+      "heldout": {
+        "rows": 9,
+        "labels": {
+          "false": 9
+        }
+      }
+    },
+    "modifier_ask_capability": {
+      "train": {
+        "rows": 1358,
+        "labels": {
+          "false": 1347,
+          "true": 11
+        }
+      },
+      "dev": {
+        "rows": 14,
+        "labels": {
+          "false": 12,
+          "true": 2
+        }
+      },
+      "heldout": {
+        "rows": 9,
+        "labels": {
+          "false": 9
+        }
+      }
+    },
+    "modifier_needs_clarification": {
+      "train": {
+        "rows": 1358,
+        "labels": {
+          "false": 1124,
+          "true": 234
+        }
+      },
+      "dev": {
+        "rows": 14,
+        "labels": {
+          "false": 12,
+          "true": 2
+        }
+      },
+      "heldout": {
+        "rows": 9,
+        "labels": {
+          "false": 9
+        }
+      }
+    },
+    "modifier_out_of_scope": {
+      "train": {
+        "rows": 1358,
+        "labels": {
+          "false": 1328,
+          "true": 30
+        }
+      },
+      "dev": {
+        "rows": 14,
+        "labels": {
+          "false": 12,
+          "true": 2
+        }
+      },
+      "heldout": {
+        "rows": 9,
+        "labels": {
+          "false": 9
+        }
+      }
+    },
+    "main_intent": {
+      "train": {
+        "rows": 1358,
+        "labels": {
+          "chat": 412,
+          "qa": 903,
+          "system": 13,
+          "unsupported": 30
+        }
+      },
+      "dev": {
+        "rows": 14,
+        "labels": {
+          "chat": 2,
+          "qa": 8,
+          "system": 2,
+          "unsupported": 2
+        }
+      },
+      "heldout": {
+        "rows": 9,
+        "labels": {
+          "qa": 9
+        }
+      }
+    },
+    "task_complexity": {
+      "train": {
+        "rows": 1358,
+        "labels": {
+          "complex": 159,
+          "compound": 233,
+          "simple": 966
+        }
+      },
+      "dev": {
+        "rows": 14,
+        "labels": {
+          "simple": 14
+        }
+      },
+      "heldout": {
+        "rows": 9,
+        "labels": {
+          "simple": 9
+        }
+      }
+    },
+    "task_shape": {
+      "train": {
+        "rows": 1358,
+        "labels": {
+          "compare": 40,
+          "mixed": 44,
+          "multi_question": 241,
+          "none": 459,
+          "single_question": 448,
+          "summarize": 35,
+          "verify": 91
+        }
+      },
+      "dev": {
+        "rows": 14,
+        "labels": {
+          "compare": 2,
+          "none": 8,
+          "summarize": 2,
+          "verify": 2
+        }
+      },
+      "heldout": {
+        "rows": 9,
+        "labels": {
+          "verify": 9
+        }
+      }
+    },
+    "task_topology": {
+      "train": {
+        "rows": 1358,
+        "labels": {
+          "parallel_queries": 241,
+          "single": 1117
+        }
+      },
+      "dev": {
+        "rows": 14,
+        "labels": {
+          "single": 14
+        }
+      },
+      "heldout": {
+        "rows": 9,
+        "labels": {
+          "single": 9
+        }
+      }
+    }
+  }
+}

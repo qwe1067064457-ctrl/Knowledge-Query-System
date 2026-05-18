@@ -1,0 +1,6 @@
+{
+  "single": 0,
+  "parallel_queries": 1,
+  "parallel_subtasks": 2,
+  "staged": 3
+}

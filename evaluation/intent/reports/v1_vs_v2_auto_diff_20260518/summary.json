@@ -1,0 +1,1068 @@
+{
+  "overall": {
+    "dataset": "overall",
+    "rows": 1381,
+    "batches": {
+      "ask_source_seed": 6,
+      "challenge": 68,
+      "challenge_seed": 6,
+      "chat": 8,
+      "chat_seed": 12,
+      "clarify_seed": 6,
+      "compare_seed": 8,
+      "follow_up": 505,
+      "follow_up_seed": 8,
+      "fuzzy_qa": 28,
+      "long_case_complex": 38,
+      "meta": 96,
+      "mixed_intent": 8,
+      "multi_question_seed": 14,
+      "qa_generic_frozen": 3,
+      "qa_generic_seed": 5,
+      "qa_judgment_frozen": 3,
+      "qa_judgment_seed": 5,
+      "soft_doubt_boundary_seed": 8,
+      "soft_doubt_frozen": 3,
+      "soft_doubt_seed": 13,
+      "standard_qa": 498,
+      "summarize_seed": 8,
+      "system_seed": 12,
+      "unsupported_seed": 12
+    },
+    "evidence_changed_rows": 110,
+    "label_changed_rows": 110,
+    "signal_added_counts": {
+      "ask_source": 3,
+      "complex": 20,
+      "follow_up": 7,
+      "multi_question": 10,
+      "needs_clarification": 6,
+      "parallel_subtasks": 11,
+      "qa": 4,
+      "staged": 23,
+      "system": 1
+    },
+    "signal_removed_counts": {
+      "ask_capability": 11,
+      "ask_source": 2,
+      "challenge": 3,
+      "chat": 12,
+      "needs_clarification": 4,
+      "out_of_scope": 8,
+      "qa": 12,
+      "soft_doubt": 2,
+      "unsupported": 8
+    },
+    "signal_bucket_added_counts": {
+      "intent": {
+        "ask_source": 3,
+        "qa": 4,
+        "system": 1
+      },
+      "task": {
+        "complex": 20,
+        "multi_question": 10,
+        "parallel_subtasks": 11,
+        "staged": 23
+      },
+      "context": {
+        "ask_source": 127,
+        "challenge": 29,
+        "follow_up": 7,
+        "needs_clarification": 6,
+        "soft_doubt": 57
+      },
+      "safety": {}
+    },
+    "signal_bucket_removed_counts": {
+      "intent": {
+        "ask_capability": 11,
+        "ask_source": 2,
+        "challenge": 3,
+        "chat": 12,
+        "qa": 12,
+        "soft_doubt": 2
+      },
+      "task": {},
+      "context": {
+        "needs_clarification": 4
+      },
+      "safety": {
+        "out_of_scope": 8,
+        "unsupported": 8
+      }
+    },
+    "field_change_counts": {
+      "control.mode": 34,
+      "control.route": 53,
+      "resolved.context_dependency": 17,
+      "resolved.main_intent": 31,
+      "resolved.modifiers.ask_capability": 11,
+      "resolved.modifiers.ask_source": 4,
+      "resolved.modifiers.challenge": 3,
+      "resolved.modifiers.follow_up": 7,
+      "resolved.modifiers.needs_clarification": 10,
+      "resolved.modifiers.out_of_scope": 8,
+      "resolved.modifiers.soft_doubt": 2,
+      "resolved.task.complexity": 36,
+      "resolved.task.shape": 45,
+      "resolved.task.topology": 35
+    },
+    "top_transitions": [
+      {
+        "transition": "resolved.task.topology:single->staged",
+        "count": 23
+      },
+      {
+        "transition": "resolved.task.shape:verify->single_question",
+        "count": 17
+      },
+      {
+        "transition": "resolved.task.complexity:simple->compound",
+        "count": 16
+      },
+      {
+        "transition": "resolved.task.complexity:simple->complex",
+        "count": 16
+      },
+      {
+        "transition": "control.route:rag->agent",
+        "count": 16
+      },
+      {
+        "transition": "control.mode:clarify->normal",
+        "count": 12
+      },
+      {
+        "transition": "control.mode:capability->normal",
+        "count": 11
+      },
+      {
+        "transition": "resolved.modifiers.ask_capability:True->False",
+        "count": 11
+      },
+      {
+        "transition": "resolved.main_intent:qa->chat",
+        "count": 10
+      },
+      {
+        "transition": "control.route:direct->chat",
+        "count": 9
+      },
+      {
+        "transition": "resolved.main_intent:unsupported->chat",
+        "count": 8
+      },
+      {
+        "transition": "control.route:reject->chat",
+        "count": 8
+      },
+      {
+        "transition": "resolved.modifiers.out_of_scope:True->False",
+        "count": 8
+      },
+      {
+        "transition": "resolved.modifiers.follow_up:False->True",
+        "count": 7
+      },
+      {
+        "transition": "resolved.task.topology:single->parallel_queries",
+        "count": 7
+      },
+      {
+        "transition": "control.route:direct->rag",
+        "count": 7
+      },
+      {
+        "transition": "resolved.main_intent:system->chat",
+        "count": 7
+      },
+      {
+        "transition": "resolved.context_dependency:none->ambiguous",
+        "count": 6
+      },
+      {
+        "transition": "control.mode:normal->clarify",
+        "count": 6
+      },
+      {
+        "transition": "resolved.modifiers.needs_clarification:False->True",
+        "count": 6
+      }
+    ]
+  },
+  "datasets": [
+    {
+      "dataset": "frozen_heldout_v2",
+      "rows": 9,
+      "batches": {
+        "qa_generic_frozen": 3,
+        "qa_judgment_frozen": 3,
+        "soft_doubt_frozen": 3
+      },
+      "evidence_changed_rows": 7,
+      "label_changed_rows": 9,
+      "signal_added_counts": {
+        "follow_up": 1,
+        "needs_clarification": 3
+      },
+      "signal_removed_counts": {
+        "qa": 2,
+        "soft_doubt": 2
+      },
+      "signal_bucket_added_counts": {
+        "intent": {},
+        "task": {},
+        "context": {
+          "follow_up": 1,
+          "needs_clarification": 3,
+          "soft_doubt": 1
+        },
+        "safety": {}
+      },
+      "signal_bucket_removed_counts": {
+        "intent": {
+          "qa": 2,
+          "soft_doubt": 2
+        },
+        "task": {},
+        "context": {},
+        "safety": {}
+      },
+      "field_change_counts": {
+        "control.mode": 3,
+        "control.route": 6,
+        "resolved.context_dependency": 5,
+        "resolved.main_intent": 4,
+        "resolved.modifiers.follow_up": 1,
+        "resolved.modifiers.needs_clarification": 3,
+        "resolved.modifiers.soft_doubt": 2,
+        "resolved.task.shape": 9
+      },
+      "top_transitions": [
+        {
+          "transition": "resolved.task.shape:verify->single_question",
+          "count": 5
+        },
+        {
+          "transition": "resolved.main_intent:qa->chat",
+          "count": 4
+        },
+        {
+          "transition": "resolved.task.shape:verify->none",
+          "count": 4
+        },
+        {
+          "transition": "resolved.context_dependency:none->ambiguous",
+          "count": 3
+        },
+        {
+          "transition": "control.route:rag->direct",
+          "count": 3
+        },
+        {
+          "transition": "control.mode:normal->clarify",
+          "count": 3
+        },
+        {
+          "transition": "resolved.modifiers.needs_clarification:False->True",
+          "count": 3
+        },
+        {
+          "transition": "control.route:rag->chat",
+          "count": 3
+        },
+        {
+          "transition": "resolved.context_dependency:previous_answer->none",
+          "count": 2
+        },
+        {
+          "transition": "resolved.modifiers.soft_doubt:True->False",
+          "count": 2
+        },
+        {
+          "transition": "resolved.modifiers.follow_up:False->True",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "dataset": "intent_query_full_set_campaign_v1_silver_v1",
+      "rows": 1137,
+      "batches": {
+        "challenge": 28,
+        "chat": 8,
+        "follow_up": 475,
+        "fuzzy_qa": 16,
+        "long_case_complex": 38,
+        "meta": 84,
+        "mixed_intent": 6,
+        "standard_qa": 482
+      },
+      "evidence_changed_rows": 30,
+      "label_changed_rows": 25,
+      "signal_added_counts": {
+        "parallel_subtasks": 9,
+        "staged": 22
+      },
+      "signal_removed_counts": {},
+      "signal_bucket_added_counts": {
+        "intent": {},
+        "task": {
+          "parallel_subtasks": 9,
+          "staged": 22
+        },
+        "context": {
+          "ask_source": 93,
+          "challenge": 22,
+          "soft_doubt": 21
+        },
+        "safety": {}
+      },
+      "signal_bucket_removed_counts": {
+        "intent": {},
+        "task": {},
+        "context": {},
+        "safety": {}
+      },
+      "field_change_counts": {
+        "resolved.task.complexity": 2,
+        "resolved.task.shape": 2,
+        "resolved.task.topology": 25
+      },
+      "top_transitions": [
+        {
+          "transition": "resolved.task.topology:single->staged",
+          "count": 22
+        },
+        {
+          "transition": "resolved.task.complexity:simple->compound",
+          "count": 2
+        },
+        {
+          "transition": "resolved.task.shape:single_question->multi_question",
+          "count": 2
+        },
+        {
+          "transition": "resolved.task.topology:single->parallel_subtasks",
+          "count": 2
+        },
+        {
+          "transition": "resolved.task.topology:parallel_queries->parallel_subtasks",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "dataset": "query_list_campaign_v1_silver_v1",
+      "rows": 16,
+      "batches": {
+        "challenge": 4,
+        "follow_up": 5,
+        "fuzzy_qa": 2,
+        "meta": 3,
+        "mixed_intent": 2
+      },
+      "evidence_changed_rows": 1,
+      "label_changed_rows": 1,
+      "signal_added_counts": {
+        "staged": 1
+      },
+      "signal_removed_counts": {},
+      "signal_bucket_added_counts": {
+        "intent": {},
+        "task": {
+          "staged": 1
+        },
+        "context": {
+          "ask_source": 3,
+          "challenge": 3
+        },
+        "safety": {}
+      },
+      "signal_bucket_removed_counts": {
+        "intent": {},
+        "task": {},
+        "context": {},
+        "safety": {}
+      },
+      "field_change_counts": {
+        "resolved.task.topology": 1
+      },
+      "top_transitions": [
+        {
+          "transition": "resolved.task.topology:single->staged",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "dataset": "seed_query_20260514_campaign_v1_silver_v1",
+      "rows": 40,
+      "batches": {
+        "challenge": 20,
+        "fuzzy_qa": 10,
+        "standard_qa": 10
+      },
+      "evidence_changed_rows": 0,
+      "label_changed_rows": 0,
+      "signal_added_counts": {},
+      "signal_removed_counts": {},
+      "signal_bucket_added_counts": {
+        "intent": {},
+        "task": {},
+        "context": {
+          "ask_source": 5,
+          "soft_doubt": 19
+        },
+        "safety": {}
+      },
+      "signal_bucket_removed_counts": {
+        "intent": {},
+        "task": {},
+        "context": {},
+        "safety": {}
+      },
+      "field_change_counts": {},
+      "top_transitions": []
+    },
+    {
+      "dataset": "seed_query_20260514_gold_v1",
+      "rows": 15,
+      "batches": {
+        "qa_generic_seed": 5,
+        "qa_judgment_seed": 5,
+        "soft_doubt_seed": 5
+      },
+      "evidence_changed_rows": 10,
+      "label_changed_rows": 15,
+      "signal_added_counts": {
+        "complex": 5,
+        "follow_up": 2,
+        "multi_question": 6,
+        "needs_clarification": 1
+      },
+      "signal_removed_counts": {},
+      "signal_bucket_added_counts": {
+        "intent": {},
+        "task": {
+          "complex": 5,
+          "multi_question": 6
+        },
+        "context": {
+          "follow_up": 2,
+          "needs_clarification": 1,
+          "soft_doubt": 5
+        },
+        "safety": {}
+      },
+      "signal_bucket_removed_counts": {
+        "intent": {},
+        "task": {},
+        "context": {},
+        "safety": {}
+      },
+      "field_change_counts": {
+        "control.mode": 1,
+        "control.route": 6,
+        "resolved.context_dependency": 1,
+        "resolved.modifiers.follow_up": 2,
+        "resolved.modifiers.needs_clarification": 1,
+        "resolved.task.complexity": 8,
+        "resolved.task.shape": 14,
+        "resolved.task.topology": 4
+      },
+      "top_transitions": [
+        {
+          "transition": "resolved.task.shape:verify->single_question",
+          "count": 7
+        },
+        {
+          "transition": "control.route:rag->agent",
+          "count": 5
+        },
+        {
+          "transition": "resolved.task.complexity:simple->complex",
+          "count": 4
+        },
+        {
+          "transition": "resolved.task.complexity:simple->compound",
+          "count": 3
+        },
+        {
+          "transition": "resolved.task.topology:single->parallel_queries",
+          "count": 3
+        },
+        {
+          "transition": "resolved.task.shape:single_question->verify",
+          "count": 2
+        },
+        {
+          "transition": "resolved.task.shape:single_question->multi_question",
+          "count": 2
+        },
+        {
+          "transition": "resolved.modifiers.follow_up:False->True",
+          "count": 2
+        },
+        {
+          "transition": "resolved.task.complexity:compound->complex",
+          "count": 1
+        },
+        {
+          "transition": "resolved.task.shape:multi_question->mixed",
+          "count": 1
+        },
+        {
+          "transition": "resolved.task.topology:parallel_queries->single",
+          "count": 1
+        },
+        {
+          "transition": "resolved.context_dependency:none->ambiguous",
+          "count": 1
+        },
+        {
+          "transition": "control.route:rag->direct",
+          "count": 1
+        },
+        {
+          "transition": "control.mode:normal->clarify",
+          "count": 1
+        },
+        {
+          "transition": "resolved.modifiers.needs_clarification:False->True",
+          "count": 1
+        },
+        {
+          "transition": "resolved.task.shape:verify->multi_question",
+          "count": 1
+        },
+        {
+          "transition": "resolved.task.shape:verify->compare",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "dataset": "seed_query_20260515_campaign_v2_silver_v1",
+      "rows": 56,
+      "batches": {
+        "challenge": 16,
+        "follow_up": 25,
+        "meta": 9,
+        "standard_qa": 6
+      },
+      "evidence_changed_rows": 1,
+      "label_changed_rows": 1,
+      "signal_added_counts": {
+        "parallel_subtasks": 1
+      },
+      "signal_removed_counts": {},
+      "signal_bucket_added_counts": {
+        "intent": {},
+        "task": {
+          "parallel_subtasks": 1
+        },
+        "context": {
+          "ask_source": 14,
+          "soft_doubt": 7
+        },
+        "safety": {}
+      },
+      "signal_bucket_removed_counts": {
+        "intent": {},
+        "task": {},
+        "context": {},
+        "safety": {}
+      },
+      "field_change_counts": {
+        "resolved.task.complexity": 1,
+        "resolved.task.shape": 1,
+        "resolved.task.topology": 1
+      },
+      "top_transitions": [
+        {
+          "transition": "resolved.task.complexity:simple->compound",
+          "count": 1
+        },
+        {
+          "transition": "resolved.task.shape:single_question->multi_question",
+          "count": 1
+        },
+        {
+          "transition": "resolved.task.topology:single->parallel_subtasks",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "dataset": "seed_query_20260515_gold_v1",
+      "rows": 14,
+      "batches": {
+        "challenge_seed": 2,
+        "chat_seed": 2,
+        "clarify_seed": 2,
+        "compare_seed": 2,
+        "summarize_seed": 2,
+        "system_seed": 2,
+        "unsupported_seed": 2
+      },
+      "evidence_changed_rows": 11,
+      "label_changed_rows": 10,
+      "signal_added_counts": {
+        "complex": 4,
+        "multi_question": 2,
+        "parallel_subtasks": 1
+      },
+      "signal_removed_counts": {
+        "ask_capability": 2,
+        "challenge": 1,
+        "chat": 2,
+        "needs_clarification": 1,
+        "out_of_scope": 1,
+        "qa": 4,
+        "unsupported": 1
+      },
+      "signal_bucket_added_counts": {
+        "intent": {},
+        "task": {
+          "complex": 4,
+          "multi_question": 2,
+          "parallel_subtasks": 1
+        },
+        "context": {
+          "challenge": 1
+        },
+        "safety": {}
+      },
+      "signal_bucket_removed_counts": {
+        "intent": {
+          "ask_capability": 2,
+          "challenge": 1,
+          "chat": 2,
+          "qa": 4
+        },
+        "task": {},
+        "context": {
+          "needs_clarification": 1
+        },
+        "safety": {
+          "out_of_scope": 1,
+          "unsupported": 1
+        }
+      },
+      "field_change_counts": {
+        "control.mode": 5,
+        "control.route": 9,
+        "resolved.context_dependency": 2,
+        "resolved.main_intent": 6,
+        "resolved.modifiers.ask_capability": 2,
+        "resolved.modifiers.challenge": 1,
+        "resolved.modifiers.needs_clarification": 1,
+        "resolved.modifiers.out_of_scope": 1,
+        "resolved.task.complexity": 5,
+        "resolved.task.shape": 2,
+        "resolved.task.topology": 1
+      },
+      "top_transitions": [
+        {
+          "transition": "resolved.task.complexity:simple->complex",
+          "count": 4
+        },
+        {
+          "transition": "control.route:rag->agent",
+          "count": 4
+        },
+        {
+          "transition": "resolved.main_intent:qa->chat",
+          "count": 3
+        },
+        {
+          "transition": "control.route:direct->chat",
+          "count": 2
+        },
+        {
+          "transition": "control.mode:clarify->normal",
+          "count": 2
+        },
+        {
+          "transition": "control.mode:capability->normal",
+          "count": 2
+        },
+        {
+          "transition": "resolved.modifiers.ask_capability:True->False",
+          "count": 2
+        },
+        {
+          "transition": "resolved.context_dependency:previous_answer->none",
+          "count": 1
+        },
+        {
+          "transition": "resolved.task.shape:verify->none",
+          "count": 1
+        },
+        {
+          "transition": "control.route:rag->chat",
+          "count": 1
+        },
+        {
+          "transition": "control.mode:challenge->normal",
+          "count": 1
+        },
+        {
+          "transition": "resolved.modifiers.challenge:True->False",
+          "count": 1
+        },
+        {
+          "transition": "resolved.context_dependency:ambiguous->none",
+          "count": 1
+        },
+        {
+          "transition": "resolved.modifiers.needs_clarification:True->False",
+          "count": 1
+        },
+        {
+          "transition": "resolved.main_intent:system->qa",
+          "count": 1
+        },
+        {
+          "transition": "resolved.task.complexity:simple->compound",
+          "count": 1
+        },
+        {
+          "transition": "resolved.task.shape:none->multi_question",
+          "count": 1
+        },
+        {
+          "transition": "resolved.task.topology:single->parallel_queries",
+          "count": 1
+        },
+        {
+          "transition": "control.route:direct->rag",
+          "count": 1
+        },
+        {
+          "transition": "resolved.main_intent:system->chat",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "dataset": "seed_query_20260515_gold_v2",
+      "rows": 28,
+      "batches": {
+        "ask_source_seed": 6,
+        "follow_up_seed": 8,
+        "multi_question_seed": 6,
+        "soft_doubt_seed": 8
+      },
+      "evidence_changed_rows": 0,
+      "label_changed_rows": 0,
+      "signal_added_counts": {},
+      "signal_removed_counts": {},
+      "signal_bucket_added_counts": {
+        "intent": {},
+        "task": {},
+        "context": {
+          "ask_source": 8,
+          "soft_doubt": 4
+        },
+        "safety": {}
+      },
+      "signal_bucket_removed_counts": {
+        "intent": {},
+        "task": {},
+        "context": {},
+        "safety": {}
+      },
+      "field_change_counts": {},
+      "top_transitions": []
+    },
+    {
+      "dataset": "seed_query_20260516_gold_v1",
+      "rows": 48,
+      "batches": {
+        "challenge_seed": 4,
+        "chat_seed": 4,
+        "clarify_seed": 4,
+        "compare_seed": 6,
+        "multi_question_seed": 8,
+        "soft_doubt_boundary_seed": 8,
+        "summarize_seed": 6,
+        "system_seed": 4,
+        "unsupported_seed": 4
+      },
+      "evidence_changed_rows": 34,
+      "label_changed_rows": 39,
+      "signal_added_counts": {
+        "ask_source": 3,
+        "complex": 10,
+        "follow_up": 4,
+        "multi_question": 1,
+        "needs_clarification": 2,
+        "qa": 4,
+        "system": 1
+      },
+      "signal_removed_counts": {
+        "ask_capability": 3,
+        "ask_source": 2,
+        "challenge": 2,
+        "chat": 4,
+        "needs_clarification": 3,
+        "out_of_scope": 3,
+        "qa": 6,
+        "unsupported": 3
+      },
+      "signal_bucket_added_counts": {
+        "intent": {
+          "ask_source": 3,
+          "qa": 4,
+          "system": 1
+        },
+        "task": {
+          "complex": 10,
+          "multi_question": 1
+        },
+        "context": {
+          "ask_source": 4,
+          "challenge": 3,
+          "follow_up": 4,
+          "needs_clarification": 2
+        },
+        "safety": {}
+      },
+      "signal_bucket_removed_counts": {
+        "intent": {
+          "ask_capability": 3,
+          "ask_source": 2,
+          "challenge": 2,
+          "chat": 4,
+          "qa": 6
+        },
+        "task": {},
+        "context": {
+          "needs_clarification": 3
+        },
+        "safety": {
+          "out_of_scope": 3,
+          "unsupported": 3
+        }
+      },
+      "field_change_counts": {
+        "control.mode": 15,
+        "control.route": 22,
+        "resolved.context_dependency": 9,
+        "resolved.main_intent": 11,
+        "resolved.modifiers.ask_capability": 3,
+        "resolved.modifiers.ask_source": 4,
+        "resolved.modifiers.challenge": 2,
+        "resolved.modifiers.follow_up": 4,
+        "resolved.modifiers.needs_clarification": 5,
+        "resolved.modifiers.out_of_scope": 3,
+        "resolved.task.complexity": 18,
+        "resolved.task.shape": 15,
+        "resolved.task.topology": 2
+      },
+      "top_transitions": [
+        {
+          "transition": "resolved.task.complexity:simple->compound",
+          "count": 8
+        },
+        {
+          "transition": "resolved.task.complexity:simple->complex",
+          "count": 7
+        },
+        {
+          "transition": "control.route:rag->agent",
+          "count": 7
+        },
+        {
+          "transition": "control.mode:clarify->normal",
+          "count": 6
+        },
+        {
+          "transition": "resolved.task.shape:verify->single_question",
+          "count": 5
+        },
+        {
+          "transition": "resolved.task.shape:none->single_question",
+          "count": 5
+        },
+        {
+          "transition": "control.route:direct->rag",
+          "count": 5
+        },
+        {
+          "transition": "resolved.modifiers.follow_up:False->True",
+          "count": 4
+        },
+        {
+          "transition": "resolved.context_dependency:previous_answer->history_reference",
+          "count": 4
+        },
+        {
+          "transition": "resolved.context_dependency:ambiguous->none",
+          "count": 3
+        },
+        {
+          "transition": "resolved.modifiers.needs_clarification:True->False",
+          "count": 3
+        },
+        {
+          "transition": "resolved.main_intent:qa->chat",
+          "count": 3
+        },
+        {
+          "transition": "control.route:direct->chat",
+          "count": 3
+        },
+        {
+          "transition": "resolved.main_intent:system->qa",
+          "count": 3
+        },
+        {
+          "transition": "resolved.modifiers.ask_source:False->True",
+          "count": 3
+        },
+        {
+          "transition": "control.mode:capability->normal",
+          "count": 3
+        },
+        {
+          "transition": "resolved.modifiers.ask_capability:True->False",
+          "count": 3
+        },
+        {
+          "transition": "resolved.main_intent:unsupported->chat",
+          "count": 3
+        },
+        {
+          "transition": "control.route:reject->chat",
+          "count": 3
+        },
+        {
+          "transition": "resolved.modifiers.out_of_scope:True->False",
+          "count": 3
+        }
+      ]
+    },
+    {
+      "dataset": "seed_query_20260517_gold_v1",
+      "rows": 18,
+      "batches": {
+        "chat_seed": 6,
+        "system_seed": 6,
+        "unsupported_seed": 6
+      },
+      "evidence_changed_rows": 16,
+      "label_changed_rows": 10,
+      "signal_added_counts": {
+        "complex": 1,
+        "multi_question": 1
+      },
+      "signal_removed_counts": {
+        "ask_capability": 6,
+        "chat": 6,
+        "out_of_scope": 4,
+        "unsupported": 4
+      },
+      "signal_bucket_added_counts": {
+        "intent": {},
+        "task": {
+          "complex": 1,
+          "multi_question": 1
+        },
+        "context": {},
+        "safety": {}
+      },
+      "signal_bucket_removed_counts": {
+        "intent": {
+          "ask_capability": 6,
+          "chat": 6
+        },
+        "task": {},
+        "context": {},
+        "safety": {
+          "out_of_scope": 4,
+          "unsupported": 4
+        }
+      },
+      "field_change_counts": {
+        "control.mode": 10,
+        "control.route": 10,
+        "resolved.main_intent": 10,
+        "resolved.modifiers.ask_capability": 6,
+        "resolved.modifiers.out_of_scope": 4,
+        "resolved.task.complexity": 2,
+        "resolved.task.shape": 2,
+        "resolved.task.topology": 1
+      },
+      "top_transitions": [
+        {
+          "transition": "control.mode:capability->normal",
+          "count": 6
+        },
+        {
+          "transition": "resolved.modifiers.ask_capability:True->False",
+          "count": 6
+        },
+        {
+          "transition": "resolved.main_intent:system->chat",
+          "count": 4
+        },
+        {
+          "transition": "control.route:direct->chat",
+          "count": 4
+        },
+        {
+          "transition": "resolved.main_intent:unsupported->chat",
+          "count": 4
+        },
+        {
+          "transition": "control.route:reject->chat",
+          "count": 4
+        },
+        {
+          "transition": "control.mode:clarify->normal",
+          "count": 4
+        },
+        {
+          "transition": "resolved.modifiers.out_of_scope:True->False",
+          "count": 4
+        },
+        {
+          "transition": "resolved.main_intent:system->qa",
+          "count": 2
+        },
+        {
+          "transition": "resolved.task.complexity:simple->complex",
+          "count": 1
+        },
+        {
+          "transition": "resolved.task.shape:none->summarize",
+          "count": 1
+        },
+        {
+          "transition": "control.route:direct->agent",
+          "count": 1
+        },
+        {
+          "transition": "resolved.task.complexity:simple->compound",
+          "count": 1
+        },
+        {
+          "transition": "resolved.task.shape:none->multi_question",
+          "count": 1
+        },
+        {
+          "transition": "resolved.task.topology:single->parallel_queries",
+          "count": 1
+        },
+        {
+          "transition": "control.route:direct->rag",
+          "count": 1
+        }
+      ]
+    }
+  ]
+}

@@ -117,6 +117,19 @@ def test_compute_metrics_for_soft_doubt_returns_binary_scores() -> None:
     assert metrics["confusion"] == {"tn": 1, "fp": 1, "fn": 1, "tp": 1}
 
 
+def test_compute_metrics_for_modifier_binary_task_reuses_binary_metrics() -> None:
+    metrics = compute_metrics(
+        task_name="modifier_follow_up",
+        label_names=["false", "true"],
+        gold=[1, 0, 1, 0],
+        pred=[1, 1, 0, 0],
+    )
+
+    assert metrics["precision"] == 0.5
+    assert metrics["recall"] == 0.5
+    assert metrics["f1"] == 0.5
+
+
 def test_compute_metrics_for_task_shape_returns_macro_f1_and_confusion() -> None:
     metrics = compute_metrics(
         task_name="task_shape",

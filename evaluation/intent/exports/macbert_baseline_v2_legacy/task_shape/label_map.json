@@ -1,0 +1,10 @@
+{
+  "single_question": 0,
+  "multi_question": 1,
+  "compare": 2,
+  "summarize": 3,
+  "extract": 4,
+  "verify": 5,
+  "mixed": 6,
+  "none": 7
+}

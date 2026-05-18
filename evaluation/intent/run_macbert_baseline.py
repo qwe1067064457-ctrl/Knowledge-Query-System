@@ -101,7 +101,7 @@ def summarize_bundle(bundle: dict[str, Any]) -> dict[str, Any]:
 def compute_metrics(*, task_name: str, label_names: list[str], gold: list[int], pred: list[int]) -> dict[str, Any]:
     if len(gold) != len(pred):
         raise ValueError("gold and pred must have the same length")
-    if task_name == "soft_doubt":
+    if _looks_like_binary_task(task_name=task_name, label_names=label_names):
         return compute_binary_metrics(gold=gold, pred=pred, positive_label=1, label_names=label_names)
     return compute_multiclass_metrics(gold=gold, pred=pred, label_names=label_names)
 
@@ -471,6 +471,10 @@ def safe_divide(numerator: float, denominator: float) -> float:
 
 def round_metric(value: float) -> float:
     return round(value, 6)
+
+
+def _looks_like_binary_task(*, task_name: str, label_names: list[str]) -> bool:
+    return task_name == "soft_doubt" or (len(label_names) == 2 and set(label_names) == {"false", "true"})
 
 
 def main() -> int:

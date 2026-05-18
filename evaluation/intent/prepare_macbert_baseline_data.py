@@ -6,13 +6,58 @@ from collections import Counter, defaultdict
 from pathlib import Path
 from typing import Any
 
+MAIN_INTENT_LABELS = (
+    "qa",
+    "chat",
+    "system",
+    "unsupported",
+)
+
+TASK_COMPLEXITY_LABELS = (
+    "simple",
+    "compound",
+    "complex",
+)
+
 TASK_SHAPE_LABELS = (
     "single_question",
-    "verify",
+    "multi_question",
     "compare",
     "summarize",
-    "multi_question",
+    "extract",
+    "verify",
+    "mixed",
+    "none",
 )
+
+TASK_TOPOLOGY_LABELS = (
+    "single",
+    "parallel_queries",
+    "parallel_subtasks",
+    "staged",
+)
+
+MODIFIER_NAMES = (
+    "follow_up",
+    "challenge",
+    "soft_doubt",
+    "ask_source",
+    "ask_capability",
+    "needs_clarification",
+    "out_of_scope",
+)
+
+MULTICLASS_TASKS: dict[str, tuple[str, ...]] = {
+    "main_intent": MAIN_INTENT_LABELS,
+    "task_complexity": TASK_COMPLEXITY_LABELS,
+    "task_shape": TASK_SHAPE_LABELS,
+    "task_topology": TASK_TOPOLOGY_LABELS,
+}
+
+BINARY_TASKS: dict[str, str] = {
+    "soft_doubt": "soft_doubt",
+    **{f"modifier_{name}": name for name in MODIFIER_NAMES if name != "soft_doubt"},
+}
 
 
 def parse_args() -> argparse.Namespace:
@@ -32,49 +77,62 @@ def load_training_export(path: Path) -> list[dict[str, Any]]:
 
 def prepare_macbert_datasets(rows: list[dict[str, Any]]) -> dict[str, Any]:
     grouped_outputs: dict[str, dict[str, list[dict[str, Any]]]] = {
-        "soft_doubt": defaultdict(list),
-        "task_shape": defaultdict(list),
+        task_name: defaultdict(list)
+        for task_name in (*BINARY_TASKS.keys(), *MULTICLASS_TASKS.keys())
     }
 
     for row in rows:
         split = row["split"]
         text = _build_model_text(row["input"])
         metadata = row.get("metadata", {})
+        resolved = row.get("resolved", {})
+        modifiers = resolved.get("modifiers", {})
+        task = resolved.get("task", {})
+        base_fields = {
+            "id": row["id"],
+            "text": text,
+            "source_dataset": metadata.get("source_dataset", ""),
+            "label_tier": metadata.get("label_tier", "gold"),
+        }
 
-        grouped_outputs["soft_doubt"][split].append(
-            {
-                "id": row["id"],
-                "text": text,
-                "label": int(bool(row["resolved"]["modifiers"]["soft_doubt"])),
-                "label_name": "true" if row["resolved"]["modifiers"]["soft_doubt"] else "false",
-                "source_dataset": metadata.get("source_dataset", ""),
-                "label_tier": metadata.get("label_tier", "gold"),
-            }
-        )
-
-        shape = row["resolved"]["task"]["shape"]
-        if shape in TASK_SHAPE_LABELS:
-            grouped_outputs["task_shape"][split].append(
+        for task_name, modifier_name in BINARY_TASKS.items():
+            value = bool(modifiers.get(modifier_name, False))
+            grouped_outputs[task_name][split].append(
                 {
-                    "id": row["id"],
-                    "text": text,
-                    "label": TASK_SHAPE_LABELS.index(shape),
-                    "label_name": shape,
-                    "source_dataset": metadata.get("source_dataset", ""),
-                    "label_tier": metadata.get("label_tier", "gold"),
+                    **base_fields,
+                    "label": int(value),
+                    "label_name": "true" if value else "false",
+                }
+            )
+
+        multiclass_values = {
+            "main_intent": resolved.get("main_intent", ""),
+            "task_complexity": task.get("complexity", ""),
+            "task_shape": task.get("shape", ""),
+            "task_topology": task.get("topology", ""),
+        }
+        for task_name, labels in MULTICLASS_TASKS.items():
+            value = str(multiclass_values.get(task_name, ""))
+            if value not in labels:
+                continue
+            grouped_outputs[task_name][split].append(
+                {
+                    **base_fields,
+                    "label": labels.index(value),
+                    "label_name": value,
                 }
             )
 
     summary = {
-        "soft_doubt": _summarize_task(grouped_outputs["soft_doubt"]),
-        "task_shape": _summarize_task(grouped_outputs["task_shape"]),
+        task_name: _summarize_task(grouped_outputs[task_name])
+        for task_name in grouped_outputs
     }
     return {
         "datasets": grouped_outputs,
         "summary": summary,
         "label_maps": {
-            "soft_doubt": {"false": 0, "true": 1},
-            "task_shape": {label: idx for idx, label in enumerate(TASK_SHAPE_LABELS)},
+            **{task_name: {"false": 0, "true": 1} for task_name in BINARY_TASKS},
+            **{task_name: {label: idx for idx, label in enumerate(labels)} for task_name, labels in MULTICLASS_TASKS.items()},
         },
     }
 
@@ -84,7 +142,8 @@ def write_macbert_datasets(output_dir: Path, prepared: dict[str, Any], *, source
     for task_name, split_rows in prepared["datasets"].items():
         task_dir = output_dir / task_name
         task_dir.mkdir(parents=True, exist_ok=True)
-        for split, rows in split_rows.items():
+        for split in ("train", "dev", "heldout"):
+            rows = split_rows.get(split, [])
             _write_jsonl(task_dir / f"{split}.jsonl", rows)
         (task_dir / "label_map.json").write_text(
             json.dumps(prepared["label_maps"][task_name], ensure_ascii=False, indent=2) + "\n",

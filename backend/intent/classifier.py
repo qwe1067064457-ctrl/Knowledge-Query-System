@@ -532,7 +532,8 @@ def _infer_complex_shape(text: str) -> str:
         ),
     )
 
-    if summarize_score and (verify_score or compare_score) and (
+    # `mixed` should represent genuine multi-shape requests, not a fallback bucket.
+    if summarize_score >= 1 and max(verify_score, compare_score) >= 1 and (
         len(text) >= 80 or re.search(r"请按步骤|结构化|关键事实|争议点|判断依据", text, re.IGNORECASE)
     ):
         return "mixed"
@@ -545,7 +546,7 @@ def _infer_complex_shape(text: str) -> str:
     }
     shape, score = max(scores.items(), key=lambda item: item[1])
     if score <= 0:
-        return "mixed"
+        return "single_question"
     return shape
 
 

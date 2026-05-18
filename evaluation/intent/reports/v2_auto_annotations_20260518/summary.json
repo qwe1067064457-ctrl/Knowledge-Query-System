@@ -1,0 +1,275 @@
+[
+  {
+    "total": 15,
+    "changed_rows": 15,
+    "review_required": 15,
+    "changed_field_counts": {
+      "control.mode": 1,
+      "control.route": 6,
+      "resolved.context_dependency": 1,
+      "resolved.modifiers.follow_up": 2,
+      "resolved.modifiers.needs_clarification": 1,
+      "resolved.task.complexity": 8,
+      "resolved.task.shape": 14,
+      "resolved.task.topology": 4
+    },
+    "review_reason_counts": {
+      "changed_control_mode": 1,
+      "changed_control_route": 6,
+      "changed_resolved_context_dependency": 1,
+      "changed_resolved_modifiers_follow_up": 2,
+      "changed_resolved_modifiers_needs_clarification": 1,
+      "changed_resolved_task_complexity": 8,
+      "changed_resolved_task_shape": 14,
+      "changed_resolved_task_topology": 4,
+      "task_complexity_compound": 1,
+      "task_shape_non_single": 11
+    },
+    "dataset_dir": "C:\\Users\\HUAWEI\\.codex\\worktrees\\db54\\Skill-First-Hybrid-RAG\\backend_test\\intent\\test_data\\gold\\train\\seed_query_20260514_gold_v1"
+  },
+  {
+    "total": 28,
+    "changed_rows": 0,
+    "review_required": 26,
+    "changed_field_counts": {},
+    "review_reason_counts": {
+      "control_mode_clarify": 3,
+      "control_route_direct": 3,
+      "modifier_ask_source": 8,
+      "modifier_follow_up": 7,
+      "modifier_needs_clarification": 3,
+      "task_complexity_complex": 8,
+      "task_complexity_compound": 2,
+      "task_shape_non_single": 14
+    },
+    "dataset_dir": "C:\\Users\\HUAWEI\\.codex\\worktrees\\db54\\Skill-First-Hybrid-RAG\\backend_test\\intent\\test_data\\gold\\train\\seed_query_20260515_gold_v2"
+  },
+  {
+    "total": 48,
+    "changed_rows": 39,
+    "review_required": 48,
+    "changed_field_counts": {
+      "control.mode": 15,
+      "control.route": 22,
+      "resolved.context_dependency": 9,
+      "resolved.main_intent": 11,
+      "resolved.modifiers.ask_capability": 3,
+      "resolved.modifiers.ask_source": 4,
+      "resolved.modifiers.challenge": 2,
+      "resolved.modifiers.follow_up": 4,
+      "resolved.modifiers.needs_clarification": 5,
+      "resolved.modifiers.out_of_scope": 3,
+      "resolved.task.complexity": 18,
+      "resolved.task.shape": 15,
+      "resolved.task.topology": 2
+    },
+    "review_reason_counts": {
+      "changed_control_mode": 15,
+      "changed_control_route": 22,
+      "changed_resolved_context_dependency": 9,
+      "changed_resolved_main_intent": 11,
+      "changed_resolved_modifiers_ask_capability": 3,
+      "changed_resolved_modifiers_ask_source": 4,
+      "changed_resolved_modifiers_challenge": 2,
+      "changed_resolved_modifiers_follow_up": 4,
+      "changed_resolved_modifiers_needs_clarification": 5,
+      "changed_resolved_modifiers_out_of_scope": 3,
+      "changed_resolved_task_complexity": 18,
+      "changed_resolved_task_shape": 15,
+      "changed_resolved_task_topology": 2,
+      "control_mode_clarify": 8,
+      "control_route_direct": 10,
+      "control_route_reject": 4,
+      "modifier_ask_source": 2,
+      "modifier_challenge": 5,
+      "modifier_follow_up": 3,
+      "modifier_needs_clarification": 4,
+      "task_complexity_complex": 6,
+      "task_shape_non_single": 48
+    },
+    "dataset_dir": "C:\\Users\\HUAWEI\\.codex\\worktrees\\db54\\Skill-First-Hybrid-RAG\\backend_test\\intent\\test_data\\gold\\train\\seed_query_20260516_gold_v1"
+  },
+  {
+    "total": 18,
+    "changed_rows": 10,
+    "review_required": 18,
+    "changed_field_counts": {
+      "control.mode": 10,
+      "control.route": 10,
+      "resolved.main_intent": 10,
+      "resolved.modifiers.ask_capability": 6,
+      "resolved.modifiers.out_of_scope": 4,
+      "resolved.task.complexity": 2,
+      "resolved.task.shape": 2,
+      "resolved.task.topology": 1
+    },
+    "review_reason_counts": {
+      "changed_control_mode": 10,
+      "changed_control_route": 10,
+      "changed_resolved_main_intent": 10,
+      "changed_resolved_modifiers_ask_capability": 6,
+      "changed_resolved_modifiers_out_of_scope": 4,
+      "changed_resolved_task_complexity": 2,
+      "changed_resolved_task_shape": 2,
+      "changed_resolved_task_topology": 1,
+      "control_mode_clarify": 6,
+      "control_route_direct": 6,
+      "control_route_reject": 6,
+      "task_shape_non_single": 18
+    },
+    "dataset_dir": "C:\\Users\\HUAWEI\\.codex\\worktrees\\db54\\Skill-First-Hybrid-RAG\\backend_test\\intent\\test_data\\gold\\train\\seed_query_20260517_gold_v1"
+  },
+  {
+    "total": 1137,
+    "changed_rows": 25,
+    "review_required": 1034,
+    "changed_field_counts": {
+      "resolved.task.complexity": 2,
+      "resolved.task.shape": 2,
+      "resolved.task.topology": 25
+    },
+    "review_reason_counts": {
+      "changed_resolved_task_complexity": 2,
+      "changed_resolved_task_shape": 2,
+      "changed_resolved_task_topology": 25,
+      "control_mode_clarify": 229,
+      "control_route_direct": 210,
+      "control_route_reject": 20,
+      "modifier_ask_source": 93,
+      "modifier_challenge": 22,
+      "modifier_follow_up": 291,
+      "modifier_needs_clarification": 211,
+      "task_complexity_complex": 110,
+      "task_complexity_compound": 220,
+      "task_shape_non_single": 753
+    },
+    "dataset_dir": "C:\\Users\\HUAWEI\\.codex\\worktrees\\db54\\Skill-First-Hybrid-RAG\\backend_test\\intent\\test_data\\gold\\silver\\intent_query_full_set_campaign_v1_silver_v1"
+  },
+  {
+    "total": 16,
+    "changed_rows": 1,
+    "review_required": 16,
+    "changed_field_counts": {
+      "resolved.task.topology": 1
+    },
+    "review_reason_counts": {
+      "changed_resolved_task_topology": 1,
+      "control_mode_clarify": 4,
+      "control_route_direct": 4,
+      "modifier_ask_source": 3,
+      "modifier_challenge": 3,
+      "modifier_follow_up": 3,
+      "modifier_needs_clarification": 5,
+      "task_complexity_complex": 1,
+      "task_complexity_compound": 1,
+      "task_shape_non_single": 9
+    },
+    "dataset_dir": "C:\\Users\\HUAWEI\\.codex\\worktrees\\db54\\Skill-First-Hybrid-RAG\\backend_test\\intent\\test_data\\gold\\silver\\query_list_campaign_v1_silver_v1"
+  },
+  {
+    "total": 40,
+    "changed_rows": 0,
+    "review_required": 32,
+    "changed_field_counts": {},
+    "review_reason_counts": {
+      "control_mode_clarify": 1,
+      "control_route_direct": 1,
+      "modifier_ask_source": 5,
+      "modifier_follow_up": 7,
+      "modifier_needs_clarification": 1,
+      "task_complexity_complex": 23,
+      "task_complexity_compound": 4,
+      "task_shape_non_single": 28
+    },
+    "dataset_dir": "C:\\Users\\HUAWEI\\.codex\\worktrees\\db54\\Skill-First-Hybrid-RAG\\backend_test\\intent\\test_data\\gold\\silver\\seed_query_20260514_campaign_v1_silver_v1"
+  },
+  {
+    "total": 56,
+    "changed_rows": 1,
+    "review_required": 54,
+    "changed_field_counts": {
+      "resolved.task.complexity": 1,
+      "resolved.task.shape": 1,
+      "resolved.task.topology": 1
+    },
+    "review_reason_counts": {
+      "changed_resolved_task_complexity": 1,
+      "changed_resolved_task_shape": 1,
+      "changed_resolved_task_topology": 1,
+      "control_mode_clarify": 10,
+      "control_route_direct": 10,
+      "modifier_ask_source": 14,
+      "modifier_follow_up": 18,
+      "modifier_needs_clarification": 10,
+      "task_complexity_complex": 11,
+      "task_complexity_compound": 5,
+      "task_shape_non_single": 29
+    },
+    "dataset_dir": "C:\\Users\\HUAWEI\\.codex\\worktrees\\db54\\Skill-First-Hybrid-RAG\\backend_test\\intent\\test_data\\gold\\silver\\seed_query_20260515_campaign_v2_silver_v1"
+  },
+  {
+    "total": 14,
+    "changed_rows": 10,
+    "review_required": 14,
+    "changed_field_counts": {
+      "control.mode": 5,
+      "control.route": 9,
+      "resolved.context_dependency": 2,
+      "resolved.main_intent": 6,
+      "resolved.modifiers.ask_capability": 2,
+      "resolved.modifiers.challenge": 1,
+      "resolved.modifiers.needs_clarification": 1,
+      "resolved.modifiers.out_of_scope": 1,
+      "resolved.task.complexity": 5,
+      "resolved.task.shape": 2,
+      "resolved.task.topology": 1
+    },
+    "review_reason_counts": {
+      "changed_control_mode": 5,
+      "changed_control_route": 9,
+      "changed_resolved_context_dependency": 2,
+      "changed_resolved_main_intent": 6,
+      "changed_resolved_modifiers_ask_capability": 2,
+      "changed_resolved_modifiers_challenge": 1,
+      "changed_resolved_modifiers_needs_clarification": 1,
+      "changed_resolved_modifiers_out_of_scope": 1,
+      "changed_resolved_task_complexity": 5,
+      "changed_resolved_task_shape": 2,
+      "changed_resolved_task_topology": 1,
+      "control_mode_clarify": 4,
+      "control_route_direct": 4,
+      "control_route_reject": 2,
+      "modifier_challenge": 2,
+      "modifier_needs_clarification": 2,
+      "task_shape_non_single": 14
+    },
+    "dataset_dir": "C:\\Users\\HUAWEI\\.codex\\worktrees\\db54\\Skill-First-Hybrid-RAG\\backend_test\\intent\\test_data\\gold\\dev\\seed_query_20260515_gold_v1"
+  },
+  {
+    "total": 9,
+    "changed_rows": 9,
+    "review_required": 9,
+    "changed_field_counts": {
+      "control.mode": 3,
+      "control.route": 6,
+      "resolved.context_dependency": 5,
+      "resolved.main_intent": 4,
+      "resolved.modifiers.follow_up": 1,
+      "resolved.modifiers.needs_clarification": 3,
+      "resolved.modifiers.soft_doubt": 2,
+      "resolved.task.shape": 9
+    },
+    "review_reason_counts": {
+      "changed_control_mode": 3,
+      "changed_control_route": 6,
+      "changed_resolved_context_dependency": 5,
+      "changed_resolved_main_intent": 4,
+      "changed_resolved_modifiers_follow_up": 1,
+      "changed_resolved_modifiers_needs_clarification": 3,
+      "changed_resolved_modifiers_soft_doubt": 2,
+      "changed_resolved_task_shape": 9,
+      "task_shape_non_single": 9
+    },
+    "dataset_dir": "C:\\Users\\HUAWEI\\.codex\\worktrees\\db54\\Skill-First-Hybrid-RAG\\backend_test\\intent\\test_data\\gold\\frozen\\frozen_heldout_v2"
+  }
+]

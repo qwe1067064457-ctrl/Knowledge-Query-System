@@ -1,0 +1,6 @@
+{
+  "qa": 0,
+  "chat": 1,
+  "system": 2,
+  "unsupported": 3
+}

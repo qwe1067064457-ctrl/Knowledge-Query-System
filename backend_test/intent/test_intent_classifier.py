@@ -215,16 +215,17 @@ def test_follow_up_missing_history_does_not_override_self_explanatory_qa() -> No
     assert result.control.route != "chat"
 
 
-def test_enumerated_design_query_resolves_to_complex_mixed() -> None:
+def test_enumerated_design_query_prefers_compound_over_mixed_complex() -> None:
     result = classify_intent(
         "1. rule_id 是否完善 2. qa 不在知识库里怎么办 3. resolver 如何收敛 4. 用这条 query 走每一层",
         LAW_HISTORY,
     )
 
     assert result.resolved.main_intent == "qa"
-    assert result.resolved.task.complexity == "complex"
-    assert result.resolved.task.shape in {"mixed", "summarize", "compare", "verify"}
-    assert result.control.route == "agent"
+    assert result.resolved.task.complexity == "compound"
+    assert result.resolved.task.shape == "multi_question"
+    assert result.resolved.task.topology == "parallel_queries"
+    assert result.control.route == "rag"
 
 
 def test_meta_analysis_query_stays_qa_not_chat() -> None:
