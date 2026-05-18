@@ -1,0 +1,250 @@
+[
+  {
+    "id": "seed_20260517_multi_question_101_gold",
+    "batch": "multi_question_seed",
+    "input": {
+      "user_query": "违约金过高能不能调减？调减标准一般看什么？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "multi_question 正例：同一句里包含两个可分解的子问题。",
+    "source_query_id": "seed_20260517_mq_101"
+  },
+  {
+    "id": "seed_20260517_multi_question_102_gold",
+    "batch": "multi_question_seed",
+    "input": {
+      "user_query": "多租户场景里 session key 为什么不能只用 user_id？如果要支持企业隔离，还要再加哪些字段？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "multi_question 正例：先问原因，再问扩展字段，属于并列子任务。",
+    "source_query_id": "seed_20260517_mq_102"
+  },
+  {
+    "id": "seed_20260517_multi_question_103_gold",
+    "batch": "multi_question_seed",
+    "input": {
+      "user_query": "医疗损害责任里因果关系怎么认定？举证责任又怎么分配？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "multi_question 正例：同一主题下的两个独立法律判断点。",
+    "source_query_id": "seed_20260517_mq_103"
+  },
+  {
+    "id": "seed_20260517_multi_question_104_gold",
+    "batch": "multi_question_seed",
+    "input": {
+      "user_query": "如果平台先行赔付，之后怎么向商家追偿？追偿范围通常包括哪些项目？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "multi_question"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "task.enumerated_questions"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "task.enumerated_questions": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "compound",
+          "shape": "multi_question"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "multi_question 正例：同时询问追偿路径和追偿范围。",
+    "source_query_id": "seed_20260517_mq_104"
+  }
+]

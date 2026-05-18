@@ -17,6 +17,8 @@
   - `dev/`：从非冻结高质量样本中切出的开发集
   - `calibration/`：参与过调优的开发校准集
   - `frozen/`：真正冻结的 benchmark / held-out
+    - `frozen_heldout_v2/`：历史冻结集，保留不动
+    - `frozen_heldout_v3/`：补齐 6 个 multi-signal 边界信号覆盖的新冻结集
 - `experiments/`
   - 专项实验、用户批次、脚手架 smoke
 

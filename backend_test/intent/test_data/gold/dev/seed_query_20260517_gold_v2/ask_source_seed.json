@@ -1,0 +1,286 @@
+[
+  {
+    "id": "seed_20260517_ask_source_101_gold",
+    "batch": "ask_source_seed",
+    "input": {
+      "user_query": "你刚才说违约金过高可以调减，具体依据是哪一条？",
+      "history": [
+        {
+          "role": "user",
+          "content": "我们刚才在讨论违约金约定过高时法院会不会调整。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面先概括了违约金调整的一般思路，但没展开法条。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "source.ask_basis": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "ask_source 正例：明确追问法条依据，依赖前一轮回答。",
+    "source_query_id": "seed_20260517_src_101"
+  },
+  {
+    "id": "seed_20260517_ask_source_102_gold",
+    "batch": "ask_source_seed",
+    "input": {
+      "user_query": "前面提到 session 隔离不能只看 user_id，这个结论是基于哪段设计或实现？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论多租户场景里会话隔离的主键设计。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面先解释了为什么 user_id 不能单独承担隔离职责。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "source.ask_basis": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "ask_source 正例：追问设计或实现依据，语义明确指向来源。",
+    "source_query_id": "seed_20260517_src_102"
+  },
+  {
+    "id": "seed_20260517_ask_source_103_gold",
+    "batch": "ask_source_seed",
+    "input": {
+      "user_query": "你刚才把医疗损害的举证责任分成两步，依据是什么？",
+      "history": [
+        {
+          "role": "user",
+          "content": "前面我们在讨论医疗损害责任里举证责任如何分配。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按一般规则和例外情形把举证责任拆成了两段。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "source.ask_basis": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "ask_source 正例：明确要求给出前一轮判断的依据。",
+    "source_query_id": "seed_20260517_src_103"
+  },
+  {
+    "id": "seed_20260517_ask_source_104_gold",
+    "batch": "ask_source_seed",
+    "input": {
+      "user_query": "前面说多标签阈值要单独做 calibration，这个建议主要依据什么？",
+      "history": [
+        {
+          "role": "user",
+          "content": "我们刚才在讨论 multi-signal SFT 里阈值怎么选。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面建议每个 signal 单独做 calibration，再决定最终阈值。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "source.ask_basis": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "ask_source 正例：追问方法建议的依据，而不是继续求结论本身。",
+    "source_query_id": "seed_20260517_src_104"
+  }
+]

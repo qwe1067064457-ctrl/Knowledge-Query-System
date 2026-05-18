@@ -44,6 +44,15 @@
 - 想从一个新对话快速接手当前 SFT 阶段
 - 想看当前 rules、query inputs、gold、supervision、held-out、export 之间的关系
 
+### `multisignal_dev_heldout_backfill_plan_20260517.md`
+
+适合先读它的场景：
+
+- 想看为什么当前 multi-signal SFT 的 `dev/heldout` 还不能稳定评估
+- 想看 6 个边界 signal 目前各缺多少覆盖
+- 想看应该优先从哪些 `query_inputs / silver` 池提样
+- 想看 `heldout_v3` 为什么需要新建而不是回改 `frozen_heldout_v2`
+
 ## 参考子目录
 
 ### `signal_info/`

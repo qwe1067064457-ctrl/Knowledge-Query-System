@@ -1,0 +1,259 @@
+[
+  {
+    "id": "seed_20260517_complex_101_gold",
+    "batch": "complex_seed",
+    "input": {
+      "user_query": "请分步骤比较违约责任和侵权责任的构成要件、举证责任和救济方式，最后说明各自更适合的适用场景。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "compare"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "notes": "complex 正例：多维比较并要求给出适用边界，不能按简单 compare 处理。",
+    "source_query_id": "seed_20260517_cx_101"
+  },
+  {
+    "id": "seed_20260517_complex_102_gold",
+    "batch": "complex_seed",
+    "input": {
+      "user_query": "给我一个分析流程：员工严重违纪、制度未公示、且公司事后补做通知时，解除劳动合同要按哪些步骤判断？",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "verify"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "notes": "complex 正例：需要构造判断流程并处理多个影响因素。",
+    "source_query_id": "seed_20260517_cx_102"
+  },
+  {
+    "id": "seed_20260517_complex_103_gold",
+    "batch": "complex_seed",
+    "input": {
+      "user_query": "基于前面讨论的会话隔离方案，梳理 user_id、session_id、group_id 的职责边界，再说明为什么不能把它们合成一个主键。",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论多租户知识库里会话隔离的主键设计。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面已经分别说明了 user_id、session_id 和 group_id 在隔离里的作用。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "summarize"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "notes": "complex 正例：依赖上文并要求结构化梳理多个概念边界。",
+    "source_query_id": "seed_20260517_cx_103"
+  },
+  {
+    "id": "seed_20260517_complex_104_gold",
+    "batch": "complex_seed",
+    "input": {
+      "user_query": "把当前 multi-signal SFT 的 dev/heldout 覆盖问题拆成排查步骤，再给出最小可行的修复顺序。",
+      "history": []
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": true,
+          "history_reference": false,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "mixed"
+        },
+        "context_dependency": "none"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "notes": "complex 正例：同时要求排查、拆解和排序，属于混合型复杂任务。",
+    "source_query_id": "seed_20260517_cx_104"
+  }
+]

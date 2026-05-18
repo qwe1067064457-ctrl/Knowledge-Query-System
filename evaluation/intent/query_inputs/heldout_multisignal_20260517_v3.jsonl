@@ -1,0 +1,30 @@
+{"id":"heldout_fu_101","query":"那如果是委托第三方代签而不是本人亲自签呢？","hints":{"preferred_batch":"follow_up"},"notes":"heldout-v3 follow_up; contract-signing continuation"}
+{"id":"heldout_fu_102","query":"如果这部分数据其实已经匿名化了，还需要单独告知吗？","hints":{"preferred_batch":"follow_up"},"notes":"heldout-v3 follow_up; privacy-notice continuation"}
+{"id":"heldout_fu_103","query":"那如果平台只是提供交易入口，不直接参与结算呢？","hints":{"preferred_batch":"follow_up"},"notes":"heldout-v3 follow_up; platform-liability continuation"}
+{"id":"heldout_fu_104","query":"如果不是按 tenant_id，而是按 workspace_id 做隔离，会更稳吗？","hints":{"preferred_batch":"follow_up"},"notes":"heldout-v3 follow_up; session-isolation continuation"}
+{"id":"heldout_fu_105","query":"那如果患者事前已经签过概括授权呢？","hints":{"preferred_batch":"follow_up"},"notes":"heldout-v3 follow_up; medical-consent continuation"}
+{"id":"heldout_src_101","query":"你刚才说格式条款要尽到提示说明义务，这个结论依据是什么？","hints":{"preferred_batch":"ask_source"},"notes":"heldout-v3 ask_source; contract-law basis"}
+{"id":"heldout_src_102","query":"前面把检索审计拆成来源、版本和命中记录三层，这个分法依据什么？","hints":{"preferred_batch":"ask_source"},"notes":"heldout-v3 ask_source; audit design basis"}
+{"id":"heldout_src_103","query":"你刚才说平台先行赔付后可以追偿，主要依据是哪一类规则？","hints":{"preferred_batch":"ask_source"},"notes":"heldout-v3 ask_source; recourse basis"}
+{"id":"heldout_src_104","query":"前面提到 needs_clarification 不应先检索，这个策略主要根据什么判断？","hints":{"preferred_batch":"ask_source"},"notes":"heldout-v3 ask_source; clarify routing basis"}
+{"id":"heldout_src_105","query":"你刚才把医疗影像用于科研展示定性为知情同意问题，这个依据是什么？","hints":{"preferred_batch":"ask_source"},"notes":"heldout-v3 ask_source; medical-consent basis"}
+{"id":"heldout_sd_101","query":"你刚才说只要没单独弹窗提示就一定不合规，我有点迟疑，这里是不是还要看处理目的和敏感程度？","hints":{"preferred_batch":"soft_doubt"},"notes":"heldout-v3 soft_doubt; privacy-consent nuance"}
+{"id":"heldout_sd_102","query":"按你前面的解释，制度没公示就完全不能作为处分依据，这个说法会不会过满了？","hints":{"preferred_batch":"soft_doubt"},"notes":"heldout-v3 soft_doubt; labor-rule nuance"}
+{"id":"heldout_sd_103","query":"你把这个问题直接归成 standard QA，我不太确定，如果用户是在探边界，这样分会不会太快？","hints":{"preferred_batch":"soft_doubt"},"notes":"heldout-v3 soft_doubt; router-boundary nuance"}
+{"id":"heldout_sd_104","query":"前面说平台不直接收款就基本免责，我有点怀疑，这里是不是还得看控制力和获益程度？","hints":{"preferred_batch":"soft_doubt"},"notes":"heldout-v3 soft_doubt; platform-control nuance"}
+{"id":"heldout_sd_105","query":"你刚才把 compare 任务直接当成复杂任务处理，我不太拿得准，是不是还要看比较维度到底有多少？","hints":{"preferred_batch":"soft_doubt"},"notes":"heldout-v3 soft_doubt; planner-threshold nuance"}
+{"id":"heldout_mq_101","query":"格式条款未提示会有什么后果？已经履行一部分时还能不能主张撤销？","hints":{"preferred_batch":"multi_question"},"notes":"heldout-v3 multi_question; contract dual question"}
+{"id":"heldout_mq_102","query":"医疗损害里过错怎么认定？因果关系又怎么证明？","hints":{"preferred_batch":"multi_question"},"notes":"heldout-v3 multi_question; medical dual question"}
+{"id":"heldout_mq_103","query":"多租户隔离为什么不能只靠 user_id？如果后面接企业空间，还要补什么字段？","hints":{"preferred_batch":"multi_question"},"notes":"heldout-v3 multi_question; session key dual question"}
+{"id":"heldout_mq_104","query":"平台先行赔付后如何追偿？追偿范围通常包括哪些损失？","hints":{"preferred_batch":"multi_question"},"notes":"heldout-v3 multi_question; recourse dual question"}
+{"id":"heldout_mq_105","query":"如果要把规则层冻结，先看哪些指标？发现 heldout 失败后又该怎么记录？","hints":{"preferred_batch":"multi_question"},"notes":"heldout-v3 multi_question; eval dual question"}
+{"id":"heldout_cx_101","query":"请分步骤分析：在格式条款提示不足、合同已部分履行、且一方主张撤销时，应如何判断条款效力、救济路径和举证重点？","hints":{"preferred_batch":"complex"},"notes":"heldout-v3 complex; contract multi-step analysis"}
+{"id":"heldout_cx_102","query":"给我一个完整判断框架：平台未直接收款但深度参与流量分发和售后管理时，责任承担应从哪些维度逐步分析？","hints":{"preferred_batch":"complex"},"notes":"heldout-v3 complex; platform-liability framework"}
+{"id":"heldout_cx_103","query":"基于多租户知识库的会话隔离场景，系统梳理 user_id、session_id、workspace_id、group_id 的职责边界，再说明为什么不能把它们收缩成一个键。","hints":{"preferred_batch":"complex"},"notes":"heldout-v3 complex; identity-boundary framework"}
+{"id":"heldout_cx_104","query":"把当前 multi-signal 数据评估问题拆成执行步骤：先怎么查 coverage，再怎么区分 train/dev/heldout 的职责，最后怎么安排修复顺序？","hints":{"preferred_batch":"complex"},"notes":"heldout-v3 complex; eval-remediation framework"}
+{"id":"heldout_cx_105","query":"请比较侵权责任与违约责任在请求权基础、构成要件、举证责任和救济方式上的差异，并说明各自容易被误判的边界。","hints":{"preferred_batch":"complex"},"notes":"heldout-v3 complex; comparative legal framework"}
+{"id":"heldout_cl_101","query":"这个现在算哪一档？","hints":{"preferred_batch":"needs_clarification"},"notes":"heldout-v3 clarify; missing referent"}
+{"id":"heldout_cl_102","query":"先照你刚才那个处理就可以吗？","hints":{"preferred_batch":"needs_clarification"},"notes":"heldout-v3 clarify; missing prior anchor"}
+{"id":"heldout_cl_103","query":"这个版本现在能直接用了吧？","hints":{"preferred_batch":"needs_clarification"},"notes":"heldout-v3 clarify; missing object"}
+{"id":"heldout_cl_104","query":"这种情况到底是不是例外？","hints":{"preferred_batch":"needs_clarification"},"notes":"heldout-v3 clarify; missing scenario"}
+{"id":"heldout_cl_105","query":"这里应该按哪个规则先走？","hints":{"preferred_batch":"needs_clarification"},"notes":"heldout-v3 clarify; missing rule target"}

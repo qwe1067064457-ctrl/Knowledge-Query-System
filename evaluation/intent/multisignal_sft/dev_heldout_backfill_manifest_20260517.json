@@ -1,0 +1,236 @@
+{
+  "version": "2026-05-17",
+  "task": "multisignal_dev_heldout_backfill",
+  "signals": [
+    "soft_doubt",
+    "follow_up",
+    "needs_clarification",
+    "ask_source",
+    "multi_question",
+    "complex"
+  ],
+  "freeze_rules": {
+    "keep_existing_frozen_heldout_v2_immutable": true,
+    "do_not_promote_silver_directly_to_benchmark": true,
+    "campaign_not_direct_benchmark": true
+  },
+  "coverage_snapshot_stage": "pre_dev_backfill",
+  "current_coverage": {
+    "train": {
+      "soft_doubt": 9,
+      "follow_up": 10,
+      "needs_clarification": 3,
+      "ask_source": 11,
+      "multi_question": 15,
+      "complex": 8
+    },
+    "dev": {
+      "soft_doubt": 0,
+      "follow_up": 0,
+      "needs_clarification": 2,
+      "ask_source": 0,
+      "multi_question": 0,
+      "complex": 0
+    },
+    "heldout": {
+      "soft_doubt": 3,
+      "follow_up": 0,
+      "needs_clarification": 0,
+      "ask_source": 0,
+      "multi_question": 0,
+      "complex": 0
+    }
+  },
+  "post_dev_backfill_coverage": {
+    "dev": {
+      "soft_doubt": 4,
+      "follow_up": 4,
+      "needs_clarification": 6,
+      "ask_source": 4,
+      "multi_question": 4,
+      "complex": 8
+    }
+  },
+  "post_heldout_v3_backfill_coverage": {
+    "heldout_v3": {
+      "soft_doubt": 5,
+      "follow_up": 5,
+      "needs_clarification": 5,
+      "ask_source": 5,
+      "multi_question": 5,
+      "complex": 5
+    }
+  },
+  "targets": {
+    "dev_min_positive": {
+      "soft_doubt": 4,
+      "follow_up": 4,
+      "needs_clarification": 4,
+      "ask_source": 4,
+      "multi_question": 4,
+      "complex": 4
+    },
+    "heldout_v3_min_positive": {
+      "soft_doubt": 5,
+      "follow_up": 5,
+      "needs_clarification": 5,
+      "ask_source": 5,
+      "multi_question": 5,
+      "complex": 5
+    }
+  },
+  "required_additions": {
+    "dev_positive_gap": {
+      "soft_doubt": 4,
+      "follow_up": 4,
+      "needs_clarification": 2,
+      "ask_source": 4,
+      "multi_question": 4,
+      "complex": 4
+    },
+    "heldout_v3_positive_gap": {
+      "soft_doubt": 5,
+      "follow_up": 5,
+      "needs_clarification": 5,
+      "ask_source": 5,
+      "multi_question": 5,
+      "complex": 5
+    }
+  },
+  "source_pools": {
+    "follow_up": [
+      {
+        "path": "evaluation/intent/query_inputs/seed_query_20260515_router_augmented.jsonl",
+        "selector": "notes == label=follow_up",
+        "count": 5,
+        "priority": "high"
+      },
+      {
+        "path": "backend_test/intent/test_data/gold/silver/seed_query_20260515_campaign_v2_silver_v1/follow_up.json",
+        "selector": "prefer supportive rows with non-empty history",
+        "count": 25,
+        "priority": "high"
+      },
+      {
+        "path": "backend_test/intent/test_data/gold/silver/intent_query_full_set_campaign_v1_silver_v1/follow_up.json",
+        "selector": "supplement only after dedupe",
+        "count": 475,
+        "priority": "low"
+      }
+    ],
+    "ask_source": [
+      {
+        "path": "evaluation/intent/query_inputs/seed_query_20260515_router_augmented.jsonl",
+        "selector": "notes == label=ask_source",
+        "count": 3,
+        "priority": "high"
+      },
+      {
+        "path": "backend_test/intent/test_data/gold/silver/seed_query_20260515_campaign_v2_silver_v1/meta.json",
+        "selector": "prefer rows with explicit source/basis wording and anchored history",
+        "count": 9,
+        "priority": "high"
+      },
+      {
+        "path": "backend_test/intent/test_data/gold/silver/query_list_campaign_v1_silver_v1/meta.json",
+        "selector": "supplement only",
+        "count": 3,
+        "priority": "medium"
+      }
+    ],
+    "soft_doubt": [
+      {
+        "path": "evaluation/intent/query_inputs/seed_query_20260515_router_augmented.jsonl",
+        "selector": "notes == label=soft_doubt",
+        "count": 4,
+        "priority": "high"
+      },
+      {
+        "path": "backend_test/intent/test_data/gold/train/seed_query_20260516_gold_v1/soft_doubt_boundary_seed.json",
+        "selector": "rewrite before entering new split",
+        "count": 8,
+        "priority": "high"
+      },
+      {
+        "path": "backend_test/intent/test_data/gold/silver/seed_query_20260515_campaign_v2_silver_v1/challenge.json",
+        "selector": "required_signals contains soft_doubt and wording remains weak-challenge",
+        "count": 16,
+        "priority": "medium"
+      }
+    ],
+    "multi_question": [
+      {
+        "path": "evaluation/intent/query_inputs/seed_query_20260515_router_augmented.jsonl",
+        "selector": "notes == label=multi_question",
+        "count": 3,
+        "priority": "high"
+      },
+      {
+        "path": "backend_test/intent/test_data/gold/train/seed_query_20260515_gold_v2/multi_question_seed.json",
+        "selector": "rewrite before entering new split",
+        "count": 6,
+        "priority": "high"
+      },
+      {
+        "path": "backend_test/intent/test_data/gold/silver/intent_query_full_set_campaign_v1_silver_v1/mixed_intent.json",
+        "selector": "only rows whose dominant structure is explicit multi-question",
+        "count": 6,
+        "priority": "medium"
+      }
+    ],
+    "complex": [
+      {
+        "path": "backend_test/intent/test_data/gold/silver/intent_query_full_set_campaign_v1_silver_v1/long_case_complex.json",
+        "selector": "prefer rows whose complexity comes from task structure, not length",
+        "count": 38,
+        "priority": "high"
+      },
+      {
+        "path": "backend_test/intent/test_data/gold/silver/seed_query_20260515_campaign_v2_silver_v1/challenge.json",
+        "selector": "required_signals contains complex",
+        "count": 16,
+        "priority": "medium"
+      }
+    ],
+    "needs_clarification": [
+      {
+        "path": "backend_test/intent/test_data/gold/dev/seed_query_20260515_gold_v1/clarify_seed.json",
+        "selector": "existing dev reference set",
+        "count": 2,
+        "priority": "reference_only"
+      },
+      {
+        "path": "backend_test/intent/test_data/gold/silver/seed_query_20260515_campaign_v2_silver_v1/follow_up.json",
+        "selector": "prefer weak or missing_history rows as uplift candidates",
+        "count": 25,
+        "priority": "medium"
+      }
+    ]
+  },
+  "new_output_paths": {
+    "query_inputs": "evaluation/intent/query_inputs/seed_query_20260517_router_augmented_v2.jsonl",
+    "heldout_query_inputs": "evaluation/intent/query_inputs/heldout_multisignal_20260517_v3.jsonl",
+    "dev_gold_dir": "backend_test/intent/test_data/gold/dev/seed_query_20260517_gold_v2",
+    "heldout_gold_dir": "backend_test/intent/test_data/gold/frozen/frozen_heldout_v3"
+  },
+  "implemented_artifacts": {
+    "query_inputs_rows": 24,
+    "heldout_query_inputs_rows": 30,
+    "dev_files": [
+      "backend_test/intent/test_data/gold/dev/seed_query_20260517_gold_v2/follow_up_seed.json",
+      "backend_test/intent/test_data/gold/dev/seed_query_20260517_gold_v2/ask_source_seed.json",
+      "backend_test/intent/test_data/gold/dev/seed_query_20260517_gold_v2/soft_doubt_seed.json",
+      "backend_test/intent/test_data/gold/dev/seed_query_20260517_gold_v2/multi_question_seed.json",
+      "backend_test/intent/test_data/gold/dev/seed_query_20260517_gold_v2/complex_seed.json",
+      "backend_test/intent/test_data/gold/dev/seed_query_20260517_gold_v2/clarify_seed.json"
+    ],
+    "heldout_v3_files": [
+      "backend_test/intent/test_data/gold/frozen/frozen_heldout_v3/follow_up_frozen.json",
+      "backend_test/intent/test_data/gold/frozen/frozen_heldout_v3/ask_source_frozen.json",
+      "backend_test/intent/test_data/gold/frozen/frozen_heldout_v3/soft_doubt_frozen.json",
+      "backend_test/intent/test_data/gold/frozen/frozen_heldout_v3/multi_question_frozen.json",
+      "backend_test/intent/test_data/gold/frozen/frozen_heldout_v3/complex_frozen.json",
+      "backend_test/intent/test_data/gold/frozen/frozen_heldout_v3/clarify_frozen.json"
+    ]
+  }
+}

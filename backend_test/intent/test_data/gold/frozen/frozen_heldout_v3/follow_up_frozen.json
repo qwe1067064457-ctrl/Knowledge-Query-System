@@ -1,0 +1,342 @@
+[
+  {
+    "id": "frozen_follow_up_101",
+    "batch": "follow_up_frozen",
+    "input": {
+      "user_query": "那如果是委托第三方代签而不是本人亲自签呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同成立时签字、盖章和电子签名的效力。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面先概括了不同签署方式在合同成立和证明力上的区别。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "冻结 follow_up：承接签署方式讨论，当前问句本身不自足。",
+    "source_query_id": "heldout_fu_101"
+  },
+  {
+    "id": "frozen_follow_up_102",
+    "batch": "follow_up_frozen",
+    "input": {
+      "user_query": "如果这部分数据其实已经匿名化了，还需要单独告知吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "前面我们在讨论平台把用户数据用于画像时的告知义务。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先区分了直接识别数据和其他处理场景下的合规风险。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "冻结 follow_up：延续数据合规讨论，当前句子省略了对象和前提。",
+    "source_query_id": "heldout_fu_102"
+  },
+  {
+    "id": "frozen_follow_up_103",
+    "batch": "follow_up_frozen",
+    "input": {
+      "user_query": "那如果平台只是提供交易入口，不直接参与结算呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "前面我们在讨论平台是否应与商家共同承担责任。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按控制力、结算参与和售后角色区分了平台责任。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "冻结 follow_up：承接平台责任划分，当前追问依赖上文语境。",
+    "source_query_id": "heldout_fu_103"
+  },
+  {
+    "id": "frozen_follow_up_104",
+    "batch": "follow_up_frozen",
+    "input": {
+      "user_query": "如果不是按 tenant_id，而是按 workspace_id 做隔离，会更稳吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "前面我们在讨论多租户知识库里会话隔离主键应该怎么设计。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先解释了 tenant_id、workspace_id 和 user_id 在隔离中的不同角色。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "冻结 follow_up：紧接隔离键设计讨论的承接式问题。",
+    "source_query_id": "heldout_fu_104"
+  },
+  {
+    "id": "frozen_follow_up_105",
+    "batch": "follow_up_frozen",
+    "input": {
+      "user_query": "那如果患者事前已经签过概括授权呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "前面我们在讨论医院将患者影像资料用于科研展示是否需要单独同意。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按科研用途、展示范围和知情同意要求区分了风险。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "冻结 follow_up：追问概括授权是否改变前述知情同意判断。",
+    "source_query_id": "heldout_fu_105"
+  }
+]

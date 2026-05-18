@@ -1,0 +1,332 @@
+[
+  {
+    "id": "frozen_soft_doubt_101",
+    "batch": "soft_doubt_frozen",
+    "input": {
+      "user_query": "你刚才说只要没单独弹窗提示就一定不合规，我有点迟疑，这里是不是还要看处理目的和敏感程度？",
+      "history": [
+        {
+          "role": "assistant",
+          "content": "只要没有单独弹窗提示，这类处理方式就一定不合规。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "soft_doubt"
+        ],
+        "required_rule_ids": [
+          "challenge.soft_doubt"
+        ],
+        "rule_expectations": {
+          "challenge.soft_doubt": true,
+          "intent.qa.generic": false,
+          "intent.qa.judgment": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": true
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "冻结 soft_doubt：对过满结论提出保留式求证。",
+    "source_query_id": "heldout_sd_101"
+  },
+  {
+    "id": "frozen_soft_doubt_102",
+    "batch": "soft_doubt_frozen",
+    "input": {
+      "user_query": "按你前面的解释，制度没公示就完全不能作为处分依据，这个说法会不会过满了？",
+      "history": [
+        {
+          "role": "assistant",
+          "content": "只要规章制度没有公示，就完全不能作为处分依据。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "soft_doubt"
+        ],
+        "required_rule_ids": [
+          "challenge.soft_doubt"
+        ],
+        "rule_expectations": {
+          "challenge.soft_doubt": true,
+          "intent.qa.generic": false,
+          "intent.qa.judgment": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": true
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "冻结 soft_doubt：委婉质疑劳动规则结论是否被说得过满。",
+    "source_query_id": "heldout_sd_102"
+  },
+  {
+    "id": "frozen_soft_doubt_103",
+    "batch": "soft_doubt_frozen",
+    "input": {
+      "user_query": "你把这个问题直接归成 standard QA，我不太确定，如果用户是在探边界，这样分会不会太快？",
+      "history": [
+        {
+          "role": "assistant",
+          "content": "这个问题直接按 standard QA 处理就可以。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "soft_doubt"
+        ],
+        "required_rule_ids": [
+          "challenge.soft_doubt"
+        ],
+        "rule_expectations": {
+          "challenge.soft_doubt": true,
+          "intent.qa.generic": false,
+          "intent.qa.judgment": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": true
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "冻结 soft_doubt：对 router 边界判断表达保留，不是直接反驳。",
+    "source_query_id": "heldout_sd_103"
+  },
+  {
+    "id": "frozen_soft_doubt_104",
+    "batch": "soft_doubt_frozen",
+    "input": {
+      "user_query": "前面说平台不直接收款就基本免责，我有点怀疑，这里是不是还得看控制力和获益程度？",
+      "history": [
+        {
+          "role": "assistant",
+          "content": "如果平台不直接收款，通常就可以免责。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "soft_doubt"
+        ],
+        "required_rule_ids": [
+          "challenge.soft_doubt"
+        ],
+        "rule_expectations": {
+          "challenge.soft_doubt": true,
+          "intent.qa.generic": false,
+          "intent.qa.judgment": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": true
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "冻结 soft_doubt：对平台免责条件提出保留性验证。",
+    "source_query_id": "heldout_sd_104"
+  },
+  {
+    "id": "frozen_soft_doubt_105",
+    "batch": "soft_doubt_frozen",
+    "input": {
+      "user_query": "你刚才把 compare 任务直接当成复杂任务处理，我不太拿得准，是不是还要看比较维度到底有多少？",
+      "history": [
+        {
+          "role": "assistant",
+          "content": "只要是 compare 任务，就应该直接按复杂任务处理。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "soft_doubt"
+        ],
+        "required_rule_ids": [
+          "challenge.soft_doubt"
+        ],
+        "rule_expectations": {
+          "challenge.soft_doubt": true,
+          "intent.qa.generic": false,
+          "intent.qa.judgment": false
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": true
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "冻结 soft_doubt：对 compare 与 complex 的一刀切映射表示保留。",
+    "source_query_id": "heldout_sd_105"
+  }
+]

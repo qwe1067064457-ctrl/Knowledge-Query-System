@@ -1,0 +1,357 @@
+[
+  {
+    "id": "frozen_ask_source_101",
+    "batch": "ask_source_frozen",
+    "input": {
+      "user_query": "你刚才说格式条款要尽到提示说明义务，这个结论依据是什么？",
+      "history": [
+        {
+          "role": "user",
+          "content": "前面我们在讨论格式条款什么时候会对相对方产生约束。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先概括了提示说明义务与条款效力之间的关系。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "source.ask_basis": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "冻结 ask_source：追问格式条款提示说明义务的依据。",
+    "source_query_id": "heldout_src_101"
+  },
+  {
+    "id": "frozen_ask_source_102",
+    "batch": "ask_source_frozen",
+    "input": {
+      "user_query": "前面把检索审计拆成来源、版本和命中记录三层，这个分法依据什么？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论知识库检索结果如何保证可追溯。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面建议把来源、版本和命中记录分别保留，便于审计。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "source.ask_basis": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "冻结 ask_source：追问检索审计设计分层的依据。",
+    "source_query_id": "heldout_src_102"
+  },
+  {
+    "id": "frozen_ask_source_103",
+    "batch": "ask_source_frozen",
+    "input": {
+      "user_query": "你刚才说平台先行赔付后可以追偿，主要依据是哪一类规则？",
+      "history": [
+        {
+          "role": "user",
+          "content": "前面我们在讨论平台先行赔付与最终责任承担的关系。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先概括了先行赔付并不阻断后续追偿。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "source.ask_basis": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "冻结 ask_source：追问先行赔付后追偿的规则依据。",
+    "source_query_id": "heldout_src_103"
+  },
+  {
+    "id": "frozen_ask_source_104",
+    "batch": "ask_source_frozen",
+    "input": {
+      "user_query": "前面提到 needs_clarification 不应先检索，这个策略主要根据什么判断？",
+      "history": [
+        {
+          "role": "user",
+          "content": "前面我们在讨论意图识别里的 clarify 路由为什么要保守。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才建议缺前提的输入先澄清，再决定是否进入检索。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "source.ask_basis": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "冻结 ask_source：追问 clarify 路由策略的判断依据。",
+    "source_query_id": "heldout_src_104"
+  },
+  {
+    "id": "frozen_ask_source_105",
+    "batch": "ask_source_frozen",
+    "input": {
+      "user_query": "你刚才把医疗影像用于科研展示定性为知情同意问题，这个依据是什么？",
+      "history": [
+        {
+          "role": "user",
+          "content": "前面我们在讨论医院将患者影像资料用于科研展示是否存在合规风险。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按用途变更和患者知情同意要求做了分析。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "qa",
+          "ask_source"
+        ],
+        "required_rule_ids": [
+          "intent.qa.generic",
+          "source.ask_basis"
+        ],
+        "rule_expectations": {
+          "intent.qa.generic": true,
+          "source.ask_basis": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "ask_source": true,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false,
+          "soft_doubt": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "冻结 ask_source：追问医疗影像科研展示定性的依据。",
+    "source_query_id": "heldout_src_105"
+  }
+]

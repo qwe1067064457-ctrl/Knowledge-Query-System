@@ -1,0 +1,274 @@
+[
+  {
+    "id": "seed_20260517_follow_up_101_gold",
+    "batch": "follow_up_seed",
+    "input": {
+      "user_query": "那如果合同里只有电子签名没有公章呢？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论合同成立时签字、盖章和电子签名各自的效力。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按合同成立要件和证据形式做了一个概括。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "follow_up 正例：依赖上一轮合同成立讨论，单看当前问句不自足。",
+    "source_query_id": "seed_20260517_fu_101"
+  },
+  {
+    "id": "seed_20260517_follow_up_102_gold",
+    "batch": "follow_up_seed",
+    "input": {
+      "user_query": "如果对方已经先交付了一部分，还能主张解除吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "前面我们在讨论合同迟延履行时解除权什么时候还能行使。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先区分了迟延履行、继续履行和解除的适用边界。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "follow_up 正例：延续上一轮解除权讨论，当前句子省略了核心前提。",
+    "source_query_id": "seed_20260517_fu_102"
+  },
+  {
+    "id": "seed_20260517_follow_up_103_gold",
+    "batch": "follow_up_seed",
+    "input": {
+      "user_query": "那如果不是按 user_id，而是按 group_id 做隔离，会有什么差别？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论多租户知识库里 session 主键为什么不能只靠 user_id。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面先说明了 user_id、session_id 和 group_id 在隔离里的职责。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "follow_up 正例：依赖上一轮隔离主键讨论，当前问句是承接式追问。",
+    "source_query_id": "seed_20260517_fu_103"
+  },
+  {
+    "id": "seed_20260517_follow_up_104_gold",
+    "batch": "follow_up_seed",
+    "input": {
+      "user_query": "如果平台已经先赔了，后面还能向商家追偿吗？",
+      "history": [
+        {
+          "role": "user",
+          "content": "前面我们在讨论平台和商家之间的责任分配。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先按先行赔付责任和最终责任承担做了区分。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "follow_up"
+        ],
+        "required_rule_ids": [
+          "context.follow_up.reference"
+        ],
+        "rule_expectations": {
+          "context.follow_up.reference": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": true,
+          "previous_answer": false,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": true,
+          "challenge": false,
+          "soft_doubt": false,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "simple",
+          "shape": "single_question"
+        },
+        "context_dependency": "history_reference"
+      },
+      "control": {
+        "route": "rag",
+        "mode": "normal"
+      }
+    },
+    "notes": "follow_up 正例：追问承接平台责任分配主题，依赖上文语境。",
+    "source_query_id": "seed_20260517_fu_104"
+  }
+]

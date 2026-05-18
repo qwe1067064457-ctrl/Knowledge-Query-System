@@ -1,0 +1,286 @@
+[
+  {
+    "id": "seed_20260517_soft_doubt_101_gold",
+    "batch": "soft_doubt_seed",
+    "input": {
+      "user_query": "你刚才说只要制度没公示就一定不能解除，我不太确定，是不是还要看员工是否明知规则？",
+      "history": [
+        {
+          "role": "user",
+          "content": "前面我们在讨论用人单位依据规章制度解除劳动合同的条件。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才先概括说制度未公示时解除通常会有风险。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "soft_doubt",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "challenge.soft_doubt",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "challenge.soft_doubt": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "notes": "soft_doubt 正例：弱质疑前一轮结论，并补充一个需要验证的判断条件。",
+    "source_query_id": "seed_20260517_sd_101"
+  },
+  {
+    "id": "seed_20260517_soft_doubt_102_gold",
+    "batch": "soft_doubt_seed",
+    "input": {
+      "user_query": "按你前面的解释，平台不直接收款就可以免责，这个说法会不会太绝对了？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在讨论平台和商家之间如何分配责任。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面提到平台是否直接收款会影响责任判断。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "soft_doubt",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "challenge.soft_doubt",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "challenge.soft_doubt": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "notes": "soft_doubt 正例：保留态度地质疑规则是否被说得过满。",
+    "source_query_id": "seed_20260517_sd_102"
+  },
+  {
+    "id": "seed_20260517_soft_doubt_103_gold",
+    "batch": "soft_doubt_seed",
+    "input": {
+      "user_query": "你说这个 multi_question 可以直接走 rag，我有点拿不准，涉及两个子问题时是不是还是要拆开？",
+      "history": [
+        {
+          "role": "user",
+          "content": "前面我们在讨论 multi-question 任务是否都要先拆解。"
+        },
+        {
+          "role": "assistant",
+          "content": "我刚才说有些 multi-question 任务可以直接进入普通检索链路。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "soft_doubt",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "challenge.soft_doubt",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "challenge.soft_doubt": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "notes": "soft_doubt 正例：委婉挑战流程判断，并要求重新验证拆解条件。",
+    "source_query_id": "seed_20260517_sd_103"
+  },
+  {
+    "id": "seed_20260517_soft_doubt_104_gold",
+    "batch": "soft_doubt_seed",
+    "input": {
+      "user_query": "前面把侵权和违约都放进同一套举证逻辑里，我有点怀疑，这里是不是应该先区分请求权基础？",
+      "history": [
+        {
+          "role": "user",
+          "content": "刚才我们在比较侵权责任和违约责任的处理方式。"
+        },
+        {
+          "role": "assistant",
+          "content": "我前面先按举证责任的共性做了一个简化总结。"
+        }
+      ]
+    },
+    "gold": {
+      "evidence": {
+        "classifier_mode": "rule_plus_model",
+        "required_signals": [
+          "soft_doubt",
+          "complex"
+        ],
+        "required_rule_ids": [
+          "challenge.soft_doubt",
+          "task.complex.request"
+        ],
+        "rule_expectations": {
+          "challenge.soft_doubt": true,
+          "task.complex.request": true
+        },
+        "unsupported_signals": {
+          "file_write_request": false,
+          "file_delete_request": false,
+          "kb_admin_request": false,
+          "privileged_operation": false,
+          "unknown_external_action": false
+        },
+        "dependency_signals": {
+          "none": false,
+          "history_reference": false,
+          "previous_answer": true,
+          "previous_retrieval": false,
+          "ambiguous": false
+        }
+      },
+      "resolved": {
+        "main_intent": "qa",
+        "modifiers": {
+          "follow_up": false,
+          "challenge": false,
+          "soft_doubt": true,
+          "ask_source": false,
+          "ask_capability": false,
+          "needs_clarification": false,
+          "out_of_scope": false
+        },
+        "task": {
+          "complexity": "complex",
+          "shape": "verify"
+        },
+        "context_dependency": "previous_answer"
+      },
+      "control": {
+        "route": "agent",
+        "mode": "normal"
+      }
+    },
+    "notes": "soft_doubt 正例：弱质疑抽象化过度的结论，要求先区分请求权基础。",
+    "source_query_id": "seed_20260517_sd_104"
+  }
+]
