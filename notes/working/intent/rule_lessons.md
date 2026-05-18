@@ -275,3 +275,6 @@
 这轮规则层最成功的地方，不是“把规则调到多少分”，而是把这件事从“写几条正则”做成了：
 
 > 一个有分层结构、有评估口径、有监督资产、能为小模型提供 teacher 和 guardrail 的 intent baseline 系统。
+status: promoted-partially
+related_current_doc: notes/intent/intent_rule_lite_strategy.md
+scope: rule lessons and constraints

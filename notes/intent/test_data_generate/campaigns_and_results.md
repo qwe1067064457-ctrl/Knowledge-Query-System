@@ -1,219 +1,143 @@
-# Intent 测试数据 Campaign 记录
+# Campaigns and Results
 
-## 1. 这份文件的用途
+## 1. 这篇文档讲什么
 
-这份文件专门记录当前已经跑过的测试数据 campaign、各自的目标、结果和它们打出来的规则问题。
+这篇文档按阶段整理：
 
-它不追求记录所有历史细节，而是帮助后续快速回答：
+- 每一批数据为什么生成
+- 典型 campaign 是什么
+- 它解决了什么问题
+- 最后沉淀成了什么资产
 
-- 这批样本是干什么的
-- 它有没有真正把系统打疼
-- 它主要暴露了哪几条规则的边界问题
+## 2. 第一批：Rule Tuning 数据
 
----
+### 目标
 
-## 2. `v1_adversarial_campaign`
+- 为 rule 层调优服务
+- 快速暴露边界问题
+- 支持 rule supervision
 
-### 2.1 目标
+### 典型 campaign
 
-第一批高价值对抗闭环，重点打：
+- `v1_adversarial_campaign`
+- `query_list_campaign_v1`
+- `twins_campaign_v2`
+
+### 重点攻击的边界
 
 - `follow_up`
 - `challenge`
-
-并优先使用：
-
-- `near_miss`
-- `mixed`
-
-### 2.2 作用
-
-它的核心任务不是覆盖全面，而是先证明：
-
-> 对抗样本生成器产出的数据，确实能让原本好看的指标掉下来。
-
-### 2.3 结果信号
-
-它最早证明了几件事：
-
-- `challenge` 的规则召回偏低
-- `follow_up` 的上下文依赖处理不稳
-- 单看干净样本时高分并不可信
-
-这批 campaign 的意义更像：
-
-> 让系统第一次从“顺风测试”进入“逆风测试”。
-
----
-
-## 3. `query_list_campaign_v1`
-
-### 3.1 目标
-
-验证：
-
-> 原始 query -> 四层草稿 -> history 变体 -> 评估报告
-
-这条链到底能不能跑通。
-
-### 3.2 输入来源
-
-使用了 5 条真实风格 query 作为 benchmark 输入，经过 `from_query_list` 派生为 16 条样本。
-
-### 3.3 结果
-
-它已经让这些指标明显掉下来了：
-
-- `resolved_main_intent_accuracy = 0.5`
-- `control_route_accuracy = 0.3125`
-
-### 3.4 它暴露了什么
-
-重点掉点：
-
-- `follow_up`
-- `fuzzy_qa`
-- `mixed_intent`
-
-它证明了：
-
-> `from_query_list` 不是演示功能，而是能从真实 query 素材出发，稳定产出能打到规则边界的测试草稿。
-
----
-
-## 4. `twins_campaign_v2`
-
-### 4.1 目标
-
-专门做“近邻双胞胎”边界压测：
-
-- `challenge vs clarify`
-- `follow_up vs ambiguous`
+- `clarify`
 - `qa vs system`
+- `qa vs chat`
+- `mixed_intent`
+- `near_miss`
 
-### 4.2 第一轮结果
+### 这批数据的价值
 
-在规则修复前，它打出的结果非常尖锐：
+- 让 rule 调优不再只靠直觉
+- 让 per-batch 评估开始变得有意义
+- 让“命中质量问题”和“设计问题”可以拆开看
 
-- `control_route_accuracy = 0.1667`
-- `resolved_main_intent_accuracy = 0.5`
+## 3. 第二批：SFT / 小模型准备数据
 
-当时暴露出的核心问题：
+### 目标
 
-1. `challenge.disagree`
-   - 高精确，低召回
-2. `context.follow_up.reference`
-   - 过敏，精确率低
-3. `context.follow_up.missing_history`
-   - 缺失
-4. `system.capability.ask`
-   - 几乎没接住
+- 把 understanding 结果转成可训练标签
+- 为小模型准备 `main_intent / modifiers / task` 监督
+- 为 heldout / export / delivery 打基础
 
-### 4.3 第一轮修规则后复跑结果
+### 重点工作
 
-复跑后的整体结果：
+- 结构化标签规范
+- split policy
+- eval protocol
+- gold expansion
+- training export
 
-- `resolved_main_intent_accuracy = 0.6667`
-- `control_route_accuracy = 0.5`
-- `control_mode_accuracy = 0.7083`
+### 这批数据的价值
 
-规则层变化最关键的是：
+- 让 rule 不只是在线上硬判，还能作为 teacher
+- 让小模型后续接管中层理解成为可能
 
-#### `challenge.disagree`
+## 4. 第三批：V2 Migration 数据
 
-- 修复前：
-  - `precision = 1.0`
-  - `recall = 0.25`
-- 修复后：
-  - `precision = 1.0`
-  - `recall = 0.5`
+### 目标
 
-结论：
-- 召回翻倍
-- 没引入新的误报
+- 支撑 `V2` 新口径
+- 支撑 `V2 auto`
+- 支撑新 taxonomy 与新 resolver 结构
 
-#### `context.follow_up.reference`
+### 重点工作
 
-- 修复前：
-  - `precision = 0.5`
-  - `recall = 1.0`
-- 修复后：
-  - `precision = 1.0`
-  - `recall = 1.0`
+- `V2 auto annotations`
+- `V1 vs V2 auto diff`
+- `quality gate`
+- `V2 topology export`
+- migration candidate filtering
 
-结论：
-- 上下文过敏被明显收住
+### 这批数据的价值
 
-#### `context.follow_up.missing_history`
+- 让 understanding 重构有可观测的数据线
+- 让新旧语义可以并行验证
+- 让双轨迁移成为工程化过程，而不是一次性翻盘
 
-- 修复前：
-  - `precision = 0.0`
-  - `recall = 0.0`
-- 修复后：
-  - `precision = 1.0`
-  - `recall = 1.0`
+## 5. 典型 campaign 的历史意义
 
-结论：
-- “缺 history 时要澄清”这条规则终于立住了
+### `v1_adversarial_campaign`
 
-#### `system.capability.ask`
+意义：
 
-- 修复前：
-  - `precision = 0.0`
-  - `recall = 0.0`
-- 修复后：
-  - `precision = 1.0`
-  - `recall = 0.75`
+- 打规则层
+- 建立第一波系统性边界攻击样本
 
-结论：
-- `qa vs system` 这条边界已经不再裸奔
+### `query_list_campaign_v1`
 
-### 4.4 它现在仍然在提醒什么
+意义：
 
-虽然 v2 已经明显改善，但还有两块没修透：
+- 让真实 query 风格更快进入评估链
+- 减少“样本太像规则”的问题
 
-1. `challenge`
-   - 软表达仍然不够稳
-2. `standard_qa`
-   - 业务锚点还偏弱
+### `twins_campaign_v2`
 
-所以 v2 的下一阶段价值，是继续做：
+意义：
 
-- `challenge` 软表达扩展
-- `standard_qa` 业务问法锚点补强
+- 用极贴边 pair 去打结构性盲点
+- 对 `clarify / challenge / qa-system` 很有价值
 
----
+## 6. 当前应该怎么理解这些结果
 
-## 5. 当前 campaign 使用建议
+不是每一个 campaign 都还等价重要。
 
-### 5.1 想看规则是否回归
+当前更推荐这样理解：
 
-优先跑：
+### 第一批结果
 
-- `v1_adversarial_campaign`
-- `twins_campaign_v2`
+用于回答：
 
-### 5.2 想看原始 query 派生能力是否稳定
+- rule 层到底哪里脆
+- 哪些边界是命中问题
+- 哪些是设计问题
 
-优先跑：
+### 第二批结果
 
-- `query_list_campaign_v1`
+用于回答：
 
-### 5.3 想压某一条边界
+- 小模型未来能吃什么标签
+- 当前 teacher 资产够不够用
 
-优先做：
+### 第三批结果
 
-- twin pair
-- near_miss
-- conflicting history
+用于回答：
 
-而不是先堆大量 clean QA。
+- `V2` 改了什么
+- 新旧迁移是否健康
+- `quality gate` 是否过关
 
----
+## 7. 当前一句话总结
 
-## 6. 当前结论
+当前这些 campaign 和结果，最好不要再按“零散实验”理解，而应该按：
 
-到目前为止，最重要的结论不是“我们已经有很多测试数据”，而是：
+> 第一批调 rule、第二批备 SFT、第三批做 V2 迁移
 
-> 我们已经有能力用少量但锋利的对抗 campaign，把 `intent` 模块里真正脆弱的规则边界持续打出来，并用同一批资产验证修复是否有效。
-
+这三条数据主线来讲。

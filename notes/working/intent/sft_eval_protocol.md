@@ -178,3 +178,6 @@
 第一版评估协议的核心不是“追总分”，而是回答：
 
 > 在冻结 held-out 上，这个轻量模型是否能比纯规则更少漏掉 `soft_doubt`，并且在关键 `task.shape` 边界上更稳。
+status: active-working
+related_current_doc: notes/intent/test_data_generate/README.md
+scope: sft eval protocol

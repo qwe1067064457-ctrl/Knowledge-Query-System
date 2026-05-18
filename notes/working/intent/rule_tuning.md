@@ -328,3 +328,6 @@
   - `generic` 的精度治理
   - SFT 数据导出
   - 新的 held-out / 真实流量验证集准备
+status: promoted-partially
+related_current_doc: notes/intent/test_data_generate/campaigns_and_results.md
+scope: rule tuning process

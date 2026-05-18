@@ -400,3 +400,6 @@ input -> evidence -> resolved -> control
 > 终于把 `intent` 这一层里，哪些属于“请求理解”，哪些属于“执行决策”，清晰地切开了。
 
 真正值得保留的成果，是这次边界识别本身。
+status: active-working
+related_current_doc: notes/intent/intent_understanding_architecture.md
+scope: evidence resolver refactor lessons

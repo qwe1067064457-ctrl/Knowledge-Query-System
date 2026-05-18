@@ -58,3 +58,6 @@
 - 继续补齐 `main_intent` 分布
 - 继续加厚 `follow_up / ask_source / soft_doubt` 的正负边界
 - 在 `train/dev/heldout` 三段都稳定后，再进入 baseline 训练
+status: legacy-reference
+related_current_doc: notes/intent/test_data_generate/README.md
+scope: sft preparation history

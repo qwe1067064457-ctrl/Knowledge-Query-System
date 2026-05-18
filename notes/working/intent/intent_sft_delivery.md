@@ -85,3 +85,6 @@
 
 - 第一版 `dev` 在 `soft_doubt` 任务里暂时没有正例
 - 这意味着 baseline 已经可跑，但下一步仍应补一批 `soft_doubt=true` 的 `dev` 样本
+status: promoted-partially
+related_current_doc: notes/intent/test_data_generate/README.md
+scope: sft delivery and handoff

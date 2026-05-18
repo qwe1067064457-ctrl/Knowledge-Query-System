@@ -27,3 +27,6 @@
 - `gold_v2` 已从干净 campaign 重新回填
 
 因此现在这份文档对应的就是**重建后的干净链**，不再是损坏版本。
+status: legacy-reference
+related_current_doc: notes/intent/test_data_generate/campaigns_and_results.md
+scope: sft gold expansion snapshot

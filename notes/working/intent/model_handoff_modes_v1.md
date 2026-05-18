@@ -43,3 +43,6 @@
 - `unsupported / safety`
 - 高风险边界拦截
 - 极高精度 hard gate
+status: active-working
+related_current_doc: notes/intent/intent_rule_lite_strategy.md
+scope: rule model handoff modes
