@@ -48,8 +48,9 @@ def test_challenge_without_history_needs_clarification() -> None:
     result = classify_intent("你确定吗？")
 
     assert result.resolved.modifiers.challenge is True
-    assert result.resolved.modifiers.clarify_candidate is True
-    assert result.resolved.modifiers.needs_clarification is True
+    assert result.resolved.ambiguity_state.clarify_hint is True
+    assert result.resolved.ambiguity_state.ambiguity_states == ("history_dependent",)
+    assert result.resolved.ambiguity_state.missing_context_types == ("missing_history_target",)
     assert result.control.route == "direct"
     assert result.control.mode == "clarify"
 
@@ -76,8 +77,8 @@ def test_ask_source_without_history_becomes_clarify_candidate() -> None:
 
     assert result.resolved.main_intent == "qa"
     assert result.resolved.modifiers.ask_source is True
-    assert result.resolved.modifiers.clarify_candidate is True
-    assert result.resolved.ambiguity_state.missing_reference_target is True
+    assert result.resolved.ambiguity_state.clarify_hint is True
+    assert result.resolved.ambiguity_state.missing_context_types == ("missing_reference_target",)
     assert result.control.route == "direct"
 
 
@@ -178,7 +179,7 @@ def test_judgment_style_fuzzy_qa_routes_to_clarify_not_chat() -> None:
     result = classify_intent("这样算不算医疗事故？")
 
     assert result.resolved.main_intent == "qa"
-    assert result.resolved.modifiers.needs_clarification is True
+    assert result.resolved.ambiguity_state.clarify_hint is True
     assert result.control.route == "direct"
     assert result.control.mode == "clarify"
 
@@ -194,7 +195,7 @@ def test_explicit_judgment_qa_stays_rag_instead_of_clarify() -> None:
     result = classify_intent("电子合同是否具有法律效力？")
 
     assert result.resolved.main_intent == "qa"
-    assert result.resolved.modifiers.needs_clarification is False
+    assert result.resolved.ambiguity_state.clarify_hint is False
     assert result.control.route == "rag"
 
 

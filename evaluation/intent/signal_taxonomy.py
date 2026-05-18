@@ -4,7 +4,7 @@ from typing import Any
 
 from evaluation.intent.v2_migration import infer_signal_buckets_from_v1
 
-EXPECTED_BUCKETS = ("intent", "task", "context_fact", "safety")
+EXPECTED_BUCKETS = ("intent", "task", "context", "safety")
 
 ALLOWED_MULTI_BUCKET_SIGNALS: dict[str, tuple[str, ...]] = {}
 
@@ -14,7 +14,6 @@ KNOWN_SIGNALS: dict[str, tuple[str, ...]] = {
         "chat",
         "system",
         "ask_capability",
-        "scope_question",
         "follow_up",
         "ask_source",
         "challenge",
@@ -26,13 +25,11 @@ KNOWN_SIGNALS: dict[str, tuple[str, ...]] = {
         "staged",
         "complex",
     ),
-    "context_fact": (
+    "context": (
         "history_reference",
         "needs_previous_answer",
         "previous_retrieval",
-        "missing_reference_target",
-        "possibly_ambiguous",
-        "needs_context_check",
+        "clarify_hint",
     ),
     "safety": (
         "unsupported",
@@ -47,12 +44,7 @@ def normalize_signal_buckets(evidence: dict[str, Any]) -> dict[str, list[str]]:
         raw = infer_signal_buckets_from_v1(evidence)
     normalized: dict[str, list[str]] = {}
     for bucket in EXPECTED_BUCKETS:
-        if bucket == "context_fact":
-            values = []
-            if isinstance(raw, dict):
-                values = raw.get("context_fact", raw.get("context", []))
-        else:
-            values = raw.get(bucket, []) if isinstance(raw, dict) else []
+        values = raw.get(bucket, []) if isinstance(raw, dict) else []
         normalized[bucket] = _ordered_unique(str(value) for value in values if value)
     return normalized
 

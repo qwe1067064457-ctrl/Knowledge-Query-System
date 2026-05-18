@@ -34,18 +34,12 @@ def _resolve_modifiers(evidence: IntentEvidence) -> IntentModifiers:
     model_modifiers = evidence.model_result.modifiers if evidence.model_result else IntentModifiers()
     intent_signals = set(evidence.signal_buckets.intent)
     safety_signals = set(evidence.signal_buckets.safety)
-    context = evidence.context_signals
-    clarify_candidate = context.needs_context_check or model_modifiers.clarify_candidate
-    scope_question = ("scope_question" in intent_signals) or model_modifiers.scope_question
     return IntentModifiers(
         follow_up=("follow_up" in intent_signals) or model_modifiers.follow_up,
         challenge=("challenge" in intent_signals) or model_modifiers.challenge,
         soft_doubt=("soft_doubt" in intent_signals) or model_modifiers.soft_doubt,
         ask_source=("ask_source" in intent_signals) or model_modifiers.ask_source,
-        ask_capability=("ask_capability" in intent_signals) or scope_question or model_modifiers.ask_capability,
-        scope_question=scope_question,
-        clarify_candidate=clarify_candidate,
-        needs_clarification=clarify_candidate or model_modifiers.needs_clarification,
+        ask_capability=("ask_capability" in intent_signals) or model_modifiers.ask_capability,
         out_of_scope=("out_of_scope" in safety_signals) or model_modifiers.out_of_scope,
     )
 
@@ -196,7 +190,7 @@ def _resolve_context_dependency(
     if modifiers.challenge:
         if context.needs_previous_answer:
             return "previous_answer"
-        if context.possibly_ambiguous or context.needs_context_check:
+        if context.ambiguous:
             return "ambiguous"
         return "previous_answer"
     if modifiers.follow_up:
@@ -222,11 +216,10 @@ def _resolve_context_dependency(
 def _resolve_ambiguity_state(evidence: IntentEvidence) -> AmbiguityState:
     context = evidence.context_signals
     return AmbiguityState(
-        clarify_candidate=context.needs_context_check,
-        needs_context_check=context.needs_context_check,
+        clarify_hint=context.clarify_hint,
         needs_previous_answer=context.needs_previous_answer,
-        missing_reference_target=context.missing_reference_target,
-        possibly_ambiguous=context.possibly_ambiguous,
+        ambiguity_states=context.ambiguity_states,
+        missing_context_types=context.missing_context_types,
     )
 
 

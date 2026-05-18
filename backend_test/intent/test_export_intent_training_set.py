@@ -124,6 +124,7 @@ def test_export_training_rows_v2_adds_topology_without_overwriting_v1_shape(tmp_
     assert exported[0]["resolved"]["task"]["topology"] == "parallel_queries"
     assert "context_signals" in exported[0]["evidence"]
     assert "dependency_signals" not in exported[0]["evidence"]
+    assert "raw_signals" not in exported[0]["evidence"]
 
 
 def test_write_training_jsonl_writes_one_row_per_line(tmp_path: Path) -> None:

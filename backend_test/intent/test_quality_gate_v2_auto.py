@@ -34,7 +34,7 @@ def _valid_row() -> dict:
                 "signal_buckets": {
                     "intent": ["qa"],
                     "task": ["multi_question"],
-                    "context_fact": [],
+                    "context": [],
                     "safety": [],
                 }
             },
@@ -94,7 +94,7 @@ def test_run_quality_gate_flags_cross_bucket_signals_as_violation(tmp_path: Path
     report_dir.mkdir()
     row = _valid_row()
     row["gold"]["evidence"]["signal_buckets"]["intent"].append("ask_source")
-    row["gold"]["evidence"]["signal_buckets"]["context_fact"].append("ask_source")
+    row["gold"]["evidence"]["signal_buckets"]["context"].append("ask_source")
     row["gold"]["resolved"]["modifiers"]["ask_source"] = True
     (report_dir / "demo.jsonl").write_text(json.dumps(row, ensure_ascii=False) + "\n", encoding="utf-8")
 

@@ -37,11 +37,11 @@ def test_serialize_resolved_v2_keeps_single_topology_for_simple_queries() -> Non
     assert serialized["task"]["topology"] == "single"
 
 
-def test_serialize_resolved_v2_adds_ambiguity_state_from_legacy_clarify_signal() -> None:
+def test_serialize_resolved_v2_emits_v2_ambiguity_state_from_legacy_clarify_signal() -> None:
     resolved = {
         "main_intent": "qa",
         "modifiers": {
-            "needs_clarification": True,
+            "follow_up": False,
         },
         "task": {
             "complexity": "simple",
@@ -52,9 +52,9 @@ def test_serialize_resolved_v2_adds_ambiguity_state_from_legacy_clarify_signal()
 
     serialized = serialize_resolved_v2(resolved)
 
-    assert serialized["ambiguity_state"]["clarify_candidate"] is True
-    assert serialized["ambiguity_state"]["needs_context_check"] is True
-    assert serialized["ambiguity_state"]["possibly_ambiguous"] is True
+    assert serialized["ambiguity_state"]["clarify_hint"] is True
+    assert serialized["ambiguity_state"]["ambiguity_states"] == ["history_dependent"]
+    assert serialized["ambiguity_state"]["missing_context_types"] == ["missing_history_target"]
 
 
 def test_serialize_evidence_v2_prefers_context_signals_over_dependency_signals() -> None:
@@ -64,16 +64,21 @@ def test_serialize_evidence_v2_prefers_context_signals_over_dependency_signals()
         "required_rule_ids": [],
         "rule_expectations": {},
         "unsupported_signals": {},
-        "dependency_signals": {"none": False, "history_reference": True, "previous_answer": False, "previous_retrieval": False, "ambiguous": False},
-        "context_signals": {
+        "dependency_signals": {
             "none": False,
+            "history_reference": True,
+            "previous_answer": False,
+            "previous_retrieval": False,
+            "ambiguous": True,
+        },
+        "context_signals": {
             "history_reference": False,
             "needs_previous_answer": True,
             "previous_answer": True,
             "previous_retrieval": False,
-            "missing_reference_target": False,
-            "possibly_ambiguous": False,
-            "needs_context_check": False,
+            "clarify_hint": False,
+            "ambiguity_states": [],
+            "missing_context_types": [],
             "ambiguous": False,
         },
     }
@@ -92,10 +97,18 @@ def test_serialize_evidence_v2_infers_context_signals_when_missing() -> None:
         "required_rule_ids": [],
         "rule_expectations": {},
         "unsupported_signals": {},
-        "dependency_signals": {"none": False, "history_reference": True, "previous_answer": False, "previous_retrieval": False, "ambiguous": False},
+        "dependency_signals": {
+            "none": False,
+            "history_reference": True,
+            "previous_answer": False,
+            "previous_retrieval": False,
+            "ambiguous": True,
+        },
     }
 
     serialized = serialize_evidence_v2(evidence)
 
     assert serialized["context_signals"]["history_reference"] is True
-    assert serialized["signal_buckets"]["context_fact"] == ["history_reference"]
+    assert serialized["context_signals"]["clarify_hint"] is True
+    assert serialized["context_signals"]["ambiguity_states"] == ["history_dependent"]
+    assert serialized["signal_buckets"]["context"] == ["history_reference", "clarify_hint"]

@@ -83,9 +83,12 @@ def test_complex_verify_uses_light_planning_without_explicit_planner() -> None:
 def test_complex_verify_with_clarification_flag_is_rescued_to_agent() -> None:
     signal = build_control_signal(
         _resolved(
-            modifiers=IntentModifiers(clarify_candidate=True, needs_clarification=True),
             task=ResolvedTask(complexity="complex", shape="verify", topology="single"),
-            ambiguity_state=AmbiguityState(clarify_candidate=True, needs_context_check=True),
+            ambiguity_state=AmbiguityState(
+                clarify_hint=True,
+                ambiguity_states=("history_dependent",),
+                missing_context_types=("missing_history_target",),
+            ),
         )
     )
 

@@ -111,9 +111,6 @@ class IntentModifiers:
     soft_doubt: bool = False
     ask_source: bool = False
     ask_capability: bool = False
-    scope_question: bool = False
-    clarify_candidate: bool = False
-    needs_clarification: bool = False
     out_of_scope: bool = False
 
     def to_dict(self) -> dict[str, bool]:
@@ -147,10 +144,9 @@ class ContextSignals:
     history_reference: bool = False
     needs_previous_answer: bool = False
     previous_retrieval: bool = False
-    missing_reference_target: bool = False
-    possibly_ambiguous: bool = False
-    needs_context_check: bool = False
-    none: bool = False
+    clarify_hint: bool = False
+    ambiguity_states: tuple[str, ...] = ()
+    missing_context_types: tuple[str, ...] = ()
 
     @property
     def has_reference(self) -> bool:
@@ -162,7 +158,7 @@ class ContextSignals:
 
     @property
     def ambiguous(self) -> bool:
-        return self.possibly_ambiguous or self.needs_context_check or self.missing_reference_target
+        return bool(self.ambiguity_states)
 
     @property
     def has_previous_intent(self) -> bool:
@@ -170,7 +166,7 @@ class ContextSignals:
 
     @property
     def has_implicit_history(self) -> bool:
-        return self.ambiguous
+        return "history_dependent" in self.ambiguity_states
 
     @property
     def is_direct_followup(self) -> bool:
@@ -178,14 +174,13 @@ class ContextSignals:
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            "none": self.none,
             "history_reference": self.history_reference,
             "needs_previous_answer": self.needs_previous_answer,
             "previous_answer": self.previous_answer,
             "previous_retrieval": self.previous_retrieval,
-            "missing_reference_target": self.missing_reference_target,
-            "possibly_ambiguous": self.possibly_ambiguous,
-            "needs_context_check": self.needs_context_check,
+            "clarify_hint": self.clarify_hint,
+            "ambiguity_states": list(self.ambiguity_states),
+            "missing_context_types": list(self.missing_context_types),
             "ambiguous": self.ambiguous,
             "has_reference": self.has_reference,
             "has_previous_intent": self.has_previous_intent,
@@ -196,14 +191,18 @@ class ContextSignals:
 
 @dataclass(frozen=True)
 class AmbiguityState:
-    clarify_candidate: bool = False
-    needs_context_check: bool = False
+    clarify_hint: bool = False
     needs_previous_answer: bool = False
-    missing_reference_target: bool = False
-    possibly_ambiguous: bool = False
+    ambiguity_states: tuple[str, ...] = ()
+    missing_context_types: tuple[str, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
+        return {
+            "clarify_hint": self.clarify_hint,
+            "needs_previous_answer": self.needs_previous_answer,
+            "ambiguity_states": list(self.ambiguity_states),
+            "missing_context_types": list(self.missing_context_types),
+        }
 
 
 @dataclass(frozen=True)
@@ -246,10 +245,6 @@ class SignalBuckets:
     context: tuple[str, ...] = ()
     safety: tuple[str, ...] = ()
 
-    @property
-    def context_fact(self) -> tuple[str, ...]:
-        return self.context
-
     def all_signals(self) -> tuple[str, ...]:
         ordered = []
         for signal in (*self.intent, *self.task, *self.context, *self.safety):
@@ -266,12 +261,7 @@ class SignalBuckets:
         }
 
     def to_v2_dict(self) -> dict[str, Any]:
-        return {
-            "intent": list(self.intent),
-            "task": list(self.task),
-            "context_fact": list(self.context_fact),
-            "safety": list(self.safety),
-        }
+        return self.to_dict()
 
 
 @dataclass(frozen=True)
@@ -292,51 +282,48 @@ class EvidenceMeta:
 
 @dataclass(frozen=True)
 class IntentEvidenceView:
-    raw_signals: tuple[str, ...] = ()
+    signals: tuple[str, ...] = ()
     candidate_intents: tuple[CandidateIntent, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            "raw_signals": list(self.raw_signals),
+            "signals": list(self.signals),
             "candidate_intents": [item.to_dict() for item in self.candidate_intents],
         }
 
 
 @dataclass(frozen=True)
 class TaskEvidenceView:
-    raw_signals: tuple[str, ...] = ()
+    signals: tuple[str, ...] = ()
     task_candidates: tuple[TaskCandidate, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            "raw_signals": list(self.raw_signals),
+            "signals": list(self.signals),
             "task_candidates": [item.to_dict() for item in self.task_candidates],
         }
 
 
 @dataclass(frozen=True)
 class ContextEvidenceView:
-    raw_signals: tuple[str, ...] = ()
-    dependency_signals: dict[str, bool] = field(default_factory=dict)
+    signals: tuple[str, ...] = ()
     context_signals: ContextSignals = field(default_factory=ContextSignals)
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            "raw_signals": list(self.raw_signals),
-            "dependency_signals": dict(self.dependency_signals),
+            "signals": list(self.signals),
             "context_signals": self.context_signals.to_dict(),
-            "context_fact_signals": self.context_signals.to_dict(),
         }
 
 
 @dataclass(frozen=True)
 class SafetyEvidenceView:
-    raw_signals: tuple[str, ...] = ()
+    signals: tuple[str, ...] = ()
     unsupported_signals: dict[str, bool] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
-            "raw_signals": list(self.raw_signals),
+            "signals": list(self.signals),
             "unsupported_signals": dict(self.unsupported_signals),
         }
 
@@ -345,10 +332,8 @@ class SafetyEvidenceView:
 class IntentEvidence:
     classifier_mode: ClassifierMode
     matched_rules: tuple[RuleMatch, ...] = ()
-    raw_signals: tuple[str, ...] = ()
     signal_buckets: SignalBuckets = field(default_factory=SignalBuckets)
     unsupported_signals: dict[str, bool] = field(default_factory=dict)
-    dependency_signals: dict[str, bool] = field(default_factory=dict)
     context_signals: ContextSignals = field(default_factory=ContextSignals)
     candidate_intents: tuple[CandidateIntent, ...] = ()
     task_candidates: tuple[TaskCandidate, ...] = ()
@@ -367,29 +352,28 @@ class IntentEvidence:
     @property
     def intent_evidence(self) -> IntentEvidenceView:
         return IntentEvidenceView(
-            raw_signals=self.signal_buckets.intent,
+            signals=self.signal_buckets.intent,
             candidate_intents=self.candidate_intents,
         )
 
     @property
     def task_evidence(self) -> TaskEvidenceView:
         return TaskEvidenceView(
-            raw_signals=self.signal_buckets.task,
+            signals=self.signal_buckets.task,
             task_candidates=self.task_candidates,
         )
 
     @property
     def context_evidence(self) -> ContextEvidenceView:
         return ContextEvidenceView(
-            raw_signals=self.signal_buckets.context,
-            dependency_signals=self.dependency_signals,
+            signals=self.signal_buckets.context,
             context_signals=self.context_signals,
         )
 
     @property
     def safety_evidence(self) -> SafetyEvidenceView:
         return SafetyEvidenceView(
-            raw_signals=self.signal_buckets.safety,
+            signals=self.signal_buckets.safety,
             unsupported_signals=self.unsupported_signals,
         )
 
@@ -397,10 +381,8 @@ class IntentEvidence:
         return {
             "classifier_mode": self.classifier_mode,
             "matched_rules": [item.to_dict() for item in self.matched_rules],
-            "raw_signals": list(self.raw_signals),
             "signal_buckets": self.signal_buckets.to_dict(),
             "unsupported_signals": dict(self.unsupported_signals),
-            "dependency_signals": dict(self.dependency_signals),
             "context_signals": self.context_signals.to_dict(),
             "candidate_intents": [item.to_dict() for item in self.candidate_intents],
             "task_candidates": [item.to_dict() for item in self.task_candidates],
@@ -412,10 +394,9 @@ class IntentEvidence:
         return {
             "classifier_mode": self.classifier_mode,
             "matched_rules": [item.to_dict() for item in self.matched_rules],
-            "signal_buckets": self.signal_buckets.to_v2_dict(),
+            "signal_buckets": self.signal_buckets.to_dict(),
             "unsupported_signals": dict(self.unsupported_signals),
             "context_signals": self.context_signals.to_dict(),
-            "context_fact_signals": self.context_signals.to_dict(),
             "candidate_intents": [item.to_dict() for item in self.candidate_intents],
             "task_candidates": [item.to_dict() for item in self.task_candidates],
             "model_result": self.model_result.to_dict() if self.model_result else None,

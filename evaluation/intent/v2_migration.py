@@ -6,23 +6,28 @@ from intent.task_compat import infer_topology_from_legacy_task
 
 
 def infer_context_signals_from_dependency(dependency_signals: dict[str, Any]) -> dict[str, Any]:
+    ambiguity_states: list[str] = []
+    missing_context_types: list[str] = []
+    if dependency_signals.get("ambiguous", False):
+        ambiguity_states.append("history_dependent")
+        missing_context_types.append("missing_history_target")
+    clarify_hint = bool(ambiguity_states)
     return {
-        "none": bool(dependency_signals.get("none", False)),
         "history_reference": bool(dependency_signals.get("history_reference", False)),
         "needs_previous_answer": bool(dependency_signals.get("previous_answer", False)),
         "previous_answer": bool(dependency_signals.get("previous_answer", False)),
         "previous_retrieval": bool(dependency_signals.get("previous_retrieval", False)),
-        "missing_reference_target": False,
-        "possibly_ambiguous": bool(dependency_signals.get("ambiguous", False)),
-        "needs_context_check": bool(dependency_signals.get("ambiguous", False)),
-        "ambiguous": bool(dependency_signals.get("ambiguous", False)),
+        "clarify_hint": clarify_hint,
+        "ambiguity_states": ambiguity_states,
+        "missing_context_types": missing_context_types,
+        "ambiguous": clarify_hint,
         "has_reference": bool(dependency_signals.get("history_reference", False)),
         "has_previous_intent": bool(
             dependency_signals.get("history_reference", False)
             or dependency_signals.get("previous_answer", False)
             or dependency_signals.get("previous_retrieval", False)
         ),
-        "has_implicit_history": bool(dependency_signals.get("ambiguous", False)),
+        "has_implicit_history": "history_dependent" in ambiguity_states,
         "is_direct_followup": bool(dependency_signals.get("history_reference", False)),
     }
 
@@ -35,7 +40,7 @@ def infer_signal_buckets_from_v1(evidence: dict[str, Any]) -> dict[str, list[str
     intent_signals = [
         signal
         for signal in required_signals
-        if signal in {"qa", "chat", "system", "ask_capability", "scope_question", "follow_up", "ask_source", "challenge", "soft_doubt"}
+        if signal in {"qa", "chat", "system", "ask_capability", "follow_up", "ask_source", "challenge", "soft_doubt"}
     ]
     task_signals = [signal for signal in required_signals if signal in {"multi_question", "complex", "parallel_subtasks", "staged"}]
     context_signals: list[str] = []
@@ -48,12 +53,12 @@ def infer_signal_buckets_from_v1(evidence: dict[str, Any]) -> dict[str, list[str
     if dependency_signals.get("previous_retrieval"):
         context_signals.append("previous_retrieval")
     if dependency_signals.get("ambiguous"):
-        context_signals.extend(["possibly_ambiguous", "needs_context_check"])
+        context_signals.append("clarify_hint")
     safety_signals = ["unsupported", "out_of_scope"] if any(bool(value) for value in unsupported_signals.values()) else []
     return {
         "intent": _unique(intent_signals),
         "task": _unique(task_signals),
-        "context_fact": _unique(context_signals),
+        "context": _unique(context_signals),
         "safety": _unique(safety_signals),
     }
 
@@ -77,13 +82,17 @@ def serialize_resolved_v2(resolved: dict[str, Any]) -> dict[str, Any]:
     task = dict(resolved.get("task", {}))
     modifiers = dict(resolved.get("modifiers", {}))
     context_dependency = resolved.get("context_dependency", "none")
-    clarify_candidate = bool(
-        modifiers.get("clarify_candidate")
-        or modifiers.get("needs_clarification")
+    clarify_hint = bool(
+        resolved.get("ambiguity_state", {}).get("clarify_hint")
         or context_dependency == "ambiguous"
     )
     needs_previous_answer = context_dependency == "previous_answer"
-    possibly_ambiguous = context_dependency == "ambiguous"
+    ambiguity_states = list(resolved.get("ambiguity_state", {}).get("ambiguity_states", []))
+    if context_dependency == "ambiguous" and not ambiguity_states:
+        ambiguity_states.append("history_dependent")
+    missing_context_types = list(resolved.get("ambiguity_state", {}).get("missing_context_types", []))
+    if clarify_hint and not missing_context_types and context_dependency == "ambiguous":
+        missing_context_types.append("missing_history_target")
     return {
         "main_intent": resolved.get("main_intent", "chat"),
         "modifiers": modifiers,
@@ -94,11 +103,10 @@ def serialize_resolved_v2(resolved: dict[str, Any]) -> dict[str, Any]:
         },
         "context_dependency": context_dependency,
         "ambiguity_state": {
-            "clarify_candidate": clarify_candidate,
-            "needs_context_check": clarify_candidate,
+            "clarify_hint": clarify_hint,
             "needs_previous_answer": needs_previous_answer,
-            "missing_reference_target": False,
-            "possibly_ambiguous": possibly_ambiguous,
+            "ambiguity_states": ambiguity_states,
+            "missing_context_types": missing_context_types,
         },
     }
 
@@ -109,6 +117,7 @@ def should_review_for_v2(row: dict[str, Any]) -> bool:
     task = resolved.get("task", {})
     modifiers = resolved.get("modifiers", {})
     control = gold.get("control", {})
+    ambiguity = resolved.get("ambiguity_state", {})
     return any(
         (
             task.get("shape") != "single_question",
@@ -116,7 +125,7 @@ def should_review_for_v2(row: dict[str, Any]) -> bool:
             bool(modifiers.get("follow_up")),
             bool(modifiers.get("ask_source")),
             bool(modifiers.get("challenge")),
-            bool(modifiers.get("needs_clarification")),
+            bool(ambiguity.get("clarify_hint")),
             control.get("route") in {"direct", "reject"},
             control.get("mode") == "clarify",
         )
@@ -129,14 +138,17 @@ def review_reasons_for_v2(row: dict[str, Any]) -> list[str]:
     task = resolved.get("task", {})
     modifiers = resolved.get("modifiers", {})
     control = gold.get("control", {})
+    ambiguity = resolved.get("ambiguity_state", {})
     reasons: list[str] = []
     if task.get("shape") != "single_question":
         reasons.append("task_shape_non_single")
     if task.get("complexity") in {"compound", "complex"}:
         reasons.append(f"task_complexity_{task.get('complexity')}")
-    for key in ("follow_up", "ask_source", "challenge", "needs_clarification"):
+    for key in ("follow_up", "ask_source", "challenge"):
         if modifiers.get(key):
             reasons.append(f"modifier_{key}")
+    if ambiguity.get("clarify_hint"):
+        reasons.append("ambiguity_clarify_hint")
     if control.get("route") in {"direct", "reject"}:
         reasons.append(f"control_route_{control.get('route')}")
     if control.get("mode") == "clarify":

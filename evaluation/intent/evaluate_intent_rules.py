@@ -15,6 +15,7 @@ if str(BACKEND_DIR) not in sys.path:
 
 from intent import classify_intent  # noqa: E402
 from intent.task_compat import infer_topology_from_legacy_task  # noqa: E402
+from evaluation.intent.v2_migration import infer_context_signals_from_dependency  # noqa: E402
 
 
 OVERALL_KEYS = (
@@ -115,15 +116,15 @@ def evaluate_dataset(
             "evidence_mode": analysis.evidence.classifier_mode == gold["evidence"]["classifier_mode"],
             "evidence_required_signals": _required_subset(
                 gold["evidence"].get("required_signals", []),
-                analysis.evidence.raw_signals,
+                analysis.evidence.signal_buckets.all_signals(),
             ),
             "evidence_required_rules": _required_subset(
                 gold["evidence"].get("required_rule_ids", []),
                 [match.rule_id for match in analysis.evidence.matched_rules],
             ),
             "evidence_dependency": _dict_equal(
-                gold["evidence"].get("dependency_signals", {}),
-                analysis.evidence.dependency_signals,
+                infer_context_signals_from_dependency(gold["evidence"].get("dependency_signals", {})),
+                analysis.evidence.context_signals.to_dict(),
             ),
             "evidence_unsupported": _dict_equal(
                 gold["evidence"].get("unsupported_signals", {}),

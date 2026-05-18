@@ -43,7 +43,6 @@ MODIFIER_NAMES = (
     "soft_doubt",
     "ask_source",
     "ask_capability",
-    "needs_clarification",
     "out_of_scope",
 )
 
@@ -57,6 +56,7 @@ MULTICLASS_TASKS: dict[str, tuple[str, ...]] = {
 BINARY_TASKS: dict[str, str] = {
     "soft_doubt": "soft_doubt",
     **{f"modifier_{name}": name for name in MODIFIER_NAMES if name != "soft_doubt"},
+    "ambiguity_clarify_hint": "clarify_hint",
 }
 
 
@@ -88,6 +88,7 @@ def prepare_macbert_datasets(rows: list[dict[str, Any]]) -> dict[str, Any]:
         resolved = row.get("resolved", {})
         modifiers = resolved.get("modifiers", {})
         task = resolved.get("task", {})
+        ambiguity = resolved.get("ambiguity_state", {})
         base_fields = {
             "id": row["id"],
             "text": text,
@@ -96,7 +97,10 @@ def prepare_macbert_datasets(rows: list[dict[str, Any]]) -> dict[str, Any]:
         }
 
         for task_name, modifier_name in BINARY_TASKS.items():
-            value = bool(modifiers.get(modifier_name, False))
+            if modifier_name == "clarify_hint":
+                value = bool(ambiguity.get("clarify_hint", False))
+            else:
+                value = bool(modifiers.get(modifier_name, False))
             grouped_outputs[task_name][split].append(
                 {
                     **base_fields,

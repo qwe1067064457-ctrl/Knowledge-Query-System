@@ -19,43 +19,47 @@ def test_intent_analysis_grouped_dict_exposes_domain_buckets() -> None:
     assert set(grouped["control"].keys()) == {"dispatch", "policy"}
     assert grouped["resolved"]["intent"]["main_intent"] == "qa"
     assert grouped["control"]["dispatch"]["route"] == "rag"
-    assert "ask_source" in grouped["evidence"]["intent"]["raw_signals"]
-    assert "needs_previous_answer" in grouped["evidence"]["context"]["raw_signals"]
+    assert "ask_source" in grouped["evidence"]["intent"]["signals"]
+    assert "needs_previous_answer" in grouped["evidence"]["context"]["signals"]
 
 
-def test_flat_dict_shape_remains_backward_compatible() -> None:
+def test_flat_dict_shape_uses_v2_evidence_fields() -> None:
     result = classify_intent("这样算不算医疗事故？")
 
     flat = result.to_dict()
 
-    assert "raw_signals" in flat["evidence"]
     assert "signal_buckets" in flat["evidence"]
     assert "candidate_intents" in flat["evidence"]
+    assert "context_signals" in flat["evidence"]
+    assert "raw_signals" not in flat["evidence"]
+    assert "dependency_signals" not in flat["evidence"]
     assert "context_dependency" in flat["resolved"]
     assert "route" in flat["control"]
     assert "planning_level" in flat["control"]
 
 
-def test_signal_buckets_flatten_back_to_raw_signals() -> None:
+def test_signal_buckets_keep_context_overview_without_raw_signals() -> None:
     result = classify_intent("如果没有证据怎么办？")
 
-    assert "needs_context_check" in result.evidence.signal_buckets.context
-    assert "needs_context_check" in result.evidence.raw_signals
+    assert "clarify_hint" in result.evidence.signal_buckets.context
+    assert result.evidence.context_signals.clarify_hint is True
 
 
-def test_context_signals_expose_typed_flags() -> None:
+def test_context_signals_expose_typed_gap_fields() -> None:
     result = classify_intent("你刚才的依据是什么？", LAW_HISTORY)
 
     context = result.evidence.context_signals
 
     assert context.needs_previous_answer is True
     assert context.has_previous_intent is True
-    assert result.evidence.dependency_signals["previous_answer"] is True
+    assert context.ambiguity_states == ()
+    assert context.missing_context_types == ()
 
 
-def test_ambiguity_state_exposes_clarify_candidate() -> None:
+def test_ambiguity_state_exposes_v2_context_gap_fields() -> None:
     result = classify_intent("你确定吗？")
 
-    assert result.resolved.ambiguity_state.clarify_candidate is True
-    assert result.resolved.ambiguity_state.needs_context_check is True
+    assert result.resolved.ambiguity_state.clarify_hint is True
     assert result.resolved.ambiguity_state.needs_previous_answer is True
+    assert result.resolved.ambiguity_state.ambiguity_states == ("history_dependent",)
+    assert result.resolved.ambiguity_state.missing_context_types == ("missing_history_target",)

@@ -87,10 +87,6 @@ def check_row_completeness(row: dict[str, Any]) -> list[dict[str, Any]]:
     evidence = row.get("gold", {}).get("evidence", {})
     buckets = evidence.get("signal_buckets", {})
     for bucket in EXPECTED_BUCKETS:
-        if bucket == "context_fact":
-            if "context_fact" not in buckets and "context" not in buckets:
-                violations.append(_issue(row, "missing_bucket", bucket))
-            continue
         if bucket not in buckets:
             violations.append(_issue(row, "missing_bucket", bucket))
     return violations

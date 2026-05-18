@@ -219,13 +219,9 @@ def _build_rule_evidence(intent_input: IntentInput, history: list[dict[str, Any]
         "privileged_operation": False,
         "unknown_external_action": False,
     }
-    dependency_signals = {
-        "none": False,
-        "history_reference": False,
-        "previous_answer": False,
-        "previous_retrieval": False,
-        "ambiguous": False,
-    }
+    ambiguity_states: list[str] = []
+    missing_context_types: list[str] = []
+    clarify_hint = False
 
     domain_qa = _matches(text, DOMAIN_QA_PATTERNS)
     chat = _matches(text, CHAT_PATTERNS)
@@ -272,7 +268,6 @@ def _build_rule_evidence(intent_input: IntentInput, history: list[dict[str, Any]
     if ask_capability:
         _append_signal(intent_signals, "system")
         _append_signal(intent_signals, "ask_capability")
-        _append_signal(intent_signals, "scope_question")
         matched_rules.append(_rule("system.capability.ask", "ask_capability", "high", text))
     if ask_source:
         _append_signal(intent_signals, "ask_source")
@@ -282,7 +277,6 @@ def _build_rule_evidence(intent_input: IntentInput, history: list[dict[str, Any]
         _append_signal(intent_signals, coarse_signal)
         if ctx.has_previous_answer:
             _append_signal(context_signals, "needs_previous_answer")
-            dependency_signals["previous_answer"] = True
             if hard_challenge_requested:
                 matched_rules.append(_rule("challenge.disagree", "challenge", "high", text))
             else:
@@ -292,21 +286,22 @@ def _build_rule_evidence(intent_input: IntentInput, history: list[dict[str, Any]
             matched_rules.append(_rule("intent.qa.long_context_rescue", "qa", "medium", text))
         else:
             _append_signal(context_signals, "needs_previous_answer")
-            _append_signal(context_signals, "possibly_ambiguous")
-            _append_signal(context_signals, "needs_context_check")
-            dependency_signals["ambiguous"] = True
-            matched_rules.append(_rule("challenge.missing_context", "needs_context_check", "medium", text))
+            _append_signal(context_signals, "clarify_hint")
+            clarify_hint = True
+            _append_unique(ambiguity_states, "history_dependent")
+            _append_unique(missing_context_types, "missing_history_target")
+            matched_rules.append(_rule("challenge.missing_context", "clarify_hint", "medium", text))
     if follow_up_requested and ctx.has_history:
         _append_signal(intent_signals, "follow_up")
         _append_signal(context_signals, "history_reference")
-        dependency_signals["history_reference"] = True
         matched_rules.append(_rule("context.follow_up.reference", "follow_up", "medium", text))
     elif follow_up_requested and not _should_block_missing_history(text):
         _append_signal(intent_signals, "follow_up")
-        _append_signal(context_signals, "possibly_ambiguous")
-        _append_signal(context_signals, "needs_context_check")
-        dependency_signals["ambiguous"] = True
-        matched_rules.append(_rule("context.follow_up.missing_history", "needs_context_check", "medium", text))
+        _append_signal(context_signals, "clarify_hint")
+        clarify_hint = True
+        _append_unique(ambiguity_states, "history_dependent")
+        _append_unique(missing_context_types, "missing_history_target")
+        matched_rules.append(_rule("context.follow_up.missing_history", "clarify_hint", "medium", text))
 
     for rule_id, pattern, unsupported_key in UNSUPPORTED_RULES:
         match = pattern.search(text)
@@ -334,40 +329,36 @@ def _build_rule_evidence(intent_input: IntentInput, history: list[dict[str, Any]
 
     if ask_source and ctx.has_previous_answer:
         _append_signal(context_signals, "needs_previous_answer")
-        dependency_signals["previous_answer"] = True
     if ask_source and not ctx.has_previous_answer and not (domain_qa or judgment_qa or generic_qa):
         _append_signal(context_signals, "needs_previous_answer")
-        _append_signal(context_signals, "missing_reference_target")
-        _append_signal(context_signals, "possibly_ambiguous")
-        _append_signal(context_signals, "needs_context_check")
-        dependency_signals["ambiguous"] = True
-        matched_rules.append(_rule("source.missing_context", "needs_context_check", "medium", text))
+        _append_signal(context_signals, "clarify_hint")
+        clarify_hint = True
+        _append_unique(ambiguity_states, "reference_ambiguous")
+        _append_unique(missing_context_types, "missing_reference_target")
+        matched_rules.append(_rule("source.missing_context", "clarify_hint", "medium", text))
 
     if (
         judgment_qa
-        and "needs_context_check" not in context_signals
+        and not clarify_hint
         and not ctx.has_history
         and not long_complex_fallback
         and not multi_question
         and not complex_task
         and _should_request_judgment_clarification(text)
     ):
-        _append_signal(context_signals, "possibly_ambiguous")
-        _append_signal(context_signals, "needs_context_check")
-        dependency_signals["ambiguous"] = True
-        matched_rules.append(_rule("intent.qa.judgment_clarify", "needs_context_check", "medium", text))
-
-    if not any(dependency_signals.values()):
-        dependency_signals["none"] = True
+        _append_signal(context_signals, "clarify_hint")
+        clarify_hint = True
+        _append_unique(ambiguity_states, "fact_missing")
+        _append_unique(missing_context_types, "missing_fact_bundle")
+        matched_rules.append(_rule("intent.qa.judgment_clarify", "clarify_hint", "medium", text))
 
     typed_context_signals = ContextSignals(
-        history_reference="history_reference" in context_signals or dependency_signals["history_reference"],
-        needs_previous_answer="needs_previous_answer" in context_signals or dependency_signals["previous_answer"],
-        previous_retrieval=dependency_signals["previous_retrieval"],
-        missing_reference_target="missing_reference_target" in context_signals,
-        possibly_ambiguous="possibly_ambiguous" in context_signals or dependency_signals["ambiguous"],
-        needs_context_check="needs_context_check" in context_signals,
-        none=dependency_signals["none"],
+        history_reference="history_reference" in context_signals,
+        needs_previous_answer="needs_previous_answer" in context_signals,
+        previous_retrieval=False,
+        clarify_hint=clarify_hint,
+        ambiguity_states=tuple(ambiguity_states),
+        missing_context_types=tuple(missing_context_types),
     )
     signal_buckets = SignalBuckets(
         intent=tuple(intent_signals),
@@ -375,8 +366,6 @@ def _build_rule_evidence(intent_input: IntentInput, history: list[dict[str, Any]
         context=tuple(context_signals),
         safety=tuple(safety_signals),
     )
-    raw_signals = signal_buckets.all_signals()
-
     candidate_intents = _build_rule_candidate_intents(
         text=text,
         signal_buckets=signal_buckets,
@@ -399,18 +388,16 @@ def _build_rule_evidence(intent_input: IntentInput, history: list[dict[str, Any]
     classifier_mode = _determine_classifier_mode(matched_rules)
     rule_confidence = calculate_rule_confidence(
         matched_rules=tuple(matched_rules),
-        raw_signals=raw_signals,
+        active_signals=signal_buckets.all_signals(),
         context_state=ctx,
-        dependency_signals=dependency_signals,
+        context_signals=typed_context_signals,
     )
 
     return IntentEvidence(
         classifier_mode=classifier_mode,
         matched_rules=tuple(matched_rules),
-        raw_signals=raw_signals,
         signal_buckets=signal_buckets,
         unsupported_signals=unsupported_signals,
-        dependency_signals=dependency_signals,
         context_signals=typed_context_signals,
         candidate_intents=tuple(candidate_intents),
         task_candidates=tuple(task_candidates),
@@ -767,6 +754,11 @@ def _rule(rule_id: str, signal: str, strength: str, matched_text: str) -> RuleMa
 def _append_signal(bucket: list[str], signal: str) -> None:
     if signal not in bucket:
         bucket.append(signal)
+
+
+def _append_unique(bucket: list[str], value: str) -> None:
+    if value and value not in bucket:
+        bucket.append(value)
 
 
 def _normalize(message: str) -> str:
