@@ -13,9 +13,11 @@
 - `gold/`
   - 当前最重要的标注区
   - `train/`：高质量 `gold` 训练样本
+    - `seed_query_20260518_gold_v1/`：本轮 multi-signal SFT v1 的训练回补，重点补 `needs_clarification`、`complex` 和 `follow_up/needs_clarification` 对照组
   - `silver/`：由 `auto-uplift` 批量生成的 `silver` 训练样本
   - `dev/`：从非冻结高质量样本中切出的开发集
   - `calibration/`：参与过调优的开发校准集
+    - `multisignal_20260517_v2/`：覆盖 6 个 signal 的 calibration v2，正例与 hard negative 混放，用于阈值调优
   - `frozen/`：真正冻结的 benchmark / held-out
     - `frozen_heldout_v2/`：历史冻结集，保留不动
     - `frozen_heldout_v3/`：补齐 6 个 multi-signal 边界信号覆盖的新冻结集
@@ -31,6 +33,7 @@
 
 - 继续补训练集：先看 `gold/train/` 和 `gold/silver/`
 - 做开发验证：先看 `gold/dev/`
+- 做阈值调优：先看 `gold/calibration/multisignal_20260517_v2/`
 - 做最终验证：先看 `gold/frozen/`
 - 找待提升样本：先看 `campaign/`
 - 查历史资产：看 `legacy/`

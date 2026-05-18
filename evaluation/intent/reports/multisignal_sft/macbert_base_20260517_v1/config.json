@@ -1,0 +1,18 @@
+{
+  "task_name": "required_signals_multilabel",
+  "bundle_dir": "/tmp/intent_sft_multisignal_bundle_v2",
+  "output_dir": "/Users/genius/Developer/Ai_Project/Skill-First-Hybrid-RAG/evaluation/intent/reports/multisignal_sft/macbert_base_20260517_v1",
+  "model_name": "hfl/chinese-macbert-base",
+  "epochs": 3,
+  "batch_size": 8,
+  "learning_rate": 2e-05,
+  "max_length": 256,
+  "weight_decay": 0.01,
+  "warmup_ratio": 0.1,
+  "seed": 42,
+  "gold_weight": 1.0,
+  "silver_weight": 0.4,
+  "dry_run": false,
+  "label_group": "boundary_signals_v1",
+  "include_history": false
+}

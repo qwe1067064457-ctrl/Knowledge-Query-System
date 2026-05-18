@@ -52,6 +52,7 @@
 - 想看 6 个边界 signal 目前各缺多少覆盖
 - 想看应该优先从哪些 `query_inputs / silver` 池提样
 - 想看 `heldout_v3` 为什么需要新建而不是回改 `frozen_heldout_v2`
+- 想看后续 `calibration v2` 和 `20260518` 训练回补为什么重点放在 `needs_clarification` 与 `complex`
 
 ## 参考子目录
 

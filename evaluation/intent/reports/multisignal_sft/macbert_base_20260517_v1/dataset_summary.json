@@ -1,0 +1,46 @@
+{
+  "train": {
+    "rows": 1358,
+    "active_signal_counts": {
+      "soft_doubt": 56,
+      "follow_up": 329,
+      "needs_clarification": 230,
+      "ask_source": 126,
+      "multi_question": 316,
+      "complex": 153
+    }
+  },
+  "dev": {
+    "rows": 24,
+    "active_signal_counts": {
+      "soft_doubt": 4,
+      "follow_up": 4,
+      "needs_clarification": 4,
+      "ask_source": 4,
+      "multi_question": 4,
+      "complex": 8
+    }
+  },
+  "calibration": {
+    "rows": 10,
+    "active_signal_counts": {
+      "soft_doubt": 5,
+      "follow_up": 0,
+      "needs_clarification": 0,
+      "ask_source": 0,
+      "multi_question": 0,
+      "complex": 0
+    }
+  },
+  "heldout": {
+    "rows": 30,
+    "active_signal_counts": {
+      "soft_doubt": 5,
+      "follow_up": 5,
+      "needs_clarification": 5,
+      "ask_source": 5,
+      "multi_question": 5,
+      "complex": 5
+    }
+  }
+}

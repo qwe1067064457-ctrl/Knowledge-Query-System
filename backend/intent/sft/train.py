@@ -381,7 +381,8 @@ def set_seed(seed: int, *, torch: Any | None = None) -> None:
 def _import_training_dependencies() -> dict[str, Any]:
     try:
         import torch
-        from transformers import AdamW, AutoModelForSequenceClassification, AutoTokenizer, get_linear_schedule_with_warmup
+        from torch.optim import AdamW
+        from transformers import AutoModelForSequenceClassification, AutoTokenizer, get_linear_schedule_with_warmup
     except ImportError as exc:  # pragma: no cover - dependency gate
         raise RuntimeError(
             "Training dependencies are missing. Install `torch` and `transformers` before running without --dry-run."

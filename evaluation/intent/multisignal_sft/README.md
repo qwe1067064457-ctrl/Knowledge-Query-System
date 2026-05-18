@@ -26,11 +26,11 @@
   - `backend_test/intent/test_data/gold/train/*`
   - `backend_test/intent/test_data/gold/silver/*`
 - `dev`
-  - `backend_test/intent/test_data/gold/dev/*`
+  - `backend_test/intent/test_data/gold/dev/seed_query_20260517_gold_v2`
 - `calibration`
   - `backend_test/intent/test_data/gold/calibration/heldout_judgment_soft_doubt_gold_v1`
 - `heldout`
-  - `backend_test/intent/test_data/gold/frozen/frozen_heldout_v2`
+  - `backend_test/intent/test_data/gold/frozen/frozen_heldout_v3`
 
 约束：
 
@@ -97,10 +97,20 @@ python3 backend/intent/sft/train.py /tmp/intent_sft_multisignal_bundle /tmp/inte
 
 ## 当前限制
 
-当前 `dev/heldout` 对这 6 个边界标签的覆盖明显不完整。
+当前 split 覆盖已经更新到：
+
+- `dev`
+  - `soft_doubt=4`
+  - `follow_up=4`
+  - `needs_clarification=4`
+  - `ask_source=4`
+  - `multi_question=4`
+  - `complex=8`
+- `heldout_v3`
+  - 6 个边界 signal 均为 `5`
 
 现状意味着：
 
 - 这条线现在适合做 baseline
-- 不适合过早下“正式生产结论”
-- 后续需要补 `dev/heldout` 的边界信号覆盖，再做稳定对比实验
+- 但 `calibration` 目前仍然主要覆盖 `soft_doubt`
+- 对其余 5 个 signal 的阈值稳定性，仍需单独扩充 calibration 集再做正式比较
