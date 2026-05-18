@@ -30,8 +30,15 @@ COMPARE_FIELDS = (
     "resolved.modifiers.soft_doubt",
     "resolved.modifiers.ask_source",
     "resolved.modifiers.ask_capability",
+    "resolved.modifiers.scope_question",
+    "resolved.modifiers.clarify_candidate",
     "resolved.modifiers.needs_clarification",
     "resolved.modifiers.out_of_scope",
+    "resolved.ambiguity_state.clarify_candidate",
+    "resolved.ambiguity_state.needs_context_check",
+    "resolved.ambiguity_state.needs_previous_answer",
+    "resolved.ambiguity_state.missing_reference_target",
+    "resolved.ambiguity_state.possibly_ambiguous",
 )
 
 

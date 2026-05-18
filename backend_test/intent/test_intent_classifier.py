@@ -47,7 +47,8 @@ def test_challenge_requires_previous_assistant_answer() -> None:
 def test_challenge_without_history_needs_clarification() -> None:
     result = classify_intent("你确定吗？")
 
-    assert result.resolved.modifiers.challenge is False
+    assert result.resolved.modifiers.challenge is True
+    assert result.resolved.modifiers.clarify_candidate is True
     assert result.resolved.modifiers.needs_clarification is True
     assert result.control.route == "direct"
     assert result.control.mode == "clarify"
@@ -70,10 +71,29 @@ def test_ask_source_is_modifier_and_keeps_qa_with_history() -> None:
     assert result.resolved.context_dependency == "previous_answer"
 
 
+def test_ask_source_without_history_becomes_clarify_candidate() -> None:
+    result = classify_intent("依据是什么？")
+
+    assert result.resolved.main_intent == "qa"
+    assert result.resolved.modifiers.ask_source is True
+    assert result.resolved.modifiers.clarify_candidate is True
+    assert result.resolved.ambiguity_state.missing_reference_target is True
+    assert result.control.route == "direct"
+
+
 def test_ask_capability_routes_to_system() -> None:
     result = classify_intent("你能做什么？")
 
     assert result.resolved.main_intent == "system"
+    assert result.control.route == "direct"
+    assert result.control.mode == "capability"
+
+
+def test_capability_support_question_stays_system_not_chat() -> None:
+    result = classify_intent("你支持把当前 intent 四层样本导出成 JSONL 吗？我想先确认你的能力范围。")
+
+    assert result.resolved.main_intent == "system"
+    assert result.resolved.modifiers.ask_capability is True
     assert result.control.route == "direct"
     assert result.control.mode == "capability"
 
@@ -84,6 +104,22 @@ def test_out_of_scope_file_operation_is_unsupported() -> None:
     assert result.resolved.main_intent == "unsupported"
     assert result.resolved.modifiers.out_of_scope is True
     assert result.evidence.unsupported_signals["file_delete_request"] is True
+    assert result.control.route == "reject"
+
+
+def test_unsupported_production_reset_request_is_not_chat() -> None:
+    result = classify_intent("帮我登录生产服务器，把所有租户共享向量库直接重置并覆盖为最新版本。")
+
+    assert result.resolved.main_intent == "unsupported"
+    assert result.resolved.modifiers.out_of_scope is True
+    assert result.control.route == "reject"
+
+
+def test_unsupported_delete_request_is_not_chat() -> None:
+    result = classify_intent("你帮我登录生产环境，把那批租户数据批量删掉。")
+
+    assert result.resolved.main_intent == "unsupported"
+    assert result.resolved.modifiers.out_of_scope is True
     assert result.control.route == "reject"
 
 
@@ -169,6 +205,15 @@ def test_generic_qa_rescue_keeps_plain_legal_question_out_of_chat() -> None:
     assert result.control.route == "rag"
 
 
+def test_question_like_architecture_query_defaults_to_qa_not_chat() -> None:
+    result = classify_intent(
+        "在多租户知识库系统里，如果我们希望后续支持案件级别的审计回放，session 和 message 的主键设计一般需要预留哪些扩展位？"
+    )
+
+    assert result.resolved.main_intent == "qa"
+    assert result.control.route == "rag"
+
+
 def test_generic_self_anchor_question_stays_qa() -> None:
     result = classify_intent("这算重大疾病吗？")
 
@@ -233,6 +278,13 @@ def test_meta_analysis_query_stays_qa_not_chat() -> None:
 
     assert result.resolved.main_intent == "qa"
     assert result.control.route == "rag"
+
+
+def test_plain_thanks_stays_chat_as_negative_case() -> None:
+    result = classify_intent("谢谢，明白了")
+
+    assert result.resolved.main_intent == "chat"
+    assert result.control.route == "chat"
 
 
 def test_generic_qa_supervision_sample_hits_generic_rule() -> None:

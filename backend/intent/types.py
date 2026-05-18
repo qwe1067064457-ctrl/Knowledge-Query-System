@@ -24,6 +24,7 @@ ContextDependency = Literal[
     "previous_retrieval",
     "ambiguous",
 ]
+AnswerShapeHint = Literal["none", "structured_sections"]
 Route = Literal["rag", "chat", "direct", "agent", "reject"]
 Mode = Literal["normal", "challenge", "capability", "clarify"]
 PlanningLevel = Literal["none", "light", "full"]
@@ -110,6 +111,8 @@ class IntentModifiers:
     soft_doubt: bool = False
     ask_source: bool = False
     ask_capability: bool = False
+    scope_question: bool = False
+    clarify_candidate: bool = False
     needs_clarification: bool = False
     out_of_scope: bool = False
 
@@ -141,27 +144,66 @@ class ModelResult:
 
 @dataclass(frozen=True)
 class ContextSignals:
-    has_reference: bool = False
-    has_previous_intent: bool = False
-    has_implicit_history: bool = False
-    is_direct_followup: bool = False
-    previous_answer: bool = False
+    history_reference: bool = False
+    needs_previous_answer: bool = False
     previous_retrieval: bool = False
-    ambiguous: bool = False
+    missing_reference_target: bool = False
+    possibly_ambiguous: bool = False
+    needs_context_check: bool = False
     none: bool = False
+
+    @property
+    def has_reference(self) -> bool:
+        return self.history_reference
+
+    @property
+    def previous_answer(self) -> bool:
+        return self.needs_previous_answer
+
+    @property
+    def ambiguous(self) -> bool:
+        return self.possibly_ambiguous or self.needs_context_check or self.missing_reference_target
+
+    @property
+    def has_previous_intent(self) -> bool:
+        return self.history_reference or self.needs_previous_answer or self.previous_retrieval
+
+    @property
+    def has_implicit_history(self) -> bool:
+        return self.ambiguous
+
+    @property
+    def is_direct_followup(self) -> bool:
+        return self.history_reference
 
     def to_dict(self) -> dict[str, Any]:
         return {
             "none": self.none,
-            "history_reference": self.has_reference,
+            "history_reference": self.history_reference,
+            "needs_previous_answer": self.needs_previous_answer,
             "previous_answer": self.previous_answer,
             "previous_retrieval": self.previous_retrieval,
+            "missing_reference_target": self.missing_reference_target,
+            "possibly_ambiguous": self.possibly_ambiguous,
+            "needs_context_check": self.needs_context_check,
             "ambiguous": self.ambiguous,
             "has_reference": self.has_reference,
             "has_previous_intent": self.has_previous_intent,
             "has_implicit_history": self.has_implicit_history,
             "is_direct_followup": self.is_direct_followup,
         }
+
+
+@dataclass(frozen=True)
+class AmbiguityState:
+    clarify_candidate: bool = False
+    needs_context_check: bool = False
+    needs_previous_answer: bool = False
+    missing_reference_target: bool = False
+    possibly_ambiguous: bool = False
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
 
 
 @dataclass(frozen=True)
@@ -204,6 +246,10 @@ class SignalBuckets:
     context: tuple[str, ...] = ()
     safety: tuple[str, ...] = ()
 
+    @property
+    def context_fact(self) -> tuple[str, ...]:
+        return self.context
+
     def all_signals(self) -> tuple[str, ...]:
         ordered = []
         for signal in (*self.intent, *self.task, *self.context, *self.safety):
@@ -216,6 +262,14 @@ class SignalBuckets:
             "intent": list(self.intent),
             "task": list(self.task),
             "context": list(self.context),
+            "safety": list(self.safety),
+        }
+
+    def to_v2_dict(self) -> dict[str, Any]:
+        return {
+            "intent": list(self.intent),
+            "task": list(self.task),
+            "context_fact": list(self.context_fact),
             "safety": list(self.safety),
         }
 
@@ -271,6 +325,7 @@ class ContextEvidenceView:
             "raw_signals": list(self.raw_signals),
             "dependency_signals": dict(self.dependency_signals),
             "context_signals": self.context_signals.to_dict(),
+            "context_fact_signals": self.context_signals.to_dict(),
         }
 
 
@@ -357,9 +412,10 @@ class IntentEvidence:
         return {
             "classifier_mode": self.classifier_mode,
             "matched_rules": [item.to_dict() for item in self.matched_rules],
-            "signal_buckets": self.signal_buckets.to_dict(),
+            "signal_buckets": self.signal_buckets.to_v2_dict(),
             "unsupported_signals": dict(self.unsupported_signals),
             "context_signals": self.context_signals.to_dict(),
+            "context_fact_signals": self.context_signals.to_dict(),
             "candidate_intents": [item.to_dict() for item in self.candidate_intents],
             "task_candidates": [item.to_dict() for item in self.task_candidates],
             "model_result": self.model_result.to_dict() if self.model_result else None,
@@ -381,6 +437,7 @@ class ResolvedTask:
     complexity: TaskComplexity
     shape: TaskShape
     topology: TaskTopology = "single"
+    answer_shape_hint: AnswerShapeHint = "none"
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -433,6 +490,7 @@ class ResolvedIntent:
         default_factory=lambda: ResolvedTask(complexity="simple", shape="none")
     )
     context_dependency: ContextDependency = "none"
+    ambiguity_state: AmbiguityState = field(default_factory=AmbiguityState)
     decision: DecisionTrace = field(
         default_factory=lambda: DecisionTrace(
             strength="low",
@@ -455,6 +513,7 @@ class ResolvedIntent:
             "modifiers": self.modifiers.to_dict(),
             "task": self.task.to_dict(),
             "context_dependency": self.context_dependency,
+            "ambiguity_state": self.ambiguity_state.to_dict(),
             "decision": self.decision.to_dict(),
         }
 
@@ -464,6 +523,7 @@ class ResolvedIntent:
             "modifiers": self.modifiers.to_dict(),
             "task": self.task.to_v1_dict(),
             "context_dependency": self.context_dependency,
+            "ambiguity_state": self.ambiguity_state.to_dict(),
             "decision": self.decision.to_dict(),
         }
 
@@ -472,6 +532,7 @@ class ResolvedIntent:
             "intent": self.intent.to_dict(),
             "task": self.task.to_dict(),
             "context": self.context.to_dict(),
+            "ambiguity": self.ambiguity_state.to_dict(),
             "decision": self.decision.to_dict(),
         }
 

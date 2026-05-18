@@ -87,7 +87,7 @@ def test_missing_context_reduces_follow_up_confidence() -> None:
         matched_rules=(
             _rule("context.follow_up.reference", "follow_up", "medium", 0.6),
         ),
-        raw_signals=("follow_up", "needs_clarification"),
+        raw_signals=("follow_up", "needs_context_check"),
         context_state=ContextState(has_history=False, has_previous_answer=False),
         dependency_signals={
             "none": False,

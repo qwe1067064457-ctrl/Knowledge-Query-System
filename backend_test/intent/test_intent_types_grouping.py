@@ -15,12 +15,12 @@ def test_intent_analysis_grouped_dict_exposes_domain_buckets() -> None:
     grouped = result.to_grouped_dict()
 
     assert set(grouped["evidence"].keys()) == {"meta", "intent", "task", "context", "safety"}
-    assert set(grouped["resolved"].keys()) == {"intent", "task", "context", "decision"}
+    assert set(grouped["resolved"].keys()) == {"intent", "task", "context", "ambiguity", "decision"}
     assert set(grouped["control"].keys()) == {"dispatch", "policy"}
     assert grouped["resolved"]["intent"]["main_intent"] == "qa"
     assert grouped["control"]["dispatch"]["route"] == "rag"
     assert "ask_source" in grouped["evidence"]["intent"]["raw_signals"]
-    assert "ask_source" in grouped["evidence"]["context"]["raw_signals"]
+    assert "needs_previous_answer" in grouped["evidence"]["context"]["raw_signals"]
 
 
 def test_flat_dict_shape_remains_backward_compatible() -> None:
@@ -39,8 +39,8 @@ def test_flat_dict_shape_remains_backward_compatible() -> None:
 def test_signal_buckets_flatten_back_to_raw_signals() -> None:
     result = classify_intent("如果没有证据怎么办？")
 
-    assert "needs_clarification" in result.evidence.signal_buckets.context
-    assert "needs_clarification" in result.evidence.raw_signals
+    assert "needs_context_check" in result.evidence.signal_buckets.context
+    assert "needs_context_check" in result.evidence.raw_signals
 
 
 def test_context_signals_expose_typed_flags() -> None:
@@ -48,6 +48,14 @@ def test_context_signals_expose_typed_flags() -> None:
 
     context = result.evidence.context_signals
 
-    assert context.previous_answer is True
+    assert context.needs_previous_answer is True
     assert context.has_previous_intent is True
     assert result.evidence.dependency_signals["previous_answer"] is True
+
+
+def test_ambiguity_state_exposes_clarify_candidate() -> None:
+    result = classify_intent("你确定吗？")
+
+    assert result.resolved.ambiguity_state.clarify_candidate is True
+    assert result.resolved.ambiguity_state.needs_context_check is True
+    assert result.resolved.ambiguity_state.needs_previous_answer is True

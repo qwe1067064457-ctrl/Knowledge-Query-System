@@ -34,7 +34,7 @@ def _valid_row() -> dict:
                 "signal_buckets": {
                     "intent": ["qa"],
                     "task": ["multi_question"],
-                    "context": [],
+                    "context_fact": [],
                     "safety": [],
                 }
             },
@@ -89,19 +89,19 @@ def test_run_quality_gate_flags_unknown_signal_and_inconsistent_task(tmp_path: P
     assert any(item["kind"] == "inconsistent_task" for item in result["violations"])
 
 
-def test_run_quality_gate_treats_allowed_cross_bucket_signals_as_warning(tmp_path: Path) -> None:
+def test_run_quality_gate_flags_cross_bucket_signals_as_violation(tmp_path: Path) -> None:
     report_dir = tmp_path / "reports"
     report_dir.mkdir()
     row = _valid_row()
     row["gold"]["evidence"]["signal_buckets"]["intent"].append("ask_source")
-    row["gold"]["evidence"]["signal_buckets"]["context"].append("ask_source")
+    row["gold"]["evidence"]["signal_buckets"]["context_fact"].append("ask_source")
     row["gold"]["resolved"]["modifiers"]["ask_source"] = True
     (report_dir / "demo.jsonl").write_text(json.dumps(row, ensure_ascii=False) + "\n", encoding="utf-8")
 
     result = run_quality_gate(report_dir)
 
-    assert result["violation_count"] == 0
-    assert any(item["kind"] == "allowed_cross_bucket_signal" for item in result["warnings"])
+    assert result["violation_count"] >= 1
+    assert any(item["kind"] == "unknown_signal" or item["kind"] == "cross_bucket_signal" for item in result["violations"])
 
 
 def test_main_writes_gate_report_and_returns_nonzero_on_violation(tmp_path: Path, monkeypatch) -> None:

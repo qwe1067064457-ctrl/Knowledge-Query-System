@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from intent import build_control_signal
-from intent.types import DecisionTrace, IntentModifiers, ResolvedIntent, ResolvedTask
+from intent.types import AmbiguityState, DecisionTrace, IntentModifiers, ResolvedIntent, ResolvedTask
 
 
 def _resolved(
@@ -10,12 +10,14 @@ def _resolved(
     modifiers: IntentModifiers | None = None,
     task: ResolvedTask | None = None,
     context_dependency: str = "none",
+    ambiguity_state: AmbiguityState | None = None,
 ) -> ResolvedIntent:
     return ResolvedIntent(
         main_intent=main_intent,
         modifiers=modifiers or IntentModifiers(),
         task=task or ResolvedTask(complexity="simple", shape="single_question"),
         context_dependency=context_dependency,
+        ambiguity_state=ambiguity_state or AmbiguityState(),
         decision=DecisionTrace(strength="high", source="rule", reason="test"),
     )
 
@@ -81,8 +83,9 @@ def test_complex_verify_uses_light_planning_without_explicit_planner() -> None:
 def test_complex_verify_with_clarification_flag_is_rescued_to_agent() -> None:
     signal = build_control_signal(
         _resolved(
-            modifiers=IntentModifiers(needs_clarification=True),
+            modifiers=IntentModifiers(clarify_candidate=True, needs_clarification=True),
             task=ResolvedTask(complexity="complex", shape="verify", topology="single"),
+            ambiguity_state=AmbiguityState(clarify_candidate=True, needs_context_check=True),
         )
     )
 

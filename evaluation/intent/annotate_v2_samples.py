@@ -129,7 +129,7 @@ def build_label_comparison(*, legacy_gold: dict[str, Any], analysis: Any) -> dic
     compare("control.mode", legacy_control.get("mode"), analysis.control.mode)
 
     for key, value in analysis.resolved.modifiers.to_dict().items():
-        compare(f"resolved.modifiers.{key}", legacy_modifiers.get(key), value)
+        compare(f"resolved.modifiers.{key}", legacy_modifiers.get(key, False), value)
 
     return {
         "has_changes": bool(changed_fields),

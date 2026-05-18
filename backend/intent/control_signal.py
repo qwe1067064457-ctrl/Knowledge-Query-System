@@ -28,10 +28,10 @@ def build_control_signal(
             planning_level=planning_level,
         )
 
-    if modifiers.needs_clarification:
+    if resolved.ambiguity_state.clarify_candidate:
         return ControlSignal(route="direct", mode="clarify")
 
-    if resolved.main_intent == "system" or modifiers.ask_capability:
+    if resolved.main_intent == "system" or modifiers.ask_capability or modifiers.scope_question:
         return ControlSignal(route="direct", mode="capability")
 
     if resolved.main_intent == "chat":
@@ -82,7 +82,7 @@ def _planning_level_for_task(task: ResolvedTask) -> PlanningLevel:
 
 
 def _should_rescue_complex_qa_route(resolved: ResolvedIntent) -> bool:
-    if resolved.main_intent != "qa" or not resolved.modifiers.needs_clarification:
+    if resolved.main_intent != "qa" or not resolved.ambiguity_state.clarify_candidate:
         return False
     task = resolved.task
     return task.complexity == "complex" and task.shape in {"verify", "compare", "mixed"}

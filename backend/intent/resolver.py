@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from intent.types import (
+    AmbiguityState,
     CandidateIntent,
     ContextDependency,
     DecisionTrace,
@@ -17,12 +18,14 @@ def resolve_intent(evidence: IntentEvidence) -> ResolvedIntent:
     main_intent = _resolve_main_intent(evidence, modifiers)
     task = _resolve_task(evidence, main_intent, modifiers)
     context_dependency = _resolve_context_dependency(evidence, modifiers)
+    ambiguity_state = _resolve_ambiguity_state(evidence)
     decision = _resolve_decision(evidence, main_intent, task, modifiers, context_dependency)
     return ResolvedIntent(
         main_intent=main_intent,
         modifiers=modifiers,
         task=task,
         context_dependency=context_dependency,
+        ambiguity_state=ambiguity_state,
         decision=decision,
     )
 
@@ -30,15 +33,19 @@ def resolve_intent(evidence: IntentEvidence) -> ResolvedIntent:
 def _resolve_modifiers(evidence: IntentEvidence) -> IntentModifiers:
     model_modifiers = evidence.model_result.modifiers if evidence.model_result else IntentModifiers()
     intent_signals = set(evidence.signal_buckets.intent)
-    context_signals = set(evidence.signal_buckets.context)
     safety_signals = set(evidence.signal_buckets.safety)
+    context = evidence.context_signals
+    clarify_candidate = context.needs_context_check or model_modifiers.clarify_candidate
+    scope_question = ("scope_question" in intent_signals) or model_modifiers.scope_question
     return IntentModifiers(
-        follow_up=("follow_up" in context_signals) or model_modifiers.follow_up,
+        follow_up=("follow_up" in intent_signals) or model_modifiers.follow_up,
         challenge=("challenge" in intent_signals) or model_modifiers.challenge,
         soft_doubt=("soft_doubt" in intent_signals) or model_modifiers.soft_doubt,
         ask_source=("ask_source" in intent_signals) or model_modifiers.ask_source,
-        ask_capability=("ask_capability" in intent_signals) or model_modifiers.ask_capability,
-        needs_clarification=("needs_clarification" in context_signals) or model_modifiers.needs_clarification,
+        ask_capability=("ask_capability" in intent_signals) or scope_question or model_modifiers.ask_capability,
+        scope_question=scope_question,
+        clarify_candidate=clarify_candidate,
+        needs_clarification=clarify_candidate or model_modifiers.needs_clarification,
         out_of_scope=("out_of_scope" in safety_signals) or model_modifiers.out_of_scope,
     )
 
@@ -187,25 +194,40 @@ def _resolve_context_dependency(
 ) -> ContextDependency:
     context = evidence.context_signals
     if modifiers.challenge:
+        if context.needs_previous_answer:
+            return "previous_answer"
+        if context.possibly_ambiguous or context.needs_context_check:
+            return "ambiguous"
         return "previous_answer"
     if modifiers.follow_up:
         if context.previous_retrieval:
             return "previous_retrieval"
-        if context.previous_answer:
+        if context.needs_previous_answer:
             return "previous_answer"
-        if context.has_reference:
+        if context.history_reference:
             return "history_reference"
         return "history_reference"
 
     if context.previous_retrieval:
         return "previous_retrieval"
-    if context.previous_answer:
+    if context.needs_previous_answer:
         return "previous_answer"
-    if context.has_reference:
+    if context.history_reference:
         return "history_reference"
     if context.ambiguous or context.has_implicit_history:
         return "ambiguous"
     return "none"
+
+
+def _resolve_ambiguity_state(evidence: IntentEvidence) -> AmbiguityState:
+    context = evidence.context_signals
+    return AmbiguityState(
+        clarify_candidate=context.needs_context_check,
+        needs_context_check=context.needs_context_check,
+        needs_previous_answer=context.needs_previous_answer,
+        missing_reference_target=context.missing_reference_target,
+        possibly_ambiguous=context.possibly_ambiguous,
+    )
 
 
 def _resolve_decision(

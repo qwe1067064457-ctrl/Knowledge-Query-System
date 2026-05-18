@@ -14,10 +14,10 @@ CONFLICT_PENALTIES: dict[str, dict[str, float]] = {
     "qa": {"chat": 0.2, "system": 0.15, "unsupported": 0.2},
     "chat": {"qa": 0.2, "system": 0.15, "unsupported": 0.2},
     "system": {"qa": 0.15, "chat": 0.15},
-    "follow_up": {"needs_clarification": 0.1},
-    "challenge": {"needs_clarification": 0.2},
-    "soft_doubt": {"needs_clarification": 0.1},
-    "ask_source": {"needs_clarification": 0.1},
+    "follow_up": {"needs_context_check": 0.1},
+    "challenge": {"needs_context_check": 0.2},
+    "soft_doubt": {"needs_context_check": 0.1},
+    "ask_source": {"needs_context_check": 0.1},
 }
 
 
@@ -110,7 +110,7 @@ def _context_adjustment(
                 bonus += 0.05
             return bonus
         return -0.2
-    if signal == "needs_clarification":
+    if signal == "needs_context_check":
         return 0.1 if _context_flag(dependency_signals, "ambiguous") else 0.0
     if signal == "qa":
         return 0.05 if context_state.last_main_intent == "qa" else 0.0

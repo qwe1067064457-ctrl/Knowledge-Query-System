@@ -39,27 +39,27 @@ RULE_STRENGTH_SCORES = {"high": 0.9, "medium": 0.6, "low": 0.3}
 UNSUPPORTED_RULES: tuple[tuple[str, Pattern[str], str], ...] = (
     (
         "unsupported.file_delete_request",
-        re.compile(r"(删除|移除|清空).{0,12}(文件|文档|资料|知识库|目录|数据|记录)", re.IGNORECASE),
+        re.compile(r"(删除|移除|清空|删掉).{0,16}(文件|文档|资料|知识库|目录|数据|记录|索引|向量库)", re.IGNORECASE),
         "file_delete_request",
     ),
     (
         "unsupported.file_write_request",
-        re.compile(r"(修改|更新|覆盖|写入).{0,12}(文件|文档|资料|知识库|目录|数据|记录)", re.IGNORECASE),
+        re.compile(r"(修改|更新|覆盖|写入|替换|重置|重建).{0,16}(文件|文档|资料|知识库|目录|数据|记录|模板|配置|索引|向量库)", re.IGNORECASE),
         "file_write_request",
     ),
     (
         "unsupported.kb_admin_request",
-        re.compile(r"(上传|导入|新增|新建|创建).{0,12}(知识库|资料|文档|文件)", re.IGNORECASE),
+        re.compile(r"(上传|导入|新增|新建|创建|重启).{0,16}(知识库|资料|文档|文件|服务|配置)", re.IGNORECASE),
         "kb_admin_request",
     ),
     (
         "unsupported.privileged_operation",
-        re.compile(r"(权限授权|审批流程|管理员权限|权限变更|开通管理员|授予权限)", re.IGNORECASE),
+        re.compile(r"(权限授权|审批流程|管理员权限|权限变更|开通管理员|授予权限|登录生产环境|登录生产服务器|生产环境|生产服务器)", re.IGNORECASE),
         "privileged_operation",
     ),
     (
         "unsupported.unknown_external_action",
-        re.compile(r"(帮我操作|替我执行|调用外部系统)", re.IGNORECASE),
+        re.compile(r"(帮我操作|替我执行|调用外部系统|帮我登录|替我登录|直接改掉|批量删掉|直接删掉|强制重建)", re.IGNORECASE),
         "unknown_external_action",
     ),
 )
@@ -272,15 +272,16 @@ def _build_rule_evidence(intent_input: IntentInput, history: list[dict[str, Any]
     if ask_capability:
         _append_signal(intent_signals, "system")
         _append_signal(intent_signals, "ask_capability")
+        _append_signal(intent_signals, "scope_question")
         matched_rules.append(_rule("system.capability.ask", "ask_capability", "high", text))
     if ask_source:
         _append_signal(intent_signals, "ask_source")
-        _append_signal(context_signals, "ask_source")
         matched_rules.append(_rule("source.ask_basis", "ask_source", "high", text))
     if challenge_requested:
+        coarse_signal = "challenge" if hard_challenge_requested else "soft_doubt"
+        _append_signal(intent_signals, coarse_signal)
         if ctx.has_previous_answer:
-            _append_signal(intent_signals, "challenge" if hard_challenge_requested else "soft_doubt")
-            _append_signal(context_signals, "challenge" if hard_challenge_requested else "soft_doubt")
+            _append_signal(context_signals, "needs_previous_answer")
             dependency_signals["previous_answer"] = True
             if hard_challenge_requested:
                 matched_rules.append(_rule("challenge.disagree", "challenge", "high", text))
@@ -290,17 +291,22 @@ def _build_rule_evidence(intent_input: IntentInput, history: list[dict[str, Any]
             _append_signal(intent_signals, "qa")
             matched_rules.append(_rule("intent.qa.long_context_rescue", "qa", "medium", text))
         else:
-            _append_signal(context_signals, "needs_clarification")
+            _append_signal(context_signals, "needs_previous_answer")
+            _append_signal(context_signals, "possibly_ambiguous")
+            _append_signal(context_signals, "needs_context_check")
             dependency_signals["ambiguous"] = True
-            matched_rules.append(_rule("challenge.missing_context", "needs_clarification", "medium", text))
+            matched_rules.append(_rule("challenge.missing_context", "needs_context_check", "medium", text))
     if follow_up_requested and ctx.has_history:
-        _append_signal(context_signals, "follow_up")
+        _append_signal(intent_signals, "follow_up")
+        _append_signal(context_signals, "history_reference")
         dependency_signals["history_reference"] = True
         matched_rules.append(_rule("context.follow_up.reference", "follow_up", "medium", text))
     elif follow_up_requested and not _should_block_missing_history(text):
-        _append_signal(context_signals, "needs_clarification")
+        _append_signal(intent_signals, "follow_up")
+        _append_signal(context_signals, "possibly_ambiguous")
+        _append_signal(context_signals, "needs_context_check")
         dependency_signals["ambiguous"] = True
-        matched_rules.append(_rule("context.follow_up.missing_history", "needs_clarification", "medium", text))
+        matched_rules.append(_rule("context.follow_up.missing_history", "needs_context_check", "medium", text))
 
     for rule_id, pattern, unsupported_key in UNSUPPORTED_RULES:
         match = pattern.search(text)
@@ -327,36 +333,40 @@ def _build_rule_evidence(intent_input: IntentInput, history: list[dict[str, Any]
         matched_rules.append(_rule("intent.qa.long_form", "qa", "medium", text[:80]))
 
     if ask_source and ctx.has_previous_answer:
+        _append_signal(context_signals, "needs_previous_answer")
         dependency_signals["previous_answer"] = True
     if ask_source and not ctx.has_previous_answer and not (domain_qa or judgment_qa or generic_qa):
-        _append_signal(context_signals, "needs_clarification")
+        _append_signal(context_signals, "needs_previous_answer")
+        _append_signal(context_signals, "missing_reference_target")
+        _append_signal(context_signals, "possibly_ambiguous")
+        _append_signal(context_signals, "needs_context_check")
         dependency_signals["ambiguous"] = True
-        matched_rules.append(_rule("source.missing_context", "needs_clarification", "medium", text))
+        matched_rules.append(_rule("source.missing_context", "needs_context_check", "medium", text))
 
     if (
         judgment_qa
-        and "needs_clarification" not in context_signals
+        and "needs_context_check" not in context_signals
         and not ctx.has_history
         and not long_complex_fallback
         and not multi_question
         and not complex_task
         and _should_request_judgment_clarification(text)
     ):
-        _append_signal(context_signals, "needs_clarification")
+        _append_signal(context_signals, "possibly_ambiguous")
+        _append_signal(context_signals, "needs_context_check")
         dependency_signals["ambiguous"] = True
-        matched_rules.append(_rule("intent.qa.judgment_clarify", "needs_clarification", "medium", text))
+        matched_rules.append(_rule("intent.qa.judgment_clarify", "needs_context_check", "medium", text))
 
     if not any(dependency_signals.values()):
         dependency_signals["none"] = True
 
     typed_context_signals = ContextSignals(
-        has_reference=dependency_signals["history_reference"],
-        has_previous_intent=ctx.last_main_intent is not None,
-        has_implicit_history=dependency_signals["ambiguous"],
-        is_direct_followup="follow_up" in context_signals,
-        previous_answer=dependency_signals["previous_answer"],
+        history_reference="history_reference" in context_signals or dependency_signals["history_reference"],
+        needs_previous_answer="needs_previous_answer" in context_signals or dependency_signals["previous_answer"],
         previous_retrieval=dependency_signals["previous_retrieval"],
-        ambiguous=dependency_signals["ambiguous"],
+        missing_reference_target="missing_reference_target" in context_signals,
+        possibly_ambiguous="possibly_ambiguous" in context_signals or dependency_signals["ambiguous"],
+        needs_context_check="needs_context_check" in context_signals,
         none=dependency_signals["none"],
     )
     signal_buckets = SignalBuckets(
@@ -368,6 +378,7 @@ def _build_rule_evidence(intent_input: IntentInput, history: list[dict[str, Any]
     raw_signals = signal_buckets.all_signals()
 
     candidate_intents = _build_rule_candidate_intents(
+        text=text,
         signal_buckets=signal_buckets,
         domain_qa=domain_qa or judgment_qa or generic_qa,
         chat=chat,
@@ -410,6 +421,7 @@ def _build_rule_evidence(intent_input: IntentInput, history: list[dict[str, Any]
 
 def _build_rule_candidate_intents(
     *,
+    text: str,
     signal_buckets: SignalBuckets,
     domain_qa: bool,
     chat: bool,
@@ -420,7 +432,6 @@ def _build_rule_candidate_intents(
     long_complex_fallback: bool,
 ) -> list[CandidateIntent]:
     intent_signals = set(signal_buckets.intent)
-    context_signals = set(signal_buckets.context)
     if unsupported:
         return [CandidateIntent(intent="unsupported", score=0.95)]
     if ask_capability:
@@ -429,7 +440,7 @@ def _build_rule_candidate_intents(
         "challenge" in intent_signals
         or "ask_source" in intent_signals
         or "soft_doubt" in intent_signals
-        or "follow_up" in context_signals
+        or "follow_up" in intent_signals
         or domain_qa
         or complex_task
         or long_complex_fallback
@@ -439,6 +450,8 @@ def _build_rule_candidate_intents(
         return [CandidateIntent(intent="qa", score=0.75), CandidateIntent(intent="chat", score=0.25)]
     if chat:
         return [CandidateIntent(intent="chat", score=0.9)]
+    if _question_phrase_count(text) >= 1 or "？" in text or "?" in text:
+        return [CandidateIntent(intent="qa", score=0.6), CandidateIntent(intent="chat", score=0.4)]
     return [CandidateIntent(intent="chat", score=0.55), CandidateIntent(intent="qa", score=0.45)]
 
 

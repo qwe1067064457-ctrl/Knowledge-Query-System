@@ -9,8 +9,12 @@ def infer_context_signals_from_dependency(dependency_signals: dict[str, Any]) ->
     return {
         "none": bool(dependency_signals.get("none", False)),
         "history_reference": bool(dependency_signals.get("history_reference", False)),
+        "needs_previous_answer": bool(dependency_signals.get("previous_answer", False)),
         "previous_answer": bool(dependency_signals.get("previous_answer", False)),
         "previous_retrieval": bool(dependency_signals.get("previous_retrieval", False)),
+        "missing_reference_target": False,
+        "possibly_ambiguous": bool(dependency_signals.get("ambiguous", False)),
+        "needs_context_check": bool(dependency_signals.get("ambiguous", False)),
         "ambiguous": bool(dependency_signals.get("ambiguous", False)),
         "has_reference": bool(dependency_signals.get("history_reference", False)),
         "has_previous_intent": bool(
@@ -28,18 +32,28 @@ def infer_signal_buckets_from_v1(evidence: dict[str, Any]) -> dict[str, list[str
     dependency_signals = evidence.get("dependency_signals", {})
     unsupported_signals = evidence.get("unsupported_signals", {})
 
-    intent_signals = [signal for signal in required_signals if signal in {"qa", "chat", "system", "ask_capability", "ask_source", "challenge", "soft_doubt"}]
+    intent_signals = [
+        signal
+        for signal in required_signals
+        if signal in {"qa", "chat", "system", "ask_capability", "scope_question", "follow_up", "ask_source", "challenge", "soft_doubt"}
+    ]
     task_signals = [signal for signal in required_signals if signal in {"multi_question", "complex", "parallel_subtasks", "staged"}]
     context_signals: list[str] = []
     if dependency_signals.get("history_reference"):
-        context_signals.append("follow_up")
+        context_signals.append("history_reference")
+        if "follow_up" not in intent_signals:
+            intent_signals.append("follow_up")
+    if dependency_signals.get("previous_answer"):
+        context_signals.append("needs_previous_answer")
+    if dependency_signals.get("previous_retrieval"):
+        context_signals.append("previous_retrieval")
     if dependency_signals.get("ambiguous"):
-        context_signals.append("needs_clarification")
+        context_signals.extend(["possibly_ambiguous", "needs_context_check"])
     safety_signals = ["unsupported", "out_of_scope"] if any(bool(value) for value in unsupported_signals.values()) else []
     return {
         "intent": _unique(intent_signals),
         "task": _unique(task_signals),
-        "context": _unique(context_signals),
+        "context_fact": _unique(context_signals),
         "safety": _unique(safety_signals),
     }
 
@@ -61,15 +75,31 @@ def serialize_evidence_v2(evidence: dict[str, Any]) -> dict[str, Any]:
 
 def serialize_resolved_v2(resolved: dict[str, Any]) -> dict[str, Any]:
     task = dict(resolved.get("task", {}))
+    modifiers = dict(resolved.get("modifiers", {}))
+    context_dependency = resolved.get("context_dependency", "none")
+    clarify_candidate = bool(
+        modifiers.get("clarify_candidate")
+        or modifiers.get("needs_clarification")
+        or context_dependency == "ambiguous"
+    )
+    needs_previous_answer = context_dependency == "previous_answer"
+    possibly_ambiguous = context_dependency == "ambiguous"
     return {
         "main_intent": resolved.get("main_intent", "chat"),
-        "modifiers": dict(resolved.get("modifiers", {})),
+        "modifiers": modifiers,
         "task": {
             "complexity": task.get("complexity", "simple"),
             "shape": task.get("shape", "none"),
             "topology": infer_topology_from_legacy_task(task),
         },
-        "context_dependency": resolved.get("context_dependency", "none"),
+        "context_dependency": context_dependency,
+        "ambiguity_state": {
+            "clarify_candidate": clarify_candidate,
+            "needs_context_check": clarify_candidate,
+            "needs_previous_answer": needs_previous_answer,
+            "missing_reference_target": False,
+            "possibly_ambiguous": possibly_ambiguous,
+        },
     }
 
 
