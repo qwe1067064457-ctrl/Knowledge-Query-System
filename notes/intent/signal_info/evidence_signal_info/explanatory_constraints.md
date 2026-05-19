@@ -1,5 +1,16 @@
 # 解释约束层
 
+> status: historical
+>
+> note: 本文大量依赖旧的 `dependency_signals` 术语，现仅作历史参考；当前 `V2` 上下文主表达请优先看：
+> - `context_signals`
+> - `clarify_hint`
+> - `ambiguity_states`
+> - `missing_context_types`
+>
+> 入口：
+> - [notes/intent/signal_info/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/signal_info/README.md)
+
 ## 1. 这一层是什么
 
 解释约束层记录上下文和安全条件，用来影响业务信号如何被信任、约束和路由。

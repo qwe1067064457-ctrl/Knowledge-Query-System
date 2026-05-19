@@ -1,128 +1,159 @@
-# Intent Rule Confidence
+# Intent Rule Confidence 说明
 
-## 1. 这篇文档的边界
+## 1. 一句话定义
 
-这篇文档只讲：
+`rule_confidence` 的唯一职责，是评估：
 
-- rule 命中层面的 confidence
-- signal / candidate 侧的置信调整
+- **当前这组 rule evidence 到底可不可信**
 
-它不代表：
+它不是校准过的真实概率，也不是最终决策器。  
+它更像一个：
 
-- evidence 设计质量
-- resolver 收敛质量
-- control 映射质量
-- 整个 understanding 主链的最终正确性
+- 规则证据可信度评审器
+
+## 2. 它不是什么
+
+`rule_confidence` 不是：
+
+- 最终 `main_intent`
+- 最终 `route`
+- workflow 决策器
+- planner 开关
+- 某条规则历史 precision 的替代品
+
+它只回答一件事：
+
+- 这份规则证据是否足够强、足够一致、足够被上下文支持，值得 resolver 更放心地采信
+
+## 3. 它为什么存在
+
+如果只看“命中了哪些规则”，会混在一起：
+
+- 命中了一条很强的规则
+- 命中了多条共同支持同一 signal 的规则
+- 命中了彼此冲突的规则
+- 命中了规则，但上下文其实不支持
+
+`rule_confidence` 的价值就是把这些情况收成一个更稳定的工程判断。
+
+## 4. 当前它怎么判断“可不可信”
+
+当前实现主要看四件事：
+
+1. 单条规则基础强度
+- `high / medium / low`
+
+2. 同类支持
+- 同一个 signal 是否被多条规则共同支持
+
+3. 冲突惩罚
+- 是否同时命中了互相冲突的 signal
+
+4. 上下文修正
+- 当前上下文是否支持这个 signal 继续成立
+
+所以它本质上是在回答：
+
+- 规则证据强不强
+- 规则证据干不干净
+- 规则证据有没有被上下文打脸
+
+## 5. 当前输出是什么
+
+`rule_confidence` 不是只给一个总分。
+
+它更接近：
+
+1. 先给每个 signal 的可信度结果
+2. 再收出一个最终摘要
+
+当前可以这样理解：
+
+- 细分评估：
+  - 每个 signal 的最终得分
+- 总体评估：
+  - `final_signal`
+  - `final_score`
+  - `final_level`
 
 也就是说：
 
-- `rule confidence` 很重要
-- 但它不是总质量分
+- 有逐项判断
+- 也有总体摘要
 
-## 2. 为什么还需要 rule confidence
+## 6. 它和 candidate 的关系
 
-即使我们在继续推进 `rule-lite`，规则层仍然要承担：
+不要把 `rule_confidence` 和 `candidate score` 混在一起。
 
-- hard guard
-- coarse classification
-- coarse recognition
-- baseline / teacher
+两者不一样：
 
-因此 rule 层仍然需要一套可解释的 confidence 机制，帮助回答：
+### `candidate score`
 
-1. 为什么这条 rule 被认为足够强
-2. 为什么某个 candidate 比另一个 candidate 更可信
-3. 为什么当前结果应该进入 `rule_only`
-4. 为什么应该交给后续 model 辅助
+回答的是：
 
-## 3. 当前 confidence 的作用
-
-当前 rule confidence 更适合拿来支持这些事情：
-
-### 3.1 局部命中解释
+- 哪些高层语义对象值得交给 resolver 收敛
 
 例如：
 
-- 哪些 rule 命中了
-- 哪些是 required hit
-- 哪些是 support bonus
+- `candidate_intents`
+- `task_candidates`
 
-### 3.2 candidate 排序
+### `rule_confidence`
 
-例如：
+回答的是：
 
-- `qa` 和 `chat` 都有弱信号时
-- 哪个 candidate 更值得保留为主候选
+- 当前整组 rule evidence 值不值得信
 
-### 3.3 模式切换
+所以：
 
-例如：
+- `candidate` 是收敛对象
+- `confidence` 是证据质量评估
 
-- 当前是否足够进入 `rule_only`
-- 还是更适合 `rule_plus_model`
+它们会相关，但不是同一个维度。
 
-## 4. 当前不该把它拿来做什么
+## 7. 当前代码位置
 
-### 4.1 不能直接代表 resolver 正确
+实现位置：
 
-即使某条 rule confidence 很高，也不代表：
+- [backend/intent/rule_confidence.py](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/backend/intent/rule_confidence.py)
 
-- `main_intent` 收得一定对
-- `complexity` 一定收得对
-- `clarify` 一定判得对
+类型位置：
 
-### 4.2 不能直接代表 evidence 设计正确
+- [backend/intent/types.py](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/backend/intent/types.py)
 
-某个 signal 即使命中很稳，也可能：
+当前结果会挂到：
 
-- 职责混杂
-- bucket 放错
-- 在系统里承担了不该承担的语义
+- `IntentEvidence.rule_confidence`
 
-### 4.3 不能直接代表 control 应该怎么走
+## 8. 当前使用边界
 
-control 是消费 `resolved` 的，而不是直接消费某条 rule confidence。
+当前推荐把它当成：
 
-## 5. 当前推荐理解方式
+- evidence 的辅助解释结果
+- resolver 的辅助判断依据
+- 规则系统回归与调优的质量刻度
 
-我建议把 rule confidence 理解成：
+不建议把它当成：
 
-> 规则层对“当前命中与候选排序”的局部置信解释系统
+- 模型概率替代
+- 单独的路由器
+- 全链路执行策略判断器
 
-而不是：
+## 9. 当前这份文档该怎么用
 
-> 整条 understanding 主链的统一信心分数
+如果你关心的是：
 
-## 6. 和当前问题分类的关系
+- 为什么这次规则命中了，但系统仍不该太自信
+- 为什么有些 signal 同时出现时要更保守
+- 为什么 `context` 会影响 rule 证据强弱
 
-当前 rule 层问题被分成：
+先看这份文档就够了。
 
-1. `命中质量问题`
-2. `设计问题`
+如果你关心的是：
 
-`rule confidence` 主要服务第 1 类，也就是：
+- `evidence` 里到底有哪些正式字段
+- `signal_buckets`、`candidate_intents`、`context_signals` 怎么分
 
-- 规则命中质量
-- 候选冲突解释
-- required hit 稳定性
+请先看：
 
-它对第 2 类问题只能间接提供线索，不能直接裁决。
-
-## 7. 在 V2 里的角色
-
-进入 `V2` 以后，rule confidence 的角色并没有消失，反而更明确：
-
-- 它继续服务 rule baseline
-- 服务 teacher 标签
-- 服务 regression anchor
-- 服务 `rule_only / rule_plus_model` 模式判断
-
-但它不会再被误当成：
-
-- “整个系统已经足够确定”
-
-## 8. 一句话总结
-
-当前 `rule confidence` 最合适的定位是：
-
-> 一个用于解释 rule 命中、candidate 排序和 coarse understanding 稳定性的局部置信系统，而不是整个 understanding 主链的总质量指标。
+- [signal_info/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/signal_info/README.md)

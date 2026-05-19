@@ -1,5 +1,11 @@
 # Evidence 字段对照表
 
+> status: reference
+>
+> note: 本文中的字段映射表包含历史字段与旧兼容表达；当前 `V2` 正式 schema 以代码和下面两份入口文档为准：
+> - [notes/intent/signal_info/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/signal_info/README.md)
+> - [notes/intent/signal_info/evidence_signal_info/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/signal_info/evidence_signal_info/README.md)
+
 ## 1. 快速表
 
 | 字段 | 所属层 | 回答的问题 | 是否规则级 | 是否业务信号 | 是否候选结果 |

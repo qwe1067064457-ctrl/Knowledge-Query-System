@@ -1,112 +1,153 @@
-# Intent / Request Understanding
+# Intent Notes README
 
-`notes/intent/` 是当前这条线的稳定知识层，主要服务两个目标：
+`notes/intent/` 是当前 `intent / request understanding` 工作线的稳定说明入口。
 
-1. 让开发时可以快速对齐当前主设计。
-2. 让项目讲解时可以清晰说明这条线的架构、演进和取舍。
+这层文档的目标不是记录所有阶段性讨论，而是回答下面几件事：
 
-这里记录的是 **当前稳定口径**，不是所有过程稿。仍在演化、仍带明显过渡性质的内容，放在 `../working/intent/`。
+- 当前 understanding 主链是什么
+- `evidence + resolver` 的 `V2` 已迁移到什么程度
+- 当前评估、训练准备与 SFT baseline 在哪里
+- 哪些文档仍是当前事实来源，哪些只是历史参考
 
-## 这条线现在在做什么
+阶段推进中的材料、一次性推演、尚未收口的思路，优先继续放在
+`../working/intent/`，不要回灌到这一层。
 
-当前我们更准确地把它理解为：
+## 当前结论
 
-- `request understanding`
-- 而不只是传统的“意图识别”
+当前 `intent` 线最准确的定位是：
 
-主链路是：
+- 它已经不只是传统的 intent classification
+- 它更接近 `request understanding`
+- 正式 understanding 主骨架是：
+  - `intent`
+  - `task`
+  - `context`
+  - `safety`
+
+当前主链仍然按四层理解：
 
 ```text
 input -> evidence -> resolved -> control
 ```
 
-当前方向是：
+其中：
 
-- `rule-lite + model-centric understanding`
-- `V1 / V2` 双轨迁移
-- `workflow-aware but not workflow-deciding understanding`
-
-也就是说，这一层负责把请求理解清楚、把风险拦住、把粗分流定稳；但不再让规则层过早决定所有执行细节。
+- `evidence + resolver` 的 `V2` 迁移已经基本完成
+- `control` 仍处于旧语义过渡态，尚未完成 `V2` 收口
 
 ## 推荐阅读顺序
 
-如果你是为了快速重建全局理解，建议按这个顺序读：
+1. [intent_project_info.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/intent_project_info.md)
+   - 先看当前架构边界、V2 定位、未完成项
+2. [intent_testing_and_evaluation.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/intent_testing_and_evaluation.md)
+   - 先看当前评估、训练导出、baseline 与数据状态
+3. [intent_rule_confidence.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/intent_rule_confidence.md)
+   - 先看规则证据可信度评审器到底是什么
+4. [signal_info/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/signal_info/README.md)
+   - 先看 `evidence v2` 的正式语义分类与字段职责
+5. [control_signal_v2.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/control_signal_v2.md)
+   - 先看当前 `control v2` 已落地边界、粗分流原则与兼容层
+6. [test_data_generate/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/test_data_generate/README.md)
+   - 先看当前测试数据、SFT 准备数据与 baseline 相关入口
 
-1. [intent_project_info.md](./intent_project_info.md)
-2. [intent_understanding_architecture.md](./intent_understanding_architecture.md)
-3. [intent_v2_migration.md](./intent_v2_migration.md)
-4. [intent_rule_lite_strategy.md](./intent_rule_lite_strategy.md)
-5. [intent_signal_taxonomy.md](./intent_signal_taxonomy.md)
-6. [intent_testing_and_evaluation.md](./intent_testing_and_evaluation.md)
-7. [intent_rule_confidence.md](./intent_rule_confidence.md)
+## 当前主入口文档
 
-## 当前稳定文档
+### [intent_project_info.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/intent_project_info.md)
 
-### 1. 项目与架构
+适合在这些场景先读：
 
-- [intent_project_info.md](./intent_project_info.md)
-  - 模块定位、问题背景、当前边界和长期方向。
-- [intent_understanding_architecture.md](./intent_understanding_architecture.md)
-  - `input -> evidence -> resolved -> control` 四层结构与职责。
+- 想快速理解 `intent` 线现在做到哪
+- 想知道 `rule-lite + model-centric understanding` 在当前仓库里意味着什么
+- 想确认 `evidence/resolver` 和 `control/workflow` 的边界
 
-### 2. V2 迁移主线
+### [intent_testing_and_evaluation.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/intent_testing_and_evaluation.md)
 
-下面几篇都属于 **V2 迁移主线**：
+适合在这些场景先读：
 
-- [intent_v2_migration.md](./intent_v2_migration.md)
-  - 为什么要做 `V2`、改了哪些边界、当前兼容态是什么。
-- [intent_rule_lite_strategy.md](./intent_rule_lite_strategy.md)
-  - 为什么继续 `rule-lite`，哪些继续留给 rule，哪些下放给模型或主回答层。
-- [intent_signal_taxonomy.md](./intent_signal_taxonomy.md)
-  - `request semantic`、`context_fact`、`task`、`safety` 的分类与命名收口。
+- 想看当前测试、评估、导出、baseline 准备的真实入口
+- 想知道 `V2` 训练导出和 baseline 相关目录在哪
+- 想区分哪些数据是训练资产，哪些只是评估或历史数据
 
-### 3. 评估与数据
+### [intent_rule_confidence.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/intent_rule_confidence.md)
 
-- [intent_testing_and_evaluation.md](./intent_testing_and_evaluation.md)
-  - 现在怎么测、怎么做质量闸门、怎么做 `V1 vs V2 auto` 差异分析。
-- [intent_rule_confidence.md](./intent_rule_confidence.md)
-  - `rule confidence` 只代表规则命中层面的信心，不代表整个 understanding 主链的质量。
+适合在这些场景先读：
 
-### 4. 数据生成专题
+- 想确认 `rule_confidence` 到底是不是概率
+- 想知道它如何判断当前 rule evidence 靠不靠谱
 
-- [test_data_generate/README.md](./test_data_generate/README.md)
-  - 重点讲 `intent` 这条线的三批数据是怎么长出来的。
-- [test_data_generate/campaigns_and_results.md](./test_data_generate/campaigns_and_results.md)
-  - 各批 campaign 与产物的阶段性结果。
+## 子目录入口
 
-## 子目录定位
+### [signal_info/](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/signal_info)
 
-### `signal_info/`
+这个目录专门讲 `evidence` 里的正式信号体系。
 
-这是 signal 的细节索引区，适合查：
+当前以 `V2` 为准，只保留一套正式语义分类：
 
-- 某个 signal 属于哪一类
-- 某个 signal 之前处于什么旧命名
-- 某个字段为什么会出现在 evidence 中
+- `intent`
+- `task`
+- `context`
+- `safety`
 
-它是查细节的地方，不是项目主叙事入口。
+它更适合回答：
 
-### `test_data_generate/`
+- 某个信号属于哪一类
+- `signal_buckets`、`candidate_intents`、`task_candidates`、`context_signals`、`unsupported_signals` 的边界是什么
+- 哪些旧字段已经退出正式 schema
 
-这是测试数据与标注数据生成史的专题区，当前重点讲三批数据：
+推荐先看：
 
-1. 第一批：为调 `rule` 层生成的数据
-2. 第二批：为 `SFT` / 小模型准备的数据
-3. 第三批：为 `V2` 迁移、新 taxonomy、新 schema 准备的数据
+1. [signal_info/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/signal_info/README.md)
+2. [signal_info/evidence_signal_info/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/signal_info/evidence_signal_info/README.md)
 
-## 和 `notes/working/intent/` 的边界
+### [test_data_generate/](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/test_data_generate)
 
-- `notes/intent/`
-  - 当前稳定口径
-  - 适合讲项目、对齐架构、回顾正式设计
-- `notes/working/intent/`
-  - 过程稿、试验稿、迁移过程中的临时协议
-  - 适合查讨论过程和尚未冻结的细节
+这个目录专门讲测试数据、query 输入、训练导出与 SFT 准备。
 
-如果你发现某篇文档仍在大段讨论“是否要这样做”，那篇文档通常更应该属于 `working` 层，而不是这里。
+它更适合回答：
 
-## 当前一句话总结
+- 现在有哪些 query 输入和 campaign 入口
+- `intent_training_v2.jsonl` 是怎么来的
+- MacBERT baseline 数据如何准备
+- 哪些文档是历史多信号补数据计划，哪些是当前仍可执行的准备说明
 
-现在这条线不再只是一个“意图分类器”，而是：
+推荐先看：
 
-> 一个围绕 `request understanding` 展开的、以 `rule-lite` 为方向、以 `V1 / V2` 双轨迁移为手段、为后续小模型和主回答模型接管留接口的结构化理解系统。
+1. [test_data_generate/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/test_data_generate/README.md)
+2. [test_data_generate/sft_preparation_data_generation_lessons.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/test_data_generate/sft_preparation_data_generation_lessons.md)
+
+## 当前真实存在的重要目录与脚本
+
+### 训练导出与评估
+
+- [evaluation/intent/exports/intent_training_v2.jsonl](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/evaluation/intent/exports/intent_training_v2.jsonl)
+- [evaluation/intent/export_intent_training_set.py](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/evaluation/intent/export_intent_training_set.py)
+- [evaluation/intent/evaluate_intent_rules.py](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/evaluation/intent/evaluate_intent_rules.py)
+- [evaluation/intent/v2_migration.py](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/evaluation/intent/v2_migration.py)
+- [evaluation/intent/quality_gate_v2_auto.py](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/evaluation/intent/quality_gate_v2_auto.py)
+
+### SFT 与 baseline 准备
+
+- [backend/intent/sft/](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/backend/intent/sft)
+- [evaluation/intent/multisignal_sft/](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/evaluation/intent/multisignal_sft)
+- [evaluation/intent/prepare_macbert_baseline_data.py](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/evaluation/intent/prepare_macbert_baseline_data.py)
+- [evaluation/intent/run_macbert_baseline.py](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/evaluation/intent/run_macbert_baseline.py)
+
+### 当前状态说明
+
+- 当前分支上，小模型 SFT baseline 已经是既有事实
+- 但这层 README 不记录单次训练结果细节
+- 训练结果、下一轮优化建议，应优先回到 `evaluation/intent/` 和对应报告中查看
+
+## 历史材料
+
+下面这类文档仍保留，但不再视为当前唯一真相：
+
+- [multisignal_dev_heldout_backfill_plan_20260517.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/multisignal_dev_heldout_backfill_plan_20260517.md)
+
+它们的作用更接近：
+
+- 历史阶段记录
+- 旧问题背景
+- 为什么会走到现在这套 `V2` 结构
+
+如果当前任务是继续推进 `V2`，优先相信上面的主入口文档，不要优先回读历史计划。

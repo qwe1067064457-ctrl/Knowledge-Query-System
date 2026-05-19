@@ -1,5 +1,11 @@
 # CandidateIntent.score 说明
 
+> status: reference
+>
+> note: 本文保留旧的候选打分解释，用于理解历史实现；当前 `V2` 正式口径请优先看：
+> - [notes/intent/signal_info/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/signal_info/README.md)
+> - [notes/intent/intent_rule_confidence.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/intent_rule_confidence.md)
+
 ## 1. `CandidateIntent` 是什么
 
 `CandidateIntent` 是主意图候选结果。

@@ -1,221 +1,172 @@
-# Intent Testing and Evaluation
+# Intent 测试、评估与训练准备说明
 
-## 1. 这篇文档讲什么
+## 1. 当前文档的作用
 
-这篇文档只讲当前这条线怎么测、怎么比、怎么判断质量。
+这份文档只回答三件事：
 
-它主要回答：
+1. 当前 `intent` 线怎么测
+2. 当前 `V2` 数据与导出在哪
+3. 当前 SFT baseline 和训练准备做到哪
 
-1. 我们现在到底在测什么
-2. `V1` 和 `V2 auto` 怎么对比
-3. 什么叫命中质量问题
-4. 什么叫设计问题
-5. 自动质量闸门在看什么
+它不再把重点放在旧的 `V1` 兼容解释上。
 
-## 2. 当前评估分层
+## 2. 当前评估主线
 
-当前我们不再把所有质量问题混成一个“总分”，而是分层评估。
+当前评估仍按四层结构理解：
 
-### 2.1 命中质量问题
+```text
+input -> evidence -> resolved -> control
+```
 
-这是最传统的一层，主要看单条 rule：
+但需要注意：
 
-- 该命中没命中
-- 不该命中却命中了
+- 当前 `V2` 重点已经放在 `evidence + resolved`
+- `control` 还没有完成 `V2` 重构
 
-常用指标：
+所以如果当前任务是：
 
-- precision
-- recall
-- f1
-- required hit
+- 继续推进 understanding
+- 准备小模型 SFT
+- 判断数据是否可训练
 
-### 2.2 设计问题
+应优先观察：
 
-这是当前更重要的一层，主要看：
+- `evidence`
+- `resolved`
+- 训练导出与 baseline 数据
 
-- signal 设计是否干净
-- bucket 是否合理
-- resolver 收敛是否合理
-- control 是否吃到了错误的上游结构
+## 3. 当前真实存在的重要脚本与目录
 
-也就是说：
+### 3.1 评估与迁移脚本
 
-- `rule quality != evidence design quality`
-- `rule quality != resolver quality`
+- [evaluation/intent/evaluate_intent_rules.py](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/evaluation/intent/evaluate_intent_rules.py)
+- [evaluation/intent/export_intent_training_set.py](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/evaluation/intent/export_intent_training_set.py)
+- [evaluation/intent/v2_migration.py](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/evaluation/intent/v2_migration.py)
+- [evaluation/intent/compare_v1_v2_auto_labels.py](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/evaluation/intent/compare_v1_v2_auto_labels.py)
+- [evaluation/intent/quality_gate_v2_auto.py](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/evaluation/intent/quality_gate_v2_auto.py)
+- [evaluation/intent/auto_uplift_silver.py](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/evaluation/intent/auto_uplift_silver.py)
 
-## 3. 当前主要评估对象
+### 3.2 训练导出
 
-### 3.1 `evidence` 层
+当前导出目录：
 
-现在重点看：
+- [evaluation/intent/exports/](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/evaluation/intent/exports)
 
-- `intent signals`
-- `task signals`
-- `context_fact signals`
-- `safety signals`
+当前明确存在的 `V2` 导出：
 
-关注点包括：
+- [evaluation/intent/exports/intent_training_v2.jsonl](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/evaluation/intent/exports/intent_training_v2.jsonl)
 
-1. 新 signal 有没有异常暴增
-2. 旧 signal 该退场的有没有退场
-3. bucket 里有没有异常迁移
+其它 `v1 / v3 / v4 / v5 / v6 / v7` 文件仍保留，但不应自动当成“当前正式 V2 口径”。
 
-### 3.2 `resolved` 层
+### 3.3 SFT 与 baseline 准备
 
-重点字段：
+- [backend/intent/sft/](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/backend/intent/sft)
+- [evaluation/intent/multisignal_sft/](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/evaluation/intent/multisignal_sft)
+- [evaluation/intent/prepare_macbert_baseline_data.py](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/evaluation/intent/prepare_macbert_baseline_data.py)
+- [evaluation/intent/run_macbert_baseline.py](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/evaluation/intent/run_macbert_baseline.py)
 
-- `main_intent`
-- `modifiers`
-- `task.complexity`
-- `task.shape`
-- `task.topology`
-- `context_dependency`
-- `ambiguity_state`
+## 4. 当前 baseline 状态
 
-### 3.3 `control` 层
+当前这条线已经进入：
 
-当前 control 还处于兼容迁移态，但仍然要看：
+- 小模型 SFT baseline 已完成
 
-- `route`
-- `mode` / `handling_mode`
-- 关键 capability 开关
+这意味着：
 
-## 4. 当前主要评估方式
+- 当前不是“能不能开始 baseline”的阶段
+- 而是“baseline 之后怎么继续优化”的阶段
 
-### 4.1 label diff
+因此现在更值得看的不是：
 
-`V1 vs V2 auto` 差异报告不是只看最终标签，也不是只看 signal，而是两层一起看：
+- 要不要继续补更多 rule
 
-1. `Evidence Diff`
-- signal 变了什么
-- bucket 迁移了什么
-- 哪些 signal 被新增/收缩/退场
+而是：
 
-2. `Resolved / Control Diff`
-- `main_intent`
-- `modifiers`
-- `complexity`
-- `shape`
-- `topology`
-- `route`
-- `mode`
+- 当前 `V2` 导出是否足够支撑下一轮训练
+- 哪些样本还需要 review
+- 哪些标签最值得优先优化
 
-### 4.2 quality gate
+## 5. 当前数据层次怎么理解
 
-当前质量闸门至少看四类：
+当前更推荐按下面几层理解：
 
-1. `完整性`
-- 字段是否齐全
-- schema 是否完整
+1. `query_inputs`
+- 原始 query 池、种子 query、benchmark 输入
 
-2. `信号迁移质量`
-- 新信号是否异常暴增
-- 旧信号是否正确退场
-- bucket 是否发生异常迁移
+2. `reports`
+- 评估运行结果、campaign 报告、summary
 
-3. `收敛结果质量`
-- 标签结果是否自洽
+3. `exports`
+- 可训练导出
 
-4. `分布稳定性`
-- `overall`
-- `per-batch`
-- `per-dataset`
+4. `multisignal_sft`
+- 与多信号 SFT、dev/heldout backfill 相关的专项资产
 
-## 5. 为什么不能只看 per-rule 指标
+5. `backend/intent/sft`
+- 训练与数据读取侧的代码
 
-如果只看单条 rule 的 precision / recall，会漏掉三个大问题：
+## 6. 当前测试与回归
 
-1. signal 虽然命中对了，但职责设计脏了
-2. resolver 虽然吃到的 signal 没明显错，但收敛错了
-3. 某一批数据整体漂了，但单条 rule 看起来没坏
+当前 `intent` 线的主要黑盒测试仍在：
 
-所以：
+- [backend_test/intent/](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/backend_test/intent)
 
-- per-rule 指标是必要的
-- 但不够
+重点保护：
 
-## 6. 当前报告和产物的边界
+- classifier 行为
+- resolver 收敛
+- control 映射
+- rule confidence
+- 导出与迁移脚本
 
-### `backend_test/intent/test_data/`
+如果当前你是在继续推进 understanding，而不是改 workflow，优先保证：
 
-这是源测试数据区。
+- `backend_test/intent` 稳定通过
 
-放的是：
+## 7. 当前最重要的评估边界
 
-- gold
-- silver
-- heldout
-- campaign seeds
+### 7.1 已经相对稳定的
 
-### `evaluation/intent/`
+- `evidence v2` 主结构
+- `resolved` 的 task 轴
+- `V2` 导出基础链路
+- baseline 数据准备入口
 
-这是评估与导出产物区。
+### 7.2 还未完全收口的
 
-放的是：
+- `control v2`
+- 真正的 workflow 执行口径
+- 训练后如何把 understanding 结果安全接到 execution
 
-- `V2 auto annotations`
-- `V1 vs V2 auto diff report`
-- `quality gate`
-- training exports
-- migration reports
+所以当前训练与评估的推荐策略是：
 
-原则：
+- 先把小模型用于 `understanding`
+- 不要一上来就让它承担完整 execution 决策
 
-- `test_data` 是源
-- `evaluation` 是消费源后产生的结果
-- 不回写源数据
+## 8. 当前文档怎么配合使用
 
-## 7. 当前最重要的两个框架
+如果你当前任务是：
 
-### 7.1 rule 层问题二分法
+### 看整体架构
 
-当前所有问题，优先按这两个方向拆：
+先看：
 
-1. `命中质量问题`
-2. `设计问题`
+- [intent_project_info.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/intent_project_info.md)
 
-### 7.2 quality 层级
+### 看信号与字段
 
-当前质量体系建议按四层理解：
+先看：
 
-1. `rule hit quality`
-2. `signal migration quality`
-3. `resolved convergence quality`
-4. `distribution stability`
+- [signal_info/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/signal_info/README.md)
 
-## 8. 当前最常看的指标
+### 看 SFT 准备与数据生成
 
-### 全局
+先看：
 
-- `resolved_main_intent_accuracy`
-- `control_route_accuracy`
-- `control_mode_accuracy`
+- [test_data_generate/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/test_data_generate/README.md)
 
-### 分批次
+### 看历史多信号补数背景
 
-重点看：
+只当参考看：
 
-- `follow_up`
-- `challenge`
-- `clarify`
-- `mixed_intent`
-- `compare`
-- `verify`
-
-### 分规则
-
-重点看：
-
-- `ask_source`
-- `challenge`
-- `soft_doubt`
-- `follow_up`
-- `scope_question`
-- `unsupported`
-
-## 9. 当前一句话总结
-
-现在这条线的 testing / evaluation 已经不再只是“看规则命中率”，而是：
-
-> 同时检查 signal 迁移、resolver 收敛、control 分流和全局分布稳定性的分层质量体系。
+- [multisignal_dev_heldout_backfill_plan_20260517.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/multisignal_dev_heldout_backfill_plan_20260517.md)

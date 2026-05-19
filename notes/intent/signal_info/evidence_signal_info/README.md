@@ -1,69 +1,124 @@
 # Evidence 信号说明
 
-## 1. 文档目标
+## 1. 当前文档作用
 
-这个目录专门说明 `intent` 模块里的 `evidence` 层。
+这份文档只解释当前 `evidence v2` 如何阅读。
 
-它不只是列字段，而是要讲清楚：
+核心结论很简单：
 
-- 哪些字段是具体规则命中
-- 哪些字段是业务信号
-- 哪些字段是上下文或安全约束
-- 哪些字段是候选结果
-- 为什么有些字段看起来重复，但职责并不一样
+- 当前 `evidence` 的正式分类只有一套
+- 就是：
+  - `intent`
+  - `task`
+  - `context`
+  - `safety`
 
-当你觉得 `evidence` 层“信号太多、太乱”时，优先看这个目录。
+不要再把旧的多层术语当作正式结构。
 
-## 2. 推荐阅读顺序
+## 2. 当前主骨架
 
-1. [evidence_layer_model.md](./evidence_layer_model.md)
-   - 解释四层模型：规则命中 -> 业务信号 -> 解释约束 -> 候选结果。
+从 resolver 的主消费角度看，当前 `evidence` 主骨架是：
 
-2. [business_signal_catalog.md](./business_signal_catalog.md)
-   - 说明当前 `signal_buckets` 里的所有主干信号。
+- `candidate_intents`
+- `task_candidates`
+- `context_signals`
+- `unsupported_signals`
 
-3. [explanatory_constraints.md](./explanatory_constraints.md)
-   - 说明 `dependency_signals`、`ContextSignals`、`unsupported_signals`。
-   - 解释它们为什么和 `context` / `safety` bucket 有主题重叠，但职责不同。
+对应关系：
 
-4. [candidate_intent_score.md](./candidate_intent_score.md)
-   - 说明 `CandidateIntent.score` 是什么。
-   - 说明它为什么不是 `rule_confidence`。
+- `candidate_intents` -> `intent`
+- `task_candidates` -> `task`
+- `context_signals` -> `context`
+- `unsupported_signals` -> `safety`
 
-5. [confusing_signal_pairs.md](./confusing_signal_pairs.md)
-   - 列出容易混淆的信号，并给出上下文对照例子。
+## 3. 当前辅助字段
 
-6. [field_mapping.md](./field_mapping.md)
-   - 按字段快速查它属于哪一层、承担什么职责。
+除主骨架外，当前仍有少量辅助字段：
 
-## 3. 一句话模型
+- `matched_rules`
+- `signal_buckets`
+- `rule_confidence`
+- `model_result`
 
-`evidence` 层可以这样读：
+它们的作用分别是：
 
-```text
-规则命中层收集具体证据；
-业务信号层把细规则归并成粗业务语义；
-解释约束层说明这些信号在什么上下文或安全条件下成立；
-候选结果层把这些信号聚合成 resolver 可消费的候选结论。
-```
+- `matched_rules`
+  - 规则来源证据
+- `signal_buckets`
+  - 四大类信号总览
+- `rule_confidence`
+  - 规则证据可信度评审
+- `model_result`
+  - 可选的模型补充证据接口
 
-## 4. 关键术语
+这些字段重要，但它们不是第二套正式语义分类。
 
-- 规则命中层：
-  具体命中的规则，例如 `intent.qa.generic`、`intent.qa.judgment`、`challenge.disagree`、`context.follow_up.reference`。
+## 4. 当前 `signal_buckets` 怎么看
 
-- 业务信号层：
-  `signal_buckets` 里的粗信号，例如 `qa`、`challenge`、`follow_up`、`complex`、`unsupported`。
+`signal_buckets` 仍然有用，但它的定位是：
 
-- 解释约束层：
-  上下文和安全条件，例如 `previous_answer`、`ambiguous`、`history_reference`、`file_delete_request`。
+- 四大语义类下的信号总览
 
-- 候选结果层：
-  半收敛结果，例如 `CandidateIntent(qa, 0.85)`、`TaskCandidate(complex, verify, 0.8)`。
+当前只应按下面四类理解：
 
-## 5. 当前设计提醒
+- `intent`
+- `task`
+- `context`
+- `safety`
 
-`signal_buckets` 是主要的业务信号视图，但它不是最原子的层。
+它不是“比 typed fields 更正式”的主结构，而是：
 
-当前最接近“原子证据”的实现字段是 `matched_rules`。`signal_buckets` 已经是 `matched_rules` 之上的一层业务归并。
+- 比 `matched_rules` 更高层
+- 比 `candidate/context/safety typed fields` 更概览
 
+## 5. 当前 `context` 怎么看
+
+当前 `context` 的主表达已经从旧的强裁决信号，转向更柔性的缺口表达。
+
+重点看：
+
+- `clarify_hint`
+- `ambiguity_states`
+- `missing_context_types`
+- `needs_previous_answer`
+
+它们回答的是：
+
+- 是否可能需要澄清
+- 当前哪里模糊
+- 当前具体缺什么信息
+- 是否缺上一轮回答这个事实依托
+
+这比旧式 `needs_clarification` 更贴合当前 `V2` 目标。
+
+## 6. 当前不再作为正式主结构的字段
+
+### `dependency_signals`
+
+已退出正式 `evidence v2` schema。
+
+原因：
+
+- 它和 `ContextSignals` 重复
+- 它属于旧兼容表达
+- 继续保留只会让 `context` 再次变乱
+
+### `raw_signals`
+
+也已退出正式 schema。
+
+原因：
+
+- 它对调试有价值
+- 但不适合作为正式训练或 resolver 主消费结构
+
+## 7. 当前这份目录与子文档的关系
+
+本目录下其余文档里，仍可能出现旧术语，例如：
+
+- `dependency_signals`
+- 规则命中层 / 业务信号层 / 解释约束层 / 候选结果层
+
+这些内容可作为历史理解参考，但如果与本 README 冲突：
+
+- 以本 README 和上级 [signal_info/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/signal_info/README.md) 为准

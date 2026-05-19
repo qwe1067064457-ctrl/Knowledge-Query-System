@@ -1,5 +1,11 @@
 # 易混淆信号对照
 
+> status: reference
+>
+> note: 本文中的冲突对照仍有参考价值，但部分示例使用旧标签；当前 `V2` 正式口径请优先看：
+> - [notes/intent/signal_info/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/signal_info/README.md)
+> - [notes/intent/signal_info/evidence_signal_info/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/signal_info/evidence_signal_info/README.md)
+
 ## 1. 文档目标
 
 这份文档记录 `evidence` 层里容易混淆的信号。

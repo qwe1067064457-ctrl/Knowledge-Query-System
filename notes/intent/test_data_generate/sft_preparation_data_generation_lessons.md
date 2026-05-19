@@ -1,5 +1,11 @@
 # Intent SFT 数据生成经验总结
 
+> status: reference
+>
+> note: 本文保留数据准备方法论与历史例子，其中部分标签仍使用旧口径；当前 `V2` 训练准备与 baseline 阶段的正式入口请优先看：
+> - [notes/intent/test_data_generate/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/test_data_generate/README.md)
+> - [notes/intent/intent_testing_and_evaluation.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/intent_testing_and_evaluation.md)
+
 ## 1. 这份文档解决什么问题
 
 这份文档专门总结：

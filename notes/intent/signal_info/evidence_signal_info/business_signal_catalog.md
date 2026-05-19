@@ -1,5 +1,11 @@
 # 业务信号目录
 
+> status: reference
+>
+> note: 本文保留旧的业务信号目录与示例，用于理解历史设计；当前 `V2` 正式口径请优先看：
+> - [notes/intent/signal_info/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/signal_info/README.md)
+> - [notes/intent/signal_info/evidence_signal_info/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/signal_info/evidence_signal_info/README.md)
+
 ## 1. 什么是业务信号
 
 业务信号是 `signal_buckets` 里的粗粒度信号。

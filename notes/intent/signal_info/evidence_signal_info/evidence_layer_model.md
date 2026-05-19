@@ -1,5 +1,17 @@
 # Evidence 四层模型
 
+> status: historical
+>
+> note: 本文描述的是旧的 evidence 分层视角，不再是当前正式主轴；当前 `V2` 只保留一套正式语义分类：
+> - `intent`
+> - `task`
+> - `context`
+> - `safety`
+>
+> 请优先看：
+> - [notes/intent/signal_info/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/signal_info/README.md)
+> - [notes/intent/signal_info/evidence_signal_info/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/signal_info/evidence_signal_info/README.md)
+
 ## 1. 为什么需要四层模型
 
 `evidence` 对象里同时放了几类不同性质的信息。

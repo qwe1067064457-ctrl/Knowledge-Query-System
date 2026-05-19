@@ -1,5 +1,16 @@
 # Multi-Signal Dev/Heldout Backfill Plan 2026-05-17
 
+> status: historical
+>
+> scope: pre-V2 / pre-baseline multisignal dev-heldout backfill discussion
+>
+> current usage: 仅作为历史背景与样本覆盖问题参考，不再作为当前 `V2` understanding、训练导出或 baseline 迭代的唯一依据
+>
+> superseded by:
+> - `notes/intent/README.md`
+> - `notes/intent/intent_testing_and_evaluation.md`
+> - `notes/intent/test_data_generate/README.md`
+
 ## 1. 当前事实
 
 当前 multi-signal SFT v1 关注的 6 个边界信号为：

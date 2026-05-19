@@ -1,132 +1,98 @@
-# Test Data Generate
+# Intent 测试数据与训练准备说明
 
-## 1. 这部分现在讲什么
+## 1. 当前目录的定位
 
-`notes/intent/test_data_generate/` 现在主要讲：
+这个目录专门沉淀：
 
-> `intent / request understanding` 这条线的数据是怎么一批一批长出来的，以及每一批分别服务什么目标。
+- 测试数据生成
+- query 输入资产
+- 训练导出准备
+- baseline 前后的数据理解
 
-当前最重要的不是单个 campaign，而是 **三批数据生成史**。
+它不负责解释整个四层架构，也不负责定义 control/workflow。
 
-## 2. 三批数据生成史
+## 2. 当前最重要的事实
 
-### 第一批：为调 rule 层生成
+当前这条线已经进入：
 
-目标：
+- `V2 understanding` 训练与迭代阶段
 
-- 调 rule 命中质量
-- 打边界样本
-- 建立 rule supervision
-- 识别命中质量问题与设计问题
+并且：
 
-这一批数据更关注：
+- 小模型 SFT baseline 已经完成
 
-- 对抗样本
-- twin pairs
-- near miss
-- mixed intent
-- clarify / challenge / follow_up 边界
+所以这份目录当前更重要的作用，不是回答“能不能开始 baseline”，而是回答：
 
-它服务的是：
+- 当前有哪些训练准备资产
+- 当前哪类数据能继续用
+- 旧的多信号 backfill 计划应如何理解
 
-- `rule quality`
-- `rule design`
+## 3. 当前真实入口
 
-### 第二批：为小模型 / SFT 生成
+### 3.1 query 输入
 
-目标：
+优先看：
 
-- 形成结构化训练标签
-- 把 `main_intent / modifiers / task` 这些理解结果沉淀成训练资产
-- 为后续小模型接管中层理解做准备
+- [evaluation/intent/query_inputs/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/evaluation/intent/query_inputs/README.md)
 
-这一批数据更关注：
+### 3.2 导出与评估
 
-- `gold / heldout / export`
-- 训练切分
-- 标注口径一致性
-- baseline 对齐
+优先看：
 
-它服务的是：
+- [evaluation/intent/exports/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/evaluation/intent/exports/README.md)
+- [evaluation/intent/reports/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/evaluation/intent/reports/README.md)
 
-- `SFT` / 小模型训练准备
-- teacher / baseline 交接
+### 3.3 当前 `V2` 导出
 
-### 第三批：为 V2 迁移生成
+当前明确存在的训练导出：
 
-目标：
+- [evaluation/intent/exports/intent_training_v2.jsonl](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/evaluation/intent/exports/intent_training_v2.jsonl)
 
-- 服务 `V2` 新 schema
-- 服务 `V2 auto`
-- 服务新的 signal taxonomy
-- 服务 `evidence / resolver` 边界重构
+### 3.4 baseline 相关
 
-这一批数据更关注：
+- [evaluation/intent/prepare_macbert_baseline_data.py](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/evaluation/intent/prepare_macbert_baseline_data.py)
+- [evaluation/intent/run_macbert_baseline.py](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/evaluation/intent/run_macbert_baseline.py)
+- [backend/intent/sft/](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/backend/intent/sft)
+- [evaluation/intent/multisignal_sft/](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/evaluation/intent/multisignal_sft)
 
-- `V1 vs V2 auto`
-- `quality gate`
-- `signal migration`
-- `resolved diff`
-- `context_fact / ambiguity_state / clarify_candidate`
+## 4. 当前数据层次怎么理解
 
-它服务的是：
+当前更推荐按下面几层理解：
 
-- `V2 migration`
-- 新 understanding 口径
-- 新规则/数据线治理
+1. `query_inputs`
+- 原始 query 池、seed、benchmark 输入
 
-## 3. 数据边界说明
+2. `campaign / generated drafts`
+- 测试或扩展生成中间产物
 
-这部分一定要和别的目录分清。
+3. `exports`
+- 可直接被训练或 baseline 消费的导出
 
-### `backend_test/intent/test_data/`
+4. `reports`
+- 评估与数据质量观察结果
 
-这是本地测试数据源。
+5. `multisignal_sft`
+- 多信号训练专项资产
 
-里面放的是：
+这比旧的“只围绕四层草稿生产”更贴近现在的实际工作流。
 
-- 测试样本源
-- campaign 输入
-- gold / silver / heldout
+## 5. 当前推荐阅读顺序
 
-### `evaluation/intent/`
+1. [sft_preparation_data_generation_lessons.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/test_data_generate/sft_preparation_data_generation_lessons.md)
+   - 看数据生产方法论
+2. [campaigns_and_results.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/test_data_generate/campaigns_and_results.md)
+   - 看已有 campaign 和结果资产
+3. 对应的 `evaluation/intent` 目录
+   - 看当前真实脚本、导出和报告
 
-这是消费测试数据后的产物区。
+## 6. 当前这份目录不再主推什么
 
-里面放的是：
+当前不再建议把这个目录读成：
 
-- `V2 auto annotations`
-- `quality gate`
-- `diff report`
-- training exports
-- migration reports
+- 只服务旧的 `V1` 规则评估
+- 只服务“从 seed 扩到 gold”的单向流程
+- 只服务“baseline 尚未开始”的准备阶段
 
-### 这两个不能混
+它现在更准确的角色是：
 
-原则是：
-
-- `test_data` 是源
-- `evaluation` 是结果
-- 自动标注和报告不回写源数据
-
-## 4. 这部分推荐怎么读
-
-如果你想理解项目的数据演进，建议按这个顺序：
-
-1. [campaigns_and_results.md](./campaigns_and_results.md)
-2. 看三批数据分别服务什么目标
-3. 再回到对应的 `evaluation/intent/` 产物理解当前状态
-
-## 5. 这部分和面试讲解的关系
-
-这部分对项目讲解很重要，因为它能说明：
-
-1. 这条线不是拍脑袋改规则
-2. 数据、规则、评估、迁移是一起演进的
-3. 为什么后来会从 rule 调优，走到 SFT 准备，再走到 V2 迁移
-
-## 6. 一句话总结
-
-`test_data_generate/` 现在不是“放几份生成脚本说明”的目录，而是：
-
-> 用来讲清楚这条 understanding 线的数据是如何从 rule 调优资产，发展到 SFT 资产，再发展到 V2 迁移资产的专题区。
+- V2 数据、baseline、后续训练迭代之间的知识连接区

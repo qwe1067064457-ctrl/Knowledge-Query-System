@@ -15,7 +15,7 @@ def test_classifies_domain_question_as_simple_qa() -> None:
     assert result.resolved.main_intent == "qa"
     assert result.resolved.task.complexity == "simple"
     assert result.resolved.task.shape == "single_question"
-    assert result.control.route == "rag"
+    assert result.control.route == "qa"
 
 
 def test_plain_greeting_is_chat() -> None:
@@ -32,7 +32,7 @@ def test_follow_up_uses_history_without_replacing_qa() -> None:
     assert result.resolved.main_intent == "qa"
     assert result.resolved.modifiers.follow_up is True
     assert result.resolved.context_dependency == "history_reference"
-    assert result.control.rewrite is True
+    assert result.control.capabilities == ("cite_sources", "use_context")
 
 
 def test_challenge_requires_previous_assistant_answer() -> None:
@@ -51,7 +51,7 @@ def test_challenge_without_history_needs_clarification() -> None:
     assert result.resolved.ambiguity_state.clarify_hint is True
     assert result.resolved.ambiguity_state.ambiguity_states == ("history_dependent",)
     assert result.resolved.ambiguity_state.missing_context_types == ("missing_history_target",)
-    assert result.control.route == "direct"
+    assert result.control.route == "qa"
     assert result.control.mode == "clarify"
 
 
@@ -79,14 +79,14 @@ def test_ask_source_without_history_becomes_clarify_candidate() -> None:
     assert result.resolved.modifiers.ask_source is True
     assert result.resolved.ambiguity_state.clarify_hint is True
     assert result.resolved.ambiguity_state.missing_context_types == ("missing_reference_target",)
-    assert result.control.route == "direct"
+    assert result.control.route == "qa"
 
 
 def test_ask_capability_routes_to_system() -> None:
     result = classify_intent("你能做什么？")
 
     assert result.resolved.main_intent == "system"
-    assert result.control.route == "direct"
+    assert result.control.route == "qa"
     assert result.control.mode == "capability"
 
 
@@ -95,7 +95,7 @@ def test_capability_support_question_stays_system_not_chat() -> None:
 
     assert result.resolved.main_intent == "system"
     assert result.resolved.modifiers.ask_capability is True
-    assert result.control.route == "direct"
+    assert result.control.route == "qa"
     assert result.control.mode == "capability"
 
 
@@ -158,7 +158,7 @@ def test_complex_query_uses_agent_route() -> None:
     assert result.resolved.main_intent == "qa"
     assert result.resolved.task.complexity == "complex"
     assert result.resolved.task.shape == "compare"
-    assert result.control.route == "agent"
+    assert result.control.route == "orchestrated"
     assert result.control.use_planner is True
     assert result.control.planning_level == "full"
 
@@ -169,7 +169,7 @@ def test_complex_summarize_query_uses_agent_without_explicit_planner() -> None:
     assert result.resolved.main_intent == "qa"
     assert result.resolved.task.complexity == "complex"
     assert result.resolved.task.shape == "summarize"
-    assert result.control.route == "agent"
+    assert result.control.route == "qa"
     assert result.control.use_planner is False
     assert result.control.planning_level == "none"
     assert result.evidence.rule_confidence is not None
@@ -180,7 +180,7 @@ def test_judgment_style_fuzzy_qa_routes_to_clarify_not_chat() -> None:
 
     assert result.resolved.main_intent == "qa"
     assert result.resolved.ambiguity_state.clarify_hint is True
-    assert result.control.route == "direct"
+    assert result.control.route == "qa"
     assert result.control.mode == "clarify"
 
 
@@ -188,7 +188,7 @@ def test_cost_focused_judgment_query_stays_qa() -> None:
     result = classify_intent("我想先确认一个定义问题：这样算不算医疗事故？背景情况很多，但核心只是确认这个概念本身怎么定义。")
 
     assert result.resolved.main_intent == "qa"
-    assert result.control.route == "rag"
+    assert result.control.route == "qa"
 
 
 def test_explicit_judgment_qa_stays_rag_instead_of_clarify() -> None:
@@ -196,14 +196,14 @@ def test_explicit_judgment_qa_stays_rag_instead_of_clarify() -> None:
 
     assert result.resolved.main_intent == "qa"
     assert result.resolved.ambiguity_state.clarify_hint is False
-    assert result.control.route == "rag"
+    assert result.control.route == "qa"
 
 
 def test_generic_qa_rescue_keeps_plain_legal_question_out_of_chat() -> None:
     result = classify_intent("刑事拘留最长多少天？")
 
     assert result.resolved.main_intent == "qa"
-    assert result.control.route == "rag"
+    assert result.control.route == "qa"
 
 
 def test_question_like_architecture_query_defaults_to_qa_not_chat() -> None:
@@ -212,14 +212,14 @@ def test_question_like_architecture_query_defaults_to_qa_not_chat() -> None:
     )
 
     assert result.resolved.main_intent == "qa"
-    assert result.control.route == "rag"
+    assert result.control.route == "qa"
 
 
 def test_generic_self_anchor_question_stays_qa() -> None:
     result = classify_intent("这算重大疾病吗？")
 
     assert result.resolved.main_intent == "qa"
-    assert result.control.route in {"rag", "direct"}
+    assert result.control.route == "qa"
 
 
 def test_long_meta_like_query_stays_complex_qa() -> None:
@@ -229,7 +229,7 @@ def test_long_meta_like_query_stays_complex_qa() -> None:
 
     assert result.resolved.main_intent == "qa"
     assert result.resolved.task.complexity == "complex"
-    assert result.control.route == "agent"
+    assert result.control.route == "orchestrated"
 
 
 def test_long_verify_query_prefers_verify_shape_and_agent_route() -> None:
@@ -240,7 +240,7 @@ def test_long_verify_query_prefers_verify_shape_and_agent_route() -> None:
     assert result.resolved.main_intent == "qa"
     assert result.resolved.task.complexity == "complex"
     assert result.resolved.task.shape == "verify"
-    assert result.control.route == "agent"
+    assert result.control.route == "orchestrated"
 
 
 def test_long_verify_plus_tail_summary_query_becomes_mixed() -> None:
@@ -251,7 +251,7 @@ def test_long_verify_plus_tail_summary_query_becomes_mixed() -> None:
     assert result.resolved.main_intent == "qa"
     assert result.resolved.task.complexity == "complex"
     assert result.resolved.task.shape == "mixed"
-    assert result.control.route == "agent"
+    assert result.control.route == "orchestrated"
 
 
 def test_follow_up_missing_history_does_not_override_self_explanatory_qa() -> None:
@@ -271,14 +271,14 @@ def test_enumerated_design_query_prefers_compound_over_mixed_complex() -> None:
     assert result.resolved.task.complexity == "compound"
     assert result.resolved.task.shape == "multi_question"
     assert result.resolved.task.topology == "parallel_queries"
-    assert result.control.route == "rag"
+    assert result.control.route == "qa"
 
 
 def test_meta_analysis_query_stays_qa_not_chat() -> None:
     result = classify_intent("我是想看代码解析，不看它做了什么，这个 query 我现在的规则能做好的判断吗？")
 
     assert result.resolved.main_intent == "qa"
-    assert result.control.route == "rag"
+    assert result.control.route == "qa"
 
 
 def test_plain_thanks_stays_chat_as_negative_case() -> None:
@@ -541,7 +541,7 @@ def test_parallel_subtasks_stay_compound_instead_of_becoming_complex() -> None:
     assert result.resolved.main_intent == "qa"
     assert result.resolved.task.complexity == "compound"
     assert result.resolved.task.topology == "parallel_subtasks"
-    assert result.control.route == "rag"
+    assert result.control.route == "qa"
     assert result.control.decompose_query is True
 
 
@@ -549,7 +549,7 @@ def test_answer_structure_request_is_not_misclassified_as_staged_task() -> None:
     result = classify_intent("请先说是否成立，再说依据，再说风险。")
 
     assert result.resolved.task.topology != "staged"
-    assert result.control.route != "agent"
+    assert result.control.route != "orchestrated"
 
 
 def test_explicit_staged_task_is_marked_as_staged_complex() -> None:
@@ -558,4 +558,4 @@ def test_explicit_staged_task_is_marked_as_staged_complex() -> None:
     assert result.resolved.main_intent == "qa"
     assert result.resolved.task.complexity == "complex"
     assert result.resolved.task.topology == "staged"
-    assert result.control.route == "agent"
+    assert result.control.route == "orchestrated"

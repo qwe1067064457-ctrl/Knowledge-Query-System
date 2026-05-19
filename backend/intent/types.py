@@ -27,10 +27,13 @@ ContextDependency = Literal[
 AnswerShapeHint = Literal["none", "structured_sections"]
 Route = Literal["rag", "chat", "direct", "agent", "reject"]
 Mode = Literal["normal", "challenge", "capability", "clarify"]
+ControlRoute = Literal["qa", "chat", "orchestrated", "reject"]
+HandlingMode = Literal["normal", "clarify", "challenge", "scope_info", "unsupported"]
 PlanningLevel = Literal["none", "light", "full"]
 Strength = Literal["high", "medium", "low"]
 DecisionSource = Literal["rule", "model", "hybrid", "fallback"]
 ClassifierMode = Literal["rule_only", "rule_plus_model", "model_first_with_rule_guard"]
+ControlCapability = Literal["cite_sources", "use_context"]
 
 
 @dataclass(frozen=True)
@@ -38,8 +41,8 @@ class ContextState:
     has_history: bool = False
     has_previous_answer: bool = False
     last_main_intent: MainIntent | None = None
-    last_route: Route | None = None
-    last_mode: Mode | None = None
+    last_route: ControlRoute | None = None
+    last_mode: HandlingMode | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -520,8 +523,8 @@ class ResolvedIntent:
 
 @dataclass(frozen=True)
 class ControlDispatch:
-    route: Route
-    mode: Mode = "normal"
+    route: ControlRoute
+    handling_mode: HandlingMode = "normal"
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -540,37 +543,124 @@ class ControlPolicy:
 
 
 @dataclass(frozen=True)
+class ControlTrace:
+    main_intent: MainIntent
+    modifiers: IntentModifiers = field(default_factory=IntentModifiers)
+    task_complexity: TaskComplexity = "simple"
+    task_shape: TaskShape = "none"
+    task_topology: TaskTopology = "single"
+    context_dependency: ContextDependency = "none"
+    ambiguity_states: tuple[str, ...] = ()
+    missing_context_types: tuple[str, ...] = ()
+    decision_strength: Strength = "low"
+    decision_source: DecisionSource = "fallback"
+    decision_reason: str = ""
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "main_intent": self.main_intent,
+            "modifiers": self.modifiers.to_dict(),
+            "task_complexity": self.task_complexity,
+            "task_shape": self.task_shape,
+            "task_topology": self.task_topology,
+            "context_dependency": self.context_dependency,
+            "ambiguity_states": list(self.ambiguity_states),
+            "missing_context_types": list(self.missing_context_types),
+            "decision_strength": self.decision_strength,
+            "decision_source": self.decision_source,
+            "decision_reason": self.decision_reason,
+        }
+
+
+@dataclass(frozen=True)
 class ControlSignal:
-    route: Route
-    mode: Mode = "normal"
-    rewrite: bool = False
-    force_citation: bool = False
-    use_planner: bool = False
-    decompose_query: bool = False
-    planning_level: PlanningLevel = "none"
+    route: ControlRoute
+    handling_mode: HandlingMode = "normal"
+    capabilities: tuple[ControlCapability, ...] = ()
+    trace: ControlTrace = field(default_factory=lambda: ControlTrace(main_intent="chat"))
 
     @property
     def dispatch(self) -> ControlDispatch:
-        return ControlDispatch(route=self.route, mode=self.mode)
+        return ControlDispatch(route=self.route, handling_mode=self.handling_mode)
 
     @property
-    def policy(self) -> ControlPolicy:
+    def legacy_policy(self) -> ControlPolicy:
+        planning_level = self._planning_level_from_trace()
         return ControlPolicy(
             rewrite=self.rewrite,
             force_citation=self.force_citation,
-            use_planner=self.use_planner,
+            use_planner=planning_level == "full",
             decompose_query=self.decompose_query,
-            planning_level=self.planning_level,
+            planning_level=planning_level,
         )
 
     def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
+        return {
+            "route": self.route,
+            "handling_mode": self.handling_mode,
+            "capabilities": list(self.capabilities),
+            "trace": self.trace.to_dict(),
+            "mode": self.mode,
+            "rewrite": self.rewrite,
+            "force_citation": self.force_citation,
+            "use_planner": self.use_planner,
+            "decompose_query": self.decompose_query,
+            "planning_level": self.planning_level,
+        }
 
     def to_grouped_dict(self) -> dict[str, Any]:
         return {
             "dispatch": self.dispatch.to_dict(),
-            "policy": self.policy.to_dict(),
+            "capabilities": list(self.capabilities),
+            "trace": self.trace.to_dict(),
+            "policy": self.legacy_policy.to_dict(),
         }
+
+    @property
+    def mode(self) -> Mode:
+        return {
+            "normal": "normal",
+            "clarify": "clarify",
+            "challenge": "challenge",
+            "scope_info": "capability",
+            "unsupported": "clarify",
+        }[self.handling_mode]
+
+    @property
+    def rewrite(self) -> bool:
+        return "use_context" in self.capabilities
+
+    @property
+    def force_citation(self) -> bool:
+        return "cite_sources" in self.capabilities
+
+    @property
+    def use_planner(self) -> bool:
+        return self._planning_level_from_trace() == "full"
+
+    @property
+    def decompose_query(self) -> bool:
+        return self.trace.task_complexity == "compound" and self.trace.task_topology in {
+            "parallel_queries",
+            "parallel_subtasks",
+        }
+
+    @property
+    def planning_level(self) -> PlanningLevel:
+        return self._planning_level_from_trace()
+
+    @property
+    def policy(self) -> ControlPolicy:
+        return self.legacy_policy
+
+    def _planning_level_from_trace(self) -> PlanningLevel:
+        if self.route != "orchestrated" or self.trace.task_complexity != "complex":
+            return "none"
+        if self.trace.task_shape in {"compare", "mixed"}:
+            return "full"
+        if self.trace.task_shape in {"verify", "extract"}:
+            return "light"
+        return "none"
 
 
 @dataclass(frozen=True)

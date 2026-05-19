@@ -16,9 +16,9 @@ def test_intent_analysis_grouped_dict_exposes_domain_buckets() -> None:
 
     assert set(grouped["evidence"].keys()) == {"meta", "intent", "task", "context", "safety"}
     assert set(grouped["resolved"].keys()) == {"intent", "task", "context", "ambiguity", "decision"}
-    assert set(grouped["control"].keys()) == {"dispatch", "policy"}
+    assert set(grouped["control"].keys()) == {"dispatch", "capabilities", "trace", "policy"}
     assert grouped["resolved"]["intent"]["main_intent"] == "qa"
-    assert grouped["control"]["dispatch"]["route"] == "rag"
+    assert grouped["control"]["dispatch"]["route"] == "qa"
     assert "ask_source" in grouped["evidence"]["intent"]["signals"]
     assert "needs_previous_answer" in grouped["evidence"]["context"]["signals"]
 
@@ -35,6 +35,8 @@ def test_flat_dict_shape_uses_v2_evidence_fields() -> None:
     assert "dependency_signals" not in flat["evidence"]
     assert "context_dependency" in flat["resolved"]
     assert "route" in flat["control"]
+    assert "handling_mode" in flat["control"]
+    assert "capabilities" in flat["control"]
     assert "planning_level" in flat["control"]
 
 

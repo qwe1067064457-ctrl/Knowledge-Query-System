@@ -1,248 +1,234 @@
-# Intent / Request Understanding 项目说明
+# Intent 项目说明
 
 ## 1. 当前定位
 
-这条线现在更准确的名字是：
+这一条线现在更准确的名字不是“传统 intent 分类”，而是：
 
-- `Intent / Request Understanding`
+- `request understanding`
 
-它不是一个只做单标签分类的小模块，而是一条负责把用户请求理解清楚、为后续执行流提供稳定输入的主链。
+它的职责不是直接回答问题，也不是提前替后续执行流做完整决策，而是：
 
-它的目标不是：
+- 理解用户请求属于什么语义域
+- 给出任务画像
+- 给出上下文事实与理解缺口
+- 给出安全/越界边界
+- 产出可被后续 `control` 消费的稳定 `resolved` 结果
 
-- 直接回答问题
-- 提前决定所有执行细节
-- 用规则独自解决所有开放语义理解
-
-它的目标是：
-
-1. 判断请求大类
-2. 识别关键修饰语义
-3. 理解任务结构与上下文依赖
-4. 拦住越权与高风险请求
-5. 为后续 control / workflow 提供结构化输入
-
-## 2. 为什么会从“意图识别”走到现在
-
-最早这条线更接近传统 intent classifier：
-
-- 识别 `qa / chat / system / unsupported`
-- 再附带少量 modifier
-
-但项目往前走之后，暴露了两个现实问题：
-
-### 2.1 只有主意图不够
-
-很多请求不是只靠单标签就能说明白，例如：
-
-- `依据是什么？`
-- `你确定吗？`
-- `先说是否成立，再说依据，再说风险`
-- `这种情况应该怎么分？`
-
-这类请求还涉及：
-
-- 上下文依赖
-- 回答结构
-- 任务复杂度
-- 是否可能需要澄清
-
-### 2.2 rule 层开始做得太多
-
-旧问题不是规则不够多，而是规则承担了太多职责：
-
-1. 基础识别
-2. 任务理解
-3. 上下文理解
-4. 执行预判
-5. 部分 workflow 决策
-
-这会导致：
-
-- 边界越来越模糊
-- 调优成本越来越高
-- 很多 query 难以归因到底是 rule 命中错、evidence 设计错、resolver 收敛错，还是 control 映射错
-
-所以这条线后来明确转向：
+当前我们明确坚持：
 
 - `rule-lite + model-centric understanding`
 
-## 3. 当前架构摘要
+这意味着：
 
-当前主链是：
+- rule 层保留 baseline、hard gate、teacher、regression anchor 的价值
+- 但不再让 rule 层继续扩大成半个 workflow 决策器
+
+## 2. 当前主链
+
+当前 understanding 主链仍按四层理解：
 
 ```text
 input -> evidence -> resolved -> control
 ```
 
+其中：
+
 ### `input`
 
-负责承接：
+系统拿到的原始请求与上下文输入。
 
-- 当前用户 query
-- 上下文状态
-- 结构化历史信息
+当前主要包括：
+
+- `user_query`
+- `context_state`
+- `model_context`
 
 ### `evidence`
 
-负责收集：
+对请求做第一轮结构化观察。
 
-- rule evidence
-- context evidence
-- task evidence
-- safety evidence
-- 可选 model evidence
+当前 `V2` 正式骨架只保留四大语义类：
+
+- `intent`
+- `task`
+- `context`
+- `safety`
+
+对应 resolver 的主消费结构主要是：
+
+- `candidate_intents`
+- `task_candidates`
+- `context_signals`
+- `unsupported_signals`
 
 ### `resolved`
 
-负责收敛成当前稳定理解结果：
+把 `evidence` 收敛成稳定的理解结果。
+
+当前重点包括：
 
 - `main_intent`
 - `modifiers`
 - `task.complexity`
 - `task.shape`
 - `task.topology`
+- `ambiguity_state`
 - `context_dependency`
-- 可选 `ambiguity_state`
 
 ### `control`
 
-负责粗分流与执行入口映射：
+把稳定的 understanding 结果映射为粗粒度执行控制。
 
-- `route`
-- `handling_mode`
-- `capabilities`
-- `trace`
+当前状态：
 
-当前 control 还处于兼容态，最终会等 understanding 层彻底收稳后再系统收口。
+- 已完成一版最小 `control v2` 收口
+- 正式结构收为：
+  - `route`
+  - `handling_mode`
+  - `capabilities`
+  - `trace`
+- 但仍保留旧兼容导出
+- 真正的 workflow 消费迁移仍未完成
 
-## 4. 当前主设计方向
+## 3. 当前 V2 已经完成到哪
 
-### 4.1 继续 `rule-lite`
+### 3.1 `evidence v2` 已基本站稳
 
-rule 层继续保留：
+当前正式 schema 已经去掉或退场了这些旧字段：
+
+- `dependency_signals`
+- 正式 schema 里的 `raw_signals`
+
+当前 `context` 已切到更柔性的表达：
+
+- `clarify_hint`
+- `ambiguity_states`
+- `missing_context_types`
+- `needs_previous_answer`
+
+这意味着 `evidence` 不再把“是否必须澄清”当成唯一强结论，而是更偏：
+
+- 上下文事实
+- 理解缺口
+- 模糊状态
+
+### 3.2 `resolver` 已基本去执行化
+
+当前 `resolver` 不再把：
+
+- `needs_query_decomposition`
+- `needs_agent_planning`
+
+这类执行提示作为主结果直接产出。
+
+任务理解现在主要依赖：
+
+- `complexity`
+- `shape`
+- `topology`
+
+这让 `compound / complex` 不再只是旧式粗暴吞并，也让“回答结构”和“执行步骤”开始分离。
+
+## 4. 当前最重要的边界
+
+### 4.1 rule 层还保留什么
+
+当前 rule 层应该保留：
 
 - `unsupported / safety`
-- `system / scope_question`
-- `qa/chat/system/unsupported` 粗分类
+- `qa / chat / system / unsupported` 粗分类
 - `follow_up / ask_source / challenge / soft_doubt` 粗识别
 - baseline / teacher / regression anchor
 
-rule 层逐步减少：
+### 4.2 rule 层不该继续强扛什么
 
-- 强 `clarify` 裁决
+当前不建议继续往 rule 层压这些职责：
+
+- 强 clarify 裁决
 - 细粒度 task 终判
 - 回答结构 vs 执行步骤终判
 - 柔性 decomposition
 - 过细 workflow 决策
 
-### 4.2 引入中间状态，而不是强裁决
+### 4.3 evidence/resolver 和 control/workflow 的边界
 
-一个重要方向是：
+当前建议始终坚持：
 
-- 能做候选，就不做终判
-- 能做粗识别，就不做细裁决
+- `evidence + resolver` 负责 understanding
+- `control` 负责粗分流
+- `workflow` 负责真正执行
 
-典型例子：
+也就是说：
 
-- `needs_clarification`
-  - 逐步下沉为
-  - `clarify_candidate`
-  - `ambiguity_state`
+- understanding 可以 `workflow-aware`
+- 但不应该 `workflow-deciding`
 
-### 4.3 把“请求语义”和“上下文事实”拆开
+## 5. 当前最值得记住的正式语义
 
-我们现在不再希望同一个 signal 同时承担：
+### 5.1 understanding 主骨架
 
-- 这是什么请求
-- 它依赖什么上下文
+- `intent`
+- `task`
+- `context`
+- `safety`
 
-所以主设计上开始拆成：
+### 5.2 task 关键轴
 
-- `request semantic`
-- `context_fact`
+- `complexity`
+- `shape`
+- `topology`
 
-## 5. 当前主矛盾
+其中 `topology` 的意义是：
 
-目前 rule 层的问题，已经明确分成两类：
+- `single`
+- `parallel_queries`
+- `parallel_subtasks`
+- `staged`
 
-### 5.1 命中质量问题
+它描述的是任务结构，而不是直接承诺后续必须如何执行。
 
-例如：
+### 5.3 context 关键表达
 
-- 某条规则该命中没命中
-- 不该命中却命中了
+当前更重要的不是旧式 `needs_clarification`，而是：
 
-这类主要看：
+- `clarify_hint`
+- `ambiguity_states`
+- `missing_context_types`
 
-- precision
-- recall
-- f1
-- required hit
+它们回答的是：
 
-### 5.2 设计问题
+- 是否可能需要澄清
+- 当前为什么模糊
+- 缺的到底是哪类上下文信息
 
-例如：
+## 6. 当前仍未完成的部分
 
-- signal 职责混杂
-- bucket 设计不干净
-- resolver 过早承诺复杂 task
-- `clarify` 边界不稳
-- `control` 过度依赖旧语义
+这条线当前最明显的未完成项不是 `evidence/resolver`，而是：
 
-这也是为什么当前不能只看“某条 rule 命中得准不准”，还必须看：
+1. `control v2` 后续迁移
+- 最小结构已落地
+- 但旧兼容字段尚未完全退出
+- workflow 侧还没有全面转向消费新结构
 
-- evidence design
-- resolver convergence
-- distribution stability
+2. `workflow` 边界落地
+- 还没有把新的 understanding 语义完整接到执行流里
 
-## 6. 为什么要做 V1 / V2 双轨
+3. model-centric understanding 的真正放量
+- 当前模型证据接口已经有挂点
+- 但整体仍是 rule-first baseline
 
-这条线在重构时没有选择“一次性推翻”，而是用了双轨迁移：
+## 7. 当前应如何阅读其它文档
 
-- `V1`
-  - 冻结旧口径
-  - 继续做 baseline / teacher / regression anchor
-- `V2`
-  - 承接新的 signal taxonomy
-  - 承接新的 evidence / resolver 边界
-  - 用于迁移、对比和逐步替换
+如果你当前要继续推进：
 
-这样做的原因是：
+- `evidence / resolver`
+  - 先看 [signal_info/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/signal_info/README.md)
 
-1. 避免改一层就把训练、评估、导出全打断
-2. 保留可比基线
-3. 允许新旧语义并行观察
+- `评估 / 训练准备 / baseline`
+  - 先看 [intent_testing_and_evaluation.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/intent_testing_and_evaluation.md)
 
-## 7. 当前已经完成了什么
+- `rule confidence`
+  - 先看 [intent_rule_confidence.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/intent_rule_confidence.md)
 
-当前已经落地的核心变化包括：
-
-- `TaskTopology` 引入
-- `mixed` 逻辑收紧
-- `rule-lite` 方向冻结
-- `V2 auto` 自动标注链路打通
-- `V1 vs V2 auto` 差异报告
-- `quality gate`
-- `signal taxonomy` 收口到：
-  - `intent`
-  - `task`
-  - `context_fact`
-  - `safety`
-- `clarify_candidate / ambiguity_state` 开始进入主链
-
-## 8. 当前还没有完全收完的部分
-
-还没最终落完的关键点包括：
-
-- 双角色 signal 的彻底退场
-- `clarify` 从旧强判定完全转到候选态
-- `control v2` 正式重构
-- 小模型真正接入中层理解
-- `model_first_rule_guard` 的工程化落地
-
-## 9. 一句话总结
-
-当前 `intent` 这条线最合适的理解方式是：
-
-> 一个从“rule-heavy 的意图识别器”逐步收缩为“rule-lite 的 request understanding 主链”的系统；它通过 `V1 / V2` 双轨迁移，把理解、评估、数据治理和后续模型接管统一到一个更清晰的架构里。
+- `老的多信号 backfill 计划`
+  - 只当历史参考读 [multisignal_dev_heldout_backfill_plan_20260517.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/multisignal_dev_heldout_backfill_plan_20260517.md)
