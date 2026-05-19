@@ -231,4 +231,4 @@ input -> evidence -> resolved -> control
   - 先看 [intent_rule_confidence.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/intent_rule_confidence.md)
 
 - `老的多信号 backfill 计划`
-  - 只当历史参考读 [multisignal_dev_heldout_backfill_plan_20260517.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/multisignal_dev_heldout_backfill_plan_20260517.md)
+  - 只当历史参考读 [multisignal_dev_heldout_backfill_plan_20260517.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/history/multisignal_dev_heldout_backfill_plan_20260517.md)

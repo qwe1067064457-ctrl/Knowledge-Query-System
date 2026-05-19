@@ -169,4 +169,4 @@ input -> evidence -> resolved -> control
 
 只当参考看：
 
-- [multisignal_dev_heldout_backfill_plan_20260517.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/multisignal_dev_heldout_backfill_plan_20260517.md)
+- [multisignal_dev_heldout_backfill_plan_20260517.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/history/multisignal_dev_heldout_backfill_plan_20260517.md)

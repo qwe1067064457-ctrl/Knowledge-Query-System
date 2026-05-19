@@ -276,5 +276,5 @@
 
 > 一个有分层结构、有评估口径、有监督资产、能为小模型提供 teacher 和 guardrail 的 intent baseline 系统。
 status: promoted-partially
-related_current_doc: notes/intent/intent_rule_lite_strategy.md
+related_current_doc: notes/intent/architecture/intent_rule_lite_strategy.md
 scope: rule lessons and constraints

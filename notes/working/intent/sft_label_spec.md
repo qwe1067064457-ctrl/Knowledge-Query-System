@@ -188,5 +188,5 @@
 - 更多 modifiers
 - 多头联合训练
 status: active-working
-related_current_doc: notes/intent/intent_v2_migration.md
+related_current_doc: notes/intent/migrations/intent_v2_migration.md
 scope: sft label specification

@@ -43,11 +43,15 @@ input -> evidence -> resolved -> control
    - 先看当前评估、训练导出、baseline 与数据状态
 3. [intent_rule_confidence.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/intent_rule_confidence.md)
    - 先看规则证据可信度评审器到底是什么
-4. [signal_info/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/signal_info/README.md)
+4. [architecture/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/architecture/README.md)
+   - 先看主架构、信号分类与 rule-lite 的稳定设计
+5. [signal_info/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/signal_info/README.md)
    - 先看 `evidence v2` 的正式语义分类与字段职责
-5. [control_signal_v2.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/control_signal_v2.md)
-   - 先看当前 `control v2` 已落地边界、粗分流原则与兼容层
-6. [test_data_generate/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/test_data_generate/README.md)
+6. [control/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/control/README.md)
+   - 先看当前 `control v2` 的边界、contract 与迁移检查项
+7. [migrations/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/migrations/README.md)
+   - 先看 intent 体系升级、旧字段退场和兼容出口收口
+8. [test_data_generate/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/test_data_generate/README.md)
    - 先看当前测试数据、SFT 准备数据与 baseline 相关入口
 
 ## 当前主入口文档
@@ -99,6 +103,47 @@ input -> evidence -> resolved -> control
 1. [signal_info/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/signal_info/README.md)
 2. [signal_info/evidence_signal_info/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/signal_info/evidence_signal_info/README.md)
 
+### [architecture/](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/architecture)
+
+这个目录专门放 intent / request understanding 主线里的稳定架构说明。
+
+更适合回答：
+
+- understanding 主架构现在怎么分层
+- 信号分类和 rule-lite 的当前定位是什么
+- 哪些设计已经算主线事实，不只是阶段性想法
+
+推荐先看：
+
+1. [architecture/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/architecture/README.md)
+2. [architecture/intent_understanding_architecture.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/architecture/intent_understanding_architecture.md)
+3. [architecture/intent_signal_taxonomy.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/architecture/intent_signal_taxonomy.md)
+
+### [control/](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/control)
+
+这个目录专门放 understanding 输出如何进入执行控制层的文档。
+
+更适合回答：
+
+- `control v2` 的正式边界是什么
+- `route / handling_mode / capabilities / trace` 如何分工
+- 当前 control 迁移和兼容字段退出怎么做
+
+推荐先看：
+
+1. [control/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/control/README.md)
+2. [control/control_signal_v2.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/control/control_signal_v2.md)
+3. [control/control_contract.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/control/control_contract.md)
+
+### [migrations/](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/migrations)
+
+这个目录专门放 intent 体系迁移、兼容出口收口和旧字段退场说明。
+
+推荐先看：
+
+1. [migrations/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/migrations/README.md)
+2. [migrations/intent_v2_migration.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/migrations/intent_v2_migration.md)
+
 ### [test_data_generate/](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/test_data_generate)
 
 这个目录专门讲测试数据、query 输入、训练导出与 SFT 准备。
@@ -142,7 +187,7 @@ input -> evidence -> resolved -> control
 
 下面这类文档仍保留，但不再视为当前唯一真相：
 
-- [multisignal_dev_heldout_backfill_plan_20260517.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/multisignal_dev_heldout_backfill_plan_20260517.md)
+- [history/multisignal_dev_heldout_backfill_plan_20260517.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/intent/history/multisignal_dev_heldout_backfill_plan_20260517.md)
 
 它们的作用更接近：
 

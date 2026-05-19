@@ -92,5 +92,5 @@
 - 是否继续把“回答结构要求”误判成 `staged`
 - 是否继续让 `complex` 过早绑定高消耗执行路径
 status: active-working
-related_current_doc: notes/intent/intent_rule_lite_strategy.md
+related_current_doc: notes/intent/architecture/intent_rule_lite_strategy.md
 scope: rule-lite shrink checklist

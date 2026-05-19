@@ -401,5 +401,5 @@ input -> evidence -> resolved -> control
 
 真正值得保留的成果，是这次边界识别本身。
 status: active-working
-related_current_doc: notes/intent/intent_understanding_architecture.md
+related_current_doc: notes/intent/architecture/intent_understanding_architecture.md
 scope: evidence resolver refactor lessons

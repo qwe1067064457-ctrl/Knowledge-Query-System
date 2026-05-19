@@ -118,5 +118,5 @@
    - `gold` 高权重
    - `silver` 主训练量
 status: legacy-reference
-related_current_doc: notes/intent/intent_v2_migration.md
+related_current_doc: notes/intent/migrations/intent_v2_migration.md
 scope: silver auto uplift history
