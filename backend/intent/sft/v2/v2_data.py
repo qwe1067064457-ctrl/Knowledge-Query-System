@@ -19,7 +19,7 @@ from intent.sft.v2.v2_label_spaces import DEFAULT_LABEL_SPACES, MULTICLASS_HEADS
 
 DEFAULT_TOPOLOGY_EXPORT_PATH = ROOT / "evaluation" / "intent" / "exports" / "v2" / "intent_training_v2_topology_20260518.jsonl"
 DEFAULT_AUTO_EXPORT_PATH = ROOT / "evaluation" / "intent" / "exports" / "v2" / "intent_training_v2_auto_20260518.jsonl"
-DEFAULT_V2_SPLITS = ("train", "dev", "heldout")
+DEFAULT_V2_SPLITS = ("train", "dev", "calibration", "heldout")
 
 
 @dataclass(frozen=True)
@@ -42,6 +42,7 @@ def parse_args() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description="Export V2 intent understanding rows into a multitask SFT bundle.")
     parser.add_argument("output_dir", type=Path)
     parser.add_argument("--input-jsonl", action="append", dest="input_jsonl_paths", type=Path, default=None)
+    parser.add_argument("--split-manifest", type=Path, default=None)
     parser.add_argument("--include-history", action="store_true")
     parser.add_argument("--dedupe", choices=("error", "first", "last"), default="error")
     return parser.parse_args()
@@ -50,16 +51,20 @@ def parse_args() -> argparse.Namespace:
 def export_v2_rows(
     *,
     input_jsonl_paths: list[Path] | None = None,
+    split_manifest_path: Path | None = None,
     include_history: bool = False,
     dedupe: str = "error",
 ) -> dict[str, Any]:
     input_paths = list(input_jsonl_paths) if input_jsonl_paths is not None else [DEFAULT_TOPOLOGY_EXPORT_PATH]
     rows_by_split: dict[str, list[dict[str, Any]]] = {split: [] for split in DEFAULT_V2_SPLITS}
     seen_ids: dict[str, tuple[str, int]] = {}
+    split_overrides = _load_split_manifest(split_manifest_path)
 
     for path_index, input_path in enumerate(input_paths):
         for row in _read_jsonl(input_path):
             exported = _export_row(row, include_history=include_history)
+            if exported["id"] in split_overrides:
+                exported["split"] = split_overrides[exported["id"]]
             if exported["split"] not in rows_by_split:
                 continue
             row_id = exported["id"]
@@ -78,6 +83,7 @@ def export_v2_rows(
         "task_name": "intent_v2_multitask",
         "rows_by_split": rows_by_split,
         "include_history": include_history,
+        "split_manifest_path": str(split_manifest_path) if split_manifest_path else None,
         "label_spaces": build_label_space_manifest(),
     }
 
@@ -95,6 +101,7 @@ def write_v2_bundle(output_dir: Path, bundle: dict[str, Any]) -> None:
             {
                 "task_name": bundle["task_name"],
                 "include_history": bundle["include_history"],
+                "split_manifest_path": bundle.get("split_manifest_path"),
                 "label_spaces": bundle["label_spaces"],
                 "summary": summarize_v2_bundle(bundle),
             },
@@ -120,12 +127,14 @@ def load_v2_bundle(bundle_dir: Path) -> dict[str, Any]:
     for split in DEFAULT_V2_SPLITS:
         split_path = bundle_dir / f"{split}.jsonl"
         if not split_path.exists():
-            raise FileNotFoundError(f"Missing split file: {split_path}")
+            splits[split] = []
+            continue
         splits[split] = _load_examples(split_path)
     return {
         "task_name": manifest["task_name"],
         "bundle_dir": bundle_dir,
         "include_history": bool(manifest.get("include_history", False)),
+        "split_manifest_path": manifest.get("split_manifest_path"),
         "label_spaces": label_spaces,
         "splits": splits,
     }
@@ -218,9 +227,6 @@ def _export_row(row: dict[str, Any], *, include_history: bool) -> dict[str, Any]
     safety = _multilabel_vector_from_mapping(safety_mapping, MULTILABEL_HEADS["safety"])
 
     split = str(row.get("split") or metadata.get("split") or _infer_split(metadata)).strip()
-    if split == "calibration":
-        split = "dev"
-
     return {
         "id": row["id"],
         "text": build_v2_text(row.get("input", {}), include_history=include_history),
@@ -260,6 +266,27 @@ def _infer_split(metadata: dict[str, Any]) -> str:
     if metadata.get("is_heldout"):
         return "heldout"
     return "train"
+
+
+def _load_split_manifest(path: Path | None) -> dict[str, str]:
+    if path is None:
+        return {}
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    if isinstance(payload, dict) and "entries" in payload:
+        entries = payload["entries"]
+    elif isinstance(payload, list):
+        entries = payload
+    else:
+        raise ValueError("Split manifest must be either a list or an object with an `entries` field")
+
+    overrides: dict[str, str] = {}
+    for entry in entries:
+        row_id = str(entry.get("id", "")).strip()
+        split = str(entry.get("split", "")).strip()
+        if not row_id or split not in DEFAULT_V2_SPLITS:
+            continue
+        overrides[row_id] = split
+    return overrides
 
 
 def _require_label(value: Any, label_space: tuple[str, ...], field_name: str, row_id: str) -> str:
@@ -338,6 +365,7 @@ def main() -> int:
     args = parse_args()
     bundle = export_v2_rows(
         input_jsonl_paths=args.input_jsonl_paths,
+        split_manifest_path=args.split_manifest,
         include_history=args.include_history,
         dedupe=args.dedupe,
     )

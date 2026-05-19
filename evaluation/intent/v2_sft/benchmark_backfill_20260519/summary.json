@@ -1,0 +1,127 @@
+{
+  "version": "2026-05-19",
+  "task": "v2_benchmark_backfill",
+  "profile": "benchmark",
+  "targets": {
+    "dev": 42,
+    "calibration": 48,
+    "heldout": 42
+  },
+  "input_files": {
+    "topology_export": "/Users/genius/.codex/worktrees/653f/Skill-First-Hybrid-RAG/evaluation/intent/exports/v2/intent_training_v2_topology_20260518.jsonl",
+    "auto_export": "/Users/genius/.codex/worktrees/653f/Skill-First-Hybrid-RAG/evaluation/intent/exports/v2/intent_training_v2_auto_20260518.jsonl"
+  },
+  "source_snapshot": {
+    "rows": 1381,
+    "existing_dev": 14,
+    "existing_heldout": 9,
+    "gold_train_pool": 109,
+    "silver_changed_train_pool": 27
+  },
+  "proposed_splits": {
+    "dev": 42,
+    "calibration": 48,
+    "heldout": 42
+  },
+  "review_queue": {
+    "eval_review": 109,
+    "weak_train": 27
+  },
+  "promotion_queue": 27,
+  "synthetic_queue": 35,
+  "status_counts": {
+    "legacy_seed": 23,
+    "pending_review_gold": 109
+  },
+  "gap_summary": {
+    "dev": {
+      "task_complexity": {
+        "compound": 1
+      },
+      "task_shape": {
+        "mixed": 1
+      },
+      "task_topology": {
+        "staged": 2,
+        "parallel_subtasks": 2
+      }
+    },
+    "calibration": {
+      "task_complexity": {
+        "complex": 8,
+        "compound": 4
+      },
+      "task_shape": {
+        "multi_question": 6,
+        "compare": 6,
+        "summarize": 3,
+        "mixed": 3
+      },
+      "task_topology": {
+        "parallel_queries": 6,
+        "staged": 2,
+        "parallel_subtasks": 2
+      },
+      "modifiers": {
+        "challenge": 2,
+        "soft_doubt": 2,
+        "needs_clarification": 2
+      },
+      "context": {
+        "clarify_hint": 2
+      }
+    },
+    "heldout": {
+      "task_complexity": {
+        "compound": 4
+      },
+      "task_shape": {
+        "mixed": 2
+      },
+      "task_topology": {
+        "parallel_queries": 1,
+        "staged": 2,
+        "parallel_subtasks": 2
+      }
+    }
+  },
+  "remaining_gap_after_promotion": {
+    "dev": {
+      "task_complexity": {
+        "compound": 1
+      },
+      "task_shape": {
+        "mixed": 1
+      },
+      "task_topology": {
+        "parallel_subtasks": 2
+      }
+    },
+    "calibration": {
+      "task_complexity": {
+        "compound": 4
+      },
+      "task_shape": {
+        "multi_question": 6,
+        "compare": 6
+      },
+      "task_topology": {
+        "parallel_queries": 6,
+        "parallel_subtasks": 2
+      },
+      "modifiers": {
+        "challenge": 2,
+        "soft_doubt": 2,
+        "needs_clarification": 1
+      },
+      "context": {
+        "clarify_hint": 1
+      }
+    },
+    "heldout": {
+      "task_topology": {
+        "parallel_queries": 1
+      }
+    }
+  }
+}

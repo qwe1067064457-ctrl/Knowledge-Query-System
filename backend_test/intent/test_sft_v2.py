@@ -113,6 +113,35 @@ def test_export_v2_rows_builds_train_dev_heldout_bundle(tmp_path: Path) -> None:
     assert bundle["rows_by_split"]["heldout"][0]["targets"]["safety_active"] == ["unsupported", "out_of_scope"]
 
 
+def test_export_v2_rows_applies_split_manifest_and_preserves_calibration(tmp_path: Path) -> None:
+    input_jsonl = tmp_path / "v2.jsonl"
+    manifest = tmp_path / "split_manifest.json"
+    _write_jsonl(
+        input_jsonl,
+        [
+            _v2_export_row(row_id="train_001", split="train"),
+            _v2_export_row(row_id="dev_001", split="dev"),
+        ],
+    )
+    manifest.write_text(
+        json.dumps(
+            {
+                "entries": [
+                    {"id": "train_001", "split": "calibration"},
+                    {"id": "dev_001", "split": "heldout"},
+                ]
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    bundle = export_v2_rows(input_jsonl_paths=[input_jsonl], split_manifest_path=manifest)
+
+    assert bundle["rows_by_split"]["calibration"][0]["id"] == "train_001"
+    assert bundle["rows_by_split"]["heldout"][0]["id"] == "dev_001"
+
+
 def test_export_v2_rows_raises_on_duplicate_id_by_default(tmp_path: Path) -> None:
     first = tmp_path / "first.jsonl"
     second = tmp_path / "second.jsonl"
@@ -142,7 +171,28 @@ def test_load_and_summarize_v2_bundle_roundtrip(tmp_path: Path) -> None:
 
     assert summary["train"]["modifier_counts"]["follow_up"] == 1
     assert summary["dev"]["context_counts"]["clarify_hint"] == 1
+    assert summary["calibration"]["rows"] == 0
     assert summary["heldout"]["safety_counts"]["unsupported"] == 1
+
+
+def test_load_v2_bundle_accepts_missing_calibration_file(tmp_path: Path) -> None:
+    input_jsonl = tmp_path / "v2.jsonl"
+    _write_jsonl(
+        input_jsonl,
+        [
+            _v2_export_row(row_id="train_001", split="train"),
+            _v2_export_row(row_id="dev_001", split="dev"),
+            _v2_export_row(row_id="held_001", split="heldout"),
+        ],
+    )
+    bundle = export_v2_rows(input_jsonl_paths=[input_jsonl])
+    bundle_dir = tmp_path / "bundle"
+    write_v2_bundle(bundle_dir, bundle)
+    (bundle_dir / "calibration.jsonl").unlink()
+
+    loaded = load_v2_bundle(bundle_dir)
+
+    assert loaded["splits"]["calibration"] == []
 
 
 def test_v2_eval_computes_multiclass_and_multilabel_metrics() -> None:
