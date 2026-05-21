@@ -1,0 +1,1151 @@
+{
+  "version": "2026-05-19",
+  "task": "v2_sample_backfill",
+  "entries": [
+    {
+      "id": "seed_20260515_challenge_001_gold",
+      "split": "dev",
+      "status": "legacy_seed",
+      "source_dataset": "seed_query_20260515_gold_v1",
+      "label_tier": "gold",
+      "current_split": "dev",
+      "changed": false,
+      "changed_fields": [],
+      "reason": "retain_existing_dev"
+    },
+    {
+      "id": "seed_20260515_challenge_002_gold",
+      "split": "dev",
+      "status": "legacy_seed",
+      "source_dataset": "seed_query_20260515_gold_v1",
+      "label_tier": "gold",
+      "current_split": "dev",
+      "changed": true,
+      "changed_fields": [
+        "main_intent",
+        "task_shape",
+        "modifiers",
+        "context"
+      ],
+      "reason": "retain_existing_dev"
+    },
+    {
+      "id": "seed_20260515_chat_001_gold",
+      "split": "dev",
+      "status": "legacy_seed",
+      "source_dataset": "seed_query_20260515_gold_v1",
+      "label_tier": "gold",
+      "current_split": "dev",
+      "changed": false,
+      "changed_fields": [],
+      "reason": "retain_existing_dev"
+    },
+    {
+      "id": "seed_20260515_chat_002_gold",
+      "split": "dev",
+      "status": "legacy_seed",
+      "source_dataset": "seed_query_20260515_gold_v1",
+      "label_tier": "gold",
+      "current_split": "dev",
+      "changed": false,
+      "changed_fields": [],
+      "reason": "retain_existing_dev"
+    },
+    {
+      "id": "seed_20260515_clarify_001_gold",
+      "split": "dev",
+      "status": "legacy_seed",
+      "source_dataset": "seed_query_20260515_gold_v1",
+      "label_tier": "gold",
+      "current_split": "dev",
+      "changed": true,
+      "changed_fields": [
+        "main_intent",
+        "modifiers",
+        "context"
+      ],
+      "reason": "retain_existing_dev"
+    },
+    {
+      "id": "seed_20260515_clarify_002_gold",
+      "split": "dev",
+      "status": "legacy_seed",
+      "source_dataset": "seed_query_20260515_gold_v1",
+      "label_tier": "gold",
+      "current_split": "dev",
+      "changed": true,
+      "changed_fields": [
+        "main_intent"
+      ],
+      "reason": "retain_existing_dev"
+    },
+    {
+      "id": "seed_20260515_compare_001_gold",
+      "split": "dev",
+      "status": "legacy_seed",
+      "source_dataset": "seed_query_20260515_gold_v1",
+      "label_tier": "gold",
+      "current_split": "dev",
+      "changed": true,
+      "changed_fields": [
+        "task_complexity"
+      ],
+      "reason": "retain_existing_dev"
+    },
+    {
+      "id": "seed_20260515_compare_002_gold",
+      "split": "dev",
+      "status": "legacy_seed",
+      "source_dataset": "seed_query_20260515_gold_v1",
+      "label_tier": "gold",
+      "current_split": "dev",
+      "changed": true,
+      "changed_fields": [
+        "task_complexity"
+      ],
+      "reason": "retain_existing_dev"
+    },
+    {
+      "id": "seed_20260515_summarize_001_gold",
+      "split": "dev",
+      "status": "legacy_seed",
+      "source_dataset": "seed_query_20260515_gold_v1",
+      "label_tier": "gold",
+      "current_split": "dev",
+      "changed": true,
+      "changed_fields": [
+        "task_complexity"
+      ],
+      "reason": "retain_existing_dev"
+    },
+    {
+      "id": "seed_20260515_summarize_002_gold",
+      "split": "dev",
+      "status": "legacy_seed",
+      "source_dataset": "seed_query_20260515_gold_v1",
+      "label_tier": "gold",
+      "current_split": "dev",
+      "changed": true,
+      "changed_fields": [
+        "task_complexity"
+      ],
+      "reason": "retain_existing_dev"
+    },
+    {
+      "id": "seed_20260515_system_001_gold",
+      "split": "dev",
+      "status": "legacy_seed",
+      "source_dataset": "seed_query_20260515_gold_v1",
+      "label_tier": "gold",
+      "current_split": "dev",
+      "changed": true,
+      "changed_fields": [
+        "main_intent",
+        "task_complexity",
+        "task_shape",
+        "task_topology",
+        "modifiers"
+      ],
+      "reason": "retain_existing_dev"
+    },
+    {
+      "id": "seed_20260515_system_002_gold",
+      "split": "dev",
+      "status": "legacy_seed",
+      "source_dataset": "seed_query_20260515_gold_v1",
+      "label_tier": "gold",
+      "current_split": "dev",
+      "changed": true,
+      "changed_fields": [
+        "main_intent",
+        "modifiers"
+      ],
+      "reason": "retain_existing_dev"
+    },
+    {
+      "id": "seed_20260515_unsupported_001_gold",
+      "split": "dev",
+      "status": "legacy_seed",
+      "source_dataset": "seed_query_20260515_gold_v1",
+      "label_tier": "gold",
+      "current_split": "dev",
+      "changed": false,
+      "changed_fields": [],
+      "reason": "retain_existing_dev"
+    },
+    {
+      "id": "seed_20260515_unsupported_002_gold",
+      "split": "dev",
+      "status": "legacy_seed",
+      "source_dataset": "seed_query_20260515_gold_v1",
+      "label_tier": "gold",
+      "current_split": "dev",
+      "changed": true,
+      "changed_fields": [
+        "main_intent",
+        "modifiers"
+      ],
+      "reason": "retain_existing_dev"
+    },
+    {
+      "id": "seed_20260516_sdb_002_gold",
+      "split": "dev",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "task_shape",
+        "context"
+      ],
+      "reason": "dev_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_sdb_006_gold",
+      "split": "dev",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "task_shape",
+        "modifiers"
+      ],
+      "reason": "dev_backfill_gold"
+    },
+    {
+      "id": "seed_20260515_soft_doubt_seed_001_gold",
+      "split": "dev",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260515_gold_v2",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": false,
+      "changed_fields": [],
+      "reason": "dev_backfill_gold"
+    },
+    {
+      "id": "seed_20260514_qa_005_gold",
+      "split": "dev",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260514_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "task_complexity",
+        "task_shape",
+        "task_topology"
+      ],
+      "reason": "dev_backfill_gold"
+    },
+    {
+      "id": "seed_20260515_multi_question_seed_001_gold",
+      "split": "dev",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260515_gold_v2",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": false,
+      "changed_fields": [],
+      "reason": "dev_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_sdb_004_gold",
+      "split": "dev",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "main_intent",
+        "task_shape"
+      ],
+      "reason": "dev_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_compare_006_gold",
+      "split": "dev",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "task_complexity",
+        "task_shape",
+        "task_topology"
+      ],
+      "reason": "dev_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_summarize_006_gold",
+      "split": "dev",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "task_complexity",
+        "task_shape",
+        "modifiers"
+      ],
+      "reason": "dev_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_multi_001_gold",
+      "split": "dev",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "task_complexity"
+      ],
+      "reason": "dev_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_multi_002_gold",
+      "split": "dev",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "task_complexity"
+      ],
+      "reason": "dev_backfill_gold"
+    },
+    {
+      "id": "seed_20260515_soft_doubt_seed_002_gold",
+      "split": "dev",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260515_gold_v2",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": false,
+      "changed_fields": [],
+      "reason": "dev_backfill_gold"
+    },
+    {
+      "id": "seed_20260515_multi_question_seed_002_gold",
+      "split": "dev",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260515_gold_v2",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": false,
+      "changed_fields": [],
+      "reason": "dev_backfill_gold"
+    },
+    {
+      "id": "seed_20260515_multi_question_seed_004_gold",
+      "split": "dev",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260515_gold_v2",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": false,
+      "changed_fields": [],
+      "reason": "dev_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_sdb_007_gold",
+      "split": "dev",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "main_intent",
+        "modifiers"
+      ],
+      "reason": "dev_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_unsupported_001_gold",
+      "split": "dev",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "main_intent",
+        "modifiers"
+      ],
+      "reason": "dev_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_chat_004_gold",
+      "split": "dev",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "modifiers",
+        "context"
+      ],
+      "reason": "dev_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_sdb_008_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "task_shape",
+        "context"
+      ],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260515_ask_source_seed_005_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260515_gold_v2",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": false,
+      "changed_fields": [],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260515_ask_source_seed_006_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260515_gold_v2",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": false,
+      "changed_fields": [],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260514_sd_001_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260514_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "task_shape",
+        "modifiers",
+        "context"
+      ],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260514_sd_002_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260514_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "task_complexity",
+        "modifiers",
+        "context"
+      ],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260514_sd_003_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260514_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "task_complexity",
+        "task_shape"
+      ],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_challenge_001_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "modifiers",
+        "context"
+      ],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_challenge_004_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "task_shape",
+        "modifiers",
+        "context"
+      ],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_clarify_001_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "task_shape",
+        "modifiers",
+        "context"
+      ],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_clarify_002_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "task_shape",
+        "modifiers",
+        "context"
+      ],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_clarify_003_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "main_intent",
+        "modifiers",
+        "context"
+      ],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_sdb_005_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "modifiers",
+        "context"
+      ],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_multi_006_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "task_complexity"
+      ],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_multi_007_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "task_complexity"
+      ],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_multi_008_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "task_complexity"
+      ],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_system_003_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "main_intent",
+        "task_shape",
+        "modifiers"
+      ],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260517_system_001_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260517_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "main_intent",
+        "modifiers"
+      ],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260517_system_002_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260517_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "main_intent",
+        "modifiers"
+      ],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260517_unsupported_001_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260517_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "main_intent",
+        "modifiers"
+      ],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260517_unsupported_002_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260517_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "main_intent",
+        "modifiers"
+      ],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260517_unsupported_003_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260517_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "main_intent",
+        "modifiers"
+      ],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260515_follow_up_seed_005_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260515_gold_v2",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": false,
+      "changed_fields": [],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_compare_002_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "task_complexity"
+      ],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_compare_004_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "task_complexity"
+      ],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_compare_005_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "task_complexity"
+      ],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260515_ask_source_seed_001_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260515_gold_v2",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": false,
+      "changed_fields": [],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260515_follow_up_seed_006_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260515_gold_v2",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": false,
+      "changed_fields": [],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260515_multi_question_seed_005_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260515_gold_v2",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": false,
+      "changed_fields": [],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260515_multi_question_seed_006_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260515_gold_v2",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": false,
+      "changed_fields": [],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260514_sd_004_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260514_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "task_shape"
+      ],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260514_sd_005_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260514_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "task_shape"
+      ],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_clarify_004_gold",
+      "split": "calibration",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "main_intent"
+      ],
+      "reason": "calibration_backfill_gold"
+    },
+    {
+      "id": "frozen_generic_001",
+      "split": "heldout",
+      "status": "legacy_seed",
+      "source_dataset": "frozen_heldout_v2",
+      "label_tier": "gold",
+      "current_split": "heldout",
+      "changed": true,
+      "changed_fields": [
+        "task_shape",
+        "modifiers",
+        "context"
+      ],
+      "reason": "retain_existing_heldout"
+    },
+    {
+      "id": "frozen_generic_002",
+      "split": "heldout",
+      "status": "legacy_seed",
+      "source_dataset": "frozen_heldout_v2",
+      "label_tier": "gold",
+      "current_split": "heldout",
+      "changed": true,
+      "changed_fields": [
+        "main_intent",
+        "task_shape"
+      ],
+      "reason": "retain_existing_heldout"
+    },
+    {
+      "id": "frozen_generic_003",
+      "split": "heldout",
+      "status": "legacy_seed",
+      "source_dataset": "frozen_heldout_v2",
+      "label_tier": "gold",
+      "current_split": "heldout",
+      "changed": true,
+      "changed_fields": [
+        "main_intent",
+        "task_shape",
+        "modifiers",
+        "context"
+      ],
+      "reason": "retain_existing_heldout"
+    },
+    {
+      "id": "frozen_judgment_001",
+      "split": "heldout",
+      "status": "legacy_seed",
+      "source_dataset": "frozen_heldout_v2",
+      "label_tier": "gold",
+      "current_split": "heldout",
+      "changed": true,
+      "changed_fields": [
+        "task_shape"
+      ],
+      "reason": "retain_existing_heldout"
+    },
+    {
+      "id": "frozen_judgment_002",
+      "split": "heldout",
+      "status": "legacy_seed",
+      "source_dataset": "frozen_heldout_v2",
+      "label_tier": "gold",
+      "current_split": "heldout",
+      "changed": true,
+      "changed_fields": [
+        "task_shape"
+      ],
+      "reason": "retain_existing_heldout"
+    },
+    {
+      "id": "frozen_judgment_003",
+      "split": "heldout",
+      "status": "legacy_seed",
+      "source_dataset": "frozen_heldout_v2",
+      "label_tier": "gold",
+      "current_split": "heldout",
+      "changed": true,
+      "changed_fields": [
+        "task_shape",
+        "modifiers",
+        "context"
+      ],
+      "reason": "retain_existing_heldout"
+    },
+    {
+      "id": "frozen_soft_doubt_001",
+      "split": "heldout",
+      "status": "legacy_seed",
+      "source_dataset": "frozen_heldout_v2",
+      "label_tier": "gold",
+      "current_split": "heldout",
+      "changed": true,
+      "changed_fields": [
+        "main_intent",
+        "task_shape",
+        "modifiers",
+        "context"
+      ],
+      "reason": "retain_existing_heldout"
+    },
+    {
+      "id": "frozen_soft_doubt_002",
+      "split": "heldout",
+      "status": "legacy_seed",
+      "source_dataset": "frozen_heldout_v2",
+      "label_tier": "gold",
+      "current_split": "heldout",
+      "changed": true,
+      "changed_fields": [
+        "main_intent",
+        "task_shape",
+        "modifiers",
+        "context"
+      ],
+      "reason": "retain_existing_heldout"
+    },
+    {
+      "id": "frozen_soft_doubt_003",
+      "split": "heldout",
+      "status": "legacy_seed",
+      "source_dataset": "frozen_heldout_v2",
+      "label_tier": "gold",
+      "current_split": "heldout",
+      "changed": true,
+      "changed_fields": [
+        "task_shape",
+        "modifiers",
+        "context"
+      ],
+      "reason": "retain_existing_heldout"
+    },
+    {
+      "id": "seed_20260515_multi_question_seed_003_gold",
+      "split": "heldout",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260515_gold_v2",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": false,
+      "changed_fields": [],
+      "reason": "heldout_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_multi_003_gold",
+      "split": "heldout",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "task_complexity"
+      ],
+      "reason": "heldout_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_multi_004_gold",
+      "split": "heldout",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "task_complexity"
+      ],
+      "reason": "heldout_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_compare_003_gold",
+      "split": "heldout",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": false,
+      "changed_fields": [],
+      "reason": "heldout_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_summarize_004_gold",
+      "split": "heldout",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": false,
+      "changed_fields": [],
+      "reason": "heldout_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_summarize_005_gold",
+      "split": "heldout",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": false,
+      "changed_fields": [],
+      "reason": "heldout_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_challenge_003_gold",
+      "split": "heldout",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "task_complexity",
+        "task_shape",
+        "task_topology",
+        "modifiers",
+        "context"
+      ],
+      "reason": "heldout_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_multi_005_gold",
+      "split": "heldout",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "task_complexity"
+      ],
+      "reason": "heldout_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_system_001_gold",
+      "split": "heldout",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "main_intent",
+        "modifiers"
+      ],
+      "reason": "heldout_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_system_002_gold",
+      "split": "heldout",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "main_intent",
+        "task_shape",
+        "modifiers"
+      ],
+      "reason": "heldout_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_unsupported_002_gold",
+      "split": "heldout",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "main_intent",
+        "modifiers"
+      ],
+      "reason": "heldout_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_unsupported_004_gold",
+      "split": "heldout",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "main_intent",
+        "modifiers"
+      ],
+      "reason": "heldout_backfill_gold"
+    },
+    {
+      "id": "seed_20260515_follow_up_seed_002_gold",
+      "split": "heldout",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260515_gold_v2",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": false,
+      "changed_fields": [],
+      "reason": "heldout_backfill_gold"
+    },
+    {
+      "id": "seed_20260515_follow_up_seed_004_gold",
+      "split": "heldout",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260515_gold_v2",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": false,
+      "changed_fields": [],
+      "reason": "heldout_backfill_gold"
+    },
+    {
+      "id": "seed_20260516_compare_001_gold",
+      "split": "heldout",
+      "status": "pending_review_gold",
+      "source_dataset": "seed_query_20260516_gold_v1",
+      "label_tier": "gold",
+      "current_split": "train",
+      "changed": true,
+      "changed_fields": [
+        "task_complexity"
+      ],
+      "reason": "heldout_backfill_gold"
+    }
+  ]
+}

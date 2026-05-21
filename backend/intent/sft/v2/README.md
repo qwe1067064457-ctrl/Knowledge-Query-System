@@ -17,6 +17,7 @@
   - 定义 `V2` 多头任务的标签空间
 - `v2_data.py`
   - 从 `exports/v2` 或 `v2_auto_annotations` 读数据并导出 bundle
+  - 支持通过 `split manifest` 重写 `dev / calibration / heldout`
 - `v2_eval.py`
   - 多分类 / 多标签指标与阈值工具
 - `v2_train_multitask.py`
@@ -39,6 +40,7 @@
 ## 当前约束
 
 - `V2 auto` 数据不等于人工复核 gold
-- 当前没有独立 `V2 calibration` split
-- 因此多标签 heads 暂时默认在 `dev` 上选阈值
+- 当前仓库默认导出仍未冻结正式 `V2 calibration`
+- 现在支持通过 `split manifest` 先构造 `calibration`，训练时可显式使用 `--threshold-source calibration`
+- 若 bundle 没有 `calibration`，多标签 heads 仍默认在 `dev` 上选阈值
 - 这只适合作为 `V2` 训练骨架，不适合作为最终评估协议

@@ -40,3 +40,27 @@
 - 当前还没有独立 `V2 calibration` split
 - 多标签 heads 目前临时用 `dev` 选阈值
 - 这条线现在适合做下一轮原型训练，不适合直接当最终评估协议
+
+## 20260519 补样本产物
+
+- `backfill_20260519/`
+  - 自动生成的 `V2` 补样本包
+  - 包含 `split_manifest.json`
+  - 包含 `review_candidates.jsonl`
+  - 包含 `weak_train_candidates.jsonl`
+- `benchmark_backfill_20260519/`
+  - 面向 benchmark baseline 的补样本包
+  - 在 `split_manifest.json` 之外，额外包含 `promotion_candidates.jsonl`
+  - 以及 `synthetic_candidates.jsonl`
+  - 用于补 `staged / parallel_subtasks` 等当前 gold 池缺口
+- `benchmark_ready_20260519/`
+  - benchmark backfill 的自动冻结产物
+  - 包含 `gold_manifest.json`
+  - 包含 `expanded_manifest.json`
+  - 用于先跑 pre-benchmark 训练与评估
+
+当前定位：
+
+- 先补 `dev / calibration / heldout` 的候选分配
+- 不直接宣布这些候选已经是 reviewed gold
+- 允许训练线先用 manifest 跑 provisional prototype

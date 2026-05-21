@@ -1,0 +1,32 @@
+{
+  "version": "2026-05-19",
+  "task": "v2_benchmark_auto_freeze",
+  "source_backfill_dir": "/Users/genius/.codex/worktrees/653f/Skill-First-Hybrid-RAG/evaluation/intent/v2_sft/benchmark_backfill_20260519",
+  "gold_only": {
+    "entries": 132,
+    "dev": 42,
+    "calibration": 48,
+    "heldout": 42
+  },
+  "expanded": {
+    "entries": 194,
+    "dev": 49,
+    "calibration": 90,
+    "heldout": 55
+  },
+  "decision_counts": {
+    "accept_gold_like": 132,
+    "accept_auto_promotion": 27,
+    "accept_synthetic_gap_fill": 35
+  },
+  "boundary": {
+    "gold_only_is_higher_confidence": true,
+    "expanded_contains_auto_and_synthetic": true,
+    "formal_human_review_still_required_for_official_benchmark": true
+  },
+  "helper_files": {
+    "topology_export": "/Users/genius/.codex/worktrees/653f/Skill-First-Hybrid-RAG/evaluation/intent/exports/v2/intent_training_v2_topology_20260518.jsonl",
+    "auto_export": "/Users/genius/.codex/worktrees/653f/Skill-First-Hybrid-RAG/evaluation/intent/exports/v2/intent_training_v2_auto_20260518.jsonl",
+    "expanded_override_rows": "expanded_override_rows.jsonl"
+  }
+}

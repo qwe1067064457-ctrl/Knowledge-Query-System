@@ -45,7 +45,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument("--gold-weight", type=float, default=1.0)
     parser.add_argument("--silver-weight", type=float, default=0.4)
-    parser.add_argument("--threshold-source", choices=("dev", "fixed"), default="dev")
+    parser.add_argument("--threshold-source", choices=("dev", "calibration", "fixed"), default="dev")
     parser.add_argument("--dry-run", action="store_true")
     return parser.parse_args()
 
@@ -145,6 +145,14 @@ def run_training(bundle: dict[str, Any], args: argparse.Namespace) -> tuple[dict
         shuffle=False,
         torch=torch,
     )
+    calibration_loader = build_dataloader(
+        bundle["splits"].get("calibration", []),
+        tokenizer=tokenizer,
+        batch_size=args.batch_size,
+        max_length=args.max_length,
+        shuffle=False,
+        torch=torch,
+    )
     heldout_loader = build_dataloader(
         bundle["splits"]["heldout"],
         tokenizer=tokenizer,
@@ -185,19 +193,28 @@ def run_training(bundle: dict[str, Any], args: argparse.Namespace) -> tuple[dict
         "dev": predict_heads(model=model, loader=dev_loader, device=device, torch=torch),
         "heldout": predict_heads(model=model, loader=heldout_loader, device=device, torch=torch),
     }
+    if bundle["splits"].get("calibration"):
+        predictions_by_split["calibration"] = predict_heads(model=model, loader=calibration_loader, device=device, torch=torch)
 
     thresholds = fixed_thresholds
-    if args.threshold_source == "dev":
+    threshold_split = "dev"
+    if args.threshold_source == "calibration" and "calibration" in predictions_by_split:
+        threshold_split = "calibration"
+    elif args.threshold_source == "calibration":
+        threshold_split = "dev"
+    elif args.threshold_source == "dev":
+        threshold_split = "dev"
+    if args.threshold_source in {"dev", "calibration"}:
         thresholds = {
             head: choose_multilabel_thresholds(
-                probabilities=predictions_by_split["dev"].multilabel_probabilities[head],
-                gold=predictions_by_split["dev"].gold_multilabel[head],
+                probabilities=predictions_by_split[threshold_split].multilabel_probabilities[head],
+                gold=predictions_by_split[threshold_split].gold_multilabel[head],
                 label_names=list(MULTILABEL_HEADS[head]),
             )
             for head in MULTILABEL_HEADS
         }
 
-    metrics_by_split: dict[str, Any] = {"history": history}
+    metrics_by_split: dict[str, Any] = {"history": history, "threshold_split": threshold_split}
     for split, predictions in predictions_by_split.items():
         metrics_by_split[split] = evaluate_predictions(predictions, thresholds=thresholds)
 

@@ -1,0 +1,33 @@
+{
+  "version": "2026-05-19",
+  "task": "v2_sample_backfill",
+  "targets": {
+    "dev": 30,
+    "calibration": 32,
+    "heldout": 24
+  },
+  "input_files": {
+    "topology_export": "/Users/genius/.codex/worktrees/653f/Skill-First-Hybrid-RAG/evaluation/intent/exports/v2/intent_training_v2_topology_20260518.jsonl",
+    "auto_export": "/Users/genius/.codex/worktrees/653f/Skill-First-Hybrid-RAG/evaluation/intent/exports/v2/intent_training_v2_auto_20260518.jsonl"
+  },
+  "source_snapshot": {
+    "rows": 1381,
+    "existing_dev": 14,
+    "existing_heldout": 9,
+    "gold_train_pool": 109,
+    "silver_changed_train_pool": 27
+  },
+  "proposed_splits": {
+    "dev": 30,
+    "calibration": 32,
+    "heldout": 24
+  },
+  "review_queue": {
+    "eval_review": 63,
+    "weak_train": 27
+  },
+  "status_counts": {
+    "legacy_seed": 23,
+    "pending_review_gold": 63
+  }
+}
