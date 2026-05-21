@@ -1,0 +1,45 @@
+{
+  "version": "1.1.0",
+  "asset_group": "law",
+  "scope": "group_scoped",
+  "description": "Law-oriented intent assets for legal judgment, source, and process style questions.",
+  "last_updated": "2026-05-21",
+  "assets": {
+    "domain_qa_patterns": [
+      "劳动合同|试用期|合同|刑事拘留|电子合同|免责条款|医保|法院|法条|司法解释"
+    ],
+    "domain_actor_patterns": [
+      "公司|医院|医生|法院|平台|员工"
+    ],
+    "domain_hint_tokens": [
+      "合同",
+      "责任",
+      "劳动合同",
+      "法院",
+      "法条",
+      "司法解释",
+      "刑事拘留",
+      "电子合同"
+    ],
+    "self_anchor_tokens": [
+      "合同",
+      "责任",
+      "赔偿",
+      "公司",
+      "条款",
+      "效力"
+    ],
+    "judgment_anchor_patterns": [
+      "这样|这种|是否|合法|违法|责任|效力|风险"
+    ],
+    "missing_history_block_patterns": [
+      "定义|怎么处理|如何计算|是否|赔多少"
+    ],
+    "judgment_clarify_exempt_patterns": [
+      "电子合同|免责条款|刑事拘留|劳动合同"
+    ],
+    "complex_qa_anchor_patterns": [
+      "举证责任|司法解释|因果关系|关键事实|争议点|请按步骤|第一|第二|第三"
+    ]
+  }
+}

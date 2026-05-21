@@ -14,6 +14,8 @@ router = APIRouter()
 
 class CreateSessionRequest(BaseModel):
     title: str = "新会话"
+    active_group_id: str = "general"
+    allowed_group_ids: list[str] | None = None
 
 
 class RenameSessionRequest(BaseModel):
@@ -35,9 +37,21 @@ async def list_sessions() -> list[dict[str, Any]]:
 @router.post("/sessions")
 async def create_session(payload: CreateSessionRequest) -> dict[str, Any]:
     session_manager = agent_manager.session_manager
-    if session_manager is None:
+    raw_session_manager = agent_manager.raw_session_manager
+    if session_manager is None or raw_session_manager is None:
         raise HTTPException(status_code=503, detail="Agent manager is not initialized")
-    return session_manager.create_session(title=payload.title)
+
+    record = session_manager.create_session(title=payload.title)
+    session = raw_session_manager.get_session(record["id"], "general", "default")
+    if session is not None:
+        session.metadata = {
+            **(session.metadata or {}),
+            "title": payload.title,
+            "active_group_id": payload.active_group_id,
+            "allowed_group_ids": payload.allowed_group_ids or [payload.active_group_id],
+        }
+        raw_session_manager._write_meta("general", "default", session)
+    return record
 
 
 @router.put("/sessions/{session_id}")

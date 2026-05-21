@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import Any
 
-from intent.types import ResolvedTask, TaskTopology
+from intent.schema.intent_types import ResolvedTask, TaskTopology
 
 
 VALID_TOPOLOGIES: tuple[TaskTopology, ...] = (

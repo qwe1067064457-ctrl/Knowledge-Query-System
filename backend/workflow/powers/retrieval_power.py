@@ -5,6 +5,8 @@ from dataclasses import dataclass
 from typing import Any
 
 from knowledge_retrieval.hybrid_retriever import hybrid_retriever
+from knowledge_retrieval.types import OrchestratedRetrievalResult
+from workflow.helpers.retrieval_repair_helper import RetrievalRepairHelper
 from workflow.types import EvidenceBundle, EvidenceItem, QueryUnit, RetrievalQualityAssessment
 
 
@@ -31,8 +33,9 @@ class RetrievalQuery:
 
 
 class RetrievalPower:
-    def __init__(self, retriever: Any | None = None) -> None:
+    def __init__(self, retriever: Any | None = None, repair_helper: RetrievalRepairHelper | None = None) -> None:
         self.retriever = retriever or hybrid_retriever
+        self.repair_helper = repair_helper or RetrievalRepairHelper()
 
     def build_raw_query(self, text: str, *, top_k: int = 4) -> RetrievalQuery:
         return RetrievalQuery(text=text.strip(), top_k=top_k, mode="raw")
@@ -72,27 +75,39 @@ class RetrievalPower:
         quality_scores: list[float] = []
 
         for unit in query_units:
-            result = self.retriever.retrieve(unit.text, top_k=top_k)
-            evidences = [*result.vector_evidences, *result.bm25_evidences]
-            evidence_items = [
-                EvidenceItem(
-                    evidence_id=f"{index}:{item.source_path}:{item.locator}",
-                    source_path=item.source_path,
-                    source_type=item.source_type,
-                    locator=item.locator,
-                    snippet=item.snippet,
-                    channel=item.channel,
-                    score=item.score,
-                    query_unit_ids=(unit.unit_id,),
-                    parent_id=item.parent_id,
-                )
-                for index, item in enumerate(evidences, start=1)
-            ]
-            quality = self.assess_retrieval_quality(
-                evidence_items,
-                target_refs=unit.target_refs,
-                target_top_k=top_k,
+            initial_run = self._run_single_query(unit=unit, query_text=unit.text, top_k=top_k)
+            evidence_items = initial_run["evidence_items"]
+            quality = initial_run["quality"]
+            selected_query = initial_run["query_text"]
+            selected_mode = initial_run["mode"]
+            pre_quality = quality.to_dict()
+            repair_plan = self.repair_helper.build_repair_plan(
+                query_unit=unit,
+                quality=quality,
+                current_mode="raw" if unit.origin == "primary" else unit.origin,
             )
+            repair_applied = False
+            repaired_query: str | None = None
+            repaired_mode: str | None = None
+            post_quality = pre_quality
+
+            if repair_plan.get("enabled"):
+                repaired_query = str(repair_plan.get("next_query_text") or unit.text)
+                repaired_mode = str(repair_plan.get("next_mode") or selected_mode)
+                repaired_run = self._run_single_query(
+                    unit=unit,
+                    query_text=repaired_query,
+                    top_k=int(repair_plan.get("top_k") or top_k),
+                    mode=repaired_mode,
+                )
+                post_quality = repaired_run["quality"].to_dict()
+                if self._should_use_repaired_run(initial_run=initial_run, repaired_run=repaired_run):
+                    evidence_items = repaired_run["evidence_items"]
+                    quality = repaired_run["quality"]
+                    selected_query = repaired_run["query_text"]
+                    selected_mode = repaired_run["mode"]
+                    repair_applied = True
+
             quality_scores.append(quality.weighted_score)
 
             for evidence in evidence_items:
@@ -122,13 +137,30 @@ class RetrievalPower:
                     "origin": unit.origin,
                     "quality": quality.to_dict(),
                     "evidence_count": len(evidence_items),
+                    "repair_plan": repair_plan,
+                    "repair_applied": repair_applied,
+                    "repair_strategy": repair_plan.get("strategy", "none"),
+                    "selected_query": selected_query,
+                    "selected_mode": selected_mode,
+                    "repaired_query": repaired_query,
+                    "repaired_mode": repaired_mode,
+                    "pre_quality": pre_quality,
+                    "post_quality": post_quality,
                 }
             )
 
         avg_quality = sum(quality_scores) / len(quality_scores) if quality_scores else 0.0
         quality_summary = {
             "average_weighted_score": round(avg_quality, 4),
+            "status": "good" if avg_quality >= 0.75 else "weak" if avg_quality >= 0.45 else "bad",
             "query_units": len(query_units),
+            "merged_evidence_count": len(merged),
+            "source_ref_count": len(source_refs),
+            "repairable_units": sum(
+                1 for item in unit_results if item.get("repair_plan", {}).get("enabled")
+            ),
+            "repaired_units": sum(1 for item in unit_results if item.get("repair_applied")),
+            "repair_strategies": [item.get("repair_strategy", "none") for item in unit_results],
         }
         return EvidenceBundle(
             query_unit_results=tuple(unit_results),
@@ -137,6 +169,90 @@ class RetrievalPower:
             coverage_summary={"query_units": len(query_units), "sources": len(source_refs)},
             quality_summary=quality_summary,
             missing_evidence_notes=() if avg_quality >= 0.45 else ("retrieval_quality_weak",),
+        )
+
+    def build_bundle_from_orchestrated_result(
+        self,
+        result: OrchestratedRetrievalResult,
+        *,
+        query: str,
+    ) -> EvidenceBundle:
+        query_unit = QueryUnit(unit_id="primary", text=query, origin="primary")
+        evidence_items = [
+            EvidenceItem(
+                evidence_id=f"{index}:{item.source_path}:{item.locator}",
+                source_path=item.source_path,
+                source_type=item.source_type,
+                locator=item.locator,
+                snippet=item.snippet,
+                channel=item.channel,
+                score=item.score,
+                query_unit_ids=(query_unit.unit_id,),
+                parent_id=item.parent_id,
+            )
+            for index, item in enumerate(result.evidences, start=1)
+        ]
+        quality = self.assess_retrieval_quality(evidence_items, target_top_k=max(1, len(evidence_items)))
+        source_refs = tuple(dict.fromkeys(item.source_path for item in evidence_items))
+        return EvidenceBundle(
+            query_unit_results=(
+                {
+                    "unit_id": query_unit.unit_id,
+                    "query": query,
+                    "origin": query_unit.origin,
+                    "quality": quality.to_dict(),
+                    "evidence_count": len(evidence_items),
+                    "retrieval_status": result.status,
+                    "fallback_used": result.fallback_used,
+                    "repair_plan": self.repair_helper.build_repair_plan(
+                    query_unit=query_unit,
+                    quality=quality,
+                    current_mode="raw" if query_unit.origin == "primary" else query_unit.origin,
+                ),
+                    "repair_applied": False,
+                    "repair_strategy": self.repair_helper.build_repair_plan(
+                        query_unit=query_unit,
+                        quality=quality,
+                        current_mode="raw" if query_unit.origin == "primary" else query_unit.origin,
+                    ).get("strategy", "none"),
+                    "selected_query": query,
+                    "selected_mode": "raw",
+                    "repaired_query": None,
+                    "repaired_mode": None,
+                    "pre_quality": quality.to_dict(),
+                    "post_quality": quality.to_dict(),
+                },
+            ),
+            merged_evidence_items=tuple(evidence_items),
+            source_refs=source_refs,
+            coverage_summary={
+                "query_units": 1,
+                "sources": len(source_refs),
+                "retrieval_status": result.status,
+            },
+            quality_summary={
+                "average_weighted_score": quality.weighted_score,
+                "status": quality.status,
+                "fallback_used": result.fallback_used,
+                "merged_evidence_count": len(evidence_items),
+                "source_ref_count": len(source_refs),
+                "repairable_units": 1
+                if self.repair_helper.build_repair_plan(
+                    query_unit=query_unit,
+                    quality=quality,
+                    current_mode="raw" if query_unit.origin == "primary" else query_unit.origin,
+                ).get("enabled")
+                else 0,
+                "repaired_units": 0,
+                "repair_strategies": [
+                    self.repair_helper.build_repair_plan(
+                        query_unit=query_unit,
+                        quality=quality,
+                        current_mode="raw" if query_unit.origin == "primary" else query_unit.origin,
+                    ).get("strategy", "none")
+                ],
+            },
+            missing_evidence_notes=() if result.status == "success" else (result.reason or "knowledge_retrieval_incomplete",),
         )
 
     def assess_retrieval_quality(
@@ -182,6 +298,53 @@ class RetrievalPower:
             should_repair=should_repair,
             **metrics,
         )
+
+    def _run_single_query(
+        self,
+        *,
+        unit: QueryUnit,
+        query_text: str,
+        top_k: int,
+        mode: str = "raw",
+    ) -> dict[str, Any]:
+        result = self.retriever.retrieve(query_text, top_k=top_k)
+        evidences = [*result.vector_evidences, *result.bm25_evidences]
+        evidence_items = [
+            EvidenceItem(
+                evidence_id=f"{index}:{item.source_path}:{item.locator}",
+                source_path=item.source_path,
+                source_type=item.source_type,
+                locator=item.locator,
+                snippet=item.snippet,
+                channel=item.channel,
+                score=item.score,
+                query_unit_ids=(unit.unit_id,),
+                parent_id=item.parent_id,
+            )
+            for index, item in enumerate(evidences, start=1)
+        ]
+        quality = self.assess_retrieval_quality(
+            evidence_items,
+            target_refs=unit.target_refs,
+            target_top_k=top_k,
+        )
+        return {
+            "query_text": query_text,
+            "mode": mode,
+            "evidence_items": evidence_items,
+            "quality": quality,
+        }
+
+    def _should_use_repaired_run(self, *, initial_run: dict[str, Any], repaired_run: dict[str, Any]) -> bool:
+        initial_quality: RetrievalQualityAssessment = initial_run["quality"]
+        repaired_quality: RetrievalQualityAssessment = repaired_run["quality"]
+        if repaired_quality.weighted_score > initial_quality.weighted_score:
+            return True
+        if repaired_quality.status == "good" and initial_quality.status != "good":
+            return True
+        if repaired_quality.status == initial_quality.status and len(repaired_run["evidence_items"]) > len(initial_run["evidence_items"]):
+            return True
+        return False
 
     def _compute_target_overlap(self, evidence_items: list[EvidenceItem], target_refs: tuple[str, ...]) -> float:
         if not target_refs:

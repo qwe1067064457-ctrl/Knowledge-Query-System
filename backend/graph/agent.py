@@ -2,6 +2,8 @@ from __future__ import annotations
 
 import json
 import re
+import time
+from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
@@ -17,13 +19,16 @@ from config import get_settings, runtime_config
 from graph.memory_indexer import memory_indexer
 from graph.prompt_builder import build_system_prompt
 from intent import classify_intent
+from intent.loaders import load_group_intent_rule_assets
 from knowledge_retrieval import knowledge_orchestrator
 from memory_system import MemorySystem
 from tools import get_all_tools
 from workflow import WorkflowDispatcher, WorkflowPlan, build_workflow_plan
+from workflow.powers.retrieval_power import RetrievalPower
 from workflow.runners.base import RouteExecutionRequest
 
 # 导入新的 context 模块
+from context.registry_types import ContextRegistryEntry
 from context.session_manager import SessionManager
 from context.context_manager import ContextManager
 from context.legacy_adapter import DEFAULT_AGENT, DEFAULT_GROUP, LegacySessionManagerAdapter
@@ -57,6 +62,7 @@ class AgentManager:
         self.memory_system: MemorySystem | None = None
         self.context_manager: ContextManager | None = None
         self.workflow_dispatcher = WorkflowDispatcher()
+        self.retrieval_power = RetrievalPower()
         self.tools = []
 
     def initialize(self, base_dir: Path) -> None:
@@ -403,6 +409,47 @@ class AgentManager:
             )
         return instructions
 
+    def _build_execution_summary_instructions(self, payload) -> list[str]:
+        instructions: list[str] = []
+        context_summary = payload.context_summary_view()
+        plan_summary = payload.plan_summary_view()
+        review_summary = payload.review_summary_view()
+        evidence_summary = payload.evidence_summary_view()
+
+        if context_summary.binding_summary != "not_applicable":
+            instructions.append(
+                f"Current binding summary: {context_summary.binding_summary}. Keep the answer anchored to the resolved target context."
+            )
+        if plan_summary.planning_mode != "not_applicable":
+            instructions.append(
+                f"Current planning summary: mode={plan_summary.planning_mode}, steps={plan_summary.step_count}, checkpoints={plan_summary.checkpoint_count}. Preserve this execution organization in the answer."
+            )
+            if plan_summary.fallback_used:
+                instructions.append(
+                    "Planning fell back to a conservative structure. Keep the answer compact and avoid over-claiming hidden execution detail."
+                )
+        if review_summary.review_mode != "not_applicable":
+            instructions.append(
+                f"Current review summary: mode={review_summary.review_mode}, scope={review_summary.review_scope}, confidence={review_summary.review_confidence}, status={review_summary.status_summary}."
+            )
+            if review_summary.needs_more_evidence_target_count:
+                instructions.append(
+                    f"There are still {review_summary.needs_more_evidence_target_count} target(s) needing more evidence. Acknowledge uncertainty explicitly."
+                )
+            if review_summary.follow_up_retrieval_attempted:
+                instructions.append(
+                    "A follow-up retrieval was attempted during review. Reflect any remaining uncertainty rather than implying the review was fully definitive."
+                )
+        if evidence_summary.retrieval_quality_status != "not_applicable":
+            instructions.append(
+                f"Current evidence summary: quality={evidence_summary.retrieval_quality_status}, evidences={evidence_summary.merged_evidence_count}, sources={evidence_summary.source_ref_count}."
+            )
+            if evidence_summary.missing_evidence:
+                instructions.append(
+                    "The evidence bundle is still incomplete. Do not overstate certainty and call out missing support when needed."
+                )
+        return instructions
+
     def _build_reject_response(self, plan: WorkflowPlan) -> str:
         if plan.handling_mode == "unsupported":
             return "这个请求目前不适合进入正常执行流。我不能直接协助这类操作，但如果你愿意，我可以改为帮你分析风险、约束条件，或整理一个更安全的处理方案。"
@@ -424,6 +471,226 @@ class AgentManager:
             allowed_group_ids = (active_group_id,)
         return active_group_id, allowed_group_ids
 
+    def _build_registry_entries_from_execution_payload(
+        self,
+        *,
+        payload,
+        session_id: str,
+        tenant_id: str,
+        group_id: str,
+        message: str,
+    ) -> list[ContextRegistryEntry]:
+        turn_id = f"turn_{int(time.time() * 1000)}"
+        summary_metadata = self._build_execution_summary_metadata(payload)
+        entries: list[ContextRegistryEntry] = [
+            ContextRegistryEntry(
+                object_id=f"{turn_id}:question",
+                object_type="question_object",
+                tenant_id=tenant_id,
+                group_id=group_id,
+                session_id=session_id,
+                source_turn_id=turn_id,
+                content=message,
+                refs=(payload.route, payload.handling_mode),
+                salience_score=1.0,
+                source_power="workflow",
+                metadata={
+                    "route": payload.route,
+                    "handling_mode": payload.handling_mode,
+                    **summary_metadata,
+                },
+            )
+        ]
+
+        if payload.evidence_bundle:
+            for index, item in enumerate(payload.evidence_bundle.merged_evidence_items, start=1):
+                entries.append(
+                    ContextRegistryEntry(
+                        object_id=f"{turn_id}:evidence:{index}",
+                        object_type="evidence_ref",
+                        tenant_id=tenant_id,
+                        group_id=group_id,
+                        session_id=session_id,
+                        source_turn_id=turn_id,
+                        content=item.snippet,
+                        refs=(item.source_path, item.locator, *item.query_unit_ids),
+                        salience_score=float(item.score or 0.0),
+                        source_power="retrieval_power",
+                        metadata={
+                            "source_type": item.source_type,
+                            "channel": item.channel,
+                            "query_unit_ids": list(item.query_unit_ids),
+                            **summary_metadata,
+                        },
+                    )
+                )
+
+        binding = payload.context_bundle.get("binding", {})
+        for index, target in enumerate(binding.get("bound_targets", []), start=1):
+            object_type = str(target.get("object_type") or "question_object")
+            if object_type not in {"claim", "evidence_ref", "retrieval_result_ref", "comparison_target", "case_or_scenario", "question_object"}:
+                object_type = "question_object"
+            entries.append(
+                ContextRegistryEntry(
+                    object_id=f"{turn_id}:bound:{index}",
+                    object_type=object_type,
+                    tenant_id=tenant_id,
+                    group_id=group_id,
+                    session_id=session_id,
+                    source_turn_id=turn_id,
+                    content=str(target.get("content", "")),
+                    refs=tuple(str(ref) for ref in target.get("refs", ()) or (str(target.get("object_id", "")),)),
+                    salience_score=0.9,
+                    source_power="context_binding_power",
+                    metadata={**dict(target), **summary_metadata},
+                )
+            )
+
+        for index, unit in enumerate(payload.plan_bundle.get("comparison_units", []), start=1):
+            entries.append(
+                ContextRegistryEntry(
+                    object_id=f"{turn_id}:comparison:{index}",
+                    object_type="comparison_target",
+                    tenant_id=tenant_id,
+                    group_id=group_id,
+                    session_id=session_id,
+                    source_turn_id=turn_id,
+                    content=str(unit.get("label") or unit.get("content") or ""),
+                    refs=(str(unit.get("unit_id", "")),),
+                    salience_score=0.8,
+                    source_power="planning_power",
+                    metadata={**dict(unit), **summary_metadata},
+                )
+            )
+
+        for index, unit in enumerate(payload.plan_bundle.get("query_units", []), start=1):
+            entries.append(
+                ContextRegistryEntry(
+                    object_id=f"{turn_id}:query-unit:{index}",
+                    object_type="question_object",
+                    tenant_id=tenant_id,
+                    group_id=group_id,
+                    session_id=session_id,
+                    source_turn_id=turn_id,
+                    content=str(unit.get("text", "")),
+                    refs=(str(unit.get("unit_id", "")), str(unit.get("origin", ""))),
+                    salience_score=0.75,
+                    source_power="decomposition_power",
+                    metadata={**dict(unit), **summary_metadata},
+                )
+            )
+
+        for index, finding in enumerate(payload.review_bundle.get("review_findings", []), start=1):
+            entries.append(
+                ContextRegistryEntry(
+                    object_id=f"{turn_id}:claim:{index}",
+                    object_type="claim",
+                    tenant_id=tenant_id,
+                    group_id=group_id,
+                    session_id=session_id,
+                    source_turn_id=turn_id,
+                    content=str(finding.get("reason", "")),
+                    refs=(str(finding.get("target_ref", "")),),
+                    salience_score=1.0,
+                    source_power="challenge_power",
+                    metadata={**dict(finding), **summary_metadata},
+                )
+            )
+
+        return entries[:10]
+
+    def _build_execution_summary_metadata(self, payload) -> dict[str, Any]:
+        evidence_summary: dict[str, Any] = {}
+        if getattr(payload, "evidence_bundle", None) is not None:
+            evidence_summary = dict(payload.evidence_bundle.to_dict().get("evidence_summary", {}))
+        plan_summary = {
+            "planning_mode": "not_applicable",
+            "step_count": 0,
+            "checkpoint_count": 0,
+            "comparison_unit_count": 0,
+            "bound_target_ref_count": 0,
+            "refined": False,
+            "fallback_used": False,
+            "fallback_reason": [],
+        }
+        plan_summary.update(dict(payload.plan_bundle.get("plan_summary", {})))
+        review_summary = {
+            "target_count": 0,
+            "matched_target_count": 0,
+            "matched_target_refs": [],
+            "unsupported_target_refs": [],
+            "needs_more_evidence_targets": [],
+            "status_summary": "not_applicable",
+            "review_mode": "not_applicable",
+            "review_confidence": "not_applicable",
+            "review_scope": "not_applicable",
+            "follow_up_retrieval_attempted": False,
+            "follow_up_retrieval_improved": False,
+            "follow_up_retrieval_sources": [],
+            "follow_up_retrieval_retrieved_evidence_count": 0,
+        }
+        review_summary.update(dict(payload.review_bundle.get("review_summary", {})))
+
+        return {
+            "knowledge_scope_status": str(getattr(payload, "knowledge_scope_status", "resolved")),
+            "binding_summary": str(payload.context_bundle.get("binding_summary", "not_applicable")),
+            "plan_summary": plan_summary,
+            "review_summary": review_summary,
+            "evidence_summary": evidence_summary,
+        }
+
+    def _persist_execution_payload(
+        self,
+        *,
+        payload,
+        session_id: str | None,
+        group_id: str,
+        message: str,
+    ) -> None:
+        if session_id is None or self.context_manager is None or self.raw_session_manager is None:
+            return
+
+        session = self.raw_session_manager.get_session(session_id, DEFAULT_GROUP, DEFAULT_AGENT)
+        tenant_id = session.user_id if session is not None else "default"
+        entries = self._build_registry_entries_from_execution_payload(
+            payload=payload,
+            session_id=session_id,
+            tenant_id=tenant_id,
+            group_id=group_id,
+            message=message,
+        )
+        if not entries:
+            return
+
+        self.context_manager.append_registry_entries(
+            tenant_id=tenant_id,
+            group_id=group_id,
+            agent_id=DEFAULT_AGENT,
+            session_id=session_id,
+            entries=entries,
+        )
+
+    def _load_recent_registry_entries(
+        self,
+        *,
+        session_id: str | None,
+        group_id: str,
+        limit: int = 20,
+    ) -> list[dict[str, Any]]:
+        if session_id is None or self.context_manager is None or self.raw_session_manager is None:
+            return []
+
+        session = self.raw_session_manager.get_session(session_id, DEFAULT_GROUP, DEFAULT_AGENT)
+        tenant_id = session.user_id if session is not None else "default"
+        entries = self.context_manager.list_recent_registry_entries(
+            tenant_id=tenant_id,
+            group_id=group_id,
+            agent_id=DEFAULT_AGENT,
+            session_id=session_id,
+            limit=limit,
+        )
+        return [entry.to_dict() for entry in entries]
+
     async def astream(
         self,
         message: str,
@@ -435,8 +702,13 @@ class AgentManager:
 
         rag_mode = runtime_config.get_rag_mode()
         messages = await self._prepare_messages_for_request(session_id, message, history)
-        intent_analysis = classify_intent(message, history)
         active_group_id, allowed_group_ids = self._load_session_scope(session_id)
+        intent_assets = load_group_intent_rule_assets(self.base_dir / "storage", active_group_id)
+        intent_analysis = classify_intent(message, history, rule_assets=intent_assets)
+        registry_entries = self._load_recent_registry_entries(
+            session_id=session_id,
+            group_id=active_group_id,
+        )
         workflow_plan = build_workflow_plan(
             intent_analysis,
             is_knowledge_query=self._is_knowledge_query(message),
@@ -449,7 +721,14 @@ class AgentManager:
                 message=message,
                 messages=messages,
                 is_knowledge_query=self._is_knowledge_query(message),
-                context={"session_id": session_id},
+                context={
+                    "session_id": session_id,
+                    "active_group_id": active_group_id,
+                    "allowed_group_ids": allowed_group_ids,
+                    "registry_entries": registry_entries,
+                    "recent_power": registry_entries[-1].get("source_power") if registry_entries else None,
+                    "recent_object_type": registry_entries[-1].get("object_type") if registry_entries else None,
+                },
             ),
         )
 
@@ -467,6 +746,7 @@ class AgentManager:
                 )
 
         workflow_instructions = list(execution_payload.instructions) or self._build_workflow_instructions(workflow_plan)
+        workflow_instructions.extend(self._build_execution_summary_instructions(execution_payload))
 
         if execution_payload.action == "reject":
             async for event in self._astream_model_answer(
@@ -474,6 +754,12 @@ class AgentManager:
                 extra_instructions=workflow_instructions + [self._build_reject_response(workflow_plan)],
             ):
                 yield event
+            self._persist_execution_payload(
+                payload=execution_payload,
+                session_id=session_id,
+                group_id=active_group_id,
+                message=message,
+            )
             return
 
         if execution_payload.action == "respond":
@@ -482,6 +768,12 @@ class AgentManager:
                 extra_instructions=workflow_instructions,
             ):
                 yield event
+            self._persist_execution_payload(
+                payload=execution_payload,
+                session_id=session_id,
+                group_id=active_group_id,
+                message=message,
+            )
             return
 
         if execution_payload.action == "knowledge_orchestrator":
@@ -502,6 +794,13 @@ class AgentManager:
                         "content": self._format_knowledge_context(knowledge_result),
                     },
                 )
+                execution_payload = replace(
+                    execution_payload,
+                    evidence_bundle=self.retrieval_power.build_bundle_from_orchestrated_result(
+                        knowledge_result,
+                        query=message,
+                    ),
+                )
 
             async for event in self._astream_model_answer(
                 messages,
@@ -509,6 +808,12 @@ class AgentManager:
                 + (self._knowledge_answer_instructions(knowledge_result) if knowledge_result else []),
             ):
                 yield event
+            self._persist_execution_payload(
+                payload=execution_payload,
+                session_id=session_id,
+                group_id=active_group_id,
+                message=message,
+            )
             return
 
         async for event in self._astream_agent_answer(
@@ -516,6 +821,12 @@ class AgentManager:
             extra_instructions=workflow_instructions,
         ):
             yield event
+        self._persist_execution_payload(
+            payload=execution_payload,
+            session_id=session_id,
+            group_id=active_group_id,
+            message=message,
+        )
 
     async def generate_title(self, first_user_message: str) -> str:
         prompt = (

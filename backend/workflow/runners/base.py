@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import dataclass, field
 from typing import Any
 
-from workflow.types import ExecutionPayload, WorkflowPlan
+from workflow.types import ContextBundle, ExecutionPayload, PlanBundle, ReviewBundle, WorkflowPlan
 
 
 @dataclass
@@ -69,10 +69,74 @@ class BaseRouteRunner:
             enabled_powers=plan.enabled_powers,
             instructions=tuple(instructions),
             knowledge_scope_status=plan.knowledge_scope_status,
-            context_bundle={"trace": plan.trace.to_dict()},
+            context_bundle=self._default_context_bundle(plan),
+            plan_bundle=self._default_plan_bundle(),
+            review_bundle=self._default_review_bundle(),
             answer_constraints={
                 "cite_sources": plan.cite_sources,
                 "use_context": plan.use_context,
             },
             notes=plan.notes,
         )
+
+    def _default_context_bundle(self, plan: WorkflowPlan) -> dict[str, Any]:
+        return self._default_context_bundle_obj(plan).to_dict()
+
+    def _default_context_bundle_obj(self, plan: WorkflowPlan) -> ContextBundle:
+        return ContextBundle(
+            trace=plan.trace.to_dict(),
+            binding=None,
+            binding_summary="not_applicable",
+            candidate_count=0,
+            query_units=(),
+        )
+
+    def _default_plan_bundle(self) -> dict[str, Any]:
+        return self._default_plan_bundle_obj().to_dict()
+
+    def _default_plan_bundle_obj(self) -> PlanBundle:
+        return PlanBundle()
+
+    def _default_review_bundle(self) -> dict[str, Any]:
+        return self._default_review_bundle_obj().to_dict()
+
+    def _default_review_bundle_obj(self) -> ReviewBundle:
+        return ReviewBundle()
+
+    def _normalize_context_bundle(self, plan: WorkflowPlan, context_bundle: dict[str, Any] | None) -> dict[str, Any]:
+        return self._normalize_context_bundle_obj(plan, context_bundle).to_dict()
+
+    def _normalize_context_bundle_obj(
+        self,
+        plan: WorkflowPlan,
+        context_bundle: ContextBundle | dict[str, Any] | None,
+    ) -> ContextBundle:
+        if isinstance(context_bundle, ContextBundle):
+            return context_bundle
+        return ContextBundle.from_dict(context_bundle, default_trace=plan.trace.to_dict())
+
+    def _normalize_plan_bundle(self, plan_bundle: dict[str, Any] | None) -> dict[str, Any]:
+        return self._normalize_plan_bundle_obj(plan_bundle).to_dict()
+
+    def _normalize_plan_bundle_obj(self, plan_bundle: PlanBundle | dict[str, Any] | None) -> PlanBundle:
+        if isinstance(plan_bundle, PlanBundle):
+            return plan_bundle
+        return PlanBundle.from_dict(plan_bundle)
+
+    def _normalize_review_bundle(self, review_bundle: dict[str, Any] | None) -> dict[str, Any]:
+        return self._normalize_review_bundle_obj(review_bundle).to_dict()
+
+    def _normalize_review_bundle_obj(self, review_bundle: ReviewBundle | dict[str, Any] | None) -> ReviewBundle:
+        if isinstance(review_bundle, ReviewBundle):
+            return review_bundle
+        return ReviewBundle.from_dict(review_bundle)
+
+    def _registry_candidates(self, request: RouteExecutionRequest) -> list[dict[str, Any]]:
+        entries = request.context.get("registry_entries", ())
+        candidates: list[dict[str, Any]] = []
+        for entry in entries:
+            if isinstance(entry, dict):
+                candidates.append(dict(entry))
+            elif hasattr(entry, "to_dict"):
+                candidates.append(entry.to_dict())
+        return candidates

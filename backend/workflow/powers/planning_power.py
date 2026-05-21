@@ -2,29 +2,173 @@ from __future__ import annotations
 
 from typing import Any
 
+from workflow.helpers.plan_format_helper import PlanFormatHelper
+from workflow.types import PlanBundle
+
 
 class PlanningPower:
+    def __init__(self, format_helper: PlanFormatHelper | None = None) -> None:
+        self.format_helper = format_helper or PlanFormatHelper()
+
     def build_plan_bundle(
         self,
         *,
         query: str,
         task_shape: str,
         task_topology: str,
+        query_units: list[dict[str, Any]] | None = None,
+        bound_targets: list[dict[str, Any]] | None = None,
         planner_worker: Any | None = None,
     ) -> dict[str, Any]:
-        if planner_worker is not None:
-            return planner_worker.build_plan(
-                query=query,
-                task_shape=task_shape,
-                task_topology=task_topology,
-            )
+        return self.build_plan_bundle_obj(
+            query=query,
+            task_shape=task_shape,
+            task_topology=task_topology,
+            query_units=query_units,
+            bound_targets=bound_targets,
+            planner_worker=planner_worker,
+        ).to_dict()
+
+    def build_plan_bundle_obj(
+        self,
+        *,
+        query: str,
+        task_shape: str,
+        task_topology: str,
+        query_units: list[dict[str, Any]] | None = None,
+        bound_targets: list[dict[str, Any]] | None = None,
+        planner_worker: Any | None = None,
+    ) -> PlanBundle:
+        task_frame = self.normalize_task_frame(
+            query=query,
+            task_shape=task_shape,
+            task_topology=task_topology,
+            query_units=query_units,
+            bound_targets=bound_targets,
+        )
+        if planner_worker is None:
+            return self._fallback_bundle(task_frame, issues=["missing_planner_worker"])
+
+        draft_plan = planner_worker.draft_plan(task_frame=task_frame)
+        issues = self.validate_plan(task_frame=task_frame, plan_bundle=draft_plan)
+        if not issues:
+            return self._finalize_bundle(task_frame=task_frame, plan_bundle=draft_plan, refined=False)
+
+        refined_plan = planner_worker.refine_plan(
+            task_frame=task_frame,
+            draft_plan=draft_plan,
+            issues=issues,
+        )
+        remaining_issues = self.validate_plan(task_frame=task_frame, plan_bundle=refined_plan)
+        if remaining_issues:
+            return self._fallback_bundle(task_frame, issues=remaining_issues)
+
+        return self._finalize_bundle(task_frame=task_frame, plan_bundle=refined_plan, refined=True)
+
+    def normalize_task_frame(
+        self,
+        *,
+        query: str,
+        task_shape: str,
+        task_topology: str,
+        query_units: list[dict[str, Any]] | None = None,
+        bound_targets: list[dict[str, Any]] | None = None,
+    ) -> dict[str, Any]:
         return {
             "goal": query,
             "task_shape": task_shape,
             "task_topology": task_topology,
-            "ordered_steps": [
-                {"step_id": "step_1", "title": "Clarify execution structure", "status": "planned"},
-                {"step_id": "step_2", "title": "Produce structured answer", "status": "planned"},
-            ],
-            "fallback_used": True,
+            "query_units": list(query_units or ()),
+            "bound_targets": list(bound_targets or ()),
+            "planning_mode_hint": self._resolve_planning_mode(task_shape=task_shape, task_topology=task_topology, query_units=query_units),
         }
+
+    def validate_plan(self, *, task_frame: dict[str, Any], plan_bundle: dict[str, Any]) -> list[str]:
+        issues: list[str] = []
+        ordered_steps = list(plan_bundle.get("ordered_steps", ()))
+        titles = {str(step.get("title", "")) for step in ordered_steps}
+        checkpoint_ids = {str(item.get("checkpoint_id", "")) for item in plan_bundle.get("execution_checkpoints", ())}
+        comparison_units = list(plan_bundle.get("comparison_units", ()))
+        bound_target_refs = list(plan_bundle.get("bound_target_refs", ()))
+
+        if task_frame.get("query_units") and not (
+            "Handle each query unit explicitly" in titles or "Refine coverage for every query unit" in titles
+        ):
+            issues.append("missing_query_units")
+        if task_frame.get("query_units") and not (
+            "checkpoint_units" in checkpoint_ids or "checkpoint_units_refined" in checkpoint_ids
+        ):
+            issues.append("missing_query_unit_checkpoint")
+
+        if task_frame.get("bound_targets") and not bound_target_refs:
+            issues.append("missing_bound_targets")
+
+        if task_frame.get("task_topology") == "staged" and not (
+            "Preserve stage dependencies" in titles or "Restore stage dependency handling" in titles
+        ):
+            issues.append("missing_stage_dependency")
+
+        if task_frame.get("task_shape") == "compare":
+            if not comparison_units:
+                issues.append("missing_compare_coverage")
+            if not any(
+                title in {"Compare targets and dimensions", "Restore symmetric comparison coverage"}
+                for title in titles
+            ):
+                issues.append("missing_compare_step")
+
+        return list(dict.fromkeys(issues))
+
+    def _resolve_planning_mode(
+        self,
+        *,
+        task_shape: str,
+        task_topology: str,
+        query_units: list[dict[str, Any]] | None,
+    ) -> str:
+        if task_topology == "staged":
+            return "staged"
+        if task_shape == "compare":
+            return "compare"
+        if query_units:
+            return "parallel_queries"
+        return "structured"
+
+    def _finalize_bundle(
+        self,
+        *,
+        task_frame: dict[str, Any],
+        plan_bundle: dict[str, Any],
+        refined: bool,
+    ) -> PlanBundle:
+        bundle = dict(plan_bundle)
+        bundle.setdefault("goal", task_frame["goal"])
+        bundle.setdefault("task_shape", task_frame["task_shape"])
+        bundle.setdefault("task_topology", task_frame["task_topology"])
+        bundle.setdefault("planning_mode", task_frame["planning_mode_hint"])
+        bundle.setdefault("comparison_units", [])
+        bundle.setdefault("execution_checkpoints", [])
+        bundle.setdefault("bound_target_refs", [])
+        bundle["refined"] = refined
+        bundle["fallback_used"] = False
+        return PlanBundle.from_dict(self.format_helper.normalize_bundle(bundle))
+
+    def _fallback_bundle(self, task_frame: dict[str, Any], *, issues: list[str]) -> PlanBundle:
+        return PlanBundle.from_dict(self.format_helper.normalize_bundle(
+            {
+            "goal": task_frame["goal"],
+            "task_shape": task_frame["task_shape"],
+            "task_topology": task_frame["task_topology"],
+            "planning_mode": "fallback",
+            "ordered_steps": [
+                {"step_id": "step_frame", "title": "Clarify execution structure", "status": "planned"},
+                {"step_id": "step_answer", "title": "Produce structured answer", "status": "planned"},
+            ],
+            "comparison_units": [],
+            "execution_checkpoints": [],
+            "bound_target_refs": [],
+            "fallback_reason": list(issues),
+            "refined": False,
+            "fallback_used": True,
+            }
+        ))

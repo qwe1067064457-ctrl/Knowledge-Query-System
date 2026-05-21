@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from intent import calculate_rule_confidence
-from intent.types import ContextSignals, ContextState, RuleMatch
+from intent.schema.intent_types import ContextSignals, ContextState, RuleMatch
 
 
 def _rule(rule_id: str, signal: str, strength: str, score: float) -> RuleMatch:

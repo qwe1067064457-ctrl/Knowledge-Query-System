@@ -1,0 +1,43 @@
+{
+  "version": "1.1.0",
+  "asset_group": "medical",
+  "scope": "group_scoped",
+  "description": "Medical-oriented intent assets for diagnosis, treatment, and risk-style questions.",
+  "last_updated": "2026-05-21",
+  "assets": {
+    "domain_qa_patterns": [
+      "医疗事故|医疗过失|医院|医生|疾病|治疗|诊断"
+    ],
+    "domain_actor_patterns": [
+      "医院|医生|患者"
+    ],
+    "domain_hint_tokens": [
+      "医疗事故",
+      "医疗过失",
+      "医院",
+      "医生",
+      "疾病",
+      "治疗",
+      "诊断"
+    ],
+    "self_anchor_tokens": [
+      "医院",
+      "医生",
+      "疾病",
+      "责任",
+      "赔偿"
+    ],
+    "judgment_anchor_patterns": [
+      "这样|这种|是否|医疗事故|医疗过失|风险"
+    ],
+    "missing_history_block_patterns": [
+      "医疗事故|医疗过失|怎么处理|是否"
+    ],
+    "judgment_clarify_exempt_patterns": [
+      "医疗事故|医疗过失|重大疾病"
+    ],
+    "complex_qa_anchor_patterns": [
+      "因果关系|举证责任|关键事实|争议点|第一|第二|第三"
+    ]
+  }
+}

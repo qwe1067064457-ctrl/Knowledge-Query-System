@@ -2,8 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
-from intent.classifier import classify_intent
-from intent.types import CandidateIntent, IntentModifiers, ModelResult, TaskCandidate
+from intent.pipeline.classifier import classify_intent
+from intent.schema.intent_types import CandidateIntent, IntentModifiers, ModelResult, TaskCandidate
 
 
 LAW_HISTORY = [
@@ -47,7 +47,7 @@ def test_model_evidence_can_add_soft_doubt_and_task_candidate() -> None:
     assert result.resolved.modifiers.ask_capability is False
     assert result.resolved.task.complexity == "complex"
     assert result.resolved.task.shape == "compare"
-    assert result.control.route == "agent"
+    assert result.control.route == "orchestrated"
     assert result.evidence.model_result is not None
     assert result.evidence.model_result.candidate_intents == ()
 

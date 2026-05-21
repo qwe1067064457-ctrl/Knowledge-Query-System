@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from intent.types import (
+from intent.schema.intent_types import (
     AmbiguityState,
     ContextDependency,
     DecisionTrace,

@@ -2,7 +2,14 @@ from __future__ import annotations
 
 from collections import defaultdict
 
-from intent.types import ContextSignals, ContextState, RuleConfidence, RuleMatch, SignalConfidence, Strength
+from intent.schema.intent_types import (
+    ContextSignals,
+    ContextState,
+    RuleConfidence,
+    RuleMatch,
+    SignalConfidence,
+    Strength,
+)
 
 
 LEVEL_THRESHOLDS = {

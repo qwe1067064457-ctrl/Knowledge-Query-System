@@ -20,7 +20,7 @@ from evaluation.intent.signal_taxonomy import (
     normalize_signal_buckets,
     split_cross_bucket_conflicts,
 )
-from intent.task_compat import infer_topology_from_legacy_task
+from intent.pipeline.task_compat import infer_topology_from_legacy_task
 
 CHECK_FIELDS = (
     "main_intent",

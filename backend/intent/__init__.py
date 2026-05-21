@@ -1,12 +1,17 @@
 from __future__ import annotations
 
-from intent.classifier import classify_intent
-from intent.control_signal import build_control_signal
-from intent.model_adapter import INTENT_MODEL_EVIDENCE_ENV, IntentModelAdapter, is_model_evidence_enabled, merge_model_evidence
-from intent.rule_confidence import calculate_rule_confidence
-from intent.resolver import resolve_intent
-from intent.task_compat import ResolvedTaskCompatibility, build_task_compat, infer_topology_from_legacy_task
-from intent.types import (
+from intent.pipeline.classifier import classify_intent
+from intent.pipeline.control_signal import build_control_signal
+from intent.pipeline.model_adapter import (
+    INTENT_MODEL_EVIDENCE_ENV,
+    IntentModelAdapter,
+    is_model_evidence_enabled,
+    merge_model_evidence,
+)
+from intent.pipeline.resolver import resolve_intent
+from intent.pipeline.rule_confidence import calculate_rule_confidence
+from intent.pipeline.task_compat import ResolvedTaskCompatibility, build_task_compat, infer_topology_from_legacy_task
+from intent.schema.intent_types import (
     CandidateIntent,
     ContextState,
     ControlSignal,
