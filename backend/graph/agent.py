@@ -16,9 +16,12 @@ except ImportError:  # pragma: no cover - optional dependency at runtime
 from config import get_settings, runtime_config
 from graph.memory_indexer import memory_indexer
 from graph.prompt_builder import build_system_prompt
+from intent import classify_intent
 from knowledge_retrieval import knowledge_orchestrator
 from memory_system import MemorySystem
 from tools import get_all_tools
+from workflow import WorkflowDispatcher, WorkflowPlan, build_workflow_plan
+from workflow.runners.base import RouteExecutionRequest
 
 # 导入新的 context 模块
 from context.session_manager import SessionManager
@@ -53,6 +56,7 @@ class AgentManager:
         self.session_manager: LegacySessionManagerAdapter | None = None
         self.memory_system: MemorySystem | None = None
         self.context_manager: ContextManager | None = None
+        self.workflow_dispatcher = WorkflowDispatcher()
         self.tools = []
 
     def initialize(self, base_dir: Path) -> None:
@@ -271,58 +275,13 @@ class AgentManager:
 
         yield {"type": "done", "content": "".join(final_content_parts).strip()}
 
-    async def astream(
+    async def _astream_agent_answer(
         self,
-        message: str,
-        history: list[dict[str, Any]],
-        session_id: str | None = None,
+        messages: list[dict[str, str]],
+        *,
+        extra_instructions: list[str] | None = None,
     ):
-        if self.base_dir is None:
-            raise RuntimeError("AgentManager is not initialized")
-
-        rag_mode = runtime_config.get_rag_mode()
-        messages = await self._prepare_messages_for_request(session_id, message, history)
-
-        if rag_mode:
-            retrievals = memory_indexer.retrieve(message, top_k=3)
-            if retrievals:
-                yield {"type": "retrieval", **self._format_memory_retrieval_step(retrievals)}
-            if retrievals:
-                messages = self._insert_before_latest_user(
-                    messages,
-                    {
-                        "role": "assistant",
-                        "content": self._format_retrieval_context(retrievals),
-                    },
-                )
-
-        if self._is_knowledge_query(message):
-            knowledge_result = None
-            async for event in knowledge_orchestrator.astream(message):
-                if event.get("type") == "orchestrated_result":
-                    knowledge_result = event["result"]
-                    continue
-                yield event
-
-            if knowledge_result is not None:
-                for step in knowledge_result.steps:
-                    yield {"type": "retrieval", **step.to_dict()}
-                messages = self._insert_before_latest_user(
-                    messages,
-                    {
-                        "role": "assistant",
-                        "content": self._format_knowledge_context(knowledge_result),
-                    },
-                )
-
-            async for event in self._astream_model_answer(
-                messages,
-                extra_instructions=self._knowledge_answer_instructions(knowledge_result) if knowledge_result else None,
-            ):
-                yield event
-            return
-
-        agent = self._build_agent()
+        agent = self._build_agent(extra_instructions=extra_instructions)
 
         final_content_parts: list[str] = []
         last_ai_message = ""
@@ -388,6 +347,175 @@ class AgentManager:
 
         final_content = "".join(final_content_parts).strip() or last_ai_message.strip()
         yield {"type": "done", "content": final_content}
+
+    def _build_workflow_instructions(self, plan: WorkflowPlan) -> list[str]:
+        instructions: list[str] = []
+
+        if plan.should_ask_clarification_first:
+            instructions.append(
+                "The current request is not ready for full execution yet. Ask a concise clarification question first and do not continue into a substantive answer."
+            )
+            if plan.trace.missing_context_types:
+                missing = ", ".join(plan.trace.missing_context_types)
+                instructions.append(f"Focus the clarification on these missing context types: {missing}.")
+
+        if plan.handling_mode == "challenge":
+            instructions.append(
+                "Treat this as a challenge/correction turn. Re-evaluate the disputed point carefully, explain the basis, and avoid defending the previous answer blindly."
+            )
+        elif plan.handling_mode == "scope_info":
+            instructions.append(
+                "Treat this as a scope/capability question. Answer about what the system can or cannot do instead of executing the underlying task."
+            )
+        elif plan.handling_mode == "unsupported":
+            instructions.append(
+                "Treat this as an unsupported request. Refuse the operation briefly and, when possible, suggest a safer alternative."
+            )
+
+        if plan.route == "orchestrated":
+            instructions.append(
+                "This request requires explicit execution organization. Make the stages or subtask order visible before giving the final answer."
+            )
+        elif plan.route == "qa":
+            instructions.append(
+                "This request should stay within a single-turn answer flow. Keep the execution lightweight and avoid unnecessary planning narration."
+            )
+        elif plan.route == "chat":
+            instructions.append(
+                "This is a chat turn. Respond naturally and do not over-structure the answer."
+            )
+
+        if plan.use_planner:
+            instructions.append(
+                "Use an internal lightweight plan before answering so the reasoning order is stable."
+            )
+        if plan.decompose_query:
+            instructions.append(
+                "Cover each sub-question or subtask explicitly so no requested branch is skipped."
+            )
+        if plan.cite_sources:
+            instructions.append(
+                "Provide supporting basis or citations when available, and make the grounding visible instead of answering from bare assertion."
+            )
+        if plan.use_context:
+            instructions.append(
+                "Use the current conversation context and do not treat this as a standalone fresh request."
+            )
+        return instructions
+
+    def _build_reject_response(self, plan: WorkflowPlan) -> str:
+        if plan.handling_mode == "unsupported":
+            return "这个请求目前不适合进入正常执行流。我不能直接协助这类操作，但如果你愿意，我可以改为帮你分析风险、约束条件，或整理一个更安全的处理方案。"
+        return "这个请求当前不能按正常执行流继续处理。"
+
+    def _load_session_scope(self, session_id: str | None) -> tuple[str, tuple[str, ...]]:
+        if session_id is None or self.raw_session_manager is None:
+            return DEFAULT_GROUP, (DEFAULT_GROUP,)
+
+        session = self.raw_session_manager.get_session(session_id, DEFAULT_GROUP, DEFAULT_AGENT)
+        if session is None:
+            return DEFAULT_GROUP, (DEFAULT_GROUP,)
+
+        metadata = session.metadata or {}
+        active_group_id = str(metadata.get("active_group_id") or session.group_id or DEFAULT_GROUP)
+        allowed = metadata.get("allowed_group_ids") or [active_group_id]
+        allowed_group_ids = tuple(str(item) for item in allowed if item)
+        if not allowed_group_ids:
+            allowed_group_ids = (active_group_id,)
+        return active_group_id, allowed_group_ids
+
+    async def astream(
+        self,
+        message: str,
+        history: list[dict[str, Any]],
+        session_id: str | None = None,
+    ):
+        if self.base_dir is None:
+            raise RuntimeError("AgentManager is not initialized")
+
+        rag_mode = runtime_config.get_rag_mode()
+        messages = await self._prepare_messages_for_request(session_id, message, history)
+        intent_analysis = classify_intent(message, history)
+        active_group_id, allowed_group_ids = self._load_session_scope(session_id)
+        workflow_plan = build_workflow_plan(
+            intent_analysis,
+            is_knowledge_query=self._is_knowledge_query(message),
+            active_group_id=active_group_id,
+            allowed_group_ids=allowed_group_ids,
+        )
+        execution_payload = self.workflow_dispatcher.dispatch(workflow_plan).run(
+            workflow_plan,
+            RouteExecutionRequest(
+                message=message,
+                messages=messages,
+                is_knowledge_query=self._is_knowledge_query(message),
+                context={"session_id": session_id},
+            ),
+        )
+
+        if rag_mode:
+            retrievals = memory_indexer.retrieve(message, top_k=3)
+            if retrievals:
+                yield {"type": "retrieval", **self._format_memory_retrieval_step(retrievals)}
+            if retrievals:
+                messages = self._insert_before_latest_user(
+                    messages,
+                    {
+                        "role": "assistant",
+                        "content": self._format_retrieval_context(retrievals),
+                    },
+                )
+
+        workflow_instructions = list(execution_payload.instructions) or self._build_workflow_instructions(workflow_plan)
+
+        if execution_payload.action == "reject":
+            async for event in self._astream_model_answer(
+                messages,
+                extra_instructions=workflow_instructions + [self._build_reject_response(workflow_plan)],
+            ):
+                yield event
+            return
+
+        if execution_payload.action == "respond":
+            async for event in self._astream_model_answer(
+                messages,
+                extra_instructions=workflow_instructions,
+            ):
+                yield event
+            return
+
+        if execution_payload.action == "knowledge_orchestrator":
+            knowledge_result = None
+            async for event in knowledge_orchestrator.astream(message):
+                if event.get("type") == "orchestrated_result":
+                    knowledge_result = event["result"]
+                    continue
+                yield event
+
+            if knowledge_result is not None:
+                for step in knowledge_result.steps:
+                    yield {"type": "retrieval", **step.to_dict()}
+                messages = self._insert_before_latest_user(
+                    messages,
+                    {
+                        "role": "assistant",
+                        "content": self._format_knowledge_context(knowledge_result),
+                    },
+                )
+
+            async for event in self._astream_model_answer(
+                messages,
+                extra_instructions=workflow_instructions
+                + (self._knowledge_answer_instructions(knowledge_result) if knowledge_result else []),
+            ):
+                yield event
+            return
+
+        async for event in self._astream_agent_answer(
+            messages,
+            extra_instructions=workflow_instructions,
+        ):
+            yield event
 
     async def generate_title(self, first_user_message: str) -> str:
         prompt = (

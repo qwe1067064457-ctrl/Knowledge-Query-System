@@ -2,7 +2,6 @@ from __future__ import annotations
 
 from intent.types import (
     AmbiguityState,
-    CandidateIntent,
     ContextDependency,
     DecisionTrace,
     IntentEvidence,

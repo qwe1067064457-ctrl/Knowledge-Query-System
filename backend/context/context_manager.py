@@ -19,6 +19,8 @@ except ImportError:  # pragma: no cover - optional dependency
 
 from context.context_policy import ContextPolicyLoader
 from context.dataclasses import TranscriptEntry
+from context.registry import ContextRegistryManager
+from context.registry_types import ContextRegistry, ContextRegistryEntry
 from context.session_manager import SessionManager
 from memory_system import MemorySystem
 
@@ -112,6 +114,7 @@ class ContextManager:
     def __init__(self, session_manager: SessionManager, memory_system: MemorySystem) -> None:
         self.session_mgr = session_manager
         self.memory_sys = memory_system
+        self.registry_mgr = ContextRegistryManager(session_manager)
         self.policy_loader = ContextPolicyLoader(self.session_mgr.base_storage_path.parent / "context" / "context_policy.json")
         self.config = ContextConfig.from_policy(self.policy_loader.load_policy())
         self.llm_call: Optional[Callable[..., Any]] = None
@@ -886,3 +889,62 @@ class ContextManager:
             "total_tokens_budget": self.config.total_tokens,
             "system_prompt_path": self.config.system_prompt_path,
         }
+
+    def load_registry(
+        self,
+        *,
+        tenant_id: str,
+        group_id: str,
+        agent_id: str,
+        session_id: str,
+    ) -> ContextRegistry:
+        return self.registry_mgr.load_registry(session_id, tenant_id, group_id, agent_id)
+
+    def append_registry_entries(
+        self,
+        *,
+        tenant_id: str,
+        group_id: str,
+        agent_id: str,
+        session_id: str,
+        entries: list[ContextRegistryEntry],
+    ) -> ContextRegistry:
+        return self.registry_mgr.append_entries(
+            session_id=session_id,
+            tenant_id=tenant_id,
+            group_id=group_id,
+            agent_id=agent_id,
+            entries=entries,
+        )
+
+    def list_recent_registry_entries(
+        self,
+        *,
+        tenant_id: str,
+        group_id: str,
+        agent_id: str,
+        session_id: str,
+        limit: int = 20,
+    ) -> list[ContextRegistryEntry]:
+        return self.registry_mgr.list_recent_entries(
+            session_id=session_id,
+            tenant_id=tenant_id,
+            group_id=group_id,
+            agent_id=agent_id,
+            limit=limit,
+        )
+
+    def prune_registry(
+        self,
+        *,
+        tenant_id: str,
+        group_id: str,
+        agent_id: str,
+        session_id: str,
+    ) -> ContextRegistry:
+        return self.registry_mgr.prune_registry(
+            session_id=session_id,
+            tenant_id=tenant_id,
+            group_id=group_id,
+            agent_id=agent_id,
+        )
