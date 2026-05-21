@@ -1,0 +1,17 @@
+{
+  "version": "1.1.0",
+  "asset_group": "general",
+  "scope": "group_scoped",
+  "description": "General-purpose intent assets with no domain bootstrap knowledge.",
+  "last_updated": "2026-05-21",
+  "assets": {
+    "domain_qa_patterns": [],
+    "domain_actor_patterns": [],
+    "domain_hint_tokens": [],
+    "self_anchor_tokens": [],
+    "judgment_anchor_patterns": [],
+    "missing_history_block_patterns": [],
+    "judgment_clarify_exempt_patterns": [],
+    "complex_qa_anchor_patterns": []
+  }
+}

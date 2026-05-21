@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from intent.types import ControlSignal, ControlTrace, HandlingMode, ResolvedIntent
+from intent.schema.intent_types import ControlSignal, ControlTrace, HandlingMode, ResolvedIntent
 
 
 def build_control_signal(

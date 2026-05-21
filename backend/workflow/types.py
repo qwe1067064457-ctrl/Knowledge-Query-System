@@ -3,7 +3,7 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from typing import Any, Literal
 
-from intent.types import ControlTrace
+from intent.schema.intent_types import ControlTrace
 
 
 WorkflowAction = Literal["respond", "agent", "knowledge_orchestrator", "reject"]

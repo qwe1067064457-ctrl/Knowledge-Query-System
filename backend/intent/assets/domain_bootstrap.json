@@ -1,0 +1,76 @@
+{
+  "version": "1.1.0",
+  "asset_group": "domain_bootstrap",
+  "scope": "group_shared",
+  "description": "Bootstrap assets for current legal, medical, and local knowledge QA families. These assets are not globally stable semantics.",
+  "last_updated": "2026-05-21",
+  "change_log": [
+    {
+      "version": "1.0.0",
+      "date": "2026-05-14",
+      "summary": "Initial externalized domain bootstrap config extracted from classifier.py.",
+      "changes": [
+        "Moved domain QA patterns out of classifier.py into a dedicated config asset.",
+        "Moved domain hint and self-anchor tokens into config for future dynamic maintenance."
+      ]
+    },
+    {
+      "version": "1.1.0",
+      "date": "2026-05-21",
+      "summary": "Expanded configurable domain anchors for group-scoped intent assets.",
+      "changes": [
+        "Added configurable judgment anchors, missing-history blockers, clarify exemptions, and complex QA anchors.",
+        "Prepared classifier knowledge signals for group-specific asset isolation."
+      ]
+    }
+  ],
+  "assets": {
+    "domain_qa_patterns": [
+      "劳动合同|试用期|合同|医疗事故|医疗过失|电子合同|医院|医生|法院|法条|司法解释"
+    ],
+    "domain_actor_patterns": [
+      "医院|医生|公司|法院|平台|员工|患者"
+    ],
+    "domain_hint_tokens": [
+      "医疗事故",
+      "医疗过失",
+      "侵权",
+      "违约",
+      "合同",
+      "赔偿",
+      "劳动合同",
+      "法院",
+      "法条",
+      "司法解释",
+      "医院",
+      "医生",
+      "公司",
+      "电子合同",
+      "刑事拘留",
+      "重大疾病"
+    ],
+    "self_anchor_tokens": [
+      "合同",
+      "责任",
+      "赔偿",
+      "医院",
+      "公司",
+      "条款",
+      "效力",
+      "疾病",
+      "重大疾病"
+    ],
+    "judgment_anchor_patterns": [
+      "医院|医生|公司|法院|平台|商家|员工|这样|这种做法|这件事|这个情况"
+    ],
+    "missing_history_block_patterns": [
+      "定义|医疗事故|医疗过失|因果关系|举证责任|司法解释|怎么处理|怎么申请|如何计算|如何确定|有责任吗|赔多少"
+    ],
+    "judgment_clarify_exempt_patterns": [
+      "医疗事故|医疗过失|法律效力|免责条款|电子合同|重大疾病|公司破产|员工工资|刑事拘留|行政拘留|侵权责任|违约责任"
+    ],
+    "complex_qa_anchor_patterns": [
+      "举证责任|司法解释|争议点|判断依据|因果关系|请按步骤|第一|第二|第三|另外|同时|关键事实"
+    ]
+  }
+}

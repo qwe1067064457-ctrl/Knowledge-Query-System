@@ -17,6 +17,7 @@ from config import get_settings, runtime_config
 from graph.memory_indexer import memory_indexer
 from graph.prompt_builder import build_system_prompt
 from intent import classify_intent
+from intent.loaders import load_group_intent_rule_assets
 from knowledge_retrieval import knowledge_orchestrator
 from memory_system import MemorySystem
 from tools import get_all_tools
@@ -435,8 +436,9 @@ class AgentManager:
 
         rag_mode = runtime_config.get_rag_mode()
         messages = await self._prepare_messages_for_request(session_id, message, history)
-        intent_analysis = classify_intent(message, history)
         active_group_id, allowed_group_ids = self._load_session_scope(session_id)
+        intent_assets = load_group_intent_rule_assets(self.base_dir / "storage", active_group_id)
+        intent_analysis = classify_intent(message, history, rule_assets=intent_assets)
         workflow_plan = build_workflow_plan(
             intent_analysis,
             is_knowledge_query=self._is_knowledge_query(message),

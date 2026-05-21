@@ -14,7 +14,7 @@ if str(BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(BACKEND_DIR))
 
 from intent import classify_intent  # noqa: E402
-from intent.task_compat import infer_topology_from_legacy_task  # noqa: E402
+from intent.pipeline.task_compat import infer_topology_from_legacy_task  # noqa: E402
 from evaluation.intent.v2_migration import infer_context_signals_from_dependency  # noqa: E402
 
 

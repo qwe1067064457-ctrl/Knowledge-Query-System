@@ -4,7 +4,7 @@ import os
 from dataclasses import replace
 from typing import Any, Iterable, Protocol
 
-from intent.types import IntentEvidence, IntentInput, IntentModifiers, ModelResult, TaskCandidate
+from intent.schema.intent_types import IntentEvidence, IntentInput, IntentModifiers, ModelResult, TaskCandidate
 
 
 INTENT_MODEL_EVIDENCE_ENV = "INTENT_MODEL_EVIDENCE_ENABLED"

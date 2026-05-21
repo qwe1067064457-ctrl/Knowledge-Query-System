@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import re
 
-from intent.types import ControlTrace, IntentAnalysis
+from intent.schema.intent_types import ControlTrace, IntentAnalysis
 from workflow.types import PowerName, WorkflowAction, WorkflowPlan, WorkflowPolicyFlags
 
 _SCOPE_SWITCH_PATTERNS = (

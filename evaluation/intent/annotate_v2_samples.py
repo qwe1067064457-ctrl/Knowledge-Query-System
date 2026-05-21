@@ -15,7 +15,7 @@ if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
 from intent import classify_intent  # noqa: E402
-from intent.task_compat import infer_topology_from_legacy_task  # noqa: E402
+from intent.pipeline.task_compat import infer_topology_from_legacy_task  # noqa: E402
 from evaluation.intent.evaluate_intent_rules import load_dataset  # noqa: E402
 from evaluation.intent.export_intent_training_set import (  # noqa: E402
     DEFAULT_DEV_DATASET_DIRS,
