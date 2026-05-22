@@ -90,8 +90,11 @@ def test_planning_power_can_return_typed_plan_bundle_object() -> None:
     )
 
     payload = bundle.to_dict()
+    summary_view = bundle.summary_view()
 
     assert bundle.planning_mode == "compare"
     assert bundle.fallback_used is False
+    assert summary_view.planning_mode == "compare"
+    assert summary_view.step_count == len(bundle.ordered_steps)
     assert payload["plan_summary"]["planning_mode"] == "compare"
     assert payload["bound_target_refs"] == ["compare_1"]

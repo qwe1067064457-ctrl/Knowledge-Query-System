@@ -4,7 +4,7 @@ from intent.schema.intent_types import ControlTrace, IntentModifiers
 from workflow.runners.base import RouteExecutionRequest
 from workflow.runners.orchestrated_runner import OrchestratedRouteRunner
 from workflow.runners.qa_runner import QaRouteRunner
-from workflow.types import EvidenceBundle, EvidenceItem, WorkflowPlan, WorkflowPolicyFlags
+from workflow.types import ChallengeResult, EvidenceAssessmentResult, EvidenceBundle, EvidenceItem, EvidenceRefCandidate, ReviewEvaluationResult, WorkflowPlan, WorkflowPolicyFlags
 
 
 class _FakeRetrievalPower:
@@ -35,6 +35,23 @@ class _FakeRetrievalPower:
             coverage_summary={"query_units": len(query_units), "sources": 1},
             quality_summary={"average_weighted_score": 0.9},
             missing_evidence_notes=(),
+        )
+
+
+class _CapturingChallengePower:
+    def __init__(self) -> None:
+        self.last_evidence_candidates = None
+
+    def execute(self, **kwargs):
+        self.last_evidence_candidates = list(kwargs["evidence_candidates"])
+        return ChallengeResult.from_review_evaluation(
+            targets=(),
+            evidence_assessment=EvidenceAssessmentResult(),
+            evaluation=ReviewEvaluationResult(
+                status="needs_clarification",
+                review_findings=(),
+                answer_constraints={"must_acknowledge_uncertainty": True},
+            ),
         )
 
 
@@ -323,6 +340,42 @@ def test_qa_runner_challenge_can_resolve_missing_targets_via_follow_up_retrieval
     assert payload.review_bundle["review_summary"]["unsupported_target_refs"] == []
     assert payload.review_bundle["review_summary"]["follow_up_retrieval_attempted"] is True
     assert payload.review_bundle["review_summary"]["follow_up_retrieval_sources"] == ["kb/law.md"]
+
+
+def test_qa_runner_passes_typed_evidence_candidates_into_challenge_power() -> None:
+    runner = QaRouteRunner()
+    runner.challenge_power = _CapturingChallengePower()
+    plan = _make_plan(
+        route="qa",
+        handling_mode="challenge",
+        enabled_powers=("challenge_power",),
+    )
+    request = RouteExecutionRequest(
+        message="你刚才这个依据是什么？",
+        messages=[{"role": "user", "content": "你刚才这个依据是什么？"}],
+        context={
+            "registry_entries": [
+                {
+                    "object_id": "claim_1",
+                    "object_type": "claim",
+                    "content": "试用期最长一个月",
+                    "source_power": "challenge_power",
+                    "refs": ["evidence_1"],
+                },
+                {
+                    "object_id": "evidence_1",
+                    "object_type": "evidence_ref",
+                    "content": "劳动合同法第19条",
+                    "source_power": "retrieval_power",
+                    "refs": ["evidence_1"],
+                },
+            ],
+        },
+    )
+
+    runner.run(plan, request)
+
+    assert isinstance(runner.challenge_power.last_evidence_candidates[0], EvidenceRefCandidate)
 
 
 def test_orchestrated_runner_uses_staged_planning_mode_for_staged_tasks() -> None:

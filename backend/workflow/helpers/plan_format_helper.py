@@ -43,5 +43,5 @@ class PlanFormatHelper:
                 "fallback_reason": list(normalized.get("fallback_reason", ())),
             },
         )
-        normalized.setdefault("format_helper_applied", True)
+        normalized["format_helper_applied"] = True
         return normalized

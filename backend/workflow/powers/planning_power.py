@@ -49,16 +49,16 @@ class PlanningPower:
         if planner_worker is None:
             return self._fallback_bundle(task_frame, issues=["missing_planner_worker"])
 
-        draft_plan = planner_worker.draft_plan(task_frame=task_frame)
+        draft_plan = PlanBundle.from_dict(planner_worker.draft_plan(task_frame=task_frame))
         issues = self.validate_plan(task_frame=task_frame, plan_bundle=draft_plan)
         if not issues:
             return self._finalize_bundle(task_frame=task_frame, plan_bundle=draft_plan, refined=False)
 
-        refined_plan = planner_worker.refine_plan(
+        refined_plan = PlanBundle.from_dict(planner_worker.refine_plan(
             task_frame=task_frame,
-            draft_plan=draft_plan,
+            draft_plan=draft_plan.to_dict(),
             issues=issues,
-        )
+        ))
         remaining_issues = self.validate_plan(task_frame=task_frame, plan_bundle=refined_plan)
         if remaining_issues:
             return self._fallback_bundle(task_frame, issues=remaining_issues)
@@ -83,13 +83,14 @@ class PlanningPower:
             "planning_mode_hint": self._resolve_planning_mode(task_shape=task_shape, task_topology=task_topology, query_units=query_units),
         }
 
-    def validate_plan(self, *, task_frame: dict[str, Any], plan_bundle: dict[str, Any]) -> list[str]:
+    def validate_plan(self, *, task_frame: dict[str, Any], plan_bundle: PlanBundle | dict[str, Any]) -> list[str]:
+        bundle = plan_bundle if isinstance(plan_bundle, PlanBundle) else PlanBundle.from_dict(plan_bundle)
         issues: list[str] = []
-        ordered_steps = list(plan_bundle.get("ordered_steps", ()))
+        ordered_steps = list(bundle.ordered_steps)
         titles = {str(step.get("title", "")) for step in ordered_steps}
-        checkpoint_ids = {str(item.get("checkpoint_id", "")) for item in plan_bundle.get("execution_checkpoints", ())}
-        comparison_units = list(plan_bundle.get("comparison_units", ()))
-        bound_target_refs = list(plan_bundle.get("bound_target_refs", ()))
+        checkpoint_ids = {str(item.get("checkpoint_id", "")) for item in bundle.execution_checkpoints}
+        comparison_units = list(bundle.comparison_units)
+        bound_target_refs = list(bundle.bound_target_refs)
 
         if task_frame.get("query_units") and not (
             "Handle each query unit explicitly" in titles or "Refine coverage for every query unit" in titles
@@ -138,10 +139,10 @@ class PlanningPower:
         self,
         *,
         task_frame: dict[str, Any],
-        plan_bundle: dict[str, Any],
+        plan_bundle: PlanBundle | dict[str, Any],
         refined: bool,
     ) -> PlanBundle:
-        bundle = dict(plan_bundle)
+        bundle = plan_bundle.to_dict() if isinstance(plan_bundle, PlanBundle) else dict(plan_bundle)
         bundle.setdefault("goal", task_frame["goal"])
         bundle.setdefault("task_shape", task_frame["task_shape"])
         bundle.setdefault("task_topology", task_frame["task_topology"])

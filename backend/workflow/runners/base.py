@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from typing import Any
 
-from workflow.types import ContextBundle, ExecutionPayload, PlanBundle, ReviewBundle, WorkflowPlan
+from workflow.types import ContextBundle, EvidenceRefCandidate, ExecutionPayload, PlanBundle, ReviewBundle, WorkflowPlan
 
 
 @dataclass
@@ -131,6 +131,36 @@ class BaseRouteRunner:
             return review_bundle
         return ReviewBundle.from_dict(review_bundle)
 
+    def _finalize_payload(
+        self,
+        payload: ExecutionPayload,
+        plan: WorkflowPlan,
+        *,
+        context_bundle: ContextBundle | dict[str, Any] | None = None,
+        plan_bundle: PlanBundle | dict[str, Any] | None = None,
+        review_bundle: ReviewBundle | dict[str, Any] | None = None,
+        answer_constraints: dict[str, Any] | None = None,
+        status: str | None = None,
+    ) -> ExecutionPayload:
+        normalized_context = self._normalize_context_bundle_obj(
+            plan,
+            payload.context_bundle if context_bundle is None else context_bundle,
+        )
+        normalized_plan = self._normalize_plan_bundle_obj(
+            payload.plan_bundle if plan_bundle is None else plan_bundle,
+        )
+        normalized_review = self._normalize_review_bundle_obj(
+            payload.review_bundle if review_bundle is None else review_bundle,
+        )
+        return replace(
+            payload,
+            status=payload.status if status is None else status,
+            context_bundle=normalized_context.to_dict(),
+            plan_bundle=normalized_plan.to_dict(),
+            review_bundle=normalized_review.to_dict(),
+            answer_constraints=dict(payload.answer_constraints if answer_constraints is None else answer_constraints),
+        )
+
     def _registry_candidates(self, request: RouteExecutionRequest) -> list[dict[str, Any]]:
         entries = request.context.get("registry_entries", ())
         candidates: list[dict[str, Any]] = []
@@ -140,3 +170,10 @@ class BaseRouteRunner:
             elif hasattr(entry, "to_dict"):
                 candidates.append(entry.to_dict())
         return candidates
+
+    def _registry_evidence_candidates(self, request: RouteExecutionRequest) -> list[EvidenceRefCandidate]:
+        return [
+            EvidenceRefCandidate.from_dict(candidate)
+            for candidate in self._registry_candidates(request)
+            if candidate.get("object_type") == "evidence_ref"
+        ]

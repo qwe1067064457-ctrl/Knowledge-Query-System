@@ -6,7 +6,7 @@ from workflow.powers.challenge_power import ChallengePower
 from workflow.powers.context_binding_power import ContextBindingPower
 from workflow.powers.retrieval_power import RetrievalPower
 from workflow.runners.base import BaseRouteRunner, RouteExecutionRequest
-from workflow.types import ContextBundle, ReviewBundle, WorkflowPlan
+from workflow.types import WorkflowPlan
 from workflow.workers.binding_worker import BindingWorker
 from workflow.workers.review_worker import ReviewWorker
 
@@ -52,7 +52,7 @@ class QaRouteRunner(BaseRouteRunner):
 
         review_bundle = payload.review_bundle_obj()
         if "challenge_power" in plan.enabled_powers:
-            evidence_candidates = [candidate for candidate in candidates if candidate.get("object_type") == "evidence_ref"]
+            evidence_candidates = self._registry_evidence_candidates(request)
             challenge = self.challenge_power.execute(
                 query=request.message,
                 candidate_targets=list(context_bundle.bound_targets()) or candidates,
@@ -68,19 +68,11 @@ class QaRouteRunner(BaseRouteRunner):
 
         review_bundle = self._normalize_review_bundle_obj(review_bundle)
 
-        return replace(
+        return self._finalize_payload(
             payload,
-            route=payload.route,
-            handling_mode=payload.handling_mode,
-            action=payload.action,
-            status=payload.status,
-            enabled_powers=payload.enabled_powers,
-            instructions=payload.instructions,
-            knowledge_scope_status=payload.knowledge_scope_status,
-            context_bundle=self._normalize_context_bundle_obj(plan, context_bundle).to_dict(),
-            evidence_bundle=payload.evidence_bundle,
-            plan_bundle=self._normalize_plan_bundle_obj(payload.plan_bundle).to_dict(),
-            review_bundle=self._normalize_review_bundle_obj(review_bundle).to_dict(),
+            plan,
+            context_bundle=context_bundle,
+            plan_bundle=payload.plan_bundle,
+            review_bundle=review_bundle,
             answer_constraints=answer_constraints,
-            notes=payload.notes,
         )

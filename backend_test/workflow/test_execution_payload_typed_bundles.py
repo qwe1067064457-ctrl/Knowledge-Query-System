@@ -4,9 +4,13 @@ from workflow.types import (
     ContextBundle,
     ContextBindingResult,
     EvidenceBundle,
+    EvidenceAssessmentResult,
+    EvidenceRefCandidate,
     EvidenceItem,
     ExecutionPayload,
     PlanBundle,
+    ReviewEvaluationResult,
+    RetrievalUnitResult,
     ReviewBundle,
 )
 
@@ -141,6 +145,9 @@ def test_execution_payload_summary_views_consume_typed_bundles() -> None:
     assert review_view.review_scope == "single_target"
     assert review_view.needs_more_evidence_target_count == 1
     assert review_view.follow_up_retrieval_attempted is True
+    assert payload.context_bundle_obj().summary_view() == context_view
+    assert payload.plan_bundle_obj().summary_view() == plan_view
+    assert payload.review_bundle_obj().summary_view() == review_view
 
 
 def test_context_bundle_accepts_typed_binding_result() -> None:
@@ -174,12 +181,298 @@ def test_review_bundle_accessors_expose_summary_targets() -> None:
         status="partial_success",
         targets=({"target_ref": "claim_1"}, {"target_ref": "claim_2"}),
         review_summary={
+            "target_count": 2,
+            "matched_target_count": 1,
             "matched_target_refs": ["claim_1"],
             "unsupported_target_refs": ["claim_2"],
             "needs_more_evidence_targets": ["claim_2"],
+            "status_summary": "partial_success",
+            "follow_up_retrieval_sources": ["kb/law.md"],
+            "follow_up_retrieval_retrieved_evidence_count": 1,
         },
     )
 
+    assert bundle.target_count() == 2
+    assert bundle.matched_target_count() == 1
+    assert bundle.status_summary() == "partial_success"
     assert bundle.matched_target_refs() == ("claim_1",)
     assert bundle.unsupported_target_refs() == ("claim_2",)
     assert bundle.needs_more_evidence_targets() == ("claim_2",)
+    assert bundle.follow_up_retrieval_attempted() is False
+    assert bundle.follow_up_retrieval_improved() is False
+    assert bundle.follow_up_retrieval_sources() == ("kb/law.md",)
+    assert bundle.follow_up_retrieval_retrieved_evidence_count() == 1
+
+
+def test_review_bundle_can_be_built_from_challenge_result_inputs() -> None:
+    bundle = ReviewBundle.from_challenge_result(
+        status="partial_success",
+        targets=(
+            {"object_id": "claim_1"},
+            {"object_id": "claim_2"},
+        ),
+        evidence_assessment={
+            "partially_sufficient": True,
+            "matched_target_count": 1,
+            "needs_more_evidence_targets": ["claim_2"],
+            "follow_up_retrieval": {
+                "attempted": True,
+                "improved": False,
+                "source_refs": ["kb/law.md"],
+                "retrieved_evidence_count": 1,
+            },
+        },
+        review_findings=(
+            {"target_ref": "claim_1", "judgment": "supported"},
+            {"target_ref": "claim_2", "judgment": "insufficient_evidence"},
+        ),
+    )
+
+    assert bundle.review_mode == "challenge_review"
+    assert bundle.review_confidence == "medium"
+    assert bundle.review_scope == "multi_target"
+    assert bundle.matched_target_refs() == ("claim_1",)
+    assert bundle.needs_more_evidence_targets() == ("claim_2",)
+    assert bundle.follow_up_retrieval_attempted() is True
+
+
+def test_review_bundle_can_be_built_directly_from_review_evaluation() -> None:
+    bundle = ReviewBundle.from_review_evaluation(
+        targets=(
+            {"object_id": "claim_1"},
+            {"object_id": "claim_2"},
+        ),
+        evidence_assessment=EvidenceAssessmentResult(
+            partially_sufficient=True,
+            matched_target_count=1,
+            target_count=2,
+            needs_more_evidence_targets=("claim_2",),
+        ),
+        evaluation=ReviewEvaluationResult(
+            status="partial_success",
+            review_findings=(
+                {"target_ref": "claim_1", "judgment": "supported"},
+                {"target_ref": "claim_2", "judgment": "insufficient_evidence"},
+            ),
+            answer_constraints={"must_cite_sources": True},
+        ),
+    )
+
+    assert bundle.review_mode == "challenge_review"
+    assert bundle.review_confidence == "medium"
+    assert bundle.matched_target_refs() == ("claim_1",)
+    assert bundle.needs_more_evidence_targets() == ("claim_2",)
+
+
+def test_review_bundle_summary_view_prefers_assessment_owner_counts_and_follow_up_flags() -> None:
+    bundle = ReviewBundle(
+        review_mode="challenge_review",
+        review_confidence="medium",
+        review_scope="multi_target",
+        status="partial_success",
+        targets=(),
+        evidence_assessment=EvidenceAssessmentResult(
+            partially_sufficient=True,
+            matched_target_count=1,
+            target_count=2,
+            needs_more_evidence_targets=("claim_2",),
+            follow_up_retrieval={
+                "attempted": True,
+                "improved": False,
+            },
+        ),
+        review_summary={
+            "target_count": 0,
+            "matched_target_count": 0,
+            "needs_more_evidence_targets": [],
+            "follow_up_retrieval_attempted": False,
+            "follow_up_retrieval_improved": True,
+        },
+    )
+
+    summary_view = bundle.summary_view()
+
+    assert summary_view.target_count == 2
+    assert summary_view.matched_target_count == 1
+    assert summary_view.needs_more_evidence_target_count == 1
+    assert summary_view.follow_up_retrieval_attempted is True
+    assert summary_view.follow_up_retrieval_improved is False
+
+
+def test_review_bundle_accessors_prefer_assessment_owner_over_summary_fallback() -> None:
+    bundle = ReviewBundle(
+        review_mode="challenge_review",
+        review_confidence="medium",
+        review_scope="multi_target",
+        status="partial_success",
+        targets=(),
+        evidence_assessment=EvidenceAssessmentResult(
+            partially_sufficient=True,
+            matched_target_count=1,
+            target_count=2,
+            matched_target_refs=("claim_1",),
+            unsupported_target_refs=("claim_2",),
+            needs_more_evidence_targets=("claim_2",),
+            follow_up_retrieval={
+                "attempted": True,
+                "improved": False,
+                "source_refs": ["kb/law.md"],
+                "retrieved_evidence_count": 1,
+            },
+        ),
+        review_summary={
+            "target_count": 0,
+            "matched_target_count": 0,
+            "matched_target_refs": [],
+            "unsupported_target_refs": [],
+            "needs_more_evidence_targets": [],
+            "follow_up_retrieval_attempted": False,
+            "follow_up_retrieval_improved": True,
+            "follow_up_retrieval_sources": [],
+            "follow_up_retrieval_retrieved_evidence_count": 0,
+        },
+    )
+
+    assert bundle.target_count() == 2
+    assert bundle.matched_target_count() == 1
+    assert bundle.matched_target_refs() == ("claim_1",)
+    assert bundle.unsupported_target_refs() == ("claim_2",)
+    assert bundle.needs_more_evidence_targets() == ("claim_2",)
+    assert bundle.follow_up_retrieval_attempted() is True
+    assert bundle.follow_up_retrieval_improved() is False
+    assert bundle.follow_up_retrieval_sources() == ("kb/law.md",)
+    assert bundle.follow_up_retrieval_retrieved_evidence_count() == 1
+
+
+def test_review_bundle_summary_obj_and_to_dict_prefer_assessment_owner_over_summary_fallback() -> None:
+    bundle = ReviewBundle(
+        review_mode="challenge_review",
+        review_confidence="medium",
+        review_scope="multi_target",
+        status="partial_success",
+        evidence_assessment=EvidenceAssessmentResult(
+            partially_sufficient=True,
+            matched_target_count=1,
+            target_count=2,
+            matched_target_refs=("claim_1",),
+            unsupported_target_refs=("claim_2",),
+            needs_more_evidence_targets=("claim_2",),
+            follow_up_retrieval={
+                "attempted": False,
+                "improved": False,
+                "source_refs": ["kb/law.md"],
+                "retrieved_evidence_count": 1,
+            },
+        ),
+        review_summary={
+            "target_count": 99,
+            "matched_target_count": 88,
+            "matched_target_refs": ["stale_claim"],
+            "unsupported_target_refs": ["stale_unsupported"],
+            "needs_more_evidence_targets": ["stale_missing"],
+            "follow_up_retrieval_attempted": True,
+            "follow_up_retrieval_improved": True,
+            "follow_up_retrieval_sources": ["stale.md"],
+            "follow_up_retrieval_retrieved_evidence_count": 42,
+        },
+    )
+
+    summary = bundle.summary_obj()
+    exported = bundle.to_dict()["review_summary"]
+
+    assert summary["target_count"] == 2
+    assert summary["matched_target_count"] == 1
+    assert summary["matched_target_refs"] == ["claim_1"]
+    assert summary["unsupported_target_refs"] == ["claim_2"]
+    assert summary["needs_more_evidence_targets"] == ["claim_2"]
+    assert summary["follow_up_retrieval_attempted"] is False
+    assert summary["follow_up_retrieval_improved"] is False
+    assert summary["follow_up_retrieval_sources"] == ["kb/law.md"]
+    assert summary["follow_up_retrieval_retrieved_evidence_count"] == 1
+    assert exported == summary
+
+
+def test_evidence_bundle_accessors_expose_summary_state() -> None:
+    bundle = EvidenceBundle(
+        query_unit_results=(
+            RetrievalUnitResult(unit_id="q1", query="foo", origin="primary"),
+            {"unit_id": "q2", "query": "bar", "origin": "support"},
+        ),
+        merged_evidence_items=(
+            EvidenceItem(
+                evidence_id="e1",
+                source_path="kb/law.md",
+                source_type="official_structured",
+                locator="section-19",
+                snippet="一年期合同试用期上限一个月。",
+                channel="vector",
+                score=0.9,
+                query_unit_ids=("q1",),
+            ),
+        ),
+        source_refs=("kb/law.md", "kb/guide.md"),
+        coverage_summary={"query_units": 2, "sources": 2},
+        quality_summary={"average_weighted_score": 0.4, "status": "bad", "repaired_units": 1},
+        missing_evidence_notes=("retrieval_quality_weak",),
+    )
+
+    assert bundle.summary_obj()["retrieval_quality_status"] == "bad"
+    assert bundle.query_unit_count() == 2
+    assert bundle.merged_evidence_count() == 1
+    assert bundle.source_ref_count() == 2
+    assert bundle.source_ref_list() == ["kb/law.md", "kb/guide.md"]
+    assert isinstance(bundle.query_unit_result_objs()[0], RetrievalUnitResult)
+    assert bundle.retrieval_quality_status() == "bad"
+    assert bundle.repairable_unit_count() == 0
+    assert bundle.repaired_unit_count() == 1
+    assert bundle.missing_evidence_flag() is True
+    assert bundle.coverage_query_unit_count() == 2
+    assert bundle.coverage_source_count() == 2
+    candidates = bundle.to_evidence_ref_candidates()
+    assert candidates[0]["object_id"] == "e1"
+    assert candidates[0]["object_type"] == "evidence_ref"
+    assert candidates[0]["refs"] == ["e1", "kb/law.md", "section-19"]
+    candidate_objs = bundle.to_evidence_ref_candidate_objs()
+    assert isinstance(candidate_objs[0], EvidenceRefCandidate)
+    assert candidate_objs[0].all_refs() == ("e1", "e1", "kb/law.md", "section-19")
+    summary_view = bundle.summary_view()
+    assert summary_view.retrieval_quality_status == "bad"
+    assert summary_view.query_unit_count == 2
+    assert summary_view.source_ref_count == 2
+    assert summary_view.repairable_units == 0
+    assert summary_view.repaired_units == 1
+    assert summary_view.missing_evidence is True
+    assert summary_view.coverage_query_units == 2
+    assert summary_view.coverage_sources == 2
+    assert bundle.summary_obj()["coverage_query_units"] == 2
+    assert bundle.summary_obj()["repairable_units"] == 0
+
+
+def test_query_unit_accessors_remain_consistent_across_bundles() -> None:
+    query_units = (
+        {"unit_id": "q1", "text": "A是什么"},
+        {"unit_id": "q2", "text": "B风险"},
+    )
+    context_bundle = ContextBundle(query_units=query_units)
+    plan_bundle = PlanBundle(
+        planning_mode="compare",
+        query_units=query_units,
+        ordered_steps=({"title": "Compare", "sequence": 1}, {"title": "Explain", "sequence": 2}),
+        comparison_units=({"left": "A", "right": "B"},),
+        execution_checkpoints=({"name": "coverage"},),
+        bound_target_refs=("compare_1",),
+        refined=True,
+        fallback_used=False,
+    )
+
+    assert context_bundle.query_unit_dicts() == query_units
+    assert plan_bundle.query_unit_dicts() == query_units
+    assert plan_bundle.summary_obj()["planning_mode"] == "compare"
+    assert plan_bundle.step_count() == 2
+    assert plan_bundle.checkpoint_count() == 1
+    assert plan_bundle.comparison_unit_count() == 1
+    assert plan_bundle.bound_target_ref_count() == 1
+    assert plan_bundle.is_refined() is True
+    assert plan_bundle.is_fallback() is False
+    assert context_bundle.summary_view().query_unit_count == 2
+    assert plan_bundle.summary_view().step_count == 2

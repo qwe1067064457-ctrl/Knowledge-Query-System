@@ -8,7 +8,7 @@ from workflow.powers.decomposition_power import DecompositionPower
 from workflow.powers.planning_power import PlanningPower
 from workflow.powers.retrieval_power import RetrievalPower
 from workflow.runners.base import BaseRouteRunner, RouteExecutionRequest
-from workflow.types import ContextBundle, PlanBundle, ReviewBundle, WorkflowPlan
+from workflow.types import WorkflowPlan
 from workflow.workers.binding_worker import BindingWorker
 from workflow.workers.planner_worker import PlannerWorker
 from workflow.workers.review_worker import ReviewWorker
@@ -60,11 +60,13 @@ class OrchestratedRouteRunner(BaseRouteRunner):
         )
 
         query_units = ()
+        query_unit_dicts: tuple[dict[str, object], ...] = ()
         if "decomposition_power" in plan.enabled_powers:
             query_units = self.decomposition_power.split_parallel_queries(request.message)
+            query_unit_dicts = tuple(unit.to_dict() for unit in query_units)
             context_bundle = self._normalize_context_bundle_obj(
                 plan,
-                replace(context_bundle, query_units=tuple(unit.to_dict() for unit in query_units)),
+                replace(context_bundle, query_units=query_unit_dicts),
             )
 
         if "planning_power" in plan.enabled_powers:
@@ -73,16 +75,16 @@ class OrchestratedRouteRunner(BaseRouteRunner):
                 query=request.message,
                 task_shape=plan.trace.task_shape,
                 task_topology=plan.trace.task_topology,
-                query_units=[unit.to_dict() for unit in query_units] if query_units else [],
+                query_units=list(query_unit_dicts),
                 bound_targets=bound_targets,
                 planner_worker=self.planner_worker,
             )
-            if query_units:
-                plan_bundle = replace(plan_bundle, query_units=tuple(unit.to_dict() for unit in query_units))
+            if query_unit_dicts:
+                plan_bundle = replace(plan_bundle, query_units=query_unit_dicts)
             plan_bundle = self._normalize_plan_bundle_obj(plan_bundle)
 
         if "challenge_power" in plan.enabled_powers:
-            evidence_candidates = [candidate for candidate in candidates if candidate.get("object_type") == "evidence_ref"]
+            evidence_candidates = self._registry_evidence_candidates(request)
             challenge = self.challenge_power.execute(
                 query=request.message,
                 candidate_targets=list(context_bundle.bound_targets()) or candidate_entries,
@@ -99,10 +101,11 @@ class OrchestratedRouteRunner(BaseRouteRunner):
         plan_bundle = self._normalize_plan_bundle_obj(plan_bundle)
         review_bundle = self._normalize_review_bundle_obj(review_bundle)
 
-        return replace(
+        return self._finalize_payload(
             payload,
-            context_bundle=self._normalize_context_bundle_obj(plan, context_bundle).to_dict(),
-            plan_bundle=self._normalize_plan_bundle_obj(plan_bundle).to_dict(),
-            review_bundle=self._normalize_review_bundle_obj(review_bundle).to_dict(),
+            plan,
+            context_bundle=context_bundle,
+            plan_bundle=plan_bundle,
+            review_bundle=review_bundle,
             answer_constraints=answer_constraints,
         )

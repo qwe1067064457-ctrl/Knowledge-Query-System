@@ -3,7 +3,7 @@ from __future__ import annotations
 from knowledge_retrieval.types import Evidence, HybridRetrievalResult
 from knowledge_retrieval.types import OrchestratedRetrievalResult
 from workflow.powers.retrieval_power import RetrievalPower
-from workflow.types import QueryUnit
+from workflow.types import QueryUnit, RetrievalUnitResult
 
 
 class _FakeRetriever:
@@ -226,3 +226,38 @@ def test_retrieval_power_executes_single_repair_when_quality_improves() -> None:
     assert bundle.quality_summary["repaired_units"] == 1
     assert payload["evidence_summary"]["repaired_units"] == 1
     assert payload["evidence_summary"]["retrieval_quality_status"] in {"good", "weak"}
+    unit_result = bundle.query_unit_result_objs()[0]
+    assert unit_result.was_repaired() is True
+    assert unit_result.repair_strategy_name() == "switch_to_bound_query"
+    assert unit_result.selected_mode_name() == "bound"
+
+
+def test_retrieval_power_returns_typed_query_unit_results() -> None:
+    retriever = _FakeRetriever(
+        HybridRetrievalResult(
+            vector_evidences=[
+                Evidence(
+                    source_path="docs/law.md",
+                    source_type="official_structured",
+                    locator="p1",
+                    snippet="劳动合同法第19条规定试用期。",
+                    channel="vector",
+                    score=0.9,
+                )
+            ],
+            bm25_evidences=[],
+        )
+    )
+    power = RetrievalPower(retriever=retriever)
+
+    bundle = power.retrieve((QueryUnit(unit_id="q1", text="试用期依据", target_refs=("劳动合同法",)),), top_k=4)
+    unit_result = bundle.query_unit_result_objs()[0]
+
+    assert isinstance(unit_result, RetrievalUnitResult)
+    assert unit_result.unit_id == "q1"
+    assert unit_result.selected_mode_name() == "raw"
+    assert unit_result.selected_query_text() == "试用期依据"
+    assert unit_result.quality_status() in {"good", "weak"}
+    assert unit_result.should_repair() is False
+    assert unit_result.repair_strategy_name() == "none"
+    assert unit_result.was_repaired() is False

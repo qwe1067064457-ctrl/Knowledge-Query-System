@@ -7,7 +7,7 @@ from typing import Any
 from knowledge_retrieval.hybrid_retriever import hybrid_retriever
 from knowledge_retrieval.types import OrchestratedRetrievalResult
 from workflow.helpers.retrieval_repair_helper import RetrievalRepairHelper
-from workflow.types import EvidenceBundle, EvidenceItem, QueryUnit, RetrievalQualityAssessment
+from workflow.types import EvidenceBundle, EvidenceItem, QueryUnit, RetrievalQualityAssessment, RetrievalUnitResult
 
 
 _METRIC_SCORE = {"good": 1.0, "weak": 0.5, "bad": 0.0}
@@ -69,7 +69,7 @@ class RetrievalPower:
         *,
         top_k: int = 4,
     ) -> EvidenceBundle:
-        unit_results: list[dict[str, Any]] = []
+        unit_results: list[RetrievalUnitResult] = []
         merged: dict[tuple[str, str], EvidenceItem] = {}
         source_refs: list[str] = []
         quality_scores: list[float] = []
@@ -131,22 +131,22 @@ class RetrievalPower:
                     source_refs.append(evidence.source_path)
 
             unit_results.append(
-                {
-                    "unit_id": unit.unit_id,
-                    "query": unit.text,
-                    "origin": unit.origin,
-                    "quality": quality.to_dict(),
-                    "evidence_count": len(evidence_items),
-                    "repair_plan": repair_plan,
-                    "repair_applied": repair_applied,
-                    "repair_strategy": repair_plan.get("strategy", "none"),
-                    "selected_query": selected_query,
-                    "selected_mode": selected_mode,
-                    "repaired_query": repaired_query,
-                    "repaired_mode": repaired_mode,
-                    "pre_quality": pre_quality,
-                    "post_quality": post_quality,
-                }
+                RetrievalUnitResult(
+                    unit_id=unit.unit_id,
+                    query=unit.text,
+                    origin=unit.origin,
+                    quality=quality.to_dict(),
+                    evidence_count=len(evidence_items),
+                    repair_plan=repair_plan,
+                    repair_applied=repair_applied,
+                    repair_strategy=str(repair_plan.get("strategy", "none")),
+                    selected_query=selected_query,
+                    selected_mode=selected_mode,
+                    repaired_query=repaired_query,
+                    repaired_mode=repaired_mode,
+                    pre_quality=pre_quality,
+                    post_quality=post_quality,
+                )
             )
 
         avg_quality = sum(quality_scores) / len(quality_scores) if quality_scores else 0.0
@@ -156,11 +156,9 @@ class RetrievalPower:
             "query_units": len(query_units),
             "merged_evidence_count": len(merged),
             "source_ref_count": len(source_refs),
-            "repairable_units": sum(
-                1 for item in unit_results if item.get("repair_plan", {}).get("enabled")
-            ),
-            "repaired_units": sum(1 for item in unit_results if item.get("repair_applied")),
-            "repair_strategies": [item.get("repair_strategy", "none") for item in unit_results],
+            "repairable_units": sum(1 for item in unit_results if item.repair_enabled()),
+            "repaired_units": sum(1 for item in unit_results if item.was_repaired()),
+            "repair_strategies": [item.repair_strategy_name() for item in unit_results],
         }
         return EvidenceBundle(
             query_unit_results=tuple(unit_results),
@@ -194,34 +192,31 @@ class RetrievalPower:
         ]
         quality = self.assess_retrieval_quality(evidence_items, target_top_k=max(1, len(evidence_items)))
         source_refs = tuple(dict.fromkeys(item.source_path for item in evidence_items))
+        repair_plan = self.repair_helper.build_repair_plan(
+            query_unit=query_unit,
+            quality=quality,
+            current_mode="raw" if query_unit.origin == "primary" else query_unit.origin,
+        )
         return EvidenceBundle(
             query_unit_results=(
-                {
-                    "unit_id": query_unit.unit_id,
-                    "query": query,
-                    "origin": query_unit.origin,
-                    "quality": quality.to_dict(),
-                    "evidence_count": len(evidence_items),
-                    "retrieval_status": result.status,
-                    "fallback_used": result.fallback_used,
-                    "repair_plan": self.repair_helper.build_repair_plan(
-                    query_unit=query_unit,
-                    quality=quality,
-                    current_mode="raw" if query_unit.origin == "primary" else query_unit.origin,
+                RetrievalUnitResult(
+                    unit_id=query_unit.unit_id,
+                    query=query,
+                    origin=query_unit.origin,
+                    quality=quality.to_dict(),
+                    evidence_count=len(evidence_items),
+                    retrieval_status=result.status,
+                    fallback_used=result.fallback_used,
+                    repair_plan=repair_plan,
+                    repair_applied=False,
+                    repair_strategy=repair_plan.get("strategy", "none"),
+                    selected_query=query,
+                    selected_mode="raw",
+                    repaired_query=None,
+                    repaired_mode=None,
+                    pre_quality=quality.to_dict(),
+                    post_quality=quality.to_dict(),
                 ),
-                    "repair_applied": False,
-                    "repair_strategy": self.repair_helper.build_repair_plan(
-                        query_unit=query_unit,
-                        quality=quality,
-                        current_mode="raw" if query_unit.origin == "primary" else query_unit.origin,
-                    ).get("strategy", "none"),
-                    "selected_query": query,
-                    "selected_mode": "raw",
-                    "repaired_query": None,
-                    "repaired_mode": None,
-                    "pre_quality": quality.to_dict(),
-                    "post_quality": quality.to_dict(),
-                },
             ),
             merged_evidence_items=tuple(evidence_items),
             source_refs=source_refs,
@@ -236,21 +231,9 @@ class RetrievalPower:
                 "fallback_used": result.fallback_used,
                 "merged_evidence_count": len(evidence_items),
                 "source_ref_count": len(source_refs),
-                "repairable_units": 1
-                if self.repair_helper.build_repair_plan(
-                    query_unit=query_unit,
-                    quality=quality,
-                    current_mode="raw" if query_unit.origin == "primary" else query_unit.origin,
-                ).get("enabled")
-                else 0,
+                "repairable_units": 1 if repair_plan.get("enabled") else 0,
                 "repaired_units": 0,
-                "repair_strategies": [
-                    self.repair_helper.build_repair_plan(
-                        query_unit=query_unit,
-                        quality=quality,
-                        current_mode="raw" if query_unit.origin == "primary" else query_unit.origin,
-                    ).get("strategy", "none")
-                ],
+                "repair_strategies": [repair_plan.get("strategy", "none")],
             },
             missing_evidence_notes=() if result.status == "success" else (result.reason or "knowledge_retrieval_incomplete",),
         )
