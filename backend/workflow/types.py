@@ -208,6 +208,19 @@ class EvidenceAssessmentResult:
     def needs_more_evidence_target_count(self) -> int:
         return len(self.needs_more_evidence_targets)
 
+    def has_target_coverage_state(self) -> bool:
+        return any(
+            (
+                self.target_count > 0,
+                self.matched_target_count > 0,
+                bool(self.matched_target_refs),
+                bool(self.unsupported_target_refs),
+                bool(self.needs_more_evidence_targets),
+                bool(self.retrieve_if_needed),
+                bool(self.per_target_assessment),
+            )
+        )
+
     def summary_view(self) -> "EvidenceAssessmentSummaryView":
         return EvidenceAssessmentSummaryView(
             sufficient=self.sufficient,
@@ -782,14 +795,15 @@ class PlanBundle:
     fallback_reason: tuple[str, ...] = ()
 
     def summary_dict(self) -> dict[str, Any]:
+        summary = self.summary_view()
         return {
-            "planning_mode": self.planning_mode,
-            "step_count": len(self.ordered_steps),
-            "checkpoint_count": len(self.execution_checkpoints),
-            "comparison_unit_count": len(self.comparison_units),
-            "bound_target_ref_count": len(self.bound_target_refs),
-            "refined": self.refined,
-            "fallback_used": self.fallback_used,
+            "planning_mode": summary.planning_mode,
+            "step_count": summary.step_count,
+            "checkpoint_count": summary.checkpoint_count,
+            "comparison_unit_count": summary.comparison_unit_count,
+            "bound_target_ref_count": summary.bound_target_ref_count,
+            "refined": summary.refined,
+            "fallback_used": summary.fallback_used,
             "fallback_reason": list(self.fallback_reason),
         }
 
@@ -1052,16 +1066,26 @@ class ReviewBundle:
         assessment = self.evidence_assessment_obj()
         assessment_summary = assessment.summary_view()
         has_assessment_follow_up = assessment.follow_up_attempted() or bool(assessment.follow_up_retrieval)
+        has_assessment_target_coverage = assessment.has_target_coverage_state()
         return ReviewBundleSummaryView(
             review_mode=self.review_mode,
             review_confidence=self.review_confidence,
             review_scope=self.review_scope,
             status_summary=str(summary.get("status_summary", "not_applicable")),
-            target_count=int(assessment_summary.target_count or summary.get("target_count", len(self.targets)) or 0),
-            matched_target_count=int(assessment_summary.matched_target_count or summary.get("matched_target_count", 0) or 0),
+            target_count=(
+                int(assessment_summary.target_count)
+                if has_assessment_target_coverage
+                else int(summary.get("target_count", len(self.targets)) or 0)
+            ),
+            matched_target_count=(
+                int(assessment_summary.matched_target_count)
+                if has_assessment_target_coverage
+                else int(summary.get("matched_target_count", 0) or 0)
+            ),
             needs_more_evidence_target_count=int(
                 assessment_summary.needs_more_evidence_target_count
-                or len(list(summary.get("needs_more_evidence_targets", ())))
+                if has_assessment_target_coverage
+                else len(list(summary.get("needs_more_evidence_targets", ())))
             ),
             follow_up_retrieval_attempted=(
                 assessment_summary.follow_up_retrieval_attempted
@@ -1083,16 +1107,16 @@ class ReviewBundle:
         return tuple(str(item) for item in summary.get("matched_target_refs", ()) if item)
 
     def target_count(self) -> int:
-        assessment_count = self.evidence_assessment_obj().summary_view().target_count
-        if assessment_count:
-            return int(assessment_count)
+        assessment = self.evidence_assessment_obj()
+        if assessment.has_target_coverage_state():
+            return int(assessment.summary_view().target_count)
         summary = self._normalized_summary()
         return int(summary.get("target_count", len(self.targets)) or 0)
 
     def matched_target_count(self) -> int:
-        assessment_count = self.evidence_assessment_obj().summary_view().matched_target_count
-        if assessment_count:
-            return int(assessment_count)
+        assessment = self.evidence_assessment_obj()
+        if assessment.has_target_coverage_state():
+            return int(assessment.summary_view().matched_target_count)
         summary = self._normalized_summary()
         return int(summary.get("matched_target_count", 0) or 0)
 

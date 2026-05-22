@@ -2,28 +2,31 @@
 
 current_round: 35  
 last_completed_round: 35  
-current_focus: ReviewBundle 外部 review_summary 导出 owner-first 收口、workflow typed contract 完成度审计  
-next_focus: 扫描 workflow 主链剩余高频 dict 直读，区分 P0 / P1 / P2，判断本阶段是否可验收
+current_focus: 提炼 workflow 已稳定的架构结论到正式层，澄清 refinement 与 ADR 的职责边界  
+next_focus: 评估是否还需要把更多稳定 workflow 结论提炼到 ADR，或返回下一阶段的 P1 优化 goal
 
 ## In Progress
 
-- [ ] 继续收 `retrieval -> challenge` 的消费边
-  - 目标：更多走 `EvidenceBundle / RetrievalUnitResult / accessor / summary_view`
-  - 完成标准：challenge/review 继续减少对 retrieval 明细 dict 的直接读取
-
-- [ ] 继续收 `ChallengeResult / ReviewBundle / review_summary` 的消费链
-  - 目标：更多走 `ReviewBundle.summary_view()` 与 object accessor
-  - 完成标准：新增逻辑不再优先写 `review_summary[...]`，外部 `review_summary` 导出也不再携带过期 fallback 值
+- [ ] 提炼已稳定的 workflow 结论到 `docs/adr/`
+  - 目标：只提炼连续多轮稳定、后续不应反复重议的 workflow 结论
+  - 完成标准：形成 1~3 条 ADR，并让入口文档能清楚区分 refinement 层与正式层
 
 ## Next
 
-- [ ] 做一轮 workflow typed contract 完成度审计
-  - 目标：扫描 `runners / powers / workers / types`，找还残留的高频 dict 直读
-  - 产出：按 `P0 / P1 / P2` 分类剩余点，并判断是否已经接近本阶段验收
-- [ ] 评估 `runner` 内部是否还有值得继续下沉到 typed object 的残留桥接
+- [ ] 评估是否还有别的 workflow 结论已稳定到适合进入 `docs/adr/`
+- [ ] 如果没有，再切回下一阶段的 workflow P1 优化 / 稳定化 goal
 
 ## Done Recently
 
+- [x] 新增正式 ADR：
+  - `ADR-0001-workflow-layer-boundaries.md`
+  - `ADR-0002-workflow-typed-inside-dict-outside.md`
+  - `ADR-0003-workflow-owner-first-summary-contracts.md`
+- [x] `notes/workflow/README.md` 已开始明确区分：
+  - `working/refinement/`
+  - `docs/adr/`
+  的职责边界
+- [x] `notes/workflow/working/refinement/README.md` 已补“与正式层的边界”说明
 - [x] `ReviewBundle.summary_obj()` 改为 owner-first 导出：
   - `target_count`
   - `matched_target_count`

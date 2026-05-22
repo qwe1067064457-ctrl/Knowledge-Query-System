@@ -5,6 +5,11 @@ last_verified_test_status: 60 passed (`python -m pytest -c backend_test\\workflo
 
 ## Current State
 
+- 已开始把连续多轮稳定的 workflow 结论提炼到 `docs/adr/`
+- 当前已形成 3 条正式 ADR：
+  - `ADR-0001-workflow-layer-boundaries.md`
+  - `ADR-0002-workflow-typed-inside-dict-outside.md`
+  - `ADR-0003-workflow-owner-first-summary-contracts.md`
 - workflow 主链已经形成：
   - typed power production
   - typed payload carrying
@@ -49,28 +54,14 @@ last_verified_test_status: 60 passed (`python -m pytest -c backend_test\\workflo
 
 ## Current Focus
 
-- 继续收 `retrieval -> challenge` 的消费边
-- 继续减少 `review_summary` / retrieval detail dict 的直接读取
-- 继续让 challenge/review 优先走 typed helper 改状态
-- 继续让 review worker 少碰 `per_target_assessment` 原始 dict
-- 继续把 retrieval 结果侧的高频摘要读取往 owner accessor 下沉
-- 继续让 challenge/review 更少假设 evidence candidate 一定是 dict
-- 继续让 review summary target 状态更多来自 assessment owner，而不是从 findings 倒推
-- 继续让 review summary 的计数 / follow-up 状态更多来自 assessment owner summary view
-- 继续让 review 线的高频状态读取更少依赖 `_normalized_summary()` 的回填结果
-- 继续让 retrieval 线的高频状态读取更少依赖 `summary_obj()` / 中间 dict
-- 继续把 challenge/review 对 retrieval owner 的消费往 `summary_view()` / accessor 收
-- 继续做 workflow typed contract 的完成度审计，而不是只新增局部 accessor
+- 提炼 workflow 已稳定的架构结论到更正式层
+- 保持 `working/refinement/` 作为阶段性推进与压缩续接目录
+- 明确 `docs/adr/` 只承接已经稳定、适合长期正式引用的 workflow 结论
 
 ## Next Focus
 
-- 让 challenge/review 更少直接假设 retrieval 明细 dict
-- 优先用：
-  - `EvidenceBundle`
-  - `RetrievalUnitResult`
-  - `summary_view()`
-  - accessor
-- 继续减少 `review_summary[...]` 的直接读取
+- 评估是否还有别的 workflow 结论已经稳定到适合进入 ADR
+- 如果没有，再回到下一阶段的 workflow P1 优化 / 稳定化 goal
 
 ## Confirmed Boundaries
 

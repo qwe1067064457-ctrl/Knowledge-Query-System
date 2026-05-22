@@ -13,7 +13,16 @@
 
 - `working/refinement/`
 
-而不是直接提炼到 `docs/` 或顶层正式制度文档。
+但其中已经连续多轮稳定的结论，已开始提炼到：
+
+- `docs/adr/`
+
+也就是说：
+
+- `working/refinement/`
+  - 继续承接阶段性细节、压缩交接、当前 goal 推进状态
+- `docs/adr/`
+  - 只承接已经稳定、适合长期正式引用的 workflow 架构结论
 
 ## 推荐阅读顺序
 
@@ -24,6 +33,12 @@
 3. `working/refinement/todo.md`
 4. `working/refinement/compression_handoff.md`
 5. `working/refinement/known_issues.md`
+
+如果你要了解已经稳定、不希望在后续 goal 中反复重议的结论，再继续读：
+
+6. `../docs/adr/ADR-0001-workflow-layer-boundaries.md`
+7. `../docs/adr/ADR-0002-workflow-typed-inside-dict-outside.md`
+8. `../docs/adr/ADR-0003-workflow-owner-first-summary-contracts.md`
 
 ## 当前目录职责
 

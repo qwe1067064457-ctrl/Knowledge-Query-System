@@ -392,6 +392,37 @@ def test_review_bundle_summary_obj_and_to_dict_prefer_assessment_owner_over_summ
     assert exported == summary
 
 
+def test_review_bundle_preserves_explicit_zero_counts_from_assessment_owner() -> None:
+    bundle = ReviewBundle(
+        review_mode="challenge_review",
+        review_confidence="low",
+        review_scope="single_target",
+        status="insufficient_evidence",
+        evidence_assessment=EvidenceAssessmentResult(
+            partially_sufficient=True,
+            target_count=0,
+            matched_target_count=0,
+            retrieve_if_needed={"needed": False},
+        ),
+        review_summary={
+            "target_count": 99,
+            "matched_target_count": 88,
+            "needs_more_evidence_targets": ["stale_missing"],
+        },
+    )
+
+    summary_view = bundle.summary_view()
+    summary_obj = bundle.summary_obj()
+
+    assert summary_view.target_count == 0
+    assert summary_view.matched_target_count == 0
+    assert summary_view.needs_more_evidence_target_count == 0
+    assert bundle.target_count() == 0
+    assert bundle.matched_target_count() == 0
+    assert summary_obj["target_count"] == 0
+    assert summary_obj["matched_target_count"] == 0
+
+
 def test_evidence_bundle_accessors_expose_summary_state() -> None:
     bundle = EvidenceBundle(
         query_unit_results=(
@@ -476,3 +507,31 @@ def test_query_unit_accessors_remain_consistent_across_bundles() -> None:
     assert plan_bundle.is_fallback() is False
     assert context_bundle.summary_view().query_unit_count == 2
     assert plan_bundle.summary_view().step_count == 2
+
+
+def test_plan_bundle_summary_exports_remain_consistent() -> None:
+    plan_bundle = PlanBundle(
+        planning_mode="compare",
+        ordered_steps=({"title": "Compare", "sequence": 1}, {"title": "Explain", "sequence": 2}),
+        comparison_units=({"left": "A", "right": "B"},),
+        execution_checkpoints=({"name": "coverage"},),
+        bound_target_refs=("compare_1",),
+        refined=True,
+        fallback_used=True,
+        fallback_reason=("fallback_for_missing_context",),
+    )
+
+    summary_dict = plan_bundle.summary_dict()
+    summary_obj = plan_bundle.summary_obj()
+    exported_summary = plan_bundle.to_dict()["plan_summary"]
+
+    assert summary_dict["planning_mode"] == "compare"
+    assert summary_dict["step_count"] == 2
+    assert summary_dict["checkpoint_count"] == 1
+    assert summary_dict["comparison_unit_count"] == 1
+    assert summary_dict["bound_target_ref_count"] == 1
+    assert summary_dict["refined"] is True
+    assert summary_dict["fallback_used"] is True
+    assert summary_dict["fallback_reason"] == ["fallback_for_missing_context"]
+    assert summary_obj == summary_dict
+    assert exported_summary == summary_dict

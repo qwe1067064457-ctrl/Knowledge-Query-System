@@ -6,7 +6,16 @@ from context.context_manager import ContextManager
 from context.session_manager import SessionManager
 from graph.agent import AgentManager
 from memory_system import MemorySystem
-from workflow.types import EvidenceBundle, EvidenceItem, ExecutionPayload
+from workflow.types import (
+    ContextBindingResult,
+    ContextBundle,
+    EvidenceAssessmentResult,
+    EvidenceBundle,
+    EvidenceItem,
+    ExecutionPayload,
+    PlanBundle,
+    ReviewBundle,
+)
 
 
 def test_execution_payload_is_persisted_into_registry(tmp_path: Path) -> None:
@@ -157,3 +166,137 @@ def test_agent_builds_summary_driven_instructions() -> None:
     assert any("still 1 target(s) needing more evidence" in item for item in instructions)
     assert any("follow-up retrieval was attempted" in item for item in instructions)
     assert any("evidence bundle is still incomplete" in item for item in instructions)
+
+
+def test_agent_builds_execution_summary_metadata_from_typed_summary_views() -> None:
+    agent = AgentManager()
+    payload = ExecutionPayload(
+        route="qa",
+        handling_mode="challenge",
+        action="respond",
+        context_bundle={
+            "binding_summary": "bound_by_topic_continuity",
+            "candidate_count": 2,
+        },
+        plan_bundle={
+            "planning_mode": "compare",
+            "ordered_steps": [{"title": "Compare", "sequence": 1}],
+            "execution_checkpoints": [{"name": "coverage"}],
+            "comparison_units": [{"left": "A", "right": "B"}],
+            "bound_target_refs": ["compare_1"],
+            "fallback_used": True,
+            "fallback_reason": ["stale_plan_summary_should_not_win"],
+            "plan_summary": {
+                "planning_mode": "stale",
+                "step_count": 99,
+                "fallback_used": False,
+            },
+        },
+        review_bundle={
+            "review_mode": "challenge_review",
+            "review_confidence": "medium",
+            "review_scope": "multi_target",
+            "evidence_assessment": EvidenceAssessmentResult(
+                partially_sufficient=True,
+                matched_target_count=1,
+                target_count=2,
+                matched_target_refs=("claim_1",),
+                needs_more_evidence_targets=("claim_2",),
+                follow_up_retrieval={
+                    "attempted": True,
+                    "improved": False,
+                    "source_refs": ["kb/law.md"],
+                    "retrieved_evidence_count": 1,
+                },
+            ),
+            "review_summary": {
+                "matched_target_count": 99,
+                "needs_more_evidence_targets": ["stale_claim"],
+                "follow_up_retrieval_attempted": False,
+            },
+        },
+        evidence_bundle=EvidenceBundle(
+            quality_summary={"average_weighted_score": 0.4, "status": "bad", "repaired_units": 1},
+            coverage_summary={"query_units": 2, "sources": 1},
+            merged_evidence_items=(
+                EvidenceItem(
+                    evidence_id="e1",
+                    source_path="docs/law.md",
+                    source_type="official_structured",
+                    locator="p1",
+                    snippet="劳动合同法第19条。",
+                    channel="fused",
+                    score=0.9,
+                    query_unit_ids=("primary",),
+                ),
+            ),
+            source_refs=("docs/law.md",),
+            missing_evidence_notes=("retrieval_quality_weak",),
+        ),
+    )
+
+    metadata = agent._build_execution_summary_metadata(payload)
+
+    assert metadata["binding_summary"] == "bound_by_topic_continuity"
+    assert metadata["plan_summary"]["planning_mode"] == "compare"
+    assert metadata["plan_summary"]["step_count"] == 1
+    assert metadata["plan_summary"]["fallback_used"] is True
+    assert metadata["review_summary"]["matched_target_count"] == 1
+    assert metadata["review_summary"]["matched_target_refs"] == ["claim_1"]
+    assert metadata["review_summary"]["needs_more_evidence_targets"] == ["claim_2"]
+    assert metadata["review_summary"]["follow_up_retrieval_attempted"] is True
+    assert metadata["review_summary"]["follow_up_retrieval_sources"] == ["kb/law.md"]
+    assert metadata["evidence_summary"]["retrieval_quality_status"] == "bad"
+    assert metadata["evidence_summary"]["merged_evidence_count"] == 1
+    assert metadata["evidence_summary"]["coverage_query_units"] == 2
+
+
+def test_agent_builds_registry_entries_from_typed_bundle_objects() -> None:
+    agent = AgentManager()
+    payload = ExecutionPayload(
+        route="qa",
+        handling_mode="challenge",
+        action="respond",
+        context_bundle=ContextBundle(
+            binding=ContextBindingResult(
+                bound_targets=(
+                    {
+                        "object_id": "claim_1",
+                        "object_type": "claim",
+                        "content": "试用期最长一个月",
+                        "refs": ("claim_1",),
+                    },
+                ),
+                binding_summary="bound_by_topic_continuity",
+            ),
+            binding_summary="bound_by_topic_continuity",
+        ),
+        plan_bundle=PlanBundle(
+            planning_mode="compare",
+            comparison_units=(
+                {"unit_id": "compare_1", "label": "A vs B"},
+            ),
+            query_units=(
+                {"unit_id": "q1", "origin": "primary", "text": "试用期依据是什么"},
+            ),
+        ),
+        review_bundle=ReviewBundle(
+            review_mode="challenge_review",
+            review_findings=(
+                {"target_ref": "claim_1", "reason": "证据支持该结论"},
+            ),
+        ),
+    )
+
+    entries = agent._build_registry_entries_from_execution_payload(
+        payload=payload,
+        session_id="session_1",
+        tenant_id="tenant_u1",
+        group_id="law",
+        message="试用期依据是什么",
+    )
+
+    object_types = [entry.object_type for entry in entries]
+    assert "claim" in object_types
+    assert "comparison_target" in object_types
+    assert object_types.count("question_object") >= 2

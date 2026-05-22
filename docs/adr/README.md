@@ -24,7 +24,13 @@ Avoid writing ADRs for:
 
 ## Current Status
 
-This project now has an ADR home, but does not yet have a complete ADR set.
+This project now has an ADR home, and workflow has started contributing stable ADRs.
+
+Current workflow ADRs:
+
+1. `ADR-0001-workflow-layer-boundaries.md`
+2. `ADR-0002-workflow-typed-inside-dict-outside.md`
+3. `ADR-0003-workflow-owner-first-summary-contracts.md`
 
 Recommended first ADR candidates:
 

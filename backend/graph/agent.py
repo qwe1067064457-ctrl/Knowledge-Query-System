@@ -482,6 +482,9 @@ class AgentManager:
     ) -> list[ContextRegistryEntry]:
         turn_id = f"turn_{int(time.time() * 1000)}"
         summary_metadata = self._build_execution_summary_metadata(payload)
+        context_bundle = payload.context_bundle_obj()
+        plan_bundle = payload.plan_bundle_obj()
+        review_bundle = payload.review_bundle_obj()
         entries: list[ContextRegistryEntry] = [
             ContextRegistryEntry(
                 object_id=f"{turn_id}:question",
@@ -525,8 +528,7 @@ class AgentManager:
                     )
                 )
 
-        binding = payload.context_bundle.get("binding", {})
-        for index, target in enumerate(binding.get("bound_targets", []), start=1):
+        for index, target in enumerate(context_bundle.bound_targets(), start=1):
             object_type = str(target.get("object_type") or "question_object")
             if object_type not in {"claim", "evidence_ref", "retrieval_result_ref", "comparison_target", "case_or_scenario", "question_object"}:
                 object_type = "question_object"
@@ -546,7 +548,7 @@ class AgentManager:
                 )
             )
 
-        for index, unit in enumerate(payload.plan_bundle.get("comparison_units", []), start=1):
+        for index, unit in enumerate(plan_bundle.comparison_units, start=1):
             entries.append(
                 ContextRegistryEntry(
                     object_id=f"{turn_id}:comparison:{index}",
@@ -563,7 +565,7 @@ class AgentManager:
                 )
             )
 
-        for index, unit in enumerate(payload.plan_bundle.get("query_units", []), start=1):
+        for index, unit in enumerate(plan_bundle.query_unit_dicts(), start=1):
             entries.append(
                 ContextRegistryEntry(
                     object_id=f"{turn_id}:query-unit:{index}",
@@ -580,7 +582,7 @@ class AgentManager:
                 )
             )
 
-        for index, finding in enumerate(payload.review_bundle.get("review_findings", []), start=1):
+        for index, finding in enumerate(review_bundle.review_findings, start=1):
             entries.append(
                 ContextRegistryEntry(
                     object_id=f"{turn_id}:claim:{index}",
@@ -600,40 +602,56 @@ class AgentManager:
         return entries[:10]
 
     def _build_execution_summary_metadata(self, payload) -> dict[str, Any]:
-        evidence_summary: dict[str, Any] = {}
+        context_bundle = payload.context_bundle_obj()
+        plan_bundle = payload.plan_bundle_obj()
+        review_bundle = payload.review_bundle_obj()
+        context_summary = payload.context_summary_view()
+        plan_summary_view = payload.plan_summary_view()
+        review_summary_view = payload.review_summary_view()
+        evidence_summary_view = payload.evidence_summary_view()
+
+        evidence_summary = {}
         if getattr(payload, "evidence_bundle", None) is not None:
-            evidence_summary = dict(payload.evidence_bundle.to_dict().get("evidence_summary", {}))
+            evidence_summary = {
+                "retrieval_quality_status": evidence_summary_view.retrieval_quality_status,
+                "query_unit_count": evidence_summary_view.query_unit_count,
+                "merged_evidence_count": evidence_summary_view.merged_evidence_count,
+                "source_ref_count": evidence_summary_view.source_ref_count,
+                "repairable_units": evidence_summary_view.repairable_units,
+                "repaired_units": evidence_summary_view.repaired_units,
+                "missing_evidence": evidence_summary_view.missing_evidence,
+                "coverage_query_units": evidence_summary_view.coverage_query_units,
+                "coverage_sources": evidence_summary_view.coverage_sources,
+            }
         plan_summary = {
-            "planning_mode": "not_applicable",
-            "step_count": 0,
-            "checkpoint_count": 0,
-            "comparison_unit_count": 0,
-            "bound_target_ref_count": 0,
-            "refined": False,
-            "fallback_used": False,
-            "fallback_reason": [],
+            "planning_mode": plan_summary_view.planning_mode,
+            "step_count": plan_summary_view.step_count,
+            "checkpoint_count": plan_summary_view.checkpoint_count,
+            "comparison_unit_count": plan_summary_view.comparison_unit_count,
+            "bound_target_ref_count": plan_summary_view.bound_target_ref_count,
+            "refined": plan_summary_view.refined,
+            "fallback_used": plan_summary_view.fallback_used,
+            "fallback_reason": list(plan_bundle.fallback_reason),
         }
-        plan_summary.update(dict(payload.plan_bundle.get("plan_summary", {})))
         review_summary = {
-            "target_count": 0,
-            "matched_target_count": 0,
-            "matched_target_refs": [],
-            "unsupported_target_refs": [],
-            "needs_more_evidence_targets": [],
-            "status_summary": "not_applicable",
-            "review_mode": "not_applicable",
-            "review_confidence": "not_applicable",
-            "review_scope": "not_applicable",
-            "follow_up_retrieval_attempted": False,
-            "follow_up_retrieval_improved": False,
-            "follow_up_retrieval_sources": [],
-            "follow_up_retrieval_retrieved_evidence_count": 0,
+            "target_count": review_summary_view.target_count,
+            "matched_target_count": review_summary_view.matched_target_count,
+            "matched_target_refs": list(review_bundle.matched_target_refs()),
+            "unsupported_target_refs": list(review_bundle.unsupported_target_refs()),
+            "needs_more_evidence_targets": list(review_bundle.needs_more_evidence_targets()),
+            "status_summary": review_summary_view.status_summary,
+            "review_mode": review_summary_view.review_mode,
+            "review_confidence": review_summary_view.review_confidence,
+            "review_scope": review_summary_view.review_scope,
+            "follow_up_retrieval_attempted": review_summary_view.follow_up_retrieval_attempted,
+            "follow_up_retrieval_improved": review_summary_view.follow_up_retrieval_improved,
+            "follow_up_retrieval_sources": list(review_bundle.follow_up_retrieval_sources()),
+            "follow_up_retrieval_retrieved_evidence_count": review_bundle.follow_up_retrieval_retrieved_evidence_count(),
         }
-        review_summary.update(dict(payload.review_bundle.get("review_summary", {})))
 
         return {
             "knowledge_scope_status": str(getattr(payload, "knowledge_scope_status", "resolved")),
-            "binding_summary": str(payload.context_bundle.get("binding_summary", "not_applicable")),
+            "binding_summary": context_summary.binding_summary,
             "plan_summary": plan_summary,
             "review_summary": review_summary,
             "evidence_summary": evidence_summary,
