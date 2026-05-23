@@ -1,23 +1,25 @@
 # Prompt 管理
 
-当前阶段只管理主问答链路的 `system prompt`。
+这个目录只存放 prompt 文本与规则说明，不存放 prompt 组装逻辑。
 
-## 文件
+## 子目录
 
-- `system_prompt.md`
-  - 主问答助手的基础 system prompt
+- `system/`
+  - 主回答模型的基础系统提示词与运行时统一覆盖规则
+- `classifiers/`
+  - 分类器或路由器使用的 prompt
+- `workflow/`
+  - workflow 结果如何影响主回答行为与结果投影的规则说明
 
 ## 设计原则
 
-- Prompt 文本放在文件中管理，不直接写死在业务代码里。
-- Prompt 采用注入式设计：
-  - 基础 system prompt 负责总行为约束
-  - `ContextManager` 负责注入核心记忆、相关记忆、最近对话等上下文块
-- 当前不拆分 router / planner / tool / critique 等其他 prompt。
+- Prompt 文本放在 markdown 文件中管理，不直接写死在业务代码里。
+- Prompt 装配逻辑放在 `backend/graph/prompt_builders/`。
+- `ContextManager` 只负责准备上下文材料，不负责拥有最终主回答 prompt。
 
 ## 路径配置
 
-默认路径由 `backend/context/context_policy.json` 中的：
+默认主回答 system prompt 路径由 `backend/context/context_policy.json` 中的：
 
 - `prompt.system_prompt_path`
 

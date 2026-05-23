@@ -91,10 +91,14 @@ def test_execution_payload_is_persisted_into_registry(tmp_path: Path) -> None:
     assert registry.entries[0].metadata["binding_summary"] == "not_applicable"
     assert registry.entries[0].metadata["knowledge_scope_status"] == "resolved"
     assert registry.entries[0].metadata["evidence_summary"]["merged_evidence_count"] == 1
+    assert registry.entries[0].metadata["workflow_summary"]["knowledge_scope_status"] == "resolved"
+    assert registry.entries[0].metadata["registry_convenience"]["route"] == "qa"
     assert registry.entries[1].object_type == "evidence_ref"
     assert registry.entries[1].metadata["channel"] == "fused"
     assert registry.entries[1].metadata["evidence_summary"]["source_ref_count"] == 1
     assert registry.entries[1].metadata["review_summary"]["status_summary"] == "not_applicable"
+    assert registry.entries[1].metadata["workflow_summary"]["evidence_summary"]["source_ref_count"] == 1
+    assert registry.entries[1].metadata["registry_convenience"]["channel"] == "fused"
     assert registry.entries[2].object_type == "claim"
     assert registry.entries[2].metadata["binding_summary"] == "not_applicable"
     assert registry.entries[3].object_type == "comparison_target"
@@ -251,6 +255,32 @@ def test_agent_builds_execution_summary_metadata_from_typed_summary_views() -> N
     assert metadata["evidence_summary"]["coverage_query_units"] == 2
 
 
+def test_agent_registry_metadata_payload_separates_owner_summary_and_convenience_fields() -> None:
+    agent = AgentManager()
+
+    metadata = agent._build_registry_metadata_payload(
+        owner_summary={
+            "binding_summary": "bound_by_topic_continuity",
+            "review_summary": {"matched_target_count": 1},
+        },
+        convenience_fields={
+            "channel": "fused",
+            "query_unit_ids": ["q1"],
+        },
+    )
+
+    assert metadata["binding_summary"] == "bound_by_topic_continuity"
+    assert metadata["channel"] == "fused"
+    assert metadata["workflow_summary"] == {
+        "binding_summary": "bound_by_topic_continuity",
+        "review_summary": {"matched_target_count": 1},
+    }
+    assert metadata["registry_convenience"] == {
+        "channel": "fused",
+        "query_unit_ids": ["q1"],
+    }
+
+
 def test_agent_builds_registry_entries_from_typed_bundle_objects() -> None:
     agent = AgentManager()
     payload = ExecutionPayload(
@@ -297,6 +327,10 @@ def test_agent_builds_registry_entries_from_typed_bundle_objects() -> None:
     )
 
     object_types = [entry.object_type for entry in entries]
+    assert "retrieval_result_ref" not in object_types
     assert "claim" in object_types
     assert "comparison_target" in object_types
     assert object_types.count("question_object") >= 2
+    question_entry = entries[0]
+    assert question_entry.metadata["workflow_summary"]["binding_summary"] == "bound_by_topic_continuity"
+    assert question_entry.metadata["registry_convenience"]["route"] == "qa"

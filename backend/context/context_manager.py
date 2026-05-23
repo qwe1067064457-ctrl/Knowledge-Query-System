@@ -65,7 +65,7 @@ class ContextConfig:
     memory_flush_threshold: int = 5400
 
     # Prompt
-    system_prompt_path: str = "prompts/system_prompt.md"
+    system_prompt_path: str = "prompts/system/answer_system_prompt.md"
 
     @classmethod
     def from_policy(cls, policy: Dict[str, Any]) -> "ContextConfig":
@@ -106,7 +106,7 @@ class ContextConfig:
             compaction_trigger_ratio=trigger_ratio,
             memory_flush_enabled=bool(memory.get("flush_enabled", True)),
             memory_flush_threshold=int(memory.get("flush_threshold", soft_threshold)),
-            system_prompt_path=str(prompt.get("system_prompt_path", "prompts/system_prompt.md")),
+            system_prompt_path=str(prompt.get("system_prompt_path", "prompts/system/answer_system_prompt.md")),
         )
 
 

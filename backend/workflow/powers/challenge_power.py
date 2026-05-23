@@ -180,7 +180,7 @@ class ChallengePower:
         non_evidence_targets = [
             candidate
             for candidate in candidate_targets
-            if candidate.get("object_type") not in {"evidence_ref", "retrieval_result_ref"}
+            if candidate.get("object_type") != "evidence_ref"
         ]
         typed_evidence_targets = [
             self._as_target_candidate(candidate)

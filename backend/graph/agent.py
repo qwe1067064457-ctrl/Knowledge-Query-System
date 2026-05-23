@@ -2,36 +2,42 @@ from __future__ import annotations
 
 import json
 import re
-import time
 from dataclasses import replace
 from pathlib import Path
 from typing import Any
 
 from langchain.agents import create_agent
-from langchain_openai import ChatOpenAI
 
-try:
-    from langchain_deepseek import ChatDeepSeek
-except ImportError:  # pragma: no cover - optional dependency at runtime
-    ChatDeepSeek = None
-
-from config import get_settings, runtime_config
+from config import runtime_config
 from graph.memory_indexer import memory_indexer
-from graph.prompt_builder import build_system_prompt
+from graph.prompt_builders.answer_prompt_assembler import (
+    assemble_answer_messages,
+    build_answer_system_prompt,
+)
+from graph.prompt_builders.workflow_prompt_projector import (
+    build_answer_behavior_rules_from_workflow,
+    build_answer_result_projection_rules_from_workflow,
+)
 from intent import classify_intent
 from intent.loaders import load_group_intent_rule_assets
 from knowledge_retrieval import knowledge_orchestrator
+from llm.model_factory import build_chat_model
 from memory_system import MemorySystem
 from tools import get_all_tools
 from workflow import WorkflowDispatcher, WorkflowPlan, build_workflow_plan
+from workflow.adapters.workflow_registry_projection import (
+    build_execution_summary_metadata,
+    build_registry_entries_from_execution_payload,
+    build_registry_metadata_payload,
+)
 from workflow.powers.retrieval_power import RetrievalPower
 from workflow.runners.base import RouteExecutionRequest
 
 # 导入新的 context 模块
-from context.registry_types import ContextRegistryEntry
-from context.session_manager import SessionManager
-from context.context_manager import ContextManager
-from context.legacy_adapter import DEFAULT_AGENT, DEFAULT_GROUP, LegacySessionManagerAdapter
+from context.assembly.context_manager import ContextManager
+from context.registry.registry_types import ContextRegistryEntry
+from context.session.legacy_adapter import DEFAULT_AGENT, DEFAULT_GROUP, LegacySessionManagerAdapter
+from context.session.session_manager import SessionManager
 
 KNOWLEDGE_SKILL_PATTERNS = (
     re.compile(r"知识库"),
@@ -83,29 +89,7 @@ class AgentManager:
         knowledge_orchestrator.configure(base_dir, self._build_chat_model)
 
     def _build_chat_model(self):
-        settings = get_settings()
-
-        if settings.llm_provider == "deepseek":
-            if ChatDeepSeek is None:
-                raise RuntimeError("langchain-deepseek is not installed")
-            if not settings.llm_api_key:
-                raise RuntimeError("Missing API key for provider deepseek")
-            return ChatDeepSeek(
-                model=settings.llm_model,
-                api_key=settings.llm_api_key,
-                base_url=settings.llm_base_url,
-                temperature=0,
-            )
-
-        if not settings.llm_api_key:
-            raise RuntimeError(f"Missing API key for provider {settings.llm_provider}")
-
-        return ChatOpenAI(
-            model=settings.llm_model,
-            api_key=settings.llm_api_key,
-            base_url=settings.llm_base_url,
-            temperature=0,
-        )
+        return build_chat_model()
 
     async def _llm_text_call(self, prompt: str) -> str:
         response = await self._build_chat_model().ainvoke(
@@ -121,9 +105,11 @@ class AgentManager:
         if self.base_dir is None:
             raise RuntimeError("AgentManager is not initialized")
 
-        system_prompt = build_system_prompt(self.base_dir, runtime_config.get_rag_mode())
-        if extra_instructions:
-            system_prompt = f"{system_prompt}\n\n" + "\n\n".join(extra_instructions)
+        system_prompt = build_answer_system_prompt(
+            self.base_dir,
+            runtime_config.get_rag_mode(),
+            extra_instructions=extra_instructions,
+        )
         return create_agent(
             model=self._build_chat_model(),
             tools=self.tools if tools_override is None else tools_override,
@@ -265,12 +251,12 @@ class AgentManager:
         if self.base_dir is None:
             raise RuntimeError("AgentManager is not initialized")
 
-        system_prompt = build_system_prompt(self.base_dir, runtime_config.get_rag_mode())
-        if extra_instructions:
-            system_prompt = f"{system_prompt}\n\n" + "\n\n".join(extra_instructions)
-
-        model_messages: list[dict[str, str]] = [{"role": "system", "content": system_prompt}]
-        model_messages.extend(messages)
+        model_messages = assemble_answer_messages(
+            self.base_dir,
+            messages,
+            rag_mode=runtime_config.get_rag_mode(),
+            extra_instructions=extra_instructions,
+        )
 
         final_content_parts: list[str] = []
         async for chunk in self._build_chat_model().astream(model_messages):
@@ -355,100 +341,10 @@ class AgentManager:
         yield {"type": "done", "content": final_content}
 
     def _build_workflow_instructions(self, plan: WorkflowPlan) -> list[str]:
-        instructions: list[str] = []
-
-        if plan.should_ask_clarification_first:
-            instructions.append(
-                "The current request is not ready for full execution yet. Ask a concise clarification question first and do not continue into a substantive answer."
-            )
-            if plan.trace.missing_context_types:
-                missing = ", ".join(plan.trace.missing_context_types)
-                instructions.append(f"Focus the clarification on these missing context types: {missing}.")
-
-        if plan.handling_mode == "challenge":
-            instructions.append(
-                "Treat this as a challenge/correction turn. Re-evaluate the disputed point carefully, explain the basis, and avoid defending the previous answer blindly."
-            )
-        elif plan.handling_mode == "scope_info":
-            instructions.append(
-                "Treat this as a scope/capability question. Answer about what the system can or cannot do instead of executing the underlying task."
-            )
-        elif plan.handling_mode == "unsupported":
-            instructions.append(
-                "Treat this as an unsupported request. Refuse the operation briefly and, when possible, suggest a safer alternative."
-            )
-
-        if plan.route == "orchestrated":
-            instructions.append(
-                "This request requires explicit execution organization. Make the stages or subtask order visible before giving the final answer."
-            )
-        elif plan.route == "qa":
-            instructions.append(
-                "This request should stay within a single-turn answer flow. Keep the execution lightweight and avoid unnecessary planning narration."
-            )
-        elif plan.route == "chat":
-            instructions.append(
-                "This is a chat turn. Respond naturally and do not over-structure the answer."
-            )
-
-        if plan.use_planner:
-            instructions.append(
-                "Use an internal lightweight plan before answering so the reasoning order is stable."
-            )
-        if plan.decompose_query:
-            instructions.append(
-                "Cover each sub-question or subtask explicitly so no requested branch is skipped."
-            )
-        if plan.cite_sources:
-            instructions.append(
-                "Provide supporting basis or citations when available, and make the grounding visible instead of answering from bare assertion."
-            )
-        if plan.use_context:
-            instructions.append(
-                "Use the current conversation context and do not treat this as a standalone fresh request."
-            )
-        return instructions
+        return build_answer_behavior_rules_from_workflow(plan)
 
     def _build_execution_summary_instructions(self, payload) -> list[str]:
-        instructions: list[str] = []
-        context_summary = payload.context_summary_view()
-        plan_summary = payload.plan_summary_view()
-        review_summary = payload.review_summary_view()
-        evidence_summary = payload.evidence_summary_view()
-
-        if context_summary.binding_summary != "not_applicable":
-            instructions.append(
-                f"Current binding summary: {context_summary.binding_summary}. Keep the answer anchored to the resolved target context."
-            )
-        if plan_summary.planning_mode != "not_applicable":
-            instructions.append(
-                f"Current planning summary: mode={plan_summary.planning_mode}, steps={plan_summary.step_count}, checkpoints={plan_summary.checkpoint_count}. Preserve this execution organization in the answer."
-            )
-            if plan_summary.fallback_used:
-                instructions.append(
-                    "Planning fell back to a conservative structure. Keep the answer compact and avoid over-claiming hidden execution detail."
-                )
-        if review_summary.review_mode != "not_applicable":
-            instructions.append(
-                f"Current review summary: mode={review_summary.review_mode}, scope={review_summary.review_scope}, confidence={review_summary.review_confidence}, status={review_summary.status_summary}."
-            )
-            if review_summary.needs_more_evidence_target_count:
-                instructions.append(
-                    f"There are still {review_summary.needs_more_evidence_target_count} target(s) needing more evidence. Acknowledge uncertainty explicitly."
-                )
-            if review_summary.follow_up_retrieval_attempted:
-                instructions.append(
-                    "A follow-up retrieval was attempted during review. Reflect any remaining uncertainty rather than implying the review was fully definitive."
-                )
-        if evidence_summary.retrieval_quality_status != "not_applicable":
-            instructions.append(
-                f"Current evidence summary: quality={evidence_summary.retrieval_quality_status}, evidences={evidence_summary.merged_evidence_count}, sources={evidence_summary.source_ref_count}."
-            )
-            if evidence_summary.missing_evidence:
-                instructions.append(
-                    "The evidence bundle is still incomplete. Do not overstate certainty and call out missing support when needed."
-                )
-        return instructions
+        return build_answer_result_projection_rules_from_workflow(payload)
 
     def _build_reject_response(self, plan: WorkflowPlan) -> str:
         if plan.handling_mode == "unsupported":
@@ -480,182 +376,27 @@ class AgentManager:
         group_id: str,
         message: str,
     ) -> list[ContextRegistryEntry]:
-        turn_id = f"turn_{int(time.time() * 1000)}"
-        summary_metadata = self._build_execution_summary_metadata(payload)
-        context_bundle = payload.context_bundle_obj()
-        plan_bundle = payload.plan_bundle_obj()
-        review_bundle = payload.review_bundle_obj()
-        entries: list[ContextRegistryEntry] = [
-            ContextRegistryEntry(
-                object_id=f"{turn_id}:question",
-                object_type="question_object",
-                tenant_id=tenant_id,
-                group_id=group_id,
-                session_id=session_id,
-                source_turn_id=turn_id,
-                content=message,
-                refs=(payload.route, payload.handling_mode),
-                salience_score=1.0,
-                source_power="workflow",
-                metadata={
-                    "route": payload.route,
-                    "handling_mode": payload.handling_mode,
-                    **summary_metadata,
-                },
-            )
-        ]
+        return build_registry_entries_from_execution_payload(
+            payload=payload,
+            session_id=session_id,
+            tenant_id=tenant_id,
+            group_id=group_id,
+            message=message,
+        )
 
-        if payload.evidence_bundle:
-            for index, item in enumerate(payload.evidence_bundle.merged_evidence_items, start=1):
-                entries.append(
-                    ContextRegistryEntry(
-                        object_id=f"{turn_id}:evidence:{index}",
-                        object_type="evidence_ref",
-                        tenant_id=tenant_id,
-                        group_id=group_id,
-                        session_id=session_id,
-                        source_turn_id=turn_id,
-                        content=item.snippet,
-                        refs=(item.source_path, item.locator, *item.query_unit_ids),
-                        salience_score=float(item.score or 0.0),
-                        source_power="retrieval_power",
-                        metadata={
-                            "source_type": item.source_type,
-                            "channel": item.channel,
-                            "query_unit_ids": list(item.query_unit_ids),
-                            **summary_metadata,
-                        },
-                    )
-                )
-
-        for index, target in enumerate(context_bundle.bound_targets(), start=1):
-            object_type = str(target.get("object_type") or "question_object")
-            if object_type not in {"claim", "evidence_ref", "retrieval_result_ref", "comparison_target", "case_or_scenario", "question_object"}:
-                object_type = "question_object"
-            entries.append(
-                ContextRegistryEntry(
-                    object_id=f"{turn_id}:bound:{index}",
-                    object_type=object_type,
-                    tenant_id=tenant_id,
-                    group_id=group_id,
-                    session_id=session_id,
-                    source_turn_id=turn_id,
-                    content=str(target.get("content", "")),
-                    refs=tuple(str(ref) for ref in target.get("refs", ()) or (str(target.get("object_id", "")),)),
-                    salience_score=0.9,
-                    source_power="context_binding_power",
-                    metadata={**dict(target), **summary_metadata},
-                )
-            )
-
-        for index, unit in enumerate(plan_bundle.comparison_units, start=1):
-            entries.append(
-                ContextRegistryEntry(
-                    object_id=f"{turn_id}:comparison:{index}",
-                    object_type="comparison_target",
-                    tenant_id=tenant_id,
-                    group_id=group_id,
-                    session_id=session_id,
-                    source_turn_id=turn_id,
-                    content=str(unit.get("label") or unit.get("content") or ""),
-                    refs=(str(unit.get("unit_id", "")),),
-                    salience_score=0.8,
-                    source_power="planning_power",
-                    metadata={**dict(unit), **summary_metadata},
-                )
-            )
-
-        for index, unit in enumerate(plan_bundle.query_unit_dicts(), start=1):
-            entries.append(
-                ContextRegistryEntry(
-                    object_id=f"{turn_id}:query-unit:{index}",
-                    object_type="question_object",
-                    tenant_id=tenant_id,
-                    group_id=group_id,
-                    session_id=session_id,
-                    source_turn_id=turn_id,
-                    content=str(unit.get("text", "")),
-                    refs=(str(unit.get("unit_id", "")), str(unit.get("origin", ""))),
-                    salience_score=0.75,
-                    source_power="decomposition_power",
-                    metadata={**dict(unit), **summary_metadata},
-                )
-            )
-
-        for index, finding in enumerate(review_bundle.review_findings, start=1):
-            entries.append(
-                ContextRegistryEntry(
-                    object_id=f"{turn_id}:claim:{index}",
-                    object_type="claim",
-                    tenant_id=tenant_id,
-                    group_id=group_id,
-                    session_id=session_id,
-                    source_turn_id=turn_id,
-                    content=str(finding.get("reason", "")),
-                    refs=(str(finding.get("target_ref", "")),),
-                    salience_score=1.0,
-                    source_power="challenge_power",
-                    metadata={**dict(finding), **summary_metadata},
-                )
-            )
-
-        return entries[:10]
+    def _build_registry_metadata_payload(
+        self,
+        *,
+        owner_summary: dict[str, Any],
+        convenience_fields: dict[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        return build_registry_metadata_payload(
+            owner_summary=owner_summary,
+            convenience_fields=convenience_fields,
+        )
 
     def _build_execution_summary_metadata(self, payload) -> dict[str, Any]:
-        context_bundle = payload.context_bundle_obj()
-        plan_bundle = payload.plan_bundle_obj()
-        review_bundle = payload.review_bundle_obj()
-        context_summary = payload.context_summary_view()
-        plan_summary_view = payload.plan_summary_view()
-        review_summary_view = payload.review_summary_view()
-        evidence_summary_view = payload.evidence_summary_view()
-
-        evidence_summary = {}
-        if getattr(payload, "evidence_bundle", None) is not None:
-            evidence_summary = {
-                "retrieval_quality_status": evidence_summary_view.retrieval_quality_status,
-                "query_unit_count": evidence_summary_view.query_unit_count,
-                "merged_evidence_count": evidence_summary_view.merged_evidence_count,
-                "source_ref_count": evidence_summary_view.source_ref_count,
-                "repairable_units": evidence_summary_view.repairable_units,
-                "repaired_units": evidence_summary_view.repaired_units,
-                "missing_evidence": evidence_summary_view.missing_evidence,
-                "coverage_query_units": evidence_summary_view.coverage_query_units,
-                "coverage_sources": evidence_summary_view.coverage_sources,
-            }
-        plan_summary = {
-            "planning_mode": plan_summary_view.planning_mode,
-            "step_count": plan_summary_view.step_count,
-            "checkpoint_count": plan_summary_view.checkpoint_count,
-            "comparison_unit_count": plan_summary_view.comparison_unit_count,
-            "bound_target_ref_count": plan_summary_view.bound_target_ref_count,
-            "refined": plan_summary_view.refined,
-            "fallback_used": plan_summary_view.fallback_used,
-            "fallback_reason": list(plan_bundle.fallback_reason),
-        }
-        review_summary = {
-            "target_count": review_summary_view.target_count,
-            "matched_target_count": review_summary_view.matched_target_count,
-            "matched_target_refs": list(review_bundle.matched_target_refs()),
-            "unsupported_target_refs": list(review_bundle.unsupported_target_refs()),
-            "needs_more_evidence_targets": list(review_bundle.needs_more_evidence_targets()),
-            "status_summary": review_summary_view.status_summary,
-            "review_mode": review_summary_view.review_mode,
-            "review_confidence": review_summary_view.review_confidence,
-            "review_scope": review_summary_view.review_scope,
-            "follow_up_retrieval_attempted": review_summary_view.follow_up_retrieval_attempted,
-            "follow_up_retrieval_improved": review_summary_view.follow_up_retrieval_improved,
-            "follow_up_retrieval_sources": list(review_bundle.follow_up_retrieval_sources()),
-            "follow_up_retrieval_retrieved_evidence_count": review_bundle.follow_up_retrieval_retrieved_evidence_count(),
-        }
-
-        return {
-            "knowledge_scope_status": str(getattr(payload, "knowledge_scope_status", "resolved")),
-            "binding_summary": context_summary.binding_summary,
-            "plan_summary": plan_summary,
-            "review_summary": review_summary,
-            "evidence_summary": evidence_summary,
-        }
+        return build_execution_summary_metadata(payload)
 
     def _persist_execution_payload(
         self,

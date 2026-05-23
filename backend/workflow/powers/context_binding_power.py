@@ -99,6 +99,6 @@ class ContextBindingPower:
 
     def _select_primary_target(self, candidates: list[dict[str, Any]]) -> dict[str, Any]:
         for candidate in reversed(candidates):
-            if candidate.get("object_type") not in {"evidence_ref", "retrieval_result_ref"}:
+            if candidate.get("object_type") != "evidence_ref":
                 return candidate
         return candidates[-1]

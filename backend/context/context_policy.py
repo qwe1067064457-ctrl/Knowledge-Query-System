@@ -44,7 +44,7 @@ DEFAULT_CONTEXT_POLICY: Dict[str, Any] = {
         "flush_threshold": 5400,
     },
     "prompt": {
-        "system_prompt_path": "prompts/system_prompt.md",
+        "system_prompt_path": "prompts/system/answer_system_prompt.md",
     },
 }
 

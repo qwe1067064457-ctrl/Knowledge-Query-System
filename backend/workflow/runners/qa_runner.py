@@ -30,9 +30,10 @@ class QaRouteRunner(BaseRouteRunner):
         context_bundle = payload.context_bundle_obj()
         answer_constraints = dict(payload.answer_constraints)
 
-        candidates = self._registry_candidates(request)
+        binding_candidates = self._registry_binding_candidates(request)
+        challenge_target_candidates = self._registry_challenge_target_candidates(request)
         if "context_binding_power" in plan.enabled_powers:
-            candidate_entries = self.context_binding_power.collect_candidates(candidates)
+            candidate_entries = self.context_binding_power.collect_candidates(binding_candidates)
             binding = self.context_binding_power.bind(
                 request.message,
                 candidate_entries,
@@ -55,7 +56,7 @@ class QaRouteRunner(BaseRouteRunner):
             evidence_candidates = self._registry_evidence_candidates(request)
             challenge = self.challenge_power.execute(
                 query=request.message,
-                candidate_targets=list(context_bundle.bound_targets()) or candidates,
+                candidate_targets=list(context_bundle.bound_targets()) or challenge_target_candidates,
                 evidence_candidates=evidence_candidates,
                 binding_worker=self.binding_worker,
                 review_worker=self.review_worker,

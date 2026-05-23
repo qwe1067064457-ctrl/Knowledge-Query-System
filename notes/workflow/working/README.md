@@ -10,6 +10,8 @@
   - workflow 收口后的 P1 优化与稳定化目录
 - `answer_alignment/`
   - workflow 与 answer side 的消费链对齐目录
+- `registry_boundary/`
+  - workflow 与 context registry 正式边界梳理目录
 
 放置原则：
 

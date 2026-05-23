@@ -38,10 +38,11 @@ class OrchestratedRouteRunner(BaseRouteRunner):
         plan_bundle = payload.plan_bundle_obj()
         review_bundle = payload.review_bundle_obj()
 
-        candidates = self._registry_candidates(request)
-        candidate_entries = candidates
+        binding_candidates = self._registry_binding_candidates(request)
+        challenge_target_candidates = self._registry_challenge_target_candidates(request)
+        candidate_entries = binding_candidates
         if "context_binding_power" in plan.enabled_powers:
-            candidate_entries = self.context_binding_power.collect_candidates(candidates)
+            candidate_entries = self.context_binding_power.collect_candidates(binding_candidates)
             binding = self.context_binding_power.bind(
                 request.message,
                 candidate_entries,
@@ -87,7 +88,7 @@ class OrchestratedRouteRunner(BaseRouteRunner):
             evidence_candidates = self._registry_evidence_candidates(request)
             challenge = self.challenge_power.execute(
                 query=request.message,
-                candidate_targets=list(context_bundle.bound_targets()) or candidate_entries,
+                candidate_targets=list(context_bundle.bound_targets()) or challenge_target_candidates,
                 evidence_candidates=evidence_candidates,
                 binding_worker=self.binding_worker,
                 review_worker=self.review_worker,

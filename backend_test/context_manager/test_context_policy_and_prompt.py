@@ -20,7 +20,7 @@ def test_context_policy_loader_falls_back_to_default_values(workspace) -> None:
     assert policy["history"]["max_recent_turns"] == 8
     assert policy["budget"]["total_tokens"] == 6000
     assert policy["compaction"]["enabled"] is True
-    assert policy["prompt"]["system_prompt_path"] == "prompts/system_prompt.md"
+    assert policy["prompt"]["system_prompt_path"] == "prompts/system/answer_system_prompt.md"
 
 
 def test_context_policy_loader_applies_local_overrides(workspace) -> None:
@@ -71,6 +71,7 @@ def test_build_system_prompt_reads_configured_prompt_file(workspace) -> None:
         },
     )
     write_system_prompt(workspace, "Custom system prompt body.", "prompts/custom_system.md")
+    write_system_prompt(workspace, "Runtime Override", "prompts/system/runtime_override.md")
 
     prompt = build_system_prompt(workspace, rag_mode=False)
 
