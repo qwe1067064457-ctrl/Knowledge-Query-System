@@ -5,10 +5,7 @@ from typing import Any, Literal
 
 
 RegistryObjectType = Literal[
-    "claim",
     "evidence_ref",
-    "comparison_target",
-    "case_or_scenario",
     "question_object",
 ]
 

@@ -182,11 +182,7 @@ class ChallengePower:
             for candidate in candidate_targets
             if candidate.get("object_type") != "evidence_ref"
         ]
-        typed_evidence_targets = [
-            self._as_target_candidate(candidate)
-            for candidate in evidence_candidates
-        ]
-        targets = non_evidence_targets or candidate_targets or typed_evidence_targets
+        targets = non_evidence_targets or candidate_targets
         return self._select_targets_for_query(targets)
 
     def _select_targets_for_query(self, candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
@@ -243,11 +239,6 @@ class ChallengePower:
             triggered_additional_retrieval=True,
         )
         return updated, merged_candidates
-
-    def _as_target_candidate(self, candidate: EvidenceRefCandidate | dict[str, Any]) -> dict[str, Any]:
-        if isinstance(candidate, EvidenceRefCandidate):
-            return candidate.as_target_candidate()
-        return dict(candidate)
 
     def _build_support_query_units(
         self,

@@ -7,9 +7,7 @@ from typing import Any
 
 from workflow.types import EvidenceRefCandidate
 
-_BINDING_OBJECT_TYPES = {"claim", "question_object", "case_or_scenario"}
-_CHALLENGE_TARGET_TYPES = {"claim", "question_object"}
-_PLANNING_OBJECT_TYPES = {"comparison_target", "question_object"}
+_BINDING_OBJECT_TYPES = {"question_object"}
 
 
 def normalize_registry_entries(entries: list[dict[str, Any]] | tuple[dict[str, Any], ...] | tuple[Any, ...]) -> list[dict[str, Any]]:
@@ -23,34 +21,10 @@ def normalize_registry_entries(entries: list[dict[str, Any]] | tuple[dict[str, A
 
 
 def binding_candidates(entries: list[dict[str, Any]] | tuple[Any, ...]) -> list[dict[str, Any]]:
-    normalized = normalize_registry_entries(entries)
-    preferred = [
+    return [
         candidate
-        for candidate in normalized
+        for candidate in normalize_registry_entries(entries)
         if candidate.get("object_type") in _BINDING_OBJECT_TYPES
-    ]
-    if preferred:
-        return preferred
-    return [
-        candidate
-        for candidate in normalized
-        if candidate.get("object_type") == "comparison_target"
-    ]
-
-
-def challenge_target_candidates(entries: list[dict[str, Any]] | tuple[Any, ...]) -> list[dict[str, Any]]:
-    return [
-        candidate
-        for candidate in normalize_registry_entries(entries)
-        if candidate.get("object_type") in _CHALLENGE_TARGET_TYPES
-    ]
-
-
-def planning_candidates(entries: list[dict[str, Any]] | tuple[Any, ...]) -> list[dict[str, Any]]:
-    return [
-        candidate
-        for candidate in normalize_registry_entries(entries)
-        if candidate.get("object_type") in _PLANNING_OBJECT_TYPES
     ]
 
 

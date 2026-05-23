@@ -12,12 +12,12 @@ from context.registry.registry_types import ContextRegistryEntry, RegistryObject
 
 
 _REGISTRY_OBJECT_TYPES: set[RegistryObjectType] = {
-    "claim",
     "evidence_ref",
-    "comparison_target",
-    "case_or_scenario",
     "question_object",
 }
+
+_QUESTION_CONVENIENCE_KEYS = {"route", "handling_mode", "unit_id", "origin"}
+_EVIDENCE_CONVENIENCE_KEYS = {"source_type", "channel", "query_unit_ids"}
 
 
 def build_registry_metadata_payload(
@@ -30,6 +30,19 @@ def build_registry_metadata_payload(
     payload["workflow_summary"] = owner_summary
     payload["registry_convenience"] = convenience
     return payload
+
+
+def _whitelist_convenience_fields(
+    fields: dict[str, Any] | None,
+    *,
+    allowed_keys: set[str],
+) -> dict[str, Any]:
+    payload = dict(fields or {})
+    return {
+        key: payload[key]
+        for key in allowed_keys
+        if payload.get(key) is not None
+    }
 
 
 def build_execution_summary_metadata(payload) -> dict[str, Any]:
@@ -98,9 +111,7 @@ def build_registry_entries_from_execution_payload(
 ) -> list[ContextRegistryEntry]:
     turn_id = f"turn_{int(time.time() * 1000)}"
     summary_metadata = build_execution_summary_metadata(payload)
-    context_bundle = payload.context_bundle_obj()
     plan_bundle = payload.plan_bundle_obj()
-    review_bundle = payload.review_bundle_obj()
 
     entries: list[ContextRegistryEntry] = [
         ContextRegistryEntry(
@@ -111,15 +122,18 @@ def build_registry_entries_from_execution_payload(
             session_id=session_id,
             source_turn_id=turn_id,
             content=message,
-            refs=(payload.route, payload.handling_mode),
+            refs=(),
             salience_score=1.0,
             source_power="workflow",
             metadata=build_registry_metadata_payload(
                 owner_summary=summary_metadata,
-                convenience_fields={
-                    "route": payload.route,
-                    "handling_mode": payload.handling_mode,
-                },
+                convenience_fields=_whitelist_convenience_fields(
+                    {
+                        "route": payload.route,
+                        "handling_mode": payload.handling_mode,
+                    },
+                    allowed_keys=_QUESTION_CONVENIENCE_KEYS,
+                ),
             ),
         )
     ]
@@ -140,57 +154,21 @@ def build_registry_entries_from_execution_payload(
                     source_power="retrieval_power",
                     metadata=build_registry_metadata_payload(
                         owner_summary=summary_metadata,
-                        convenience_fields={
-                            "source_type": item.source_type,
-                            "channel": item.channel,
-                            "query_unit_ids": list(item.query_unit_ids),
-                        },
+                        convenience_fields=_whitelist_convenience_fields(
+                            {
+                                "source_type": item.source_type,
+                                "channel": item.channel,
+                                "query_unit_ids": list(item.query_unit_ids),
+                            },
+                            allowed_keys=_EVIDENCE_CONVENIENCE_KEYS,
+                        ),
                     ),
                 )
             )
 
-    for index, target in enumerate(context_bundle.bound_targets(), start=1):
-        object_type = normalize_registry_object_type(target.get("object_type"))
-        entries.append(
-            ContextRegistryEntry(
-                object_id=f"{turn_id}:bound:{index}",
-                object_type=object_type,
-                tenant_id=tenant_id,
-                group_id=group_id,
-                session_id=session_id,
-                source_turn_id=turn_id,
-                content=str(target.get("content", "")),
-                refs=tuple(str(ref) for ref in target.get("refs", ()) or (str(target.get("object_id", "")),)),
-                salience_score=0.9,
-                source_power="context_binding_power",
-                metadata=build_registry_metadata_payload(
-                    owner_summary=summary_metadata,
-                    convenience_fields=dict(target),
-                ),
-            )
-        )
-
-    for index, unit in enumerate(plan_bundle.comparison_units, start=1):
-        entries.append(
-            ContextRegistryEntry(
-                object_id=f"{turn_id}:comparison:{index}",
-                object_type="comparison_target",
-                tenant_id=tenant_id,
-                group_id=group_id,
-                session_id=session_id,
-                source_turn_id=turn_id,
-                content=str(unit.get("label") or unit.get("content") or ""),
-                refs=(str(unit.get("unit_id", "")),),
-                salience_score=0.8,
-                source_power="planning_power",
-                metadata=build_registry_metadata_payload(
-                    owner_summary=summary_metadata,
-                    convenience_fields=dict(unit),
-                ),
-            )
-        )
-
     for index, unit in enumerate(plan_bundle.query_unit_dicts(), start=1):
+        if not _is_registry_worthy_query_unit(unit):
+            continue
         entries.append(
             ContextRegistryEntry(
                 object_id=f"{turn_id}:query-unit:{index}",
@@ -200,32 +178,18 @@ def build_registry_entries_from_execution_payload(
                 session_id=session_id,
                 source_turn_id=turn_id,
                 content=str(unit.get("text", "")),
-                refs=(str(unit.get("unit_id", "")), str(unit.get("origin", ""))),
+                refs=(),
                 salience_score=0.75,
                 source_power="decomposition_power",
                 metadata=build_registry_metadata_payload(
                     owner_summary=summary_metadata,
-                    convenience_fields=dict(unit),
-                ),
-            )
-        )
-
-    for index, finding in enumerate(review_bundle.review_findings, start=1):
-        entries.append(
-            ContextRegistryEntry(
-                object_id=f"{turn_id}:claim:{index}",
-                object_type="claim",
-                tenant_id=tenant_id,
-                group_id=group_id,
-                session_id=session_id,
-                source_turn_id=turn_id,
-                content=str(finding.get("reason", "")),
-                refs=(str(finding.get("target_ref", "")),),
-                salience_score=1.0,
-                source_power="challenge_power",
-                metadata=build_registry_metadata_payload(
-                    owner_summary=summary_metadata,
-                    convenience_fields=dict(finding),
+                    convenience_fields=_whitelist_convenience_fields(
+                        {
+                            "unit_id": str(unit.get("unit_id", "")),
+                            "origin": str(unit.get("origin", "")),
+                        },
+                        allowed_keys=_QUESTION_CONVENIENCE_KEYS,
+                    ),
                 ),
             )
         )
@@ -238,3 +202,10 @@ def normalize_registry_object_type(value: Any) -> RegistryObjectType:
     if object_type not in _REGISTRY_OBJECT_TYPES:
         return "question_object"
     return object_type  # type: ignore[return-value]
+
+
+def _is_registry_worthy_query_unit(unit: dict[str, Any]) -> bool:
+    unit_id = str(unit.get("unit_id", "")).strip()
+    text = str(unit.get("text", "")).strip()
+    origin = str(unit.get("origin", "")).strip()
+    return bool(unit_id and text and origin)

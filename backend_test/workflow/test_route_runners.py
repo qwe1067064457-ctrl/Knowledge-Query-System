@@ -115,15 +115,15 @@ def test_orchestrated_runner_builds_plan_and_binding_bundle() -> None:
         context={
             "registry_entries": [
                 {
-                    "object_id": "compare_1",
-                    "object_type": "comparison_target",
-                    "content": "A vs B",
-                    "source_power": "planning_power",
-                    "refs": ["compare_1"],
+                    "object_id": "question_1",
+                    "object_type": "question_object",
+                    "content": "比较A和B？",
+                    "source_power": "workflow",
+                    "refs": [],
                 }
             ],
-            "recent_power": "planning_power",
-            "recent_object_type": "comparison_target",
+            "recent_power": "workflow",
+            "recent_object_type": "question_object",
         },
     )
 
@@ -163,7 +163,7 @@ def test_qa_runner_challenge_without_candidates_requests_clarification() -> None
     plan = _make_plan(
         route="qa",
         handling_mode="challenge",
-        enabled_powers=("challenge_power",),
+        enabled_powers=("challenge_power", "context_binding_power"),
     )
     request = RouteExecutionRequest(
         message="你刚才说的依据是什么？",
@@ -199,10 +199,10 @@ def test_qa_runner_challenge_with_evidence_candidates_returns_review_bundle() ->
         context={
             "registry_entries": [
                 {
-                    "object_id": "claim_1",
-                    "object_type": "claim",
-                    "content": "试用期最长一个月",
-                    "source_power": "challenge_power",
+                    "object_id": "question_1",
+                    "object_type": "question_object",
+                    "content": "你刚才说的试用期依据是什么？",
+                    "source_power": "workflow",
                     "refs": ["evidence_1"],
                 },
                 {
@@ -213,8 +213,8 @@ def test_qa_runner_challenge_with_evidence_candidates_returns_review_bundle() ->
                     "refs": ["evidence_1"],
                 },
             ],
-            "recent_power": "challenge_power",
-            "recent_object_type": "claim",
+            "recent_power": "workflow",
+            "recent_object_type": "question_object",
         },
     )
 
@@ -231,7 +231,7 @@ def test_qa_runner_challenge_with_evidence_candidates_returns_review_bundle() ->
     assert payload.review_bundle["review_scope"] == "single_target"
     assert isinstance(payload.review_bundle["targets"], list)
     assert isinstance(payload.review_bundle["review_findings"], list)
-    assert payload.review_bundle["review_summary"]["matched_target_refs"] == ["claim_1"]
+    assert payload.review_bundle["review_summary"]["matched_target_refs"] == ["question_1"]
     assert payload.review_bundle["review_summary"]["status_summary"] == "success"
 
 
@@ -240,7 +240,7 @@ def test_qa_runner_challenge_supports_multi_target_partial_review_bundle() -> No
     plan = _make_plan(
         route="qa",
         handling_mode="challenge",
-        enabled_powers=("challenge_power",),
+        enabled_powers=("challenge_power", "context_binding_power"),
     )
     request = RouteExecutionRequest(
         message="前两个结论的依据都对吗？",
@@ -248,17 +248,17 @@ def test_qa_runner_challenge_supports_multi_target_partial_review_bundle() -> No
         context={
             "registry_entries": [
                 {
-                    "object_id": "claim_1",
-                    "object_type": "claim",
-                    "content": "试用期最长一个月",
-                    "source_power": "challenge_power",
+                    "object_id": "question_1",
+                    "object_type": "question_object",
+                    "content": "第一个结论的依据是什么？",
+                    "source_power": "workflow",
                     "refs": ["evidence_1"],
                 },
                 {
-                    "object_id": "claim_2",
-                    "object_type": "claim",
-                    "content": "一年期合同试用期上限一个月",
-                    "source_power": "challenge_power",
+                    "object_id": "question_2",
+                    "object_type": "question_object",
+                    "content": "第二个结论的依据是什么？",
+                    "source_power": "workflow",
                     "refs": ["evidence_2"],
                 },
                 {
@@ -277,14 +277,14 @@ def test_qa_runner_challenge_supports_multi_target_partial_review_bundle() -> No
     assert payload.status == "ready"
     assert payload.review_bundle["status"] == "partial_success"
     assert payload.review_bundle["evidence_assessment"]["partially_sufficient"] is True
-    assert payload.review_bundle["evidence_assessment"]["needs_more_evidence_targets"] == ["claim_2"]
+    assert payload.review_bundle["evidence_assessment"]["needs_more_evidence_targets"] == ["question_2"]
     assert len(payload.review_bundle["review_findings"]) == 2
     assert payload.review_bundle["review_mode"] == "challenge_review"
     assert payload.review_bundle["review_confidence"] == "medium"
     assert payload.review_bundle["review_scope"] == "multi_target"
     assert len(payload.review_bundle["targets"]) == 2
-    assert payload.review_bundle["review_summary"]["unsupported_target_refs"] == ["claim_2"]
-    assert payload.review_bundle["review_summary"]["needs_more_evidence_targets"] == ["claim_2"]
+    assert payload.review_bundle["review_summary"]["unsupported_target_refs"] == ["question_2"]
+    assert payload.review_bundle["review_summary"]["needs_more_evidence_targets"] == ["question_2"]
     assert payload.review_bundle["review_summary"]["status_summary"] == "partial_success"
     assert payload.review_bundle["review_summary"]["follow_up_retrieval_attempted"] is False
 
@@ -295,7 +295,7 @@ def test_qa_runner_challenge_can_resolve_missing_targets_via_follow_up_retrieval
     plan = _make_plan(
         route="qa",
         handling_mode="challenge",
-        enabled_powers=("challenge_power", "retrieval_power"),
+        enabled_powers=("challenge_power", "retrieval_power", "context_binding_power"),
     )
     request = RouteExecutionRequest(
         message="前两个结论的依据都对吗？",
@@ -303,17 +303,17 @@ def test_qa_runner_challenge_can_resolve_missing_targets_via_follow_up_retrieval
         context={
             "registry_entries": [
                 {
-                    "object_id": "claim_1",
-                    "object_type": "claim",
-                    "content": "试用期最长一个月",
-                    "source_power": "challenge_power",
+                    "object_id": "question_1",
+                    "object_type": "question_object",
+                    "content": "第一个结论的依据是什么？",
+                    "source_power": "workflow",
                     "refs": ["evidence_1"],
                 },
                 {
-                    "object_id": "claim_2",
-                    "object_type": "claim",
-                    "content": "一年期合同试用期上限一个月",
-                    "source_power": "challenge_power",
+                    "object_id": "question_2",
+                    "object_type": "question_object",
+                    "content": "第二个结论的依据是什么？",
+                    "source_power": "workflow",
                     "refs": ["evidence_2"],
                 },
                 {
@@ -356,10 +356,10 @@ def test_qa_runner_passes_typed_evidence_candidates_into_challenge_power() -> No
         context={
             "registry_entries": [
                 {
-                    "object_id": "claim_1",
-                    "object_type": "claim",
-                    "content": "试用期最长一个月",
-                    "source_power": "challenge_power",
+                    "object_id": "question_1",
+                    "object_type": "question_object",
+                    "content": "你刚才这个依据是什么？",
+                    "source_power": "workflow",
                     "refs": ["evidence_1"],
                 },
                 {

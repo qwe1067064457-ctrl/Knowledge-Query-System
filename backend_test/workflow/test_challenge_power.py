@@ -141,7 +141,7 @@ def test_challenge_power_returns_clarification_question_when_targets_missing() -
     assert payload["review_summary"]["follow_up_retrieval_attempted"] is False
 
 
-def test_challenge_power_accepts_typed_evidence_candidates_when_targets_missing() -> None:
+def test_challenge_power_requires_explicit_targets_when_only_typed_evidence_candidates_exist() -> None:
     power = ChallengePower()
 
     result = power.execute(
@@ -160,12 +160,12 @@ def test_challenge_power_accepts_typed_evidence_candidates_when_targets_missing(
         review_worker=ReviewWorker(),
     )
 
-    assert result.status == "success"
-    assert result.evidence_assessment_obj().sufficient is True
-    assert result.review_findings[0]["target_ref"] == "evidence_1"
+    assert result.status == "needs_clarification"
+    assert result.evidence_assessment_obj().sufficient is False
+    assert result.review_findings == ()
     payload = result.to_dict()
-    assert payload["review_summary"]["matched_target_refs"] == ["evidence_1"]
-    assert payload["review_summary"]["status_summary"] == "success"
+    assert payload["review_summary"]["matched_target_refs"] == []
+    assert payload["review_summary"]["status_summary"] == "needs_clarification"
 
 
 def test_challenge_power_supports_multi_target_partial_success() -> None:

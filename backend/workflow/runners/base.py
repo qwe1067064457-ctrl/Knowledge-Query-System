@@ -5,10 +5,8 @@ from typing import Any
 
 from workflow.adapters.workflow_registry_consumer import (
     binding_candidates,
-    challenge_target_candidates,
     evidence_candidates,
     normalize_registry_entries,
-    planning_candidates,
 )
 from workflow.types import ContextBundle, EvidenceRefCandidate, ExecutionPayload, PlanBundle, ReviewBundle, WorkflowPlan
 
@@ -173,12 +171,6 @@ class BaseRouteRunner:
 
     def _registry_binding_candidates(self, request: RouteExecutionRequest) -> list[dict[str, Any]]:
         return binding_candidates(request.context.get("registry_entries", ()))
-
-    def _registry_challenge_target_candidates(self, request: RouteExecutionRequest) -> list[dict[str, Any]]:
-        return challenge_target_candidates(request.context.get("registry_entries", ()))
-
-    def _registry_planning_candidates(self, request: RouteExecutionRequest) -> list[dict[str, Any]]:
-        return planning_candidates(request.context.get("registry_entries", ()))
 
     def _registry_evidence_candidates(self, request: RouteExecutionRequest) -> list[EvidenceRefCandidate]:
         return evidence_candidates(request.context.get("registry_entries", ()))

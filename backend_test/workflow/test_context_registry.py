@@ -8,7 +8,7 @@ from context.session.session_manager import SessionManager
 def _entry(turn_id: str, object_id: str) -> ContextRegistryEntry:
     return ContextRegistryEntry(
         object_id=object_id,
-        object_type="claim",
+        object_type="question_object",
         tenant_id="tenant_a",
         group_id="general",
         session_id="session_1",
@@ -16,7 +16,7 @@ def _entry(turn_id: str, object_id: str) -> ContextRegistryEntry:
         content=f"content-{object_id}",
         refs=("ref",),
         salience_score=1.0,
-        source_power="challenge_power",
+        source_power="workflow",
     )
 
 

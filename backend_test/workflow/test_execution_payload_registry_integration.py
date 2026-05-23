@@ -45,20 +45,8 @@ def test_execution_payload_is_persisted_into_registry(tmp_path: Path) -> None:
         route="qa",
         handling_mode="normal",
         action="knowledge_orchestrator",
-        context_bundle={
-            "binding": {
-                "bound_targets": [
-                    {
-                        "object_id": "claim_1",
-                        "object_type": "claim",
-                        "content": "试用期最长一个月",
-                        "refs": ["claim_1"],
-                    }
-                ]
-            }
-        },
+        context_bundle={},
         plan_bundle={
-            "comparison_units": [{"unit_id": "compare_1", "label": "A vs B"}],
             "query_units": [{"unit_id": "q1", "origin": "primary", "text": "试用期依据是什么"}],
         },
         evidence_bundle=EvidenceBundle(
@@ -92,7 +80,7 @@ def test_execution_payload_is_persisted_into_registry(tmp_path: Path) -> None:
         session_id=session.id,
     )
 
-    assert len(registry.entries) == 5
+    assert len(registry.entries) == 3
     assert registry.entries[0].object_type == "question_object"
     assert registry.entries[0].metadata["binding_summary"] == "not_applicable"
     assert registry.entries[0].metadata["knowledge_scope_status"] == "resolved"
@@ -105,11 +93,8 @@ def test_execution_payload_is_persisted_into_registry(tmp_path: Path) -> None:
     assert registry.entries[1].metadata["review_summary"]["status_summary"] == "not_applicable"
     assert registry.entries[1].metadata["workflow_summary"]["evidence_summary"]["source_ref_count"] == 1
     assert registry.entries[1].metadata["registry_convenience"]["channel"] == "fused"
-    assert registry.entries[2].object_type == "claim"
-    assert registry.entries[2].metadata["binding_summary"] == "not_applicable"
-    assert registry.entries[3].object_type == "comparison_target"
-    assert registry.entries[3].metadata["plan_summary"]["planning_mode"] == "not_applicable"
-    assert registry.entries[4].object_type == "question_object"
+    assert registry.entries[2].object_type == "question_object"
+    assert registry.entries[2].metadata["registry_convenience"]["unit_id"] == "q1"
 
 
 def test_agent_builds_summary_driven_instructions() -> None:
@@ -293,35 +278,14 @@ def test_agent_builds_registry_entries_from_typed_bundle_objects() -> None:
         route="qa",
         handling_mode="challenge",
         action="respond",
-        context_bundle=ContextBundle(
-            binding=ContextBindingResult(
-                bound_targets=(
-                    {
-                        "object_id": "claim_1",
-                        "object_type": "claim",
-                        "content": "试用期最长一个月",
-                        "refs": ("claim_1",),
-                    },
-                ),
-                binding_summary="bound_by_topic_continuity",
-            ),
-            binding_summary="bound_by_topic_continuity",
-        ),
+        context_bundle=ContextBundle(binding_summary="bound_by_topic_continuity"),
         plan_bundle=PlanBundle(
             planning_mode="compare",
-            comparison_units=(
-                {"unit_id": "compare_1", "label": "A vs B"},
-            ),
             query_units=(
                 {"unit_id": "q1", "origin": "primary", "text": "试用期依据是什么"},
             ),
         ),
-        review_bundle=ReviewBundle(
-            review_mode="challenge_review",
-            review_findings=(
-                {"target_ref": "claim_1", "reason": "证据支持该结论"},
-            ),
-        ),
+        review_bundle=ReviewBundle(review_mode="challenge_review"),
     )
 
     entries = build_registry_entries_from_execution_payload(
@@ -334,8 +298,6 @@ def test_agent_builds_registry_entries_from_typed_bundle_objects() -> None:
 
     object_types = [entry.object_type for entry in entries]
     assert "retrieval_result_ref" not in object_types
-    assert "claim" in object_types
-    assert "comparison_target" in object_types
     assert object_types.count("question_object") >= 2
     question_entry = entries[0]
     assert question_entry.metadata["workflow_summary"]["binding_summary"] == "bound_by_topic_continuity"

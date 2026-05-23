@@ -12,6 +12,14 @@ class ContextBindingPower:
         re.compile(r"(这个|那个|上面那个|你刚才说的)"),
         re.compile(r"(前两个|第二种|后一种)"),
     )
+    _MULTI_TARGET_PATTERNS = (
+        re.compile(r"前两个"),
+        re.compile(r"两个"),
+        re.compile(r"两条"),
+        re.compile(r"分别"),
+        re.compile(r"这些"),
+        re.compile(r"都"),
+    )
 
     def __init__(self, response_helper: BindingResponseHelper | None = None) -> None:
         self.response_helper = response_helper or BindingResponseHelper()
@@ -49,15 +57,16 @@ class ContextBindingPower:
 
         explicit_hit = any(pattern.search(query) for pattern in self._EXPLICIT_PATTERNS)
         if explicit_hit:
-            target = self._select_primary_target(candidates)
+            targets = self._select_targets_for_query(query, candidates)
+            target = targets[-1]
             metadata = self.response_helper.build_success_metadata(
                 strategy="explicit_pattern",
                 target=target,
-                confidence="high",
+                confidence="high" if len(targets) == 1 else "medium",
             )
             return ContextBindingResult(
-                bound_targets=(target,),
-                binding_confidence="high",
+                bound_targets=tuple(targets),
+                binding_confidence="high" if len(targets) == 1 else "medium",
                 matched_by=metadata["matched_by"],
                 clarification_hint=metadata["clarification_hint"],
                 binding_summary=metadata["binding_summary"],
@@ -102,3 +111,10 @@ class ContextBindingPower:
             if candidate.get("object_type") != "evidence_ref":
                 return candidate
         return candidates[-1]
+
+    def _select_targets_for_query(self, query: str, candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        if len(candidates) < 2 or not any(pattern.search(query) for pattern in self._MULTI_TARGET_PATTERNS):
+            return [self._select_primary_target(candidates)]
+        if "前两个" in query or "两个" in query or "两条" in query:
+            return list(candidates[:2])
+        return list(candidates[: min(len(candidates), 3)])

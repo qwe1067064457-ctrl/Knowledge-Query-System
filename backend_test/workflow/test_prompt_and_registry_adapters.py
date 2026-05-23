@@ -12,9 +12,7 @@ from graph.prompt_builders.workflow_prompt_projector import (
 )
 from workflow.adapters.workflow_registry_consumer import (
     binding_candidates,
-    challenge_target_candidates,
     evidence_candidates,
-    planning_candidates,
 )
 from workflow.adapters.workflow_registry_projection import (
     build_registry_entries_from_execution_payload,
@@ -163,22 +161,8 @@ def test_workflow_registry_projection_uses_evidence_ref_and_keeps_summary_layers
         route="qa",
         handling_mode="normal",
         action="respond",
-        context_bundle=ContextBundle(
-            binding=ContextBindingResult(
-                bound_targets=(
-                    {
-                        "object_id": "claim_1",
-                        "object_type": "claim",
-                        "content": "试用期最长一个月",
-                        "refs": ("claim_1",),
-                    },
-                ),
-                binding_summary="bound_by_topic_continuity",
-            ),
-            binding_summary="bound_by_topic_continuity",
-        ),
+        context_bundle=ContextBundle(binding_summary="bound_by_topic_continuity"),
         plan_bundle=PlanBundle(
-            comparison_units=({"unit_id": "compare_1", "label": "A vs B"},),
             query_units=({"unit_id": "q1", "origin": "primary", "text": "试用期依据是什么"},),
         ),
         evidence_bundle=EvidenceBundle(
@@ -207,29 +191,28 @@ def test_workflow_registry_projection_uses_evidence_ref_and_keeps_summary_layers
     )
 
     object_types = {entry.object_type for entry in entries}
+    assert object_types == {"question_object", "evidence_ref"}
     assert "evidence_ref" in object_types
     assert "retrieval_result_ref" not in object_types
     evidence_entry = next(entry for entry in entries if entry.object_type == "evidence_ref")
     assert evidence_entry.metadata["workflow_summary"]["binding_summary"] == "bound_by_topic_continuity"
     assert evidence_entry.metadata["registry_convenience"]["channel"] == "fused"
+    question_entries = [entry for entry in entries if entry.object_type == "question_object"]
+    assert len(question_entries) == 2
+    assert question_entries[0].refs == ()
+    assert question_entries[1].metadata["registry_convenience"]["unit_id"] == "q1"
 
 
 def test_workflow_registry_consumer_applies_type_specific_rules() -> None:
     entries = [
-        {"object_type": "claim", "content": "A", "metadata": {"workflow_summary": {}, "registry_convenience": {"channel": "fused"}}},
         {"object_type": "question_object", "content": "B", "metadata": {"workflow_summary": {}, "registry_convenience": {"route": "qa"}}},
-        {"object_type": "comparison_target", "content": "C", "metadata": {"workflow_summary": {}, "registry_convenience": {"query_unit_ids": ["q1"]}}},
         {"object_type": "evidence_ref", "content": "D", "refs": ["docs/law.md", "p1"], "metadata": {"workflow_summary": {}, "registry_convenience": {"channel": "fused"}}},
     ]
 
     binding = binding_candidates(entries)
-    challenge_targets = challenge_target_candidates(entries)
-    planning = planning_candidates(entries)
     evidence = evidence_candidates(entries)
 
-    assert {item["object_type"] for item in binding} == {"claim", "question_object"}
-    assert {item["object_type"] for item in challenge_targets} == {"claim", "question_object"}
-    assert {item["object_type"] for item in planning} == {"question_object", "comparison_target"}
+    assert {item["object_type"] for item in binding} == {"question_object"}
     assert len(evidence) == 1
     assert evidence[0].channel == "fused"
 
@@ -248,19 +231,3 @@ def test_workflow_registry_consumer_does_not_treat_convenience_metadata_as_reaso
     ]
 
     assert binding_candidates(entries) == []
-    assert challenge_target_candidates(entries) == []
-
-
-def test_workflow_registry_consumer_falls_back_to_comparison_target_for_binding() -> None:
-    entries = [
-        {
-            "object_type": "comparison_target",
-            "content": "A vs B",
-            "metadata": {"workflow_summary": {}, "registry_convenience": {"query_unit_ids": ["q1"]}},
-        }
-    ]
-
-    binding = binding_candidates(entries)
-
-    assert len(binding) == 1
-    assert binding[0]["object_type"] == "comparison_target"
