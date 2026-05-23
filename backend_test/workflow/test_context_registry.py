@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from context.registry import ContextRegistryManager
-from context.registry_types import ContextRegistryEntry
-from context.session_manager import SessionManager
+from context.registry.registry import ContextRegistryManager
+from context.registry.registry_types import ContextRegistryEntry
+from context.session.session_manager import SessionManager
 
 
 def _entry(turn_id: str, object_id: str) -> ContextRegistryEntry:

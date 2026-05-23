@@ -1,9 +1,3 @@
-"""
-context package exports.
-
-Keep imports lazy to avoid circular dependencies between context and memory_system.
-"""
-
 from context.models import (
     EntryType,
     GroupType,
@@ -16,6 +10,8 @@ from context.models import (
     ToolCall,
     TranscriptEntry,
 )
+from context.assembly.context_manager import ContextConfig, ContextManager
+from context.session.session_manager import DEFAULT_AGENT, DEFAULT_GROUP, DEFAULT_USER, SessionManager
 
 __all__ = [
     "GroupType",
@@ -28,29 +24,10 @@ __all__ = [
     "TranscriptEntry",
     "Session",
     "MemoryEntry",
-    "SessionManager",
-    "MemorySystem",
     "ContextManager",
     "ContextConfig",
-    "LegacySessionManagerAdapter",
+    "SessionManager",
+    "DEFAULT_GROUP",
+    "DEFAULT_AGENT",
+    "DEFAULT_USER",
 ]
-
-
-def __getattr__(name: str):
-    if name == "SessionManager":
-        from context.session.session_manager import SessionManager
-
-        return SessionManager
-    if name in {"ContextManager", "ContextConfig"}:
-        from context.assembly.context_manager import ContextConfig, ContextManager
-
-        return {"ContextManager": ContextManager, "ContextConfig": ContextConfig}[name]
-    if name == "LegacySessionManagerAdapter":
-        from context.session.legacy_adapter import LegacySessionManagerAdapter
-
-        return LegacySessionManagerAdapter
-    if name == "MemorySystem":
-        from memory_system import MemorySystem
-
-        return MemorySystem
-    raise AttributeError(name)

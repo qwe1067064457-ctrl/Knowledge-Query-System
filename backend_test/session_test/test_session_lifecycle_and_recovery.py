@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from context.session_manager import SessionManager
+from context.session.session_manager import SessionManager
 
 
 def test_create_and_archive_session_updates_lifecycle_state(session_manager) -> None:

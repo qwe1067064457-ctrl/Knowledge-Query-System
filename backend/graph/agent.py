@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 import json
-import re
 from dataclasses import replace
 from pathlib import Path
 from typing import Any
@@ -9,7 +8,8 @@ from typing import Any
 from langchain.agents import create_agent
 
 from config import runtime_config
-from graph.memory_indexer import memory_indexer
+from context.assembly.context_manager import ContextManager
+from context.session.session_manager import DEFAULT_AGENT, DEFAULT_GROUP, DEFAULT_USER, SessionManager
 from graph.prompt_builders.answer_prompt_assembler import (
     assemble_answer_messages,
     build_answer_system_prompt,
@@ -20,32 +20,17 @@ from graph.prompt_builders.workflow_prompt_projector import (
 )
 from intent import classify_intent
 from intent.loaders import load_group_intent_rule_assets
+from intent.rules.knowledge_query_rules import is_knowledge_query
 from knowledge_retrieval import knowledge_orchestrator
 from llm.model_factory import build_chat_model
 from memory_system import MemorySystem
 from tools import get_all_tools
 from workflow import WorkflowDispatcher, WorkflowPlan, build_workflow_plan
 from workflow.adapters.workflow_registry_projection import (
-    build_execution_summary_metadata,
     build_registry_entries_from_execution_payload,
-    build_registry_metadata_payload,
 )
 from workflow.powers.retrieval_power import RetrievalPower
 from workflow.runners.base import RouteExecutionRequest
-
-# 导入新的 context 模块
-from context.assembly.context_manager import ContextManager
-from context.registry.registry_types import ContextRegistryEntry
-from context.session.legacy_adapter import DEFAULT_AGENT, DEFAULT_GROUP, LegacySessionManagerAdapter
-from context.session.session_manager import SessionManager
-
-KNOWLEDGE_SKILL_PATTERNS = (
-    re.compile(r"知识库"),
-    re.compile(r"\bknowledge\b", re.IGNORECASE),
-    re.compile(r"根据.+?(知识库|文档|资料)"),
-    re.compile(r"(查|检索).+?(文档|资料|报告|白皮书)"),
-    re.compile(r"\.(pdf|xlsx|xls|json)\b", re.IGNORECASE),
-)
 
 
 def _stringify_content(content: Any) -> str:
@@ -64,7 +49,6 @@ class AgentManager:
     def __init__(self) -> None:
         self.base_dir: Path | None = None
         self.raw_session_manager: SessionManager | None = None
-        self.session_manager: LegacySessionManagerAdapter | None = None
         self.memory_system: MemorySystem | None = None
         self.context_manager: ContextManager | None = None
         self.workflow_dispatcher = WorkflowDispatcher()
@@ -74,25 +58,16 @@ class AgentManager:
     def initialize(self, base_dir: Path) -> None:
         self.base_dir = base_dir
 
-        # 初始化新的 context 模块
         self.raw_session_manager = SessionManager(base_dir / "storage")
         self.memory_system = MemorySystem(base_dir / "storage")
         self.context_manager = ContextManager(self.raw_session_manager, self.memory_system)
-        # 设置 LLM 调用用于 compaction
         self.context_manager.set_llm_call(self._llm_text_call)
 
-        # 初始化 legacy 适配器（保持向后兼容）
-        self.session_manager = LegacySessionManagerAdapter(self.raw_session_manager)
-        self.session_manager.configure_legacy_paths(base_dir)
-
         self.tools = get_all_tools(base_dir)
-        knowledge_orchestrator.configure(base_dir, self._build_chat_model)
-
-    def _build_chat_model(self):
-        return build_chat_model()
+        knowledge_orchestrator.configure(base_dir, build_chat_model)
 
     async def _llm_text_call(self, prompt: str) -> str:
-        response = await self._build_chat_model().ainvoke(
+        response = await build_chat_model().ainvoke(
             [{"role": "user", "content": prompt}]
         )
         return _stringify_content(getattr(response, "content", "")).strip()
@@ -111,13 +86,10 @@ class AgentManager:
             extra_instructions=extra_instructions,
         )
         return create_agent(
-            model=self._build_chat_model(),
+            model=build_chat_model(),
             tools=self.tools if tools_override is None else tools_override,
             system_prompt=system_prompt,
         )
-
-    def _is_knowledge_query(self, message: str) -> bool:
-        return any(pattern.search(message) for pattern in KNOWLEDGE_SKILL_PATTERNS)
 
     def _build_messages(self, history: list[dict[str, Any]]) -> list[dict[str, str]]:
         messages: list[dict[str, str]] = []
@@ -188,7 +160,7 @@ class AgentManager:
         lines = ["[RAG retrieved memory context]"]
         for idx, item in enumerate(results, start=1):
             text = str(item.get("text", "")).strip()
-            source = str(item.get("source", "memory/MEMORY.md"))
+            source = str(item.get("source", "memory"))
             lines.append(f"{idx}. Source: {source}\n{text}")
         return "\n\n".join(lines)
 
@@ -200,7 +172,7 @@ class AgentManager:
             "message": "已将 Memory 召回结果注入当前请求上下文。",
             "results": [
                 {
-                    "source_path": str(item.get("source", "memory/MEMORY.md")),
+                    "source_path": str(item.get("source", "memory")),
                     "source_type": "memory",
                     "locator": "memory",
                     "snippet": str(item.get("text", "")).strip(),
@@ -259,7 +231,7 @@ class AgentManager:
         )
 
         final_content_parts: list[str] = []
-        async for chunk in self._build_chat_model().astream(model_messages):
+        async for chunk in build_chat_model().astream(model_messages):
             text = _stringify_content(getattr(chunk, "content", ""))
             if text:
                 final_content_parts.append(text)
@@ -340,12 +312,6 @@ class AgentManager:
         final_content = "".join(final_content_parts).strip() or last_ai_message.strip()
         yield {"type": "done", "content": final_content}
 
-    def _build_workflow_instructions(self, plan: WorkflowPlan) -> list[str]:
-        return build_answer_behavior_rules_from_workflow(plan)
-
-    def _build_execution_summary_instructions(self, payload) -> list[str]:
-        return build_answer_result_projection_rules_from_workflow(payload)
-
     def _build_reject_response(self, plan: WorkflowPlan) -> str:
         if plan.handling_mode == "unsupported":
             return "这个请求目前不适合进入正常执行流。我不能直接协助这类操作，但如果你愿意，我可以改为帮你分析风险、约束条件，或整理一个更安全的处理方案。"
@@ -367,37 +333,6 @@ class AgentManager:
             allowed_group_ids = (active_group_id,)
         return active_group_id, allowed_group_ids
 
-    def _build_registry_entries_from_execution_payload(
-        self,
-        *,
-        payload,
-        session_id: str,
-        tenant_id: str,
-        group_id: str,
-        message: str,
-    ) -> list[ContextRegistryEntry]:
-        return build_registry_entries_from_execution_payload(
-            payload=payload,
-            session_id=session_id,
-            tenant_id=tenant_id,
-            group_id=group_id,
-            message=message,
-        )
-
-    def _build_registry_metadata_payload(
-        self,
-        *,
-        owner_summary: dict[str, Any],
-        convenience_fields: dict[str, Any] | None = None,
-    ) -> dict[str, Any]:
-        return build_registry_metadata_payload(
-            owner_summary=owner_summary,
-            convenience_fields=convenience_fields,
-        )
-
-    def _build_execution_summary_metadata(self, payload) -> dict[str, Any]:
-        return build_execution_summary_metadata(payload)
-
     def _persist_execution_payload(
         self,
         *,
@@ -411,7 +346,7 @@ class AgentManager:
 
         session = self.raw_session_manager.get_session(session_id, DEFAULT_GROUP, DEFAULT_AGENT)
         tenant_id = session.user_id if session is not None else "default"
-        entries = self._build_registry_entries_from_execution_payload(
+        entries = build_registry_entries_from_execution_payload(
             payload=payload,
             session_id=session_id,
             tenant_id=tenant_id,
@@ -470,7 +405,7 @@ class AgentManager:
         )
         workflow_plan = build_workflow_plan(
             intent_analysis,
-            is_knowledge_query=self._is_knowledge_query(message),
+            is_knowledge_query=is_knowledge_query(message),
             active_group_id=active_group_id,
             allowed_group_ids=allowed_group_ids,
         )
@@ -479,7 +414,7 @@ class AgentManager:
             RouteExecutionRequest(
                 message=message,
                 messages=messages,
-                is_knowledge_query=self._is_knowledge_query(message),
+                is_knowledge_query=is_knowledge_query(message),
                 context={
                     "session_id": session_id,
                     "active_group_id": active_group_id,
@@ -491,8 +426,21 @@ class AgentManager:
             ),
         )
 
-        if rag_mode:
-            retrievals = memory_indexer.retrieve(message, top_k=3)
+        if rag_mode and self.memory_system is not None:
+            retrievals = [
+                {
+                    "text": item.content,
+                    "score": item.score,
+                    "source": item.source,
+                }
+                for item in self.memory_system.search_memories(
+                    group_id=active_group_id,
+                    agent_id=DEFAULT_AGENT,
+                    query=message,
+                    top_k=3,
+                    user_id=DEFAULT_USER,
+                )
+            ]
             if retrievals:
                 yield {"type": "retrieval", **self._format_memory_retrieval_step(retrievals)}
             if retrievals:
@@ -504,8 +452,8 @@ class AgentManager:
                     },
                 )
 
-        workflow_instructions = list(execution_payload.instructions) or self._build_workflow_instructions(workflow_plan)
-        workflow_instructions.extend(self._build_execution_summary_instructions(execution_payload))
+        workflow_instructions = list(execution_payload.instructions) or build_answer_behavior_rules_from_workflow(workflow_plan)
+        workflow_instructions.extend(build_answer_result_projection_rules_from_workflow(execution_payload))
 
         if execution_payload.action == "reject":
             async for event in self._astream_model_answer(
@@ -593,7 +541,7 @@ class AgentManager:
             "要求不超过 10 个汉字，不要带引号，不要解释。"
         )
         try:
-            response = await self._build_chat_model().ainvoke(
+            response = await build_chat_model().ainvoke(
                 [
                     {"role": "system", "content": prompt},
                     {"role": "user", "content": first_user_message},
@@ -618,7 +566,7 @@ class AgentManager:
         transcript = "\n".join(lines)
 
         try:
-            response = await self._build_chat_model().ainvoke(
+            response = await build_chat_model().ainvoke(
                 [
                     {"role": "system", "content": prompt},
                     {"role": "user", "content": transcript},

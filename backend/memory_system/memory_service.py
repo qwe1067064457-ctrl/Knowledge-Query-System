@@ -11,7 +11,7 @@ from datetime import date, datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, cast
 
-from context.dataclasses import MemoryEntry, MemoryScope, MemoryType
+from context.models import MemoryEntry, MemoryScope, MemoryType
 from memory_system.policy_loader import MemoryPolicyLoader
 
 
@@ -626,6 +626,39 @@ class MemorySystem:
         if use_mmr and len(results) > top_k:
             return self._mmr_deduplicate(results, lambda_param=mmr_lambda, top_k=top_k)
         return results[:top_k]
+
+    def search_memories(
+        self,
+        group_id: str,
+        agent_id: str,
+        query: str,
+        top_k: int = 5,
+        min_score: float = 0.1,
+        date_range: Optional[Tuple[date, date]] = None,
+        time_decay_half_life: int = 30,
+        use_mmr: bool = True,
+        mmr_lambda: float = 0.7,
+        *,
+        user_id: str = "default",
+        include_core: bool = True,
+        include_daily_logs: bool = True,
+        include_domain_cases: bool = True,
+    ) -> List[MemoryEntry]:
+        return self.search(
+            group_id=group_id,
+            agent_id=agent_id,
+            query=query,
+            top_k=top_k,
+            min_score=min_score,
+            date_range=date_range,
+            time_decay_half_life=time_decay_half_life,
+            use_mmr=use_mmr,
+            mmr_lambda=mmr_lambda,
+            user_id=user_id,
+            include_core=include_core,
+            include_daily_logs=include_daily_logs,
+            include_domain_cases=include_domain_cases,
+        )
 
     def get_recent_memories(self, group_id: str, agent_id: str, days: int = 7, *, user_id: str = "default") -> List[MemoryEntry]:
         del agent_id

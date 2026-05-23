@@ -17,8 +17,8 @@ BACKEND_ROOT = REPO_ROOT / "backend"
 if str(BACKEND_ROOT) not in sys.path:
     sys.path.insert(0, str(BACKEND_ROOT))
 
-from context.dataclasses import TranscriptEntry
-from context.session_manager import SessionManager
+from context.models import TranscriptEntry
+from context.session.session_manager import SessionManager
 
 
 WORKER_ID = os.environ.get("PYTEST_XDIST_WORKER", "main")
@@ -27,7 +27,7 @@ TEST_TMP_ROOT = Path(__file__).resolve().parent / ".session_test_tmp" / WORKER_I
 
 @contextmanager
 def _local_temp_dir():
-    TEST_TMP_ROOT.mkdir(exist_ok=True)
+    TEST_TMP_ROOT.mkdir(parents=True, exist_ok=True)
     temp_dir = TEST_TMP_ROOT / f"case_{uuid.uuid4().hex}"
     temp_dir.mkdir(parents=True, exist_ok=False)
     try:

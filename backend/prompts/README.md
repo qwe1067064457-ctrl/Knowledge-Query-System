@@ -19,7 +19,7 @@
 
 ## 路径配置
 
-默认主回答 system prompt 路径由 `backend/context/context_policy.json` 中的：
+默认主回答 system prompt 路径由 `backend/context/assembly/context_policy.json` 中的：
 
 - `prompt.system_prompt_path`
 

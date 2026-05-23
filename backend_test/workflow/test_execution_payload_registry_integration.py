@@ -2,9 +2,15 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from context.context_manager import ContextManager
-from context.session_manager import SessionManager
+from context.assembly.context_manager import ContextManager
+from context.session.session_manager import SessionManager
 from graph.agent import AgentManager
+from graph.prompt_builders.workflow_prompt_projector import build_answer_result_projection_rules_from_workflow
+from workflow.adapters.workflow_registry_projection import (
+    build_execution_summary_metadata,
+    build_registry_entries_from_execution_payload,
+    build_registry_metadata_payload,
+)
 from memory_system import MemorySystem
 from workflow.types import (
     ContextBindingResult,
@@ -161,7 +167,7 @@ def test_agent_builds_summary_driven_instructions() -> None:
         ),
     )
 
-    instructions = agent._build_execution_summary_instructions(payload)
+    instructions = build_answer_result_projection_rules_from_workflow(payload)
 
     assert any("binding summary" in item for item in instructions)
     assert any("planning summary" in item for item in instructions)
@@ -239,7 +245,7 @@ def test_agent_builds_execution_summary_metadata_from_typed_summary_views() -> N
         ),
     )
 
-    metadata = agent._build_execution_summary_metadata(payload)
+    metadata = build_execution_summary_metadata(payload)
 
     assert metadata["binding_summary"] == "bound_by_topic_continuity"
     assert metadata["plan_summary"]["planning_mode"] == "compare"
@@ -258,7 +264,7 @@ def test_agent_builds_execution_summary_metadata_from_typed_summary_views() -> N
 def test_agent_registry_metadata_payload_separates_owner_summary_and_convenience_fields() -> None:
     agent = AgentManager()
 
-    metadata = agent._build_registry_metadata_payload(
+    metadata = build_registry_metadata_payload(
         owner_summary={
             "binding_summary": "bound_by_topic_continuity",
             "review_summary": {"matched_target_count": 1},
@@ -318,7 +324,7 @@ def test_agent_builds_registry_entries_from_typed_bundle_objects() -> None:
         ),
     )
 
-    entries = agent._build_registry_entries_from_execution_payload(
+    entries = build_registry_entries_from_execution_payload(
         payload=payload,
         session_id="session_1",
         tenant_id="tenant_u1",

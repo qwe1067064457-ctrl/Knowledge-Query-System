@@ -8,7 +8,6 @@ from pydantic import BaseModel, Field
 
 from file_management.file_event_producer import produce_file_event
 from graph.agent import agent_manager
-from graph.memory_indexer import memory_indexer
 from tools.skills_scanner import refresh_snapshot, scan_skills
 
 router = APIRouter()
@@ -71,8 +70,6 @@ async def save_file(payload: SaveFileRequest) -> dict[str, Any]:
     file_path.parent.mkdir(parents=True, exist_ok=True)
     file_path.write_text(payload.content, encoding="utf-8")
 
-    if normalized == "memory/MEMORY.md":
-        memory_indexer.rebuild_index()
     if normalized.startswith("skills/"):
         refresh_snapshot(agent_manager.base_dir)
 

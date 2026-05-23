@@ -15,9 +15,9 @@ BACKEND_DIR = ROOT / "backend"
 if str(BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(BACKEND_DIR))
 
-from context.context_manager import ContextManager
-from context.dataclasses import TranscriptEntry
-from context.session_manager import SessionManager
+from context.assembly.context_manager import ContextManager
+from context.models import TranscriptEntry
+from context.session.session_manager import SessionManager
 from memory_system import MemorySystem
 
 
@@ -64,7 +64,7 @@ def write_group_meta(workspace: Path, group_id: str, memory_policy: Dict[str, An
 
 
 def write_context_policy(workspace: Path, payload: Dict[str, Any]) -> Path:
-    path = workspace / "context" / "context_policy.json"
+    path = workspace / "context" / "assembly" / "context_policy.json"
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
     return path

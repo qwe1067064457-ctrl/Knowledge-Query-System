@@ -16,8 +16,7 @@ from context.assembly.context_policy import ContextPolicyLoader
 
 def _resolve_answer_system_prompt_path(base_dir: Path) -> Path:
     assembly_policy_path = base_dir / "context" / "assembly" / "context_policy.json"
-    legacy_policy_path = base_dir / "context" / "context_policy.json"
-    policy_loader = ContextPolicyLoader(assembly_policy_path if assembly_policy_path.exists() else legacy_policy_path)
+    policy_loader = ContextPolicyLoader(assembly_policy_path)
     policy = policy_loader.load_policy()
     configured = str(policy.get("prompt", {}).get("system_prompt_path", "prompts/system/answer_system_prompt.md"))
     prompt_path = Path(configured)

@@ -15,9 +15,9 @@ BACKEND_DIR = ROOT / "backend"
 if str(BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(BACKEND_DIR))
 
-from context.context_manager import ContextManager
-from context.dataclasses import TranscriptEntry
-from context.session_manager import SessionManager
+from context.assembly.context_manager import ContextManager
+from context.models import TranscriptEntry
+from context.session.session_manager import SessionManager
 from memory_system import MemorySystem
 
 
