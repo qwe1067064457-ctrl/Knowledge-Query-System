@@ -14,9 +14,13 @@ from workflow.workers.review_worker import ReviewWorker
 
 
 class _FakeRetrievalPower:
+    def __init__(self) -> None:
+        self.last_queries = []
+
     def retrieve(self, query_units, *, top_k: int = 4) -> EvidenceBundle:
         del top_k
         assert query_units
+        self.last_queries = [unit.text for unit in query_units]
         return EvidenceBundle(
             query_unit_results=tuple(
                 {
@@ -83,6 +87,8 @@ def test_challenge_power_returns_success_when_targets_have_matching_evidence() -
     assert payload["review_summary"]["review_confidence"] == "high"
     assert payload["review_summary"]["review_scope"] == "single_target"
     assert payload["review_summary"]["follow_up_retrieval_attempted"] is False
+    assert result.evidence_assessment["target_coverage"] == 1.0
+    assert result.evidence_assessment["source_count"] == 1
     assert payload["review_summary"]["follow_up_retrieval_improved"] is False
 
 
@@ -216,13 +222,17 @@ def test_challenge_power_supports_multi_target_partial_success() -> None:
     assert payload["review_summary"]["review_confidence"] == "medium"
     assert payload["review_summary"]["review_scope"] == "multi_target"
     assert payload["review_summary"]["follow_up_retrieval_attempted"] is False
+    assert result.evidence_assessment["missing_target_ratio"] == 0.5
+    assert result.evidence_assessment["source_diversity"] == 1
 
 
 def test_challenge_power_uses_follow_up_retrieval_when_more_evidence_is_needed() -> None:
     power = ChallengePower()
+    retrieval = _FakeRetrievalPower()
 
     result = power.execute(
         query="前两个结论的依据都对吗？",
+        rewritten_query="请核验前两个结论的法条依据",
         candidate_targets=[
             {
                 "object_id": "claim_1",
@@ -247,7 +257,7 @@ def test_challenge_power_uses_follow_up_retrieval_when_more_evidence_is_needed()
         ],
         binding_worker=BindingWorker(),
         review_worker=ReviewWorker(),
-        retrieval_power=_FakeRetrievalPower(),
+        retrieval_power=retrieval,
     )
 
     assert result.status == "success"
@@ -266,6 +276,8 @@ def test_challenge_power_uses_follow_up_retrieval_when_more_evidence_is_needed()
     assert payload["review_summary"]["follow_up_retrieval_improved"] is True
     assert payload["review_summary"]["follow_up_retrieval_sources"] == ["kb/law.md"]
     assert payload["review_summary"]["follow_up_retrieval_retrieved_evidence_count"] == 1
+    assert retrieval.last_queries
+    assert retrieval.last_queries[0].startswith("请核验前两个结论的法条依据")
 
 
 def test_challenge_result_can_convert_directly_to_review_bundle() -> None:
@@ -400,6 +412,8 @@ def test_review_worker_evidence_check_returns_typed_assessment_result() -> None:
     assert assessment.matched_target_count == 1
     assert assessment.needs_follow_up_retrieval() is False
     assert assessment.to_dict()["matched_target_refs"] == ["claim_1"]
+    assert assessment.source_count == 1
+    assert assessment.source_type_quality_band == "low"
 
 
 def test_review_worker_re_evaluate_returns_typed_review_evaluation_result() -> None:

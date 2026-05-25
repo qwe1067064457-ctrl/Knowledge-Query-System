@@ -103,6 +103,7 @@ def test_agent_builds_summary_driven_instructions() -> None:
         route="qa",
         handling_mode="challenge",
         action="agent",
+        key_events=("follow_up_retrieval_attempted", "insufficient_evidence"),
         context_bundle={
             "binding_summary": "bound_by_explicit_pattern",
             "candidate_count": 3,
@@ -155,12 +156,13 @@ def test_agent_builds_summary_driven_instructions() -> None:
     instructions = build_answer_result_projection_rules_from_workflow(payload)
 
     assert any("binding summary" in item for item in instructions)
-    assert any("planning summary" in item for item in instructions)
     assert any("review summary" in item for item in instructions)
-    assert any("evidence summary" in item for item in instructions)
+    assert any("evidence quality is bad" in item for item in instructions)
     assert any("still 1 target(s) needing more evidence" in item for item in instructions)
     assert any("follow-up retrieval was attempted" in item for item in instructions)
+    assert any("Evidence remains insufficient" in item for item in instructions)
     assert any("evidence bundle is still incomplete" in item for item in instructions)
+    assert not any("planning summary" in item for item in instructions)
 
 
 def test_agent_builds_execution_summary_metadata_from_typed_summary_views() -> None:

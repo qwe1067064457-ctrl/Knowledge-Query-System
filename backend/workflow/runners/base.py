@@ -144,7 +144,9 @@ class BaseRouteRunner:
         context_bundle: ContextBundle | dict[str, Any] | None = None,
         plan_bundle: PlanBundle | dict[str, Any] | None = None,
         review_bundle: ReviewBundle | dict[str, Any] | None = None,
+        evidence_bundle=None,
         answer_constraints: dict[str, Any] | None = None,
+        key_events: tuple[str, ...] | list[str] | None = None,
         status: str | None = None,
     ) -> ExecutionPayload:
         normalized_context = self._normalize_context_bundle_obj(
@@ -161,9 +163,11 @@ class BaseRouteRunner:
             payload,
             status=payload.status if status is None else status,
             context_bundle=normalized_context.to_dict(),
+            evidence_bundle=payload.evidence_bundle if evidence_bundle is None else evidence_bundle,
             plan_bundle=normalized_plan.to_dict(),
             review_bundle=normalized_review.to_dict(),
             answer_constraints=dict(payload.answer_constraints if answer_constraints is None else answer_constraints),
+            key_events=payload.key_events if key_events is None else tuple(dict.fromkeys(str(item) for item in key_events if item)),
         )
 
     def _registry_candidates(self, request: RouteExecutionRequest) -> list[dict[str, Any]]:

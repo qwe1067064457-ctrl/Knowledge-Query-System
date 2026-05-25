@@ -129,8 +129,16 @@ class EvidenceAssessmentResult:
     needs_more_evidence_targets: tuple[str, ...] = ()
     retrieve_if_needed: dict[str, Any] = field(default_factory=dict)
     per_target_assessment: tuple[dict[str, Any], ...] = ()
+    per_target_support_counts: tuple[dict[str, Any], ...] = ()
     evidence_notes: tuple[str, ...] = ()
     follow_up_retrieval: dict[str, Any] = field(default_factory=dict)
+    target_coverage: float = 0.0
+    target_evidence_ref_overlap: float = 0.0
+    missing_target_ratio: float = 0.0
+    source_count: int = 0
+    source_diversity: int = 0
+    source_type_quality_band: str = "unknown"
+    channel_quality_band: str = "unknown"
     fallback: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
@@ -148,7 +156,15 @@ class EvidenceAssessmentResult:
             "needs_more_evidence_targets": list(self.needs_more_evidence_targets),
             "retrieve_if_needed": dict(self.retrieve_if_needed),
             "per_target_assessment": [dict(item) for item in self.per_target_assessment],
+            "per_target_support_counts": [dict(item) for item in self.per_target_support_counts],
             "evidence_notes": list(self.evidence_notes),
+            "target_coverage": self.target_coverage,
+            "target_evidence_ref_overlap": self.target_evidence_ref_overlap,
+            "missing_target_ratio": self.missing_target_ratio,
+            "source_count": self.source_count,
+            "source_diversity": self.source_diversity,
+            "source_type_quality_band": self.source_type_quality_band,
+            "channel_quality_band": self.channel_quality_band,
         }
         if self.follow_up_retrieval:
             payload["follow_up_retrieval"] = dict(self.follow_up_retrieval)
@@ -173,8 +189,16 @@ class EvidenceAssessmentResult:
             needs_more_evidence_targets=tuple(str(item) for item in data.get("needs_more_evidence_targets", ()) if item),
             retrieve_if_needed=dict(data.get("retrieve_if_needed", {})),
             per_target_assessment=tuple(dict(item) for item in data.get("per_target_assessment", ()) or ()),
+            per_target_support_counts=tuple(dict(item) for item in data.get("per_target_support_counts", ()) or ()),
             evidence_notes=tuple(str(item) for item in data.get("evidence_notes", ()) if item),
             follow_up_retrieval=dict(data.get("follow_up_retrieval", {})),
+            target_coverage=float(data.get("target_coverage", data.get("coverage_ratio", 0.0)) or 0.0),
+            target_evidence_ref_overlap=float(data.get("target_evidence_ref_overlap", 0.0) or 0.0),
+            missing_target_ratio=float(data.get("missing_target_ratio", 0.0) or 0.0),
+            source_count=int(data.get("source_count", 0) or 0),
+            source_diversity=int(data.get("source_diversity", 0) or 0),
+            source_type_quality_band=str(data.get("source_type_quality_band", "unknown")),
+            channel_quality_band=str(data.get("channel_quality_band", "unknown")),
             fallback=str(data["fallback"]) if data.get("fallback") else None,
         )
 
@@ -231,6 +255,9 @@ class EvidenceAssessmentResult:
             needs_more_evidence_target_count=self.needs_more_evidence_target_count(),
             follow_up_retrieval_attempted=self.follow_up_attempted(),
             follow_up_retrieval_improved=self.follow_up_improved(),
+            source_count=self.source_count,
+            source_diversity=self.source_diversity,
+            missing_target_ratio=self.missing_target_ratio,
         )
 
     def follow_up_retrieval_source_refs(self) -> tuple[str, ...]:
@@ -269,8 +296,16 @@ class EvidenceAssessmentResult:
             needs_more_evidence_targets=self.needs_more_evidence_targets,
             retrieve_if_needed=dict(self.retrieve_if_needed),
             per_target_assessment=self.per_target_assessment,
+            per_target_support_counts=self.per_target_support_counts,
             evidence_notes=self.evidence_notes,
             follow_up_retrieval=dict(self.follow_up_retrieval),
+            target_coverage=self.target_coverage,
+            target_evidence_ref_overlap=self.target_evidence_ref_overlap,
+            missing_target_ratio=self.missing_target_ratio,
+            source_count=self.source_count,
+            source_diversity=self.source_diversity,
+            source_type_quality_band=self.source_type_quality_band,
+            channel_quality_band=self.channel_quality_band,
             fallback=fallback,
         )
 
@@ -294,8 +329,16 @@ class EvidenceAssessmentResult:
             needs_more_evidence_targets=self.needs_more_evidence_targets,
             retrieve_if_needed=dict(self.retrieve_if_needed),
             per_target_assessment=self.per_target_assessment,
+            per_target_support_counts=self.per_target_support_counts,
             evidence_notes=self.evidence_notes,
             follow_up_retrieval=dict(follow_up_retrieval),
+            target_coverage=self.target_coverage,
+            target_evidence_ref_overlap=self.target_evidence_ref_overlap,
+            missing_target_ratio=self.missing_target_ratio,
+            source_count=self.source_count,
+            source_diversity=self.source_diversity,
+            source_type_quality_band=self.source_type_quality_band,
+            channel_quality_band=self.channel_quality_band,
             fallback=self.fallback,
         )
 
@@ -666,6 +709,9 @@ class EvidenceAssessmentSummaryView:
     needs_more_evidence_target_count: int = 0
     follow_up_retrieval_attempted: bool = False
     follow_up_retrieval_improved: bool = False
+    source_count: int = 0
+    source_diversity: int = 0
+    missing_target_ratio: float = 0.0
 
 
 @dataclass(frozen=True)
@@ -679,6 +725,8 @@ class ContextBindingResult:
     clarification_hint: str | None = None
     binding_summary: str | None = None
     notes: tuple[str, ...] = ()
+    rewritten_query: str | None = None
+    state_snapshot: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -691,6 +739,8 @@ class ContextBindingResult:
             "clarification_hint": self.clarification_hint,
             "binding_summary": self.binding_summary,
             "notes": list(self.notes),
+            "rewritten_query": self.rewritten_query,
+            "state_snapshot": dict(self.state_snapshot or {}),
         }
 
     def target_refs(self) -> tuple[str, ...]:
@@ -714,6 +764,8 @@ class ContextBindingResult:
             clarification_hint=data.get("clarification_hint"),
             binding_summary=data.get("binding_summary"),
             notes=tuple(str(item) for item in data.get("notes", ()) or ()),
+            rewritten_query=str(data["rewritten_query"]) if data.get("rewritten_query") is not None else None,
+            state_snapshot=dict(data.get("state_snapshot", {})) or None,
         )
 
 
@@ -1285,6 +1337,7 @@ class ExecutionPayload:
     plan_bundle: PlanBundle | dict[str, Any] = field(default_factory=dict)
     review_bundle: ReviewBundle | dict[str, Any] = field(default_factory=dict)
     answer_constraints: dict[str, Any] = field(default_factory=dict)
+    key_events: tuple[str, ...] = ()
     notes: tuple[str, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
@@ -1301,6 +1354,7 @@ class ExecutionPayload:
             "plan_bundle": self.plan_bundle_obj().to_dict(),
             "review_bundle": self.review_bundle_obj().to_dict(),
             "answer_constraints": dict(self.answer_constraints),
+            "key_events": list(self.key_events),
             "notes": list(self.notes),
         }
 

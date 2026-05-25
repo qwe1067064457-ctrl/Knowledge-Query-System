@@ -20,6 +20,7 @@ def test_execution_payload_accepts_typed_bundles_and_serializes_contract() -> No
         route="qa",
         handling_mode="challenge",
         action="respond",
+        key_events=("binding_applied", "follow_up_retrieval_attempted"),
         context_bundle=ContextBundle(
             trace={"main_intent": "qa"},
             binding={"bound_targets": [{"ref": "claim_1"}]},
@@ -88,6 +89,7 @@ def test_execution_payload_accepts_typed_bundles_and_serializes_contract() -> No
     assert result["review_bundle"]["review_mode"] == "challenge_review"
     assert result["review_bundle"]["review_summary"]["unsupported_target_refs"] == ["claim_2"]
     assert result["evidence_bundle"]["evidence_summary"]["retrieval_quality_status"] == "good"
+    assert result["key_events"] == ["binding_applied", "follow_up_retrieval_attempted"]
 
 
 def test_execution_payload_summary_views_consume_typed_bundles() -> None:

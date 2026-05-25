@@ -1,24 +1,65 @@
 from __future__ import annotations
 
+from context.models import SessionDialogueState
 from workflow.powers.context_binding_power import ContextBindingPower
 from workflow.types import ContextBindingResult
 
 
-def test_explicit_pattern_binds_latest_candidate() -> None:
+def test_explicit_pattern_with_focus_object_uses_rule_binding() -> None:
     power = ContextBindingPower()
     candidates = [
-        {"object_id": "claim_1", "object_type": "claim", "content": "旧结论", "source_power": "challenge_power"},
-        {"object_id": "claim_2", "object_type": "claim", "content": "最新结论", "source_power": "challenge_power"},
+        {"object_id": "question_1", "object_type": "question_object", "content": "旧问题", "source_power": "workflow"},
+        {"object_id": "question_2", "object_type": "question_object", "content": "最新问题", "source_power": "workflow"},
     ]
 
-    result = power.bind("你刚才说的这个依据是什么", candidates)
+    result = power.bind(
+        "你刚才说的这个依据是什么",
+        candidates,
+        dialogue_state=SessionDialogueState(
+            focus_question_object_id="question_2",
+            focus_question_object_text="最新问题",
+            resolution_confidence="high",
+        ),
+    )
+
+    assert result.binding_ambiguous is False
+    assert result.binding_confidence == "medium"
+    assert result.bound_targets[0]["object_id"] == "question_2"
+    assert result.matched_by == "focus_object_continuity"
+    assert result.clarification_hint is None
+    assert result.binding_summary
+
+
+def test_explicit_followup_can_use_llm_resolution_and_rewrite() -> None:
+    power = ContextBindingPower()
+    candidates = [
+        {"object_id": "question_1", "object_type": "question_object", "content": "MacBook Pro M3 重量多少？", "source_power": "workflow"},
+        {"object_id": "question_2", "object_type": "question_object", "content": "Dell XPS 14 重量多少？", "source_power": "workflow"},
+    ]
+
+    def fake_llm_call(prompt: str) -> str:
+        if "上一轮状态" in prompt:
+            return '{"focus_question_object_id":"question_2","focus_question_object_text":"Dell XPS 14 重量多少？","focus_predicate":"重量","recent_question_objects":[{"object_id":"question_1","content":"MacBook Pro M3 重量多少？"},{"object_id":"question_2","content":"Dell XPS 14 重量多少？"}],"recent_evidence_topics":[],"resolution_confidence":"medium","last_update_reason":"llm_state_update"}'
+        return '{"resolved_target_ids":["question_2"],"rewritten_query":"Dell XPS 14 重量多少？","confidence":"high","needs_clarification":false}'
+
+    result = power.bind(
+        "那它的重量呢？",
+        candidates,
+        recent_messages=[
+            {"role": "user", "content": "MacBook Pro M3 重量多少？"},
+            {"role": "assistant", "content": "1.6kg"},
+            {"role": "user", "content": "那 Dell XPS 14 呢？"},
+        ],
+        llm_call=fake_llm_call,
+        rewrite_query=True,
+    )
 
     assert result.binding_ambiguous is False
     assert result.binding_confidence == "high"
-    assert result.bound_targets[0]["object_id"] == "claim_2"
-    assert result.matched_by == "explicit_pattern"
-    assert result.clarification_hint is None
-    assert result.binding_summary
+    assert result.matched_by == "llm_resolution"
+    assert result.bound_targets[0]["object_id"] == "question_2"
+    assert result.rewritten_query == "Dell XPS 14 重量多少？"
+    assert result.state_snapshot["focus_question_object_id"] == "question_2"
 
 
 def test_short_followup_uses_topic_continuity() -> None:
@@ -72,12 +113,13 @@ def test_ambiguous_binding_returns_candidate_based_hint() -> None:
 def test_binding_power_returns_public_typed_binding_result() -> None:
     power = ContextBindingPower()
     candidates = [
-        {"object_id": "claim_1", "object_type": "claim", "content": "最新结论", "source_power": "challenge_power"},
+        {"object_id": "question_1", "object_type": "question_object", "content": "最新问题", "source_power": "workflow"},
     ]
 
     result = power.bind("你刚才说的这个依据是什么", candidates)
     payload = result.to_dict()
 
     assert isinstance(result, ContextBindingResult)
-    assert payload["bound_targets"][0]["object_id"] == "claim_1"
-    assert payload["matched_by"] == "explicit_pattern"
+    assert payload["bound_targets"][0]["object_id"] == "question_1"
+    assert payload["matched_by"] in {"single_candidate", "explicit_single_candidate", "explicit_pattern"}
+    assert "state_snapshot" in payload

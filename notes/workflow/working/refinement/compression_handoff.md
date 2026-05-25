@@ -1,42 +1,29 @@
 # Workflow Compression Handoff
 
-handoff_round: 35  
-last_verified_test_status: 60 passed (`python -m pytest -c backend_test\\workflow\\pytest.ini backend_test\\workflow -q`)
+> 注：`QA Runner V2` 的后续续接入口已切到 `notes/workflow/working/qa_runner_v2/compression_handoff.md`。本页不再作为 V2 主续接文档。
+
+handoff_round: 37  
+last_verified_test_status: workflow 79 passed; session 19 passed
 
 ## Current State
 
-- 已开始把连续多轮稳定的 workflow 结论提炼到 `docs/adr/`
-- 当前已形成 3 条正式 ADR：
-  - `ADR-0001-workflow-layer-boundaries.md`
-  - `ADR-0002-workflow-typed-inside-dict-outside.md`
-  - `ADR-0003-workflow-owner-first-summary-contracts.md`
-- workflow 主链已经形成：
-  - typed power production
-  - typed payload carrying
-  - typed runner orchestration
-  - stable dict contract outside
-- `ChallengeResult` 的非成功分支也已经统一走 typed factory
-- `ChallengeResult` 已新增 review bundle / summary view 委托入口
-- `EvidenceAssessmentResult / ReviewEvaluationResult` 已补 typed helper
-- `challenge_power` 已减少一批 assessment dict 回填
-- `review_worker.re_evaluate()` 已开始优先消费 assessment accessor
-- `ReviewBundle` 的 follow-up retrieval summary 已更多依赖 assessment accessor
-- `EvidenceRefCandidate` 已新增 `as_target_candidate()`
-- `challenge_power` 最外层已开始正式接受 typed evidence candidate
-- “无 target 时回退到 evidence candidate” 这条路径已开始兼容 typed evidence candidate
-- `EvidenceAssessmentResult` 已新增 matched/unsupported/needs-more-evidence target ref list accessor
-- `ReviewBundle.from_challenge_result(...)` 已开始优先信任 assessment owner，而不是先从 `review_findings` 倒推 target refs
-- `EvidenceAssessmentResult` 已新增 `summary_view()`
-- `ReviewBundle.from_challenge_result(...)` 已开始直接消费 assessment summary view 的 target count / follow-up retrieval 状态
-- `ReviewBundle.summary_view()` 已开始优先消费 `EvidenceAssessmentResult.summary_view()`
-- follow-up retrieval 的布尔状态已修成 owner-first 语义，不再让 fallback summary 把 owner 的 `False` 覆盖掉
-- `EvidenceBundle.summary_view()` 已开始直接从 owner 字段生成
-- `EvidenceBundle.summary_obj()` 已改为反向委托 `summary_view()`
-- retrieval 侧高频 accessor 已开始优先消费 `EvidenceBundle.summary_view()`
-- `EvidenceBundle.summary_view()` 现已稳定覆盖 repair / coverage 摘要字段
-- `ReviewBundle` 的高频 accessor 已开始优先消费 assessment owner
-- `ReviewBundle.summary_obj()` 现已改为 owner-first 导出
-- `ReviewBundle.to_dict()` 的 `review_summary` 现已走 `summary_obj()`，外部 stable dict contract 也会优先反映 assessment owner，而不是继续携带过期 fallback 值
+- QA Runner 第二版主链已形成：
+  - `registry(question_object/evidence_ref)`
+  - `session-scoped state`
+  - `ContextBindingPower = state + rule + llm resolution/rewrite + clarification gate`
+  - `ReviewWorker` coarse review
+  - `ExecutionPayload` key events + answer constraints
+- 本轮 focus 正在收三件事：
+  - `SessionDialogueState` schema 与持久化边界
+  - `state_update_prompt` / `bound_query_rewrite_prompt` 的输入输出 contract
+  - `policy.py -> QA Runner / answer side` 的 owner 与消费边界
+- `workflow_prompt_projector` 已开始从 QA 视角优先消费：
+  - `binding_summary`
+  - `review_summary`
+  - `follow_up_retrieval_*`
+  - `insufficient_evidence`
+  - `knowledge_scope_status`
+  并减少默认 planning 噪音注入
 
 ## Typed Status Snapshot
 
@@ -54,14 +41,14 @@ last_verified_test_status: 60 passed (`python -m pytest -c backend_test\\workflo
 
 ## Current Focus
 
-- 提炼 workflow 已稳定的架构结论到更正式层
-- 保持 `working/refinement/` 作为阶段性推进与压缩续接目录
-- 明确 `docs/adr/` 只承接已经稳定、适合长期正式引用的 workflow 结论
+- 收口 `SessionDialogueState` 的 schema、来源、更新规则、持久化边界
+- 固定 `state_update_prompt` / `bound_query_rewrite_prompt` 的输入输出 contract
+- 让 `policy ownership` 在代码和 notes 中都更明确
 
 ## Next Focus
 
-- 评估是否还有别的 workflow 结论已经稳定到适合进入 ADR
-- 如果没有，再回到下一阶段的 workflow P1 优化 / 稳定化 goal
+- 跑 workflow/session 全量回归，确认本轮 contract 收口没有打坏第二版主链
+- 如果 contract 继续稳定，再评估哪些结论适合提炼到更正式层
 
 ## Confirmed Boundaries
 

@@ -32,6 +32,123 @@ MemoryType = Literal["core", "daily_log", "domain_case"]
 
 
 @dataclass
+class SessionDialogueState:
+    """会话级短程运行态，用于 bound query / rewrite。
+
+    字段语义：
+    - focus_question_object_*: 当前最值得继续承接的 question_object 焦点
+    - focus_predicate: 当前短程 follow-up 仍在延续的谓词/属性
+    - recent_question_objects: 最近仍值得作为 bound query 候选的问题对象快照
+    - recent_evidence_topics: 最近证据主题摘要，用于辅助 rewrite/对齐
+    - resolution_confidence: 当前 state 自身的稳定度，而不是最终回答置信度
+    - last_update_reason: 最近一次 state 更新为何得出当前焦点
+    """
+
+    _CONFIDENCE_VALUES = {"high", "medium", "low"}
+    _MAX_RECENT_QUESTION_OBJECTS = 6
+    _MAX_RECENT_EVIDENCE_TOPICS = 6
+
+    focus_question_object_id: Optional[str] = None
+    focus_question_object_text: Optional[str] = None
+    focus_predicate: Optional[str] = None
+    recent_question_objects: List[Dict[str, Any]] = field(default_factory=list)
+    recent_evidence_topics: List[str] = field(default_factory=list)
+    resolution_confidence: str = "low"
+    last_update_reason: Optional[str] = None
+
+    def to_dict(self) -> Dict[str, Any]:
+        normalized = self.normalized()
+        return {
+            "focus_question_object_id": normalized.focus_question_object_id,
+            "focus_question_object_text": normalized.focus_question_object_text,
+            "focus_predicate": normalized.focus_predicate,
+            "recent_question_objects": [dict(item) for item in normalized.recent_question_objects],
+            "recent_evidence_topics": list(normalized.recent_evidence_topics),
+            "resolution_confidence": normalized.resolution_confidence,
+            "last_update_reason": normalized.last_update_reason,
+        }
+
+    @classmethod
+    def from_dict(cls, data: Optional[Dict[str, Any]]) -> "SessionDialogueState":
+        payload = dict(data or {})
+        return cls(
+            focus_question_object_id=payload.get("focus_question_object_id"),
+            focus_question_object_text=payload.get("focus_question_object_text"),
+            focus_predicate=payload.get("focus_predicate"),
+            recent_question_objects=[dict(item) for item in payload.get("recent_question_objects", []) or []],
+            recent_evidence_topics=[str(item) for item in payload.get("recent_evidence_topics", []) if item],
+            resolution_confidence=str(payload.get("resolution_confidence", "low")),
+            last_update_reason=payload.get("last_update_reason"),
+        ).normalized()
+
+    def normalized(self) -> "SessionDialogueState":
+        recent_question_objects: List[Dict[str, Any]] = []
+        seen_question_ids: set[str] = set()
+        for item in self.recent_question_objects[: self._MAX_RECENT_QUESTION_OBJECTS]:
+            object_id = str(item.get("object_id") or "").strip()
+            content = str(item.get("content") or "").strip()
+            if not object_id or not content or object_id in seen_question_ids:
+                continue
+            seen_question_ids.add(object_id)
+            normalized_item = {
+                "object_id": object_id,
+                "content": content,
+            }
+            refs = item.get("refs")
+            if isinstance(refs, (list, tuple)):
+                cleaned_refs = [str(ref).strip() for ref in refs if str(ref).strip()]
+                if cleaned_refs:
+                    normalized_item["refs"] = cleaned_refs
+            recent_question_objects.append(normalized_item)
+
+        recent_evidence_topics: List[str] = []
+        seen_topics: set[str] = set()
+        for item in self.recent_evidence_topics[: self._MAX_RECENT_EVIDENCE_TOPICS]:
+            topic = str(item).strip()
+            if not topic or topic in seen_topics:
+                continue
+            seen_topics.add(topic)
+            recent_evidence_topics.append(topic)
+
+        confidence = str(self.resolution_confidence or "low").strip().lower()
+        if confidence not in self._CONFIDENCE_VALUES:
+            confidence = "low"
+
+        focus_question_object_id = str(self.focus_question_object_id).strip() if self.focus_question_object_id else None
+        focus_question_object_text = str(self.focus_question_object_text).strip() if self.focus_question_object_text else None
+        focus_predicate = str(self.focus_predicate).strip() if self.focus_predicate else None
+        last_update_reason = str(self.last_update_reason).strip() if self.last_update_reason else None
+
+        if focus_question_object_id and not any(
+            item.get("object_id") == focus_question_object_id for item in recent_question_objects
+        ):
+            if focus_question_object_text:
+                recent_question_objects.insert(
+                    0,
+                    {
+                        "object_id": focus_question_object_id,
+                        "content": focus_question_object_text,
+                    },
+                )
+                recent_question_objects = recent_question_objects[: self._MAX_RECENT_QUESTION_OBJECTS]
+            else:
+                focus_question_object_id = None
+
+        if not focus_question_object_id:
+            focus_question_object_text = None
+
+        return SessionDialogueState(
+            focus_question_object_id=focus_question_object_id,
+            focus_question_object_text=focus_question_object_text,
+            focus_predicate=focus_predicate,
+            recent_question_objects=recent_question_objects,
+            recent_evidence_topics=recent_evidence_topics,
+            resolution_confidence=confidence,
+            last_update_reason=last_update_reason,
+        )
+
+
+@dataclass
 class ToolCall:
     """工具调用"""
 
@@ -199,3 +316,5 @@ class MemoryEntry:
     user_id: Optional[str] = None
     title: Optional[str] = None
     tags: Optional[List[str]] = None
+    source_session_id: Optional[str] = None
+    metadata: Optional[Dict[str, Any]] = None

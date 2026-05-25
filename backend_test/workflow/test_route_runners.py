@@ -183,6 +183,8 @@ def test_qa_runner_challenge_without_candidates_requests_clarification() -> None
     assert payload.review_bundle["review_summary"]["follow_up_retrieval_attempted"] is False
     assert payload.review_bundle["targets"] == []
     assert payload.review_bundle["review_findings"] == []
+    assert "binding_ambiguous" in payload.key_events
+    assert "clarification_required" in payload.key_events
 
 
 def test_qa_runner_challenge_with_evidence_candidates_returns_review_bundle() -> None:
@@ -233,6 +235,8 @@ def test_qa_runner_challenge_with_evidence_candidates_returns_review_bundle() ->
     assert isinstance(payload.review_bundle["review_findings"], list)
     assert payload.review_bundle["review_summary"]["matched_target_refs"] == ["question_1"]
     assert payload.review_bundle["review_summary"]["status_summary"] == "success"
+    assert payload.context_bundle["binding"]["state_snapshot"]["focus_question_object_id"] == "question_1"
+    assert "binding_applied" in payload.key_events
 
 
 def test_qa_runner_challenge_supports_multi_target_partial_review_bundle() -> None:
@@ -287,6 +291,7 @@ def test_qa_runner_challenge_supports_multi_target_partial_review_bundle() -> No
     assert payload.review_bundle["review_summary"]["needs_more_evidence_targets"] == ["question_2"]
     assert payload.review_bundle["review_summary"]["status_summary"] == "partial_success"
     assert payload.review_bundle["review_summary"]["follow_up_retrieval_attempted"] is False
+    assert "binding_applied" in payload.key_events
 
 
 def test_qa_runner_challenge_can_resolve_missing_targets_via_follow_up_retrieval() -> None:
@@ -340,6 +345,8 @@ def test_qa_runner_challenge_can_resolve_missing_targets_via_follow_up_retrieval
     assert payload.review_bundle["review_summary"]["unsupported_target_refs"] == []
     assert payload.review_bundle["review_summary"]["follow_up_retrieval_attempted"] is True
     assert payload.review_bundle["review_summary"]["follow_up_retrieval_sources"] == ["kb/law.md"]
+    assert "follow_up_retrieval_attempted" in payload.key_events
+    assert "follow_up_retrieval_improved" in payload.key_events
 
 
 def test_qa_runner_passes_typed_evidence_candidates_into_challenge_power() -> None:

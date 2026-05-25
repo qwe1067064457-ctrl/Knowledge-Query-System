@@ -99,7 +99,7 @@ def test_workflow_prompt_projector_emits_behavior_and_result_rules() -> None:
     )
     behavior_rules = build_answer_behavior_rules_from_workflow(plan)
     payload = ExecutionPayload(
-        route="qa",
+        route="orchestrated",
         handling_mode="challenge",
         action="respond",
         context_bundle={"binding_summary": "bound_by_topic_continuity"},
@@ -145,7 +145,54 @@ def test_workflow_prompt_projector_emits_behavior_and_result_rules() -> None:
     assert any("binding summary" in item for item in result_rules)
     assert any("planning summary" in item for item in result_rules)
     assert any("review summary" in item for item in result_rules)
-    assert any("evidence summary" in item for item in result_rules)
+    assert any("evidence quality is bad" in item for item in result_rules)
+
+
+def test_workflow_prompt_projector_prioritizes_answer_centric_qa_signals() -> None:
+    payload = ExecutionPayload(
+        route="qa",
+        handling_mode="challenge",
+        action="respond",
+        knowledge_scope_status="resolved",
+        key_events=(
+            "binding_applied",
+            "follow_up_retrieval_attempted",
+            "insufficient_evidence",
+        ),
+        context_bundle={"binding_summary": "bound_by_topic_continuity"},
+        plan_bundle={
+            "planning_mode": "compare",
+            "ordered_steps": [{"title": "Compare", "sequence": 1}],
+            "execution_checkpoints": [{"name": "coverage"}],
+            "fallback_used": False,
+        },
+        review_bundle={
+            "review_mode": "challenge_review",
+            "review_confidence": "low",
+            "review_scope": "single_target",
+            "review_summary": {
+                "status_summary": "insufficient_evidence",
+                "needs_more_evidence_targets": ["question_1"],
+                "follow_up_retrieval_attempted": True,
+                "follow_up_retrieval_improved": False,
+            },
+        },
+        evidence_bundle=EvidenceBundle(
+            quality_summary={"status": "weak"},
+            merged_evidence_items=(),
+            source_refs=(),
+            missing_evidence_notes=("missing support",),
+        ),
+    )
+
+    result_rules = build_answer_result_projection_rules_from_workflow(payload)
+
+    assert any("binding summary" in item for item in result_rules)
+    assert any("review summary" in item for item in result_rules)
+    assert any("follow-up retrieval was attempted during review but did not fully resolve the evidence gap" in item for item in result_rules)
+    assert any("Evidence remains insufficient" in item for item in result_rules)
+    assert any("evidence quality is weak" in item for item in result_rules)
+    assert not any("planning summary" in item for item in result_rules)
 
 
 def test_workflow_prompt_projector_skips_not_applicable_result_rules() -> None:

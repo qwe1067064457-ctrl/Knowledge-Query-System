@@ -1,5 +1,7 @@
 # Workflow Architecture
 
+> 注：`QA Runner V2` 的最新主链、检索分层、memory 回锚与 working memory 口径，已迁移到 `notes/workflow/working/qa_runner_v2/`。本页主要保留 workflow v1 完善期与通用边界信息。
+
 ## Purpose
 
 这份文档只记录当前 `workflow` 的边界、分层和 ownership。
@@ -46,6 +48,32 @@
   - 负责重过程、可复用过程
 - `helper`
   - 只做局部修补、轻量整理、局部响应辅助
+
+## QA Runner Phase 2 Ownership Notes
+
+- `session state`
+  - owner: `context/session`
+  - 语义：短程运行态焦点
+  - 用途：bound query / rewrite / target resolution
+  - 不等于：
+    - `registry`
+    - `daily_log`
+    - 长期 memory
+- `registry`
+  - owner: `context/registry`
+  - 语义：高可靠跨轮对象锚点
+  - 当前只保留：
+    - `question_object`
+    - `evidence_ref`
+- `policy`
+  - owner: `workflow/policy.py`
+  - 负责把 `control` 决策映射为：
+    - `WorkflowPlan`
+    - `policy_flags`
+    - `enabled_powers`
+- `answer side`
+  - 只应消费 answer-centric 的 workflow 信号
+  - 不应默认高频消费低价值 planning 流程字段
 
 ## Current Route / Mode Contract
 

@@ -1,5 +1,7 @@
 # Workflow Contracts
 
+> 注：与 `QA Runner V2` 直接相关的最新 contract，特别是 `retrieval gate / retrieval_quality / evidence_check / session working memory / memory anchor`，已迁移到 `notes/workflow/working/qa_runner_v2/contracts.md`。本页主要保留 workflow v1 完善期与通用 contract 口径。
+
 ## Purpose
 
 这份文档只记录当前 workflow 主线已经确认的 contract 口径。
@@ -32,6 +34,97 @@
 - `plan_summary_view()`
 - `review_summary_view()`
 - `evidence_summary_view()`
+
+## Session State Contract
+
+- `SessionDialogueState`
+  - owner: `context.models.SessionDialogueState`
+  - persistence owner: `context.session.session_manager.SessionManager`
+
+字段语义：
+
+- `focus_question_object_id`
+  - 当前短程 follow-up 最值得继续承接的 `question_object`
+- `focus_question_object_text`
+  - 与 `focus_question_object_id` 对应的文本快照
+- `focus_predicate`
+  - 当前仍在延续的属性/谓词
+- `recent_question_objects`
+  - 最近仍值得作为 bound query 候选的问题对象快照
+- `recent_evidence_topics`
+  - 最近证据主题摘要
+- `resolution_confidence`
+  - 当前 state 自身稳定度，限定为 `high|medium|low`
+- `last_update_reason`
+  - 最近一次 state 更新原因
+
+边界：
+
+- `state` 是 session-scoped runtime state
+- `state` 不等于 `registry`
+- `state` 不等于 `daily_log`
+- `state` 不承担长期记忆角色
+
+## Bound Query Prompt Contract
+
+- `state_update_prompt`
+  - 输入：
+    - 上一轮 `state`
+    - 最近少量对话
+    - 候选 `question_object`
+    - 候选 evidence topics
+    - 当前用户问题
+  - 输出：
+    - `focus_question_object_id`
+    - `focus_question_object_text`
+    - `focus_predicate`
+    - `recent_question_objects`
+    - `recent_evidence_topics`
+    - `resolution_confidence`
+    - `last_update_reason`
+
+- `bound_query_rewrite_prompt`
+  - 输入：
+    - 当前 `state`
+    - 最近少量对话
+    - 候选 `question_object`
+    - 当前用户问题
+  - 输出：
+    - `resolved_target_ids`
+    - `rewritten_query`
+    - `confidence`
+    - `needs_clarification`
+
+## Policy Ownership Contract
+
+- `workflow.policy.build_workflow_plan(...)`
+  - owner for:
+    - `route`
+    - `handling_mode`
+    - `rewrite_query`
+    - `enabled_powers`
+    - `policy_flags`
+    - `knowledge_scope_status`
+
+- `QaRouteRunner`
+  - 消费：
+    - `enabled_powers`
+    - `rewrite_query`
+    - `knowledge_scope_status`
+
+- `answer side`
+  - 消费：
+    - `route`
+    - `handling_mode`
+    - `cite_sources`
+    - `use_planner`
+    - `decompose_query`
+    - `should_ask_clarification_first`
+    - payload key events / review summary / binding summary
+
+- 约束：
+  - `policy_flags` 不应在 answer side 无边界散读
+  - 强行为 policy 由 runner / prompt projector 集中消费
 
 ## Bundle Contracts
 

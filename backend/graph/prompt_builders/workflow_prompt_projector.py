@@ -60,12 +60,26 @@ def build_answer_result_projection_rules_from_workflow(payload) -> list[str]:
     plan_summary = payload.plan_summary_view()
     review_summary = payload.review_summary_view()
     evidence_summary = payload.evidence_summary_view()
+    key_events = set(getattr(payload, "key_events", ()) or ())
+
+    if getattr(payload, "knowledge_scope_status", "resolved") == "needs_clarification":
+        instructions.append(
+            "Knowledge scope is still unresolved. Ask a concise clarification before giving any substantive answer."
+        )
+    if "clarification_required" in key_events:
+        instructions.append(
+            "The workflow requires clarification before proceeding. Ask the clarification directly and stop there."
+        )
 
     if context_summary.binding_summary != "not_applicable":
         instructions.append(
             f"Current binding summary: {context_summary.binding_summary}. Keep the answer anchored to the resolved target context."
         )
-    if plan_summary.planning_mode != "not_applicable":
+    if "binding_ambiguous" in key_events and "clarification_required" not in key_events:
+        instructions.append(
+            "The current target alignment is still ambiguous. Avoid over-committing to a single historical target unless the answer makes the uncertainty explicit."
+        )
+    if getattr(payload, "route", "") == "orchestrated" and plan_summary.planning_mode != "not_applicable":
         instructions.append(
             f"Current planning summary: mode={plan_summary.planning_mode}, steps={plan_summary.step_count}, checkpoints={plan_summary.checkpoint_count}. Preserve this execution organization in the answer."
         )
@@ -82,14 +96,24 @@ def build_answer_result_projection_rules_from_workflow(payload) -> list[str]:
                 f"There are still {review_summary.needs_more_evidence_target_count} target(s) needing more evidence. Acknowledge uncertainty explicitly."
             )
         if review_summary.follow_up_retrieval_attempted:
-            instructions.append(
-                "A follow-up retrieval was attempted during review. Reflect any remaining uncertainty rather than implying the review was fully definitive."
-            )
-    if evidence_summary.retrieval_quality_status != "not_applicable":
+            if review_summary.follow_up_retrieval_improved:
+                instructions.append(
+                    "A follow-up retrieval improved coverage during review. Prefer the improved evidence set, but keep the final certainty aligned with the review confidence."
+                )
+            else:
+                instructions.append(
+                    "A follow-up retrieval was attempted during review but did not fully resolve the evidence gap. Reflect any remaining uncertainty rather than implying the review was fully definitive."
+                )
+    if "insufficient_evidence" in key_events or review_summary.status_summary == "insufficient_evidence":
         instructions.append(
-            f"Current evidence summary: quality={evidence_summary.retrieval_quality_status}, evidences={evidence_summary.merged_evidence_count}, sources={evidence_summary.source_ref_count}."
+            "Evidence remains insufficient for a definitive answer. Be explicit about uncertainty and avoid over-claiming."
         )
-        if evidence_summary.missing_evidence:
+    if evidence_summary.retrieval_quality_status != "not_applicable":
+        if evidence_summary.retrieval_quality_status in {"weak", "bad"}:
+            instructions.append(
+                f"Current evidence quality is {evidence_summary.retrieval_quality_status}. Prefer a conservative answer posture and avoid overstating unsupported details."
+            )
+        if evidence_summary.missing_evidence or "insufficient_evidence" in key_events:
             instructions.append(
                 "The evidence bundle is still incomplete. Do not overstate certainty and call out missing support when needed."
             )

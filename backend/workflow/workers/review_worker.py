@@ -2,10 +2,53 @@ from __future__ import annotations
 
 from typing import Any
 
-from workflow.types import EvidenceAssessmentResult, EvidenceRefCandidate, ReviewEvaluationResult
+from workflow.types import EvidenceAssessmentResult, EvidenceBundle, EvidenceRefCandidate, ReviewEvaluationResult
 
 
 class ReviewWorker:
+    _SOURCE_TYPE_QUALITY = {
+        "official_structured": "high",
+        "official_unstructured": "medium_high",
+        "community": "medium",
+        "unknown": "low",
+    }
+    _CHANNEL_QUALITY = {
+        "vector": "medium_high",
+        "keyword": "medium",
+        "bm25": "medium",
+        "memory": "medium",
+        "unknown": "low",
+    }
+
+    def retrieval_quality_check(
+        self,
+        *,
+        evidence_bundle: EvidenceBundle | None,
+    ) -> dict[str, Any]:
+        if evidence_bundle is None:
+            return {
+                "status": "not_applicable",
+                "should_repair": False,
+                "average_weighted_score": 0.0,
+                "repairable_units": 0,
+                "repaired_units": 0,
+                "missing_evidence": False,
+                "source_ref_count": 0,
+                "merged_evidence_count": 0,
+            }
+        summary = evidence_bundle.summary_obj()
+        quality_view = evidence_bundle.summary_view()
+        return {
+            "status": str(summary.get("retrieval_quality_status", "unknown")),
+            "should_repair": bool(summary.get("repairable_units", 0)),
+            "average_weighted_score": float(summary.get("average_weighted_score", 0.0) or 0.0),
+            "repairable_units": int(summary.get("repairable_units", 0) or 0),
+            "repaired_units": int(summary.get("repaired_units", 0) or 0),
+            "missing_evidence": bool(summary.get("missing_evidence", False)),
+            "source_ref_count": quality_view.source_ref_count,
+            "merged_evidence_count": quality_view.merged_evidence_count,
+        }
+
     def evidence_check(
         self,
         *,
@@ -13,9 +56,14 @@ class ReviewWorker:
         targets: list[dict[str, Any]],
         evidence_candidates: list[EvidenceRefCandidate | dict[str, Any]],
     ) -> EvidenceAssessmentResult:
-        evidence_refs = self._collect_evidence_refs(evidence_candidates)
+        del query
+        normalized_evidence = self._normalize_evidence_candidates(evidence_candidates)
+        evidence_refs = self._collect_evidence_refs(normalized_evidence)
         matched_targets = 0
         per_target_assessment = []
+        per_target_support_counts = []
+        total_target_refs = 0
+        total_matched_refs = 0
         for target in targets:
             target_refs = self._target_refs(target)
             target_id = str(target.get("object_id") or target.get("content") or f"target_{len(per_target_assessment) + 1}")
@@ -37,6 +85,15 @@ class ReviewWorker:
                     "matched_evidence_refs": matched_refs,
                 }
             )
+            per_target_support_counts.append(
+                {
+                    "target_ref": target_id,
+                    "support_count": len(matched_refs),
+                    "matched_evidence_refs": matched_refs,
+                }
+            )
+            total_target_refs += len(target_refs)
+            total_matched_refs += len(matched_refs)
 
         sufficient = bool(targets) and matched_targets == len(targets)
         partially_sufficient = bool(targets) and 0 < matched_targets < len(targets)
@@ -50,14 +107,27 @@ class ReviewWorker:
             for item in per_target_assessment
             if not item.get("matched")
         ]
+        target_coverage = (matched_targets / len(targets)) if targets else 0.0
+        missing_target_ratio = (len(unsupported_target_refs) / len(targets)) if targets else 0.0
+        target_evidence_ref_overlap = (total_matched_refs / total_target_refs) if total_target_refs else 0.0
+        source_count = len(normalized_evidence)
+        source_diversity = len(
+            {
+                (
+                    evidence.get("source_type") or "unknown",
+                    evidence.get("channel") or "unknown",
+                )
+                for evidence in normalized_evidence
+            }
+        )
         return EvidenceAssessmentResult(
             sufficient=sufficient,
             partially_sufficient=partially_sufficient,
-            used_existing_evidence=bool(evidence_candidates),
+            used_existing_evidence=bool(normalized_evidence),
             triggered_additional_retrieval=not sufficient,
             matched_target_count=matched_targets,
             target_count=len(targets),
-            coverage_ratio=(matched_targets / len(targets)) if targets else 0.0,
+            coverage_ratio=target_coverage,
             supporting_evidence_refs=tuple(sorted(evidence_refs)),
             matched_target_refs=tuple(matched_target_refs),
             unsupported_target_refs=tuple(unsupported_target_refs),
@@ -68,7 +138,15 @@ class ReviewWorker:
                 "reason": "insufficient_target_coverage" if unsupported_target_refs else "not_needed",
             },
             per_target_assessment=tuple(per_target_assessment),
+            per_target_support_counts=tuple(per_target_support_counts),
             evidence_notes=() if sufficient else ("existing_evidence_not_enough",),
+            target_coverage=target_coverage,
+            target_evidence_ref_overlap=target_evidence_ref_overlap,
+            missing_target_ratio=missing_target_ratio,
+            source_count=source_count,
+            source_diversity=source_diversity,
+            source_type_quality_band=self._derive_source_type_quality_band(normalized_evidence),
+            channel_quality_band=self._derive_channel_quality_band(normalized_evidence),
         )
 
     def re_evaluate(
@@ -84,19 +162,39 @@ class ReviewWorker:
             if isinstance(evidence_assessment, EvidenceAssessmentResult)
             else EvidenceAssessmentResult.from_dict(evidence_assessment)
         )
-        supporting_refs = list(assessment_result.supporting_evidence_refs)
+        findings = self.summarize_review_findings(
+            targets=targets,
+            evidence_assessment=assessment_result,
+        )
         sufficient = assessment_result.sufficient
         partially_sufficient = assessment_result.partially_sufficient
+        status = "success" if sufficient else "partial_success" if partially_sufficient else "insufficient_evidence"
+        return ReviewEvaluationResult(
+            status=status,
+            review_findings=tuple(findings),
+            answer_constraints=self.build_review_answer_constraints(
+                evidence_assessment=assessment_result,
+                sufficient=sufficient,
+            ),
+        )
+
+    def summarize_review_findings(
+        self,
+        *,
+        targets: list[dict[str, Any]],
+        evidence_assessment: EvidenceAssessmentResult,
+    ) -> tuple[dict[str, Any], ...]:
+        supporting_refs = list(evidence_assessment.supporting_evidence_refs)
         findings = []
         for index, target in enumerate(targets, start=1):
             target_ref = target.get("object_id") or target.get("content") or f"target_{index}"
-            matched_refs = assessment_result.matched_evidence_refs_for(str(target_ref))
-            if assessment_result.target_is_matched(str(target_ref)):
+            matched_refs = evidence_assessment.matched_evidence_refs_for(str(target_ref))
+            if evidence_assessment.target_is_matched(str(target_ref)):
                 judgment = "supported"
-                reason = "Existing evidence candidates cover the current challenge target."
+                reason = "Coarse evidence coverage indicates the current challenge target is supported by retrieved evidence."
             else:
                 judgment = "insufficient_evidence"
-                reason = "Existing evidence candidates do not yet cover the current challenge target."
+                reason = "Coarse evidence coverage indicates the current challenge target still lacks enough supporting evidence."
             findings.append(
                 {
                     "target_ref": target_ref,
@@ -105,16 +203,20 @@ class ReviewWorker:
                     "supporting_evidence_refs": matched_refs or supporting_refs,
                 }
             )
+        return tuple(findings)
 
-        status = "success" if sufficient else "partial_success" if partially_sufficient else "insufficient_evidence"
-        return ReviewEvaluationResult(
-            status=status,
-            review_findings=tuple(findings),
-            answer_constraints={
-                "must_cite_sources": True,
-                "must_acknowledge_uncertainty": not sufficient,
-            },
-        )
+    def build_review_answer_constraints(
+        self,
+        *,
+        evidence_assessment: EvidenceAssessmentResult,
+        sufficient: bool,
+    ) -> dict[str, Any]:
+        return {
+            "must_cite_sources": True,
+            "must_acknowledge_uncertainty": not sufficient,
+            "source_type_quality_band": evidence_assessment.source_type_quality_band,
+            "channel_quality_band": evidence_assessment.channel_quality_band,
+        }
 
     def review(
         self,
@@ -142,12 +244,21 @@ class ReviewWorker:
             "answer_constraints": reevaluation.answer_constraints,
         }
 
-    def _collect_evidence_refs(self, evidence_candidates: list[EvidenceRefCandidate | dict[str, Any]]) -> set[str]:
-        refs: set[str] = set()
+    def _normalize_evidence_candidates(
+        self,
+        evidence_candidates: list[EvidenceRefCandidate | dict[str, Any]],
+    ) -> list[dict[str, Any]]:
+        normalized: list[dict[str, Any]] = []
         for evidence in evidence_candidates:
             if isinstance(evidence, EvidenceRefCandidate):
-                refs.update(evidence.all_refs())
-                continue
+                normalized.append(evidence.to_dict())
+            else:
+                normalized.append(dict(evidence))
+        return normalized
+
+    def _collect_evidence_refs(self, evidence_candidates: list[dict[str, Any]]) -> set[str]:
+        refs: set[str] = set()
+        for evidence in evidence_candidates:
             object_id = evidence.get("object_id")
             if object_id:
                 refs.add(str(object_id))
@@ -163,3 +274,25 @@ class ReviewWorker:
         for ref in target.get("refs", ()):
             refs.add(str(ref))
         return refs
+
+    def _derive_source_type_quality_band(self, evidence_candidates: list[dict[str, Any]]) -> str:
+        return self._aggregate_quality_band(
+            [self._SOURCE_TYPE_QUALITY.get(str(item.get("source_type") or "unknown"), "low") for item in evidence_candidates]
+        )
+
+    def _derive_channel_quality_band(self, evidence_candidates: list[dict[str, Any]]) -> str:
+        return self._aggregate_quality_band(
+            [self._CHANNEL_QUALITY.get(str(item.get("channel") or "unknown"), "low") for item in evidence_candidates]
+        )
+
+    def _aggregate_quality_band(self, bands: list[str]) -> str:
+        if not bands:
+            return "unknown"
+        rank = {
+            "low": 0,
+            "medium": 1,
+            "medium_high": 2,
+            "high": 3,
+        }
+        best = max(bands, key=lambda item: rank.get(item, -1))
+        return best

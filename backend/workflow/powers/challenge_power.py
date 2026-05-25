@@ -36,6 +36,7 @@ class ChallengePower:
         *,
         query: str,
         candidate_targets: list[dict[str, Any]],
+        rewritten_query: str | None = None,
         evidence_candidates: list[EvidenceRefCandidate | dict[str, Any]] | None = None,
         binding_worker: Any | None = None,
         review_worker: Any | None = None,
@@ -116,6 +117,7 @@ class ChallengePower:
         )
         evidence_assessment, evidence_candidates = self._retrieve_if_needed(
             query=query,
+            rewritten_query=rewritten_query,
             targets=targets,
             evidence_candidates=evidence_candidates,
             evidence_assessment=evidence_assessment,
@@ -202,6 +204,7 @@ class ChallengePower:
         self,
         *,
         query: str,
+        rewritten_query: str | None,
         targets: tuple[dict[str, Any], ...],
         evidence_candidates: list[EvidenceRefCandidate | dict[str, Any]],
         evidence_assessment: EvidenceAssessmentResult,
@@ -212,7 +215,7 @@ class ChallengePower:
             return evidence_assessment, evidence_candidates
 
         support_units = self._build_support_query_units(
-            query=query,
+            query=rewritten_query or query,
             targets=targets,
             requested_target_refs=list(evidence_assessment.retrieve_target_refs()),
         )

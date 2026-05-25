@@ -1,22 +1,54 @@
 # Workflow Refinement TODO
 
-current_round: 35  
-last_completed_round: 35  
-current_focus: 提炼 workflow 已稳定的架构结论到正式层，澄清 refinement 与 ADR 的职责边界  
-next_focus: 评估是否还需要把更多稳定 workflow 结论提炼到 ADR，或返回下一阶段的 P1 优化 goal
+current_round: 37  
+last_completed_round: 36  
+current_focus: 收口 QA Runner 第二版的 session state schema、prompt contract 与 policy ownership  
+next_focus: 跑 workflow/session 回归，确认 state/prompt/policy 合约已被测试和文档一起钉住
 
 ## In Progress
 
-- [ ] 提炼已稳定的 workflow 结论到 `docs/adr/`
-  - 目标：只提炼连续多轮稳定、后续不应反复重议的 workflow 结论
-  - 完成标准：形成 1~3 条 ADR，并让入口文档能清楚区分 refinement 层与正式层
+- [ ] 建立 bound query 黑盒评估样本与统计输出
+  - 目标：有一组短程 follow-up 样本，可统计自动绑定成功率、澄清率、误绑率
+  - 完成标准：workflow 测试中存在稳定评估样本，且可输出精度统计结果
+- [ ] 收口 answer side 对 ExecutionPayload 的高价值消费
+  - 目标：让 answer side 优先消费 binding/review/key events 等强信号，减少 planning 等低价值噪音
+  - 完成标准：workflow prompt projector 的 QA 消费面不再默认注入低价值流程字段
+- [ ] 收口 session state schema、prompt contract 与 policy ownership
+  - 目标：state 的字段语义、来源、持久化边界，prompt 的输入输出 contract，policy 的 owner 与消费边界都明确且可测试
+  - 完成标准：README / notes 与黑盒测试能共同证明这些边界
 
 ## Next
 
-- [ ] 评估是否还有别的 workflow 结论已稳定到适合进入 `docs/adr/`
-- [ ] 如果没有，再切回下一阶段的 workflow P1 优化 / 稳定化 goal
+- [ ] 跑 workflow/session 回归，确认 bound query 评估与 payload 收口没有打坏第二版主链
+- [ ] 如果 precision 基线稳定，再考虑是否补线下样本扩充和更显式的 payload 事件消费测试
+- [ ] 如果 state/prompt/policy 合约稳定，再评估是否需要把其中一部分提炼到更正式层
 
 ## Done Recently
+
+- [x] `SessionDialogueState` 新增归一化 contract：
+  - 去重 recent question objects / evidence topics
+  - 限制 confidence 到 `high|medium|low`
+  - `focus_question_object_id` 与 recent objects 保持一致
+- [x] `BoundQueryPromptHelper` 新增显式 contract 校验：
+  - `validate_state_update_payload(...)`
+  - `validate_rewrite_payload(...)`
+- [x] `ContextBindingPower` 已开始消费 prompt helper 的显式 contract 校验结果
+- [x] 新增黑盒测试：
+  - `test_bound_query_prompt_contracts.py`
+  - session state persistence normalization 反例
+- [x] `context/session/README.md`、`prompts/workflow/README.md`、`notes/workflow/working/refinement/{architecture,contracts}.md`
+  已补：
+  - state owner
+  - prompt 输入输出 contract
+  - policy ownership / consumption boundary
+
+- [x] QA Runner 第二版主链已接通：
+  - `state + rule + llm resolution/rewrite`
+  - coarse review metrics
+  - key events in payload
+- [x] `registry` 已收成跨轮对象锚点层，只保留：
+  - `question_object`
+  - `evidence_ref`
 
 - [x] 新增正式 ADR：
   - `ADR-0001-workflow-layer-boundaries.md`

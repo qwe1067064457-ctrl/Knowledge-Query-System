@@ -318,6 +318,8 @@ class MemorySystem:
             user_id=record.get("user_id"),
             title=record.get("title"),
             tags=record.get("tags") or [],
+            source_session_id=record.get("source_session_id"),
+            metadata=dict(record.get("metadata", {}) or {}),
         )
 
     def capture_checkpoint(

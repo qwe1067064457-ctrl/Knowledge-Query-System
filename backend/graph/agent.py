@@ -72,6 +72,12 @@ class AgentManager:
         )
         return _stringify_content(getattr(response, "content", "")).strip()
 
+    def _llm_text_call_sync(self, prompt: str) -> str:
+        response = build_chat_model().invoke(
+            [{"role": "user", "content": prompt}]
+        )
+        return _stringify_content(getattr(response, "content", "")).strip()
+
     def _build_agent(
         self,
         extra_instructions: list[str] | None = None,
@@ -364,6 +370,45 @@ class AgentManager:
             entries=entries,
         )
 
+    def _persist_dialogue_state(
+        self,
+        *,
+        payload,
+        session_id: str | None,
+        group_id: str,
+    ) -> None:
+        if session_id is None or self.raw_session_manager is None:
+            return
+        state_snapshot = payload.context_bundle_obj().binding_obj().state_snapshot
+        if not state_snapshot:
+            return
+        self.raw_session_manager.update_dialogue_state(
+            session_id,
+            group_id,
+            DEFAULT_AGENT,
+            state_snapshot,
+        )
+
+    def _persist_execution_outputs(
+        self,
+        *,
+        payload,
+        session_id: str | None,
+        group_id: str,
+        message: str,
+    ) -> None:
+        self._persist_execution_payload(
+            payload=payload,
+            session_id=session_id,
+            group_id=group_id,
+            message=message,
+        )
+        self._persist_dialogue_state(
+            payload=payload,
+            session_id=session_id,
+            group_id=group_id,
+        )
+
     def _load_recent_registry_entries(
         self,
         *,
@@ -403,6 +448,13 @@ class AgentManager:
             session_id=session_id,
             group_id=active_group_id,
         )
+        dialogue_state = None
+        if session_id is not None and self.raw_session_manager is not None:
+            dialogue_state = self.raw_session_manager.get_dialogue_state(
+                session_id,
+                active_group_id,
+                DEFAULT_AGENT,
+            )
         workflow_plan = build_workflow_plan(
             intent_analysis,
             is_knowledge_query=is_knowledge_query(message),
@@ -422,6 +474,10 @@ class AgentManager:
                     "registry_entries": registry_entries,
                     "recent_power": registry_entries[-1].get("source_power") if registry_entries else None,
                     "recent_object_type": registry_entries[-1].get("object_type") if registry_entries else None,
+                    "dialogue_state": dialogue_state,
+                    "recent_messages": messages[-6:],
+                    "bound_query_llm_call": self._llm_text_call_sync,
+                    "base_dir": self.base_dir,
                 },
             ),
         )
@@ -461,7 +517,7 @@ class AgentManager:
                 extra_instructions=workflow_instructions + [self._build_reject_response(workflow_plan)],
             ):
                 yield event
-            self._persist_execution_payload(
+            self._persist_execution_outputs(
                 payload=execution_payload,
                 session_id=session_id,
                 group_id=active_group_id,
@@ -475,7 +531,7 @@ class AgentManager:
                 extra_instructions=workflow_instructions,
             ):
                 yield event
-            self._persist_execution_payload(
+            self._persist_execution_outputs(
                 payload=execution_payload,
                 session_id=session_id,
                 group_id=active_group_id,
@@ -515,7 +571,7 @@ class AgentManager:
                 + (self._knowledge_answer_instructions(knowledge_result) if knowledge_result else []),
             ):
                 yield event
-            self._persist_execution_payload(
+            self._persist_execution_outputs(
                 payload=execution_payload,
                 session_id=session_id,
                 group_id=active_group_id,
@@ -528,7 +584,7 @@ class AgentManager:
             extra_instructions=workflow_instructions,
         ):
             yield event
-        self._persist_execution_payload(
+        self._persist_execution_outputs(
             payload=execution_payload,
             session_id=session_id,
             group_id=active_group_id,

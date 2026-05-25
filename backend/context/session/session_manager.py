@@ -11,12 +11,15 @@ from datetime import datetime
 from pathlib import Path
 from typing import Optional, List, Dict, Any
 
-from context.models import Session, SessionStatus, TranscriptEntry
+from context.models import Session, SessionDialogueState, SessionStatus, TranscriptEntry
+from context.session.session_working_memory import SessionWorkingMemory
 
 
 DEFAULT_GROUP = "general"
 DEFAULT_AGENT = "default"
 DEFAULT_USER = "default"
+_DIALOGUE_STATE_KEY = "dialogue_state"
+_WORKING_MEMORY_KEY = "session_working_memory"
 
 
 class SessionManager:
@@ -192,6 +195,78 @@ class SessionManager:
         session = self.get_session(session_id, group_id, agent_id)
         if session is None:
             return None
+        session.metadata = metadata
+        self._write_meta(group_id, agent_id, session)
+        return session
+
+    def get_dialogue_state(
+        self,
+        session_id: str,
+        group_id: str,
+        agent_id: str,
+    ) -> SessionDialogueState | None:
+        session = self.get_session(session_id, group_id, agent_id)
+        if session is None:
+            return None
+        metadata = session.metadata or {}
+        payload = metadata.get(_DIALOGUE_STATE_KEY)
+        if not isinstance(payload, dict):
+            return None
+        return SessionDialogueState.from_dict(payload)
+
+    def update_dialogue_state(
+        self,
+        session_id: str,
+        group_id: str,
+        agent_id: str,
+        state: SessionDialogueState | dict[str, Any],
+    ) -> Optional[Session]:
+        session = self.get_session(session_id, group_id, agent_id)
+        if session is None:
+            return None
+        state_payload = (
+            state.to_dict()
+            if isinstance(state, SessionDialogueState)
+            else SessionDialogueState.from_dict(state).to_dict()
+        )
+        metadata = dict(session.metadata or {})
+        metadata[_DIALOGUE_STATE_KEY] = state_payload
+        session.metadata = metadata
+        self._write_meta(group_id, agent_id, session)
+        return session
+
+    def get_working_memory(
+        self,
+        session_id: str,
+        group_id: str,
+        agent_id: str,
+    ) -> SessionWorkingMemory | None:
+        session = self.get_session(session_id, group_id, agent_id)
+        if session is None:
+            return None
+        metadata = session.metadata or {}
+        payload = metadata.get(_WORKING_MEMORY_KEY)
+        if not isinstance(payload, dict):
+            return None
+        return SessionWorkingMemory.from_dict(payload)
+
+    def update_working_memory(
+        self,
+        session_id: str,
+        group_id: str,
+        agent_id: str,
+        memory: SessionWorkingMemory | dict[str, Any],
+    ) -> Optional[Session]:
+        session = self.get_session(session_id, group_id, agent_id)
+        if session is None:
+            return None
+        memory_payload = (
+            memory.to_dict()
+            if isinstance(memory, SessionWorkingMemory)
+            else SessionWorkingMemory.from_dict(memory).to_dict()
+        )
+        metadata = dict(session.metadata or {})
+        metadata[_WORKING_MEMORY_KEY] = memory_payload
         session.metadata = metadata
         self._write_meta(group_id, agent_id, session)
         return session
