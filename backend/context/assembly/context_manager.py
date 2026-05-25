@@ -22,7 +22,7 @@ from context.models import TranscriptEntry
 from context.registry.registry import ContextRegistryManager
 from context.registry.registry_types import ContextRegistry, ContextRegistryEntry
 from context.session.session_manager import SessionManager
-from memory_system import MemorySystem
+from memory_system.memory_service import MemorySystem
 
 
 @dataclass

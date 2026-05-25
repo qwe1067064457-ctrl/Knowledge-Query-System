@@ -1,10 +1,9 @@
 from __future__ import annotations
 
-import re
 from pathlib import Path
 from typing import Any
 
-from context.models import SessionDialogueState
+from memory_system.session_working_memory import SessionWorkingMemory, SessionWorkingMemoryResolver
 from workflow.helpers.binding_response_helper import BindingResponseHelper
 from workflow.helpers.bound_query_prompt_helper import BoundQueryPromptHelper
 from workflow.types import ContextBindingResult
@@ -12,28 +11,21 @@ from workflow.workers.binding_worker import BindingWorker
 
 
 class ContextBindingPower:
-    _EXPLICIT_PATTERNS = (
-        re.compile(r"(这个|那个|上面那个|你刚才说的)"),
-        re.compile(r"(前两个|第二种|后一种)"),
-    )
-    _MULTI_TARGET_PATTERNS = (
-        re.compile(r"前两个"),
-        re.compile(r"两个"),
-        re.compile(r"两条"),
-        re.compile(r"分别"),
-        re.compile(r"这些"),
-        re.compile(r"都"),
-    )
+    _CONTEXT_DEPENDENT_STYLES = {"challenge", "follow_up", "multi_target"}
+    _EXPLICIT_SINGLE_TOKENS = ("第一个", "第一点", "第二个", "第二点", "第三个", "第三点")
+    _FOCUS_CONTINUITY_TOKENS = ("这个", "那个", "你刚才说的", "上面那个", "刚才那个")
 
     def __init__(
         self,
         response_helper: BindingResponseHelper | None = None,
         binding_worker: BindingWorker | None = None,
         prompt_helper: BoundQueryPromptHelper | None = None,
+        working_memory_resolver: SessionWorkingMemoryResolver | None = None,
     ) -> None:
         self.response_helper = response_helper or BindingResponseHelper()
         self.binding_worker = binding_worker or BindingWorker()
         self.prompt_helper = prompt_helper or BoundQueryPromptHelper()
+        self.working_memory_resolver = working_memory_resolver or SessionWorkingMemoryResolver()
 
     def collect_candidates(self, entries: list[dict[str, Any]], *, limit: int = 20) -> list[dict[str, Any]]:
         candidates: list[dict[str, Any]] = []
@@ -48,311 +40,276 @@ class ContextBindingPower:
         query: str,
         candidates: list[dict[str, Any]],
         *,
-        dialogue_state: SessionDialogueState | dict[str, Any] | None = None,
+        dialogue_state: dict[str, Any] | Any | None = None,
+        working_memory: SessionWorkingMemory | dict[str, Any] | None = None,
         recent_messages: list[dict[str, Any]] | None = None,
         llm_call: Any | None = None,
         base_dir: Path | None = None,
         rewrite_query: bool = False,
         recent_power: str | None = None,
         recent_object_type: str | None = None,
+        memory_anchors: list[dict[str, Any]] | None = None,
     ) -> ContextBindingResult:
-        state = self._normalize_state(dialogue_state)
-        candidate_pool = self._merge_candidates_with_state(candidates, state)
         recent_messages = list(recent_messages or ())
-        current_state = self._update_dialogue_state(
+        query_style = self.working_memory_resolver.classify_query_style(query)
+        relevant_pool = self._build_relevant_pool(
             query=query,
-            candidates=candidate_pool,
-            previous_state=state,
+            candidates=candidates,
+            working_memory=working_memory,
+            memory_anchors=memory_anchors,
+            dialogue_state=dialogue_state,
+        )
+        filter_result = self.binding_worker.filter_relevant_set(
+            query=query,
+            candidates=relevant_pool,
+            query_style=query_style,
+            max_candidates=7,
+        )
+        relevant_set = [dict(item) for item in filter_result["relevant_set"]]
+        direct_resolution = dict(filter_result.get("direct_resolution") or {})
+        binding_snapshot = self._build_binding_snapshot(
+            query=query,
+            query_style=query_style,
+            candidate_pool=relevant_pool,
+            relevant_set=relevant_set,
+        )
+
+        if not relevant_set:
+            return self._fallback_without_relevant_set(
+                query=query,
+                query_style=query_style,
+                rewrite_query=rewrite_query,
+                snapshot=binding_snapshot,
+            )
+
+        if direct_resolution:
+            targets = self._resolve_target_ids(relevant_set, direct_resolution.get("resolved_target_ids", ()))
+            if targets:
+                rewritten_query = (
+                    self._rewrite_from_single_target(query, targets[0])
+                    if rewrite_query
+                    else None
+                )
+                return self._build_success_result(
+                    targets=tuple(targets),
+                    relevant_set=relevant_set,
+                    resolved_target_ids=tuple(str(item.get("object_id") or "") for item in targets if item.get("object_id")),
+                    confidence=str(direct_resolution.get("confidence") or "high"),
+                    strategy=str(direct_resolution.get("matched_by") or direct_resolution.get("strategy") or "rule_direct_resolution"),
+                    rewritten_query=rewritten_query,
+                    notes=tuple(str(item) for item in direct_resolution.get("notes", ()) or ()),
+                    binding_snapshot=binding_snapshot,
+                )
+
+        focus_continuity_target = self._resolve_focus_continuity(query, relevant_set)
+        if focus_continuity_target is not None:
+            rewritten_query = (
+                self._rewrite_from_single_target(query, focus_continuity_target)
+                if rewrite_query
+                else None
+            )
+            return self._build_success_result(
+                targets=(focus_continuity_target,),
+                relevant_set=relevant_set,
+                resolved_target_ids=(str(focus_continuity_target.get("object_id") or ""),),
+                confidence=str(focus_continuity_target.get("confidence") or "medium"),
+                strategy="focus_object_continuity",
+                rewritten_query=rewritten_query,
+                notes=("dialogue_state_focus",),
+                binding_snapshot=binding_snapshot,
+            )
+
+        if llm_call is None:
+            return self._build_fallback_result(
+                fallback_type="needs_clarification",
+                reason="no_llm_resolution_available",
+                candidates=relevant_set,
+                confidence="low",
+                binding_snapshot=binding_snapshot,
+            )
+
+        resolution = self._resolve_with_llm(
+            query=query,
+            relevant_set=relevant_set,
             recent_messages=recent_messages,
             llm_call=llm_call,
             base_dir=base_dir,
+            binding_snapshot=binding_snapshot,
         )
-
-        if not candidate_pool:
-            return self._build_ambiguity_result(
-                query=query,
-                candidates=[],
-                state=current_state,
-                reason="no_candidates",
+        if resolution is None:
+            return self._build_fallback_result(
+                fallback_type="needs_clarification",
+                reason="llm_resolution_failed",
+                candidates=relevant_set,
+                confidence="low",
+                binding_snapshot=binding_snapshot,
             )
 
-        rule_result = self.binding_worker.select_targets(
-            query=query,
-            candidates=candidate_pool,
-            focus_object_id=current_state.focus_question_object_id,
-        )
-        if not rule_result["binding_ambiguous"] and rule_result["binding_confidence"] == "high":
-            targets = tuple(rule_result["selected_targets"])
-            rewritten_query = self._maybe_rewrite_query(
-                query=query,
-                targets=targets,
-                state=current_state,
-                recent_messages=recent_messages,
-                llm_call=llm_call,
-                base_dir=base_dir,
-                rewrite_query=rewrite_query,
+        if resolution.get("needs_clarification", False):
+            return self._build_fallback_result(
+                fallback_type=str(resolution.get("fallback_type") or "needs_clarification"),
+                reason=str(resolution.get("reason") or "llm_resolution_needs_clarification"),
+                candidates=relevant_set,
+                confidence=str(resolution.get("confidence") or "low"),
+                binding_snapshot=binding_snapshot,
+                rewritten_query=str(resolution.get("rewritten_query") or "").strip() or None,
             )
+
+        targets = self._resolve_target_ids(relevant_set, resolution.get("resolved_target_ids", ()))
+        rewritten_query = str(resolution.get("rewritten_query") or query).strip()
+        if targets:
             return self._build_success_result(
-                targets=targets,
-                confidence="high",
-                strategy=str(rule_result.get("matched_by") or "rule_binding"),
-                state=current_state,
-                rewritten_query=rewritten_query,
-                notes=tuple(str(item) for item in rule_result.get("notes", ()) or ()),
+                targets=tuple(targets),
+                relevant_set=relevant_set,
+                resolved_target_ids=tuple(str(item.get("object_id") or "") for item in targets if item.get("object_id")),
+                confidence=str(resolution.get("confidence") or "medium"),
+                strategy="llm_resolution",
+                rewritten_query=rewritten_query if rewrite_query or rewritten_query != query else None,
+                notes=("llm_resolution",),
+                binding_snapshot=binding_snapshot,
             )
 
-        llm_resolution = None
-        if self._should_use_llm_resolution(query=query, llm_call=llm_call, candidates=candidate_pool):
-            llm_resolution = self._resolve_with_llm(
-                query=query,
-                candidates=candidate_pool,
-                state=current_state,
-                recent_messages=recent_messages,
-                llm_call=llm_call,
-                base_dir=base_dir,
-            )
-            if llm_resolution and not llm_resolution.get("needs_clarification", False):
-                targets = self._resolve_target_ids(
-                    candidate_pool,
-                    llm_resolution.get("resolved_target_ids", ()),
-                )
-                if targets:
-                    return self._build_success_result(
-                        targets=tuple(targets),
-                        confidence=str(llm_resolution.get("confidence", "medium")),
-                        strategy="llm_resolution",
-                        state=current_state,
-                        rewritten_query=str(llm_resolution.get("rewritten_query") or query).strip(),
-                        notes=("llm_resolution",),
-                    )
-
-        if not rule_result["binding_ambiguous"] and rule_result["binding_confidence"] == "medium":
-            targets = tuple(rule_result["selected_targets"])
-            rewritten_query = self._maybe_rewrite_query(
-                query=query,
-                targets=targets,
-                state=current_state,
-                recent_messages=recent_messages,
-                llm_call=llm_call,
-                base_dir=base_dir,
-                rewrite_query=rewrite_query,
-            )
-            return self._build_success_result(
-                targets=targets,
-                confidence="medium",
-                strategy=str(rule_result.get("matched_by") or "rule_binding"),
-                state=current_state,
-                rewritten_query=rewritten_query,
-                notes=tuple(str(item) for item in rule_result.get("notes", ()) or ()),
+        fallback_type = str(resolution.get("fallback_type") or "").strip()
+        if fallback_type:
+            return self._build_fallback_result(
+                fallback_type=fallback_type,
+                reason=str(resolution.get("reason") or "llm_resolution_without_targets"),
+                candidates=relevant_set,
+                confidence=str(resolution.get("confidence") or "medium"),
+                binding_snapshot=binding_snapshot,
+                rewritten_query=rewritten_query if rewritten_query != query else None,
             )
 
-        if len(query.strip()) <= 20 and recent_power:
-            for candidate in reversed(candidate_pool):
-                if recent_object_type and candidate.get("object_type") != recent_object_type:
-                    continue
-                if candidate.get("source_power") == recent_power:
-                    rewritten_query = self._maybe_rewrite_query(
-                        query=query,
-                        targets=(candidate,),
-                        state=current_state,
-                        recent_messages=recent_messages,
-                        llm_call=llm_call,
-                        base_dir=base_dir,
-                        rewrite_query=rewrite_query,
-                    )
-                    return self._build_success_result(
-                        targets=(candidate,),
-                        confidence="medium",
-                        strategy="topic_continuity",
-                        state=current_state,
-                        rewritten_query=rewritten_query,
-                        notes=("topic_continuity",),
-                    )
-
-        reason = "binding_ambiguous"
-        if llm_resolution and llm_resolution.get("needs_clarification", False):
-            reason = "llm_resolution_needs_clarification"
-        elif rule_result.get("ambiguity_reason"):
-            reason = str(rule_result["ambiguity_reason"])
-        return self._build_ambiguity_result(
-            query=query,
-            candidates=candidate_pool,
-            state=current_state,
-            reason=reason,
+        return self._build_fallback_result(
+            fallback_type="needs_clarification",
+            reason="llm_resolution_without_targets",
+            candidates=relevant_set,
+            confidence=str(resolution.get("confidence") or "low"),
+            binding_snapshot=binding_snapshot,
+            rewritten_query=rewritten_query if rewritten_query != query else None,
         )
 
-    def _select_primary_target(self, candidates: list[dict[str, Any]]) -> dict[str, Any]:
-        for candidate in reversed(candidates):
-            if candidate.get("object_type") != "evidence_ref":
-                return candidate
-        return candidates[-1]
-
-    def _select_targets_for_query(self, query: str, candidates: list[dict[str, Any]]) -> list[dict[str, Any]]:
-        if len(candidates) < 2 or not any(pattern.search(query) for pattern in self._MULTI_TARGET_PATTERNS):
-            return [self._select_primary_target(candidates)]
-        if "前两个" in query or "两个" in query or "两条" in query:
-            return list(candidates[:2])
-        return list(candidates[: min(len(candidates), 3)])
-
-    def _normalize_state(self, state: SessionDialogueState | dict[str, Any] | None) -> SessionDialogueState:
-        if isinstance(state, SessionDialogueState):
-            return state
-        return SessionDialogueState.from_dict(state)
-
-    def _merge_candidates_with_state(
+    def _build_relevant_pool(
         self,
+        *,
+        query: str,
         candidates: list[dict[str, Any]],
-        state: SessionDialogueState,
+        working_memory: SessionWorkingMemory | dict[str, Any] | None,
+        memory_anchors: list[dict[str, Any]] | None,
+        dialogue_state: dict[str, Any] | Any | None,
     ) -> list[dict[str, Any]]:
-        merged: list[dict[str, Any]] = []
+        pool: list[dict[str, Any]] = []
         seen: set[str] = set()
-        for item in state.recent_question_objects:
-            object_id = str(item.get("object_id") or "").strip()
-            if not object_id or object_id in seen:
-                continue
-            seen.add(object_id)
-            merged.append(dict(item))
-        for item in candidates:
-            object_id = str(item.get("object_id") or "").strip()
-            key = object_id or str(item.get("content") or "")
+
+        focus_candidate = self._candidate_from_dialogue_state(dialogue_state)
+        if focus_candidate is not None:
+            key = self._candidate_key(focus_candidate)
+            seen.add(key)
+            pool.append(focus_candidate)
+
+        for candidate in candidates:
+            key = self._candidate_key(candidate)
             if key in seen:
                 continue
             seen.add(key)
-            merged.append(dict(item))
-        return merged
+            pool.append(dict(candidate))
 
-    def _update_dialogue_state(
-        self,
-        *,
-        query: str,
-        candidates: list[dict[str, Any]],
-        previous_state: SessionDialogueState,
-        recent_messages: list[dict[str, Any]],
-        llm_call: Any | None,
-        base_dir: Path | None,
-    ) -> SessionDialogueState:
-        fallback = self._fallback_state(
+        memory_entries = self.working_memory_resolver.build_relevant_entries(
             query=query,
-            candidates=candidates,
-            previous_state=previous_state,
+            working_memory=working_memory,
+            max_candidates=7,
         )
-        if llm_call is None:
-            return fallback
-        try:
-            prompt = self.prompt_helper.render_state_update_prompt(
-                base_dir=base_dir,
-                query=query,
-                previous_state=previous_state.to_dict(),
-                recent_messages=recent_messages,
-                question_candidates=[
-                    {
-                        "object_id": item.get("object_id"),
-                        "content": item.get("content"),
-                        "refs": list(item.get("refs", ())),
-                    }
-                    for item in candidates
-                ],
-                evidence_topics=self._extract_evidence_topics(candidates),
-            )
-            payload = self.prompt_helper.parse_json_payload(str(llm_call(prompt)))
-            state = SessionDialogueState.from_dict(
-                self.prompt_helper.validate_state_update_payload(payload)
-            )
-            if not state.recent_question_objects:
-                state.recent_question_objects = fallback.recent_question_objects
-            if not state.recent_evidence_topics:
-                state.recent_evidence_topics = fallback.recent_evidence_topics
-            if state.resolution_confidence not in {"high", "medium", "low"}:
-                state.resolution_confidence = fallback.resolution_confidence
-            return state
-        except Exception:
-            return fallback
+        for entry in memory_entries:
+            candidate = self._candidate_from_working_memory(entry)
+            key = self._candidate_key(candidate)
+            if key in seen:
+                continue
+            seen.add(key)
+            pool.append(candidate)
 
-    def _fallback_state(
-        self,
-        *,
-        query: str,
-        candidates: list[dict[str, Any]],
-        previous_state: SessionDialogueState,
-    ) -> SessionDialogueState:
-        recent_question_objects = [
-            {
-                "object_id": str(item.get("object_id") or ""),
-                "content": str(item.get("content") or ""),
-                "refs": list(item.get("refs", ())),
-                "source_power": item.get("source_power"),
-                "object_type": item.get("object_type"),
+        for anchor in memory_anchors or ():
+            candidate = {
+                "object_id": str(anchor.get("anchor_id") or anchor.get("source_session_id") or "").strip(),
+                "object_type": "memory_anchor",
+                "content": str(anchor.get("content") or anchor.get("summary") or "").strip(),
+                "source_power": "memory_anchor",
+                "refs": list(anchor.get("refs", ()) or ()),
+                "confidence": str(anchor.get("confidence") or "medium"),
+                "source_kind": "memory_anchor",
             }
-            for item in candidates[:5]
-        ]
-        focus = None
-        if previous_state.focus_question_object_id:
-            for item in recent_question_objects:
-                if item["object_id"] == previous_state.focus_question_object_id:
-                    focus = item
-                    break
-        if focus is None and len(recent_question_objects) == 1:
-            focus = recent_question_objects[-1]
-        return SessionDialogueState(
-            focus_question_object_id=(focus or {}).get("object_id"),
-            focus_question_object_text=(focus or {}).get("content"),
-            focus_predicate=self._infer_predicate(query, previous_state),
-            recent_question_objects=recent_question_objects,
-            recent_evidence_topics=self._extract_evidence_topics(candidates),
-            resolution_confidence="medium" if focus else "low",
-            last_update_reason="fallback_state_update" if focus else "fallback_state_without_focus",
-        )
+            if not candidate["object_id"] and not candidate["content"]:
+                continue
+            key = self._candidate_key(candidate)
+            if key in seen:
+                continue
+            seen.add(key)
+            pool.append(candidate)
+        return pool
 
-    def _infer_predicate(self, query: str, previous_state: SessionDialogueState) -> str | None:
-        text = query.strip()
-        for marker in ("依据", "风险", "重量", "价格", "期限", "条件", "结论"):
-            if marker in text:
-                return marker
-        return previous_state.focus_predicate
+    def _candidate_from_dialogue_state(self, dialogue_state: dict[str, Any] | Any | None) -> dict[str, Any] | None:
+        if dialogue_state is None:
+            return None
+        if hasattr(dialogue_state, "to_dict"):
+            data = dict(dialogue_state.to_dict())
+        elif isinstance(dialogue_state, dict):
+            data = dict(dialogue_state)
+        else:
+            return None
+        object_id = str(data.get("focus_question_object_id") or "").strip()
+        content = str(data.get("focus_question_object_text") or "").strip()
+        if not object_id and not content:
+            return None
+        return {
+            "object_id": object_id or content,
+            "object_type": "question_object",
+            "content": content or object_id,
+            "source_power": "dialogue_state",
+            "refs": [],
+            "confidence": str(data.get("resolution_confidence") or "medium"),
+            "source_kind": "dialogue_state",
+        }
 
-    def _extract_evidence_topics(self, candidates: list[dict[str, Any]]) -> list[str]:
-        topics: list[str] = []
-        for item in candidates:
-            content = str(item.get("content") or "").strip()
-            if content and content not in topics:
-                topics.append(content)
-        return topics[:5]
+    def _candidate_from_working_memory(self, entry) -> dict[str, Any]:
+        return {
+            "object_id": entry.entry_id,
+            "object_type": entry.entry_type,
+            "content": entry.content,
+            "source_power": "session_working_memory",
+            "refs": [],
+            "confidence": entry.confidence,
+            "source_kind": entry.source_kind,
+            "structured_payload": dict(entry.structured_payload),
+        }
 
-    def _should_use_llm_resolution(
-        self,
-        *,
-        query: str,
-        llm_call: Any | None,
-        candidates: list[dict[str, Any]],
-    ) -> bool:
-        if llm_call is None or not candidates:
-            return False
-        if len(candidates) == 1 and not any(pattern.search(query) for pattern in self._EXPLICIT_PATTERNS):
-            return False
-        return any(pattern.search(query) for pattern in self._EXPLICIT_PATTERNS) or len(query.strip()) <= 40
+    def _candidate_key(self, candidate: dict[str, Any]) -> str:
+        object_id = str(candidate.get("object_id") or "").strip()
+        if object_id:
+            return object_id
+        return str(candidate.get("content") or "").strip()
 
     def _resolve_with_llm(
         self,
         *,
         query: str,
-        candidates: list[dict[str, Any]],
-        state: SessionDialogueState,
+        relevant_set: list[dict[str, Any]],
         recent_messages: list[dict[str, Any]],
         llm_call: Any,
         base_dir: Path | None,
+        binding_snapshot: dict[str, Any],
     ) -> dict[str, Any] | None:
         prompt = self.prompt_helper.render_rewrite_prompt(
             base_dir=base_dir,
             query=query,
-            state=state.to_dict(),
+            binding_context=binding_snapshot,
             recent_messages=recent_messages,
             question_candidates=[
                 {
                     "object_id": item.get("object_id"),
                     "content": item.get("content"),
-                    "refs": list(item.get("refs", ())),
+                    "object_type": item.get("object_type"),
+                    "source_kind": item.get("source_kind"),
                 }
-                for item in candidates
+                for item in relevant_set
             ],
         )
         try:
@@ -369,62 +326,93 @@ class ContextBindingPower:
         candidates: list[dict[str, Any]],
         resolved_target_ids: list[str] | tuple[str, ...],
     ) -> list[dict[str, Any]]:
-        wanted = {str(item) for item in resolved_target_ids if item}
+        wanted = {str(item).strip() for item in resolved_target_ids if str(item).strip()}
         if not wanted:
             return []
-        selected = [item for item in candidates if str(item.get("object_id") or "") in wanted]
+        selected = [item for item in candidates if str(item.get("object_id") or "").strip() in wanted]
         return selected
 
-    def _maybe_rewrite_query(
+    def _rewrite_from_single_target(self, query: str, target: dict[str, Any]) -> str:
+        target_text = str(target.get("content") or target.get("object_id") or "").strip()
+        if not target_text:
+            return query
+        if query.strip() in target_text:
+            return target_text
+        return f"{target_text} {query.strip()}".strip()
+
+    def _build_binding_snapshot(
         self,
         *,
         query: str,
-        targets: tuple[dict[str, Any], ...],
-        state: SessionDialogueState,
-        recent_messages: list[dict[str, Any]],
-        llm_call: Any | None,
-        base_dir: Path | None,
-        rewrite_query: bool,
-    ) -> str | None:
-        if not rewrite_query:
+        query_style: str,
+        candidate_pool: list[dict[str, Any]],
+        relevant_set: list[dict[str, Any]],
+    ) -> dict[str, Any]:
+        return {
+            "query": query,
+            "query_style": query_style,
+            "candidate_count": len(candidate_pool),
+            "relevant_set_size": len(relevant_set),
+            "relevant_target_ids": [
+                str(item.get("object_id") or "").strip()
+                for item in relevant_set
+                if str(item.get("object_id") or "").strip()
+            ],
+            "relevant_target_types": [
+                str(item.get("object_type") or "").strip()
+                for item in relevant_set
+                if str(item.get("object_type") or "").strip()
+            ],
+        }
+
+    def _resolve_focus_continuity(self, query: str, relevant_set: list[dict[str, Any]]) -> dict[str, Any] | None:
+        if not any(token in query for token in self._FOCUS_CONTINUITY_TOKENS):
             return None
-        if llm_call is not None:
-            resolution = self._resolve_with_llm(
-                query=query,
-                candidates=list(targets),
-                state=state,
-                recent_messages=recent_messages,
-                llm_call=llm_call,
-                base_dir=base_dir,
+        for item in relevant_set:
+            if str(item.get("source_kind") or "") == "dialogue_state":
+                return item
+        return None
+
+    def _fallback_without_relevant_set(
+        self,
+        *,
+        query: str,
+        query_style: str,
+        rewrite_query: bool,
+        snapshot: dict[str, Any],
+    ) -> ContextBindingResult:
+        if query_style == "standalone":
+            return self._build_fallback_result(
+                fallback_type="retrieve_on_raw_query",
+                reason="query_self_contained",
+                candidates=[],
+                confidence="medium",
+                binding_snapshot=snapshot,
+                rewritten_query=query if rewrite_query else None,
             )
-            if resolution and not resolution.get("needs_clarification", False):
-                return str(resolution.get("rewritten_query") or query).strip()
-        if len(targets) == 1:
-            target_text = str(targets[0].get("content") or "").strip()
-            predicate = state.focus_predicate or ""
-            parts = [target_text]
-            if predicate and predicate not in query:
-                parts.append(predicate)
-            if query not in parts:
-                parts.append(query)
-            rewritten = " ".join(part for part in parts if part).strip()
-            return rewritten or query
-        return query
+        return self._build_fallback_result(
+            fallback_type="needs_clarification",
+            reason="no_relevant_targets",
+            candidates=[],
+            confidence="low",
+            binding_snapshot=snapshot,
+        )
 
     def _build_success_result(
         self,
         *,
         targets: tuple[dict[str, Any], ...],
+        relevant_set: list[dict[str, Any]],
+        resolved_target_ids: tuple[str, ...],
         confidence: str,
         strategy: str,
-        state: SessionDialogueState,
         rewritten_query: str | None,
         notes: tuple[str, ...],
+        binding_snapshot: dict[str, Any],
     ) -> ContextBindingResult:
-        target = targets[-1]
         metadata = self.response_helper.build_success_metadata(
             strategy=strategy,
-            target=target,
+            target=targets[-1] if targets else None,
             confidence=confidence,
         )
         return ContextBindingResult(
@@ -435,28 +423,40 @@ class ContextBindingPower:
             binding_summary=metadata["binding_summary"],
             notes=tuple(metadata["notes"]) + tuple(notes),
             rewritten_query=rewritten_query,
-            state_snapshot=state.to_dict(),
+            relevant_set=tuple(dict(item) for item in relevant_set),
+            resolved_target_ids=resolved_target_ids,
+            binding_snapshot=dict(binding_snapshot),
         )
 
-    def _build_ambiguity_result(
+    def _build_fallback_result(
         self,
         *,
-        query: str,
-        candidates: list[dict[str, Any]],
-        state: SessionDialogueState,
+        fallback_type: str,
         reason: str,
+        candidates: list[dict[str, Any]],
+        confidence: str,
+        binding_snapshot: dict[str, Any],
+        rewritten_query: str | None = None,
     ) -> ContextBindingResult:
-        metadata = self.response_helper.build_ambiguity_metadata(
-            query=query,
+        metadata = self.response_helper.build_fallback_metadata(
+            fallback_type=fallback_type,
             reason=reason,
             candidates=candidates,
+            rewritten_query=rewritten_query,
         )
+        needs_clarification = fallback_type == "needs_clarification"
         return ContextBindingResult(
-            binding_confidence="low",
-            binding_ambiguous=True,
+            binding_confidence=confidence,
+            binding_ambiguous=needs_clarification,
             matched_by=metadata["matched_by"],
             clarification_hint=metadata["clarification_hint"],
             binding_summary=metadata["binding_summary"],
             notes=tuple(metadata["notes"]),
-            state_snapshot=state.to_dict(),
+            rewritten_query=rewritten_query,
+            relevant_set=tuple(dict(item) for item in candidates),
+            resolved_target_ids=(),
+            needs_clarification=needs_clarification,
+            fallback_type=fallback_type,
+            reason=reason,
+            binding_snapshot=dict(binding_snapshot),
         )

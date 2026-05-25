@@ -51,3 +51,33 @@ class BindingResponseHelper:
             "binding_summary": f"Could not bind the request safely because {reason}.",
             "query_excerpt": query[:80],
         }
+
+    def build_fallback_metadata(
+        self,
+        *,
+        fallback_type: str,
+        reason: str,
+        candidates: list[dict[str, Any]],
+        rewritten_query: str | None = None,
+    ) -> dict[str, Any]:
+        candidate_ids = [
+            str(item.get("object_id") or item.get("entry_id") or item.get("content") or "").strip()
+            for item in candidates[:5]
+            if str(item.get("object_id") or item.get("entry_id") or item.get("content") or "").strip()
+        ]
+        clarification_hint = None
+        if fallback_type == "needs_clarification":
+            if candidate_ids:
+                clarification_hint = f"当前请求可能在这些对象之间存在歧义：{', '.join(candidate_ids)}。请明确指的是哪一个。"
+            else:
+                clarification_hint = "当前请求依赖前文对象，但还无法稳定定位，请补充更具体的对象。"
+        return {
+            "matched_by": "fallback",
+            "notes": (f"{fallback_type}:{reason}",),
+            "clarification_hint": clarification_hint,
+            "binding_summary": f"Context binding fell back to {fallback_type} because {reason}.",
+            "fallback_type": fallback_type,
+            "reason": reason,
+            "candidate_target_ids": candidate_ids,
+            "rewritten_query": rewritten_query,
+        }

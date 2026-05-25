@@ -13,6 +13,7 @@ from typing import Optional, List, Dict, Any
 
 from context.models import Session, SessionDialogueState, SessionStatus, TranscriptEntry
 from context.session.session_working_memory import SessionWorkingMemory
+from memory_system.session_working_memory.store import SessionWorkingMemoryStore
 
 
 DEFAULT_GROUP = "general"
@@ -33,6 +34,7 @@ class SessionManager:
         self.base_storage_path = Path(base_storage_path)
         self.groups_path = self.base_storage_path / "groups"
         self.groups_path.mkdir(parents=True, exist_ok=True)
+        self.working_memory_store = SessionWorkingMemoryStore(self.base_storage_path)
 
     @staticmethod
     def _safe_segment(value: str, field_name: str) -> str:
@@ -244,11 +246,25 @@ class SessionManager:
         session = self.get_session(session_id, group_id, agent_id)
         if session is None:
             return None
+        loaded = self.working_memory_store.load(
+            group_id=group_id,
+            agent_id=agent_id,
+            session_id=session_id,
+        )
+        if loaded is not None:
+            return loaded
         metadata = session.metadata or {}
         payload = metadata.get(_WORKING_MEMORY_KEY)
         if not isinstance(payload, dict):
             return None
-        return SessionWorkingMemory.from_dict(payload)
+        migrated = SessionWorkingMemory.from_dict(payload)
+        self.working_memory_store.save(
+            group_id=group_id,
+            agent_id=agent_id,
+            session_id=session_id,
+            memory=migrated,
+        )
+        return migrated
 
     def update_working_memory(
         self,
@@ -260,13 +276,14 @@ class SessionManager:
         session = self.get_session(session_id, group_id, agent_id)
         if session is None:
             return None
-        memory_payload = (
-            memory.to_dict()
-            if isinstance(memory, SessionWorkingMemory)
-            else SessionWorkingMemory.from_dict(memory).to_dict()
+        normalized = self.working_memory_store.save(
+            group_id=group_id,
+            agent_id=agent_id,
+            session_id=session_id,
+            memory=memory,
         )
         metadata = dict(session.metadata or {})
-        metadata[_WORKING_MEMORY_KEY] = memory_payload
+        metadata[_WORKING_MEMORY_KEY] = normalized.to_dict()
         session.metadata = metadata
         self._write_meta(group_id, agent_id, session)
         return session

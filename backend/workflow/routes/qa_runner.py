@@ -77,12 +77,14 @@ class QaRouteRunner(BaseRouteRunner):
             binding_result = self.context_binding_power.bind(
                 request.message,
                 candidate_entries,
+                working_memory=request.context.get("working_memory"),
                 recent_messages=request.context.get("recent_messages"),
                 llm_call=request.context.get("bound_query_llm_call"),
                 base_dir=request.context.get("base_dir"),
                 rewrite_query=bool(plan.rewrite_query),
                 recent_power=request.context.get("recent_power"),
                 recent_object_type=request.context.get("recent_object_type"),
+                memory_anchors=request.context.get("memory_anchors"),
             )
             key_events = _merge_key_events(
                 key_events,

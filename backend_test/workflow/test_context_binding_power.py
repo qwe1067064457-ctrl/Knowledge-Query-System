@@ -1,50 +1,90 @@
 from __future__ import annotations
 
-from context.models import SessionDialogueState
+from memory_system.session_working_memory.models import SessionWorkingMemory, WorkingMemoryEntry, WorkingMemoryHead
 from workflow.powers.context_binding_power import ContextBindingPower
 from workflow.types import ContextBindingResult
 
 
-def test_explicit_pattern_with_focus_object_uses_rule_binding() -> None:
-    power = ContextBindingPower()
-    candidates = [
-        {"object_id": "question_1", "object_type": "question_object", "content": "旧问题", "source_power": "workflow"},
-        {"object_id": "question_2", "object_type": "question_object", "content": "最新问题", "source_power": "workflow"},
-    ]
+def _working_memory(*entries: WorkingMemoryEntry) -> SessionWorkingMemory:
+    return SessionWorkingMemory(
+        entries=list(entries),
+        head=WorkingMemoryHead(active_entry_ids=[entry.entry_id for entry in entries]),
+    )
 
-    result = power.bind(
-        "你刚才说的这个依据是什么",
-        candidates,
-        dialogue_state=SessionDialogueState(
-            focus_question_object_id="question_2",
-            focus_question_object_text="最新问题",
-            resolution_confidence="high",
+
+def test_explicit_second_point_uses_relevant_set_rule_resolution() -> None:
+    power = ContextBindingPower()
+    memory = _working_memory(
+        WorkingMemoryEntry(
+            entry_id="wm_answer_1",
+            entry_type="answer_unit",
+            turn_id="turn_1",
+            source_kind="answer",
+            source_ref="turn_1:answer:1",
+            content="第一点：先确认试用期的合同期限。",
+            structured_payload={"unit_index": 1},
+            confidence="high",
+        ),
+        WorkingMemoryEntry(
+            entry_id="wm_answer_2",
+            entry_type="answer_unit",
+            turn_id="turn_1",
+            source_kind="answer",
+            source_ref="turn_1:answer:2",
+            content="第二点：一年期劳动合同试用期上限为一个月。",
+            structured_payload={"unit_index": 2},
+            confidence="high",
         ),
     )
 
+    result = power.bind(
+        "第二点怎么落地？",
+        [],
+        working_memory=memory,
+        rewrite_query=True,
+    )
+
     assert result.binding_ambiguous is False
-    assert result.binding_confidence == "medium"
-    assert result.bound_targets[0]["object_id"] == "question_2"
-    assert result.matched_by == "focus_object_continuity"
-    assert result.clarification_hint is None
-    assert result.binding_summary
+    assert result.matched_by == "ordinal_rule"
+    assert result.relevant_set[0]["object_id"] == "wm_answer_2"
+    assert result.resolved_target_ids == ("wm_answer_2",)
+    assert result.bound_targets[0]["object_id"] == "wm_answer_2"
+    assert result.binding_snapshot["query_style"] == "follow_up"
 
 
-def test_explicit_followup_can_use_llm_resolution_and_rewrite() -> None:
+def test_followup_can_use_llm_resolution_after_relevant_set_filtering() -> None:
     power = ContextBindingPower()
-    candidates = [
-        {"object_id": "question_1", "object_type": "question_object", "content": "MacBook Pro M3 重量多少？", "source_power": "workflow"},
-        {"object_id": "question_2", "object_type": "question_object", "content": "Dell XPS 14 重量多少？", "source_power": "workflow"},
-    ]
+    memory = _working_memory(
+        WorkingMemoryEntry(
+            entry_id="wm_answer_mac",
+            entry_type="answer_unit",
+            turn_id="turn_1",
+            source_kind="answer",
+            source_ref="turn_1:answer:1",
+            content="MacBook Pro M3 重量约 1.6kg。",
+            structured_payload={"unit_index": 1},
+            confidence="high",
+        ),
+        WorkingMemoryEntry(
+            entry_id="wm_answer_dell",
+            entry_type="answer_unit",
+            turn_id="turn_2",
+            source_kind="answer",
+            source_ref="turn_2:answer:1",
+            content="Dell XPS 14 重量约 1.7kg。",
+            structured_payload={"unit_index": 1},
+            confidence="high",
+        ),
+    )
 
     def fake_llm_call(prompt: str) -> str:
-        if "上一轮状态" in prompt:
-            return '{"focus_question_object_id":"question_2","focus_question_object_text":"Dell XPS 14 重量多少？","focus_predicate":"重量","recent_question_objects":[{"object_id":"question_1","content":"MacBook Pro M3 重量多少？"},{"object_id":"question_2","content":"Dell XPS 14 重量多少？"}],"recent_evidence_topics":[],"resolution_confidence":"medium","last_update_reason":"llm_state_update"}'
-        return '{"resolved_target_ids":["question_2"],"rewritten_query":"Dell XPS 14 重量多少？","confidence":"high","needs_clarification":false}'
+        assert "候选相关对象" in prompt
+        return '{"resolved_target_ids":["wm_answer_dell"],"rewritten_query":"Dell XPS 14 重量多少？","confidence":"high","needs_clarification":false,"fallback_type":null,"reason":null}'
 
     result = power.bind(
         "那它的重量呢？",
-        candidates,
+        [],
+        working_memory=memory,
         recent_messages=[
             {"role": "user", "content": "MacBook Pro M3 重量多少？"},
             {"role": "assistant", "content": "1.6kg"},
@@ -57,69 +97,40 @@ def test_explicit_followup_can_use_llm_resolution_and_rewrite() -> None:
     assert result.binding_ambiguous is False
     assert result.binding_confidence == "high"
     assert result.matched_by == "llm_resolution"
-    assert result.bound_targets[0]["object_id"] == "question_2"
+    assert result.resolved_target_ids == ("wm_answer_dell",)
     assert result.rewritten_query == "Dell XPS 14 重量多少？"
-    assert result.state_snapshot["focus_question_object_id"] == "question_2"
+    assert result.binding_snapshot["relevant_set_size"] >= 1
 
 
-def test_short_followup_uses_topic_continuity() -> None:
-    power = ContextBindingPower()
-    candidates = [
-        {"object_id": "compare_1", "object_type": "comparison_target", "content": "A vs B", "source_power": "planning_power"},
-        {"object_id": "compare_2", "object_type": "comparison_target", "content": "C vs D", "source_power": "planning_power"},
-    ]
-
-    result = power.bind(
-        "所以明确怎么match了吗",
-        candidates,
-        recent_power="planning_power",
-        recent_object_type="comparison_target",
-    )
-
-    assert result.binding_ambiguous is False
-    assert result.binding_confidence == "medium"
-    assert result.matched_by == "topic_continuity"
-    assert result.notes[0].startswith("topic_continuity")
-    assert result.binding_summary
-
-
-def test_empty_candidates_falls_back_to_ambiguity() -> None:
+def test_empty_relevant_set_for_followup_returns_clarification_fallback() -> None:
     power = ContextBindingPower()
 
     result = power.bind("这个是什么意思", [])
 
     assert result.binding_ambiguous is True
-    assert result.binding_confidence == "low"
-    assert result.matched_by == "ambiguity_fallback"
+    assert result.needs_clarification is True
+    assert result.fallback_type == "needs_clarification"
+    assert result.reason == "no_relevant_targets"
     assert result.clarification_hint
-    assert result.binding_summary
 
 
-def test_ambiguous_binding_returns_candidate_based_hint() -> None:
+def test_self_contained_query_without_targets_falls_back_to_raw_retrieval() -> None:
     power = ContextBindingPower()
-    candidates = [
-        {"object_id": "claim_1", "object_type": "claim", "content": "第一个结论", "source_power": "challenge_power"},
-        {"object_id": "claim_2", "object_type": "claim", "content": "第二个结论", "source_power": "challenge_power"},
-    ]
 
-    result = power.bind("请解释这里的含义", candidates)
+    result = power.bind("一年期劳动合同试用期上限是多少？", [])
 
-    assert result.binding_ambiguous is True
-    assert result.clarification_hint
-    assert "第一个结论" in result.clarification_hint or "第二个结论" in result.clarification_hint
-    assert result.binding_summary
+    assert result.binding_ambiguous is False
+    assert result.fallback_type == "retrieve_on_raw_query"
+    assert result.reason == "query_self_contained"
+    assert result.binding_snapshot["query_style"] == "standalone"
 
 
 def test_binding_power_returns_public_typed_binding_result() -> None:
     power = ContextBindingPower()
-    candidates = [
-        {"object_id": "question_1", "object_type": "question_object", "content": "最新问题", "source_power": "workflow"},
-    ]
-
-    result = power.bind("你刚才说的这个依据是什么", candidates)
+    result = power.bind("一年期劳动合同试用期上限是多少？", [])
     payload = result.to_dict()
 
     assert isinstance(result, ContextBindingResult)
-    assert payload["bound_targets"][0]["object_id"] == "question_1"
-    assert payload["matched_by"] in {"single_candidate", "explicit_single_candidate", "explicit_pattern"}
-    assert "state_snapshot" in payload
+    assert "binding_snapshot" in payload
+    assert "relevant_set" in payload
+    assert "fallback_type" in payload

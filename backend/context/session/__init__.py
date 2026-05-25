@@ -6,11 +6,13 @@ from context.session.session_manager import (
     DEFAULT_USER,
     SessionManager,
 )
-from context.session.session_working_memory import SessionWorkingMemory
+from context.session.session_working_memory import SessionWorkingMemory, WorkingMemoryEntry, WorkingMemoryHead
 
 __all__ = [
     "SessionManager",
     "SessionWorkingMemory",
+    "WorkingMemoryEntry",
+    "WorkingMemoryHead",
     "DEFAULT_GROUP",
     "DEFAULT_AGENT",
     "DEFAULT_USER",

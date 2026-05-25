@@ -42,13 +42,13 @@ _DEFAULT_STATE_UPDATE_PROMPT = """你是一个会话短程状态更新器。
 {query}
 """
 
-_DEFAULT_REWRITE_PROMPT = """你是一个 bound query 重写助手。
+_DEFAULT_REWRITE_PROMPT = """你是一个 context binding 解析助手。
 
-目标：根据当前会话 state 与高可靠候选对象，把当前用户问题改写成可检索、可 challenge 的独立查询。
+目标：根据最近对话与候选对象，筛出最相关对象，并把当前用户问题改写成可检索、可 challenge 的独立查询。
 
 要求：
-1. 优先选择最可能的目标对象，避免宽泛多目标噪音。
-2. 无法稳定解析时，返回 needs_clarification=true。
+1. 优先选择最相关对象，避免宽泛多目标噪音。
+2. 如果无法稳定解析，必须返回 needs_clarification=true，并给出 fallback_type 与 reason。
 3. 不要添加对话中不存在的新事实。
 4. 只输出 JSON。
 
@@ -57,16 +57,18 @@ _DEFAULT_REWRITE_PROMPT = """你是一个 bound query 重写助手。
   "resolved_target_ids": ["object_id"],
   "rewritten_query": "改写后的独立查询",
   "confidence": "high|medium|low",
-  "needs_clarification": true/false
+  "needs_clarification": true/false,
+  "fallback_type": "needs_clarification|rewrite_without_target|retrieve_on_raw_query|answer_from_context_only|null",
+  "reason": "简短原因"
 }
 
-当前 state：
-{state_json}
+当前 state / 上下文摘要：
+{binding_context_json}
 
 最近对话：
 {recent_messages_json}
 
-候选问题对象：
+候选相关对象 / 候选问题对象：
 {question_candidates_json}
 
 当前用户问题：
@@ -89,6 +91,8 @@ class BoundQueryPromptHelper:
         "rewritten_query",
         "confidence",
         "needs_clarification",
+        "fallback_type",
+        "reason",
     )
 
     def load_state_update_prompt(self, base_dir: Path | None) -> str:
@@ -130,15 +134,17 @@ class BoundQueryPromptHelper:
         *,
         base_dir: Path | None,
         query: str,
-        state: dict[str, Any],
+        binding_context: dict[str, Any] | None = None,
+        state: dict[str, Any] | None = None,
         recent_messages: list[dict[str, Any]],
         question_candidates: list[dict[str, Any]],
     ) -> str:
         template = self.load_rewrite_prompt(base_dir)
+        context_payload = dict(binding_context or state or {})
         return (
             template
             .replace("{query}", query)
-            .replace("{state_json}", self._json(state))
+            .replace("{binding_context_json}", self._json(context_payload))
             .replace("{recent_messages_json}", self._json(recent_messages[-6:]))
             .replace("{question_candidates_json}", self._json(question_candidates[:6]))
         )
@@ -186,6 +192,12 @@ class BoundQueryPromptHelper:
         if confidence not in {"high", "medium", "low"}:
             confidence = "medium"
         rewritten_query = str(data.get("rewritten_query") or original_query).strip() or original_query
+        fallback_type = data.get("fallback_type")
+        if fallback_type is not None:
+            fallback_type = str(fallback_type).strip() or None
+        reason = data.get("reason")
+        if reason is not None:
+            reason = str(reason).strip() or None
         return {
             "resolved_target_ids": [
                 str(item).strip()
@@ -195,6 +207,8 @@ class BoundQueryPromptHelper:
             "rewritten_query": rewritten_query,
             "confidence": confidence,
             "needs_clarification": bool(data.get("needs_clarification", False)),
+            "fallback_type": fallback_type,
+            "reason": reason,
         }
 
     def _load_prompt(self, base_dir: Path | None, *, filename: str, fallback: str) -> str:

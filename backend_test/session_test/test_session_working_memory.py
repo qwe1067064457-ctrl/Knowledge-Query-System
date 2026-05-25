@@ -1,17 +1,36 @@
 from __future__ import annotations
 
-from context.session import DEFAULT_AGENT, SessionManager, SessionWorkingMemory
+from context.session import DEFAULT_AGENT, SessionManager, SessionWorkingMemory, WorkingMemoryEntry, WorkingMemoryHead
 
 
 def test_session_manager_round_trips_working_memory(session_manager: SessionManager) -> None:
     session = session_manager.create_session("law", DEFAULT_AGENT, "user_a")
     memory = SessionWorkingMemory(
-        current_goal="完成试用期依据核验",
-        rewritten_query="一年期劳动合同试用期上限",
-        unresolved_questions=["是否存在例外"],
-        key_intermediate_conclusions=["已经拿到第19条证据"],
-        supporting_evidence_refs=["evidence_1"],
-        next_step_hint="检查历史案例",
+        entries=[
+            WorkingMemoryEntry(
+                entry_id="turn_1:focus_task",
+                entry_type="focus_task",
+                turn_id="turn_1",
+                source_kind="user_query",
+                source_ref="turn_1:user",
+                content="完成试用期依据核验",
+                confidence="high",
+            ),
+            WorkingMemoryEntry(
+                entry_id="turn_1:resolved_query",
+                entry_type="resolved_query",
+                turn_id="turn_1",
+                source_kind="binding",
+                source_ref="turn_1:binding",
+                content="一年期劳动合同试用期上限",
+                confidence="high",
+            ),
+        ],
+        head=WorkingMemoryHead(
+            active_entry_ids=["turn_1:focus_task", "turn_1:resolved_query"],
+            current_focus_task_ids=["turn_1:focus_task"],
+            latest_resolved_query_id="turn_1:resolved_query",
+        ),
     )
 
     updated = session_manager.update_working_memory(session.id, "law", DEFAULT_AGENT, memory)
@@ -19,9 +38,10 @@ def test_session_manager_round_trips_working_memory(session_manager: SessionMana
 
     assert updated is not None
     assert loaded is not None
-    assert loaded.current_goal == "完成试用期依据核验"
-    assert loaded.supporting_evidence_refs == ["evidence_1"]
-    assert "focus_question_object_id" not in loaded.to_dict()
+    assert len(loaded.entries) == 2
+    assert loaded.head.current_focus_task_ids == ["turn_1:focus_task"]
+    assert loaded.head.latest_resolved_query_id == "turn_1:resolved_query"
+    assert loaded.active_entries()[0].entry_type == "focus_task"
 
 
 def test_session_manager_returns_none_when_working_memory_absent(session_manager: SessionManager) -> None:

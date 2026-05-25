@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import json
 from dataclasses import replace
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
@@ -23,7 +24,8 @@ from intent.loaders import load_group_intent_rule_assets
 from intent.rules.knowledge_query_rules import is_knowledge_query
 from knowledge_retrieval import knowledge_orchestrator
 from llm.model_factory import build_chat_model
-from memory_system import MemorySystem
+from memory_system.memory_service import MemorySystem
+from memory_system.session_working_memory import SessionWorkingMemoryWriter
 from tools import get_all_tools
 from workflow import WorkflowDispatcher, WorkflowPlan, build_workflow_plan
 from workflow.adapters.workflow_registry_projection import (
@@ -54,6 +56,7 @@ class AgentManager:
         self.workflow_dispatcher = WorkflowDispatcher()
         self.retrieval_power = RetrievalPower()
         self.tools = []
+        self.working_memory_writer = SessionWorkingMemoryWriter()
 
     def initialize(self, base_dir: Path) -> None:
         self.base_dir = base_dir
@@ -370,23 +373,37 @@ class AgentManager:
             entries=entries,
         )
 
-    def _persist_dialogue_state(
+    def _persist_working_memory(
         self,
         *,
         payload,
         session_id: str | None,
         group_id: str,
+        message: str,
+        answer_text: str,
     ) -> None:
         if session_id is None or self.raw_session_manager is None:
             return
-        state_snapshot = payload.context_bundle_obj().binding_obj().state_snapshot
-        if not state_snapshot:
+        binding = payload.context_bundle_obj().binding_obj()
+        review_bundle = payload.review_bundle_obj().to_dict()
+        entries = self.working_memory_writer.build_entries_from_turn(
+            turn_id=f"{session_id}:{payload.route}:{datetime.now().strftime('%Y%m%d%H%M%S%f')}",
+            user_query=message,
+            answer_text=answer_text,
+            current_goal=payload.plan_bundle.get("goal") if isinstance(payload.plan_bundle, dict) else None,
+            binding_result=binding.to_dict(),
+            review_result={
+                "status": review_bundle.get("status"),
+                "summary": review_bundle.get("summary_text") or review_bundle.get("status"),
+            },
+        )
+        if not entries:
             return
-        self.raw_session_manager.update_dialogue_state(
-            session_id,
-            group_id,
-            DEFAULT_AGENT,
-            state_snapshot,
+        self.raw_session_manager.working_memory_store.append_entries(
+            session_id=session_id,
+            group_id=group_id,
+            agent_id=DEFAULT_AGENT,
+            entries=entries,
         )
 
     def _persist_execution_outputs(
@@ -396,6 +413,7 @@ class AgentManager:
         session_id: str | None,
         group_id: str,
         message: str,
+        answer_text: str,
     ) -> None:
         self._persist_execution_payload(
             payload=payload,
@@ -403,10 +421,12 @@ class AgentManager:
             group_id=group_id,
             message=message,
         )
-        self._persist_dialogue_state(
+        self._persist_working_memory(
             payload=payload,
             session_id=session_id,
             group_id=group_id,
+            message=message,
+            answer_text=answer_text,
         )
 
     def _load_recent_registry_entries(
@@ -448,9 +468,9 @@ class AgentManager:
             session_id=session_id,
             group_id=active_group_id,
         )
-        dialogue_state = None
+        working_memory = None
         if session_id is not None and self.raw_session_manager is not None:
-            dialogue_state = self.raw_session_manager.get_dialogue_state(
+            working_memory = self.raw_session_manager.get_working_memory(
                 session_id,
                 active_group_id,
                 DEFAULT_AGENT,
@@ -474,7 +494,7 @@ class AgentManager:
                     "registry_entries": registry_entries,
                     "recent_power": registry_entries[-1].get("source_power") if registry_entries else None,
                     "recent_object_type": registry_entries[-1].get("object_type") if registry_entries else None,
-                    "dialogue_state": dialogue_state,
+                    "working_memory": working_memory,
                     "recent_messages": messages[-6:],
                     "bound_query_llm_call": self._llm_text_call_sync,
                     "base_dir": self.base_dir,
@@ -512,30 +532,38 @@ class AgentManager:
         workflow_instructions.extend(build_answer_result_projection_rules_from_workflow(execution_payload))
 
         if execution_payload.action == "reject":
+            final_answer = ""
             async for event in self._astream_model_answer(
                 messages,
                 extra_instructions=workflow_instructions + [self._build_reject_response(workflow_plan)],
             ):
+                if event.get("type") == "done":
+                    final_answer = str(event.get("content") or "")
                 yield event
             self._persist_execution_outputs(
                 payload=execution_payload,
                 session_id=session_id,
                 group_id=active_group_id,
                 message=message,
+                answer_text=final_answer,
             )
             return
 
         if execution_payload.action == "respond":
+            final_answer = ""
             async for event in self._astream_model_answer(
                 messages,
                 extra_instructions=workflow_instructions,
             ):
+                if event.get("type") == "done":
+                    final_answer = str(event.get("content") or "")
                 yield event
             self._persist_execution_outputs(
                 payload=execution_payload,
                 session_id=session_id,
                 group_id=active_group_id,
                 message=message,
+                answer_text=final_answer,
             )
             return
 
@@ -565,30 +593,38 @@ class AgentManager:
                     ),
                 )
 
+            final_answer = ""
             async for event in self._astream_model_answer(
                 messages,
                 extra_instructions=workflow_instructions
                 + (self._knowledge_answer_instructions(knowledge_result) if knowledge_result else []),
             ):
+                if event.get("type") == "done":
+                    final_answer = str(event.get("content") or "")
                 yield event
             self._persist_execution_outputs(
                 payload=execution_payload,
                 session_id=session_id,
                 group_id=active_group_id,
                 message=message,
+                answer_text=final_answer,
             )
             return
 
+        final_answer = ""
         async for event in self._astream_agent_answer(
             messages,
             extra_instructions=workflow_instructions,
         ):
+            if event.get("type") == "done":
+                final_answer = str(event.get("content") or "")
             yield event
         self._persist_execution_outputs(
             payload=execution_payload,
             session_id=session_id,
             group_id=active_group_id,
             message=message,
+            answer_text=final_answer,
         )
 
     async def generate_title(self, first_user_message: str) -> str:

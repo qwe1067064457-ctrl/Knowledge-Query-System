@@ -235,7 +235,8 @@ def test_qa_runner_challenge_with_evidence_candidates_returns_review_bundle() ->
     assert isinstance(payload.review_bundle["review_findings"], list)
     assert payload.review_bundle["review_summary"]["matched_target_refs"] == ["question_1"]
     assert payload.review_bundle["review_summary"]["status_summary"] == "success"
-    assert payload.context_bundle["binding"]["state_snapshot"]["focus_question_object_id"] == "question_1"
+    assert payload.context_bundle["binding"]["binding_snapshot"]["query_style"] == "challenge"
+    assert "question_1" in payload.context_bundle["binding"]["resolved_target_ids"]
     assert "binding_applied" in payload.key_events
 
 

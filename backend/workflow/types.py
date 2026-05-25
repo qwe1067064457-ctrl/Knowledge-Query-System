@@ -716,31 +716,41 @@ class EvidenceAssessmentSummaryView:
 
 @dataclass(frozen=True)
 class ContextBindingResult:
+    relevant_set: tuple[dict[str, Any], ...] = ()
     bound_targets: tuple[dict[str, Any], ...] = ()
     bound_evidence: tuple[dict[str, Any], ...] = ()
     comparison_set: tuple[dict[str, Any], ...] = ()
+    resolved_target_ids: tuple[str, ...] = ()
     binding_confidence: str = "low"
     binding_ambiguous: bool = False
+    needs_clarification: bool = False
+    fallback_type: str | None = None
+    reason: str | None = None
     matched_by: str | None = None
     clarification_hint: str | None = None
     binding_summary: str | None = None
     notes: tuple[str, ...] = ()
     rewritten_query: str | None = None
-    state_snapshot: dict[str, Any] | None = None
+    binding_snapshot: dict[str, Any] | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return {
+            "relevant_set": [dict(item) for item in self.relevant_set],
             "bound_targets": [dict(item) for item in self.bound_targets],
             "bound_evidence": [dict(item) for item in self.bound_evidence],
             "comparison_set": [dict(item) for item in self.comparison_set],
+            "resolved_target_ids": list(self.resolved_target_ids),
             "binding_confidence": self.binding_confidence,
             "binding_ambiguous": self.binding_ambiguous,
+            "needs_clarification": self.needs_clarification,
+            "fallback_type": self.fallback_type,
+            "reason": self.reason,
             "matched_by": self.matched_by,
             "clarification_hint": self.clarification_hint,
             "binding_summary": self.binding_summary,
             "notes": list(self.notes),
             "rewritten_query": self.rewritten_query,
-            "state_snapshot": dict(self.state_snapshot or {}),
+            "binding_snapshot": dict(self.binding_snapshot or {}),
         }
 
     def target_refs(self) -> tuple[str, ...]:
@@ -755,17 +765,22 @@ class ContextBindingResult:
     def from_dict(cls, payload: dict[str, Any] | None) -> "ContextBindingResult":
         data = dict(payload or {})
         return cls(
+            relevant_set=tuple(dict(item) for item in data.get("relevant_set", ()) or ()),
             bound_targets=tuple(dict(item) for item in data.get("bound_targets", ()) or ()),
             bound_evidence=tuple(dict(item) for item in data.get("bound_evidence", ()) or ()),
             comparison_set=tuple(dict(item) for item in data.get("comparison_set", ()) or ()),
+            resolved_target_ids=tuple(str(item) for item in data.get("resolved_target_ids", ()) or () if item),
             binding_confidence=str(data.get("binding_confidence", "low")),
             binding_ambiguous=bool(data.get("binding_ambiguous", False)),
+            needs_clarification=bool(data.get("needs_clarification", False)),
+            fallback_type=str(data["fallback_type"]) if data.get("fallback_type") is not None else None,
+            reason=str(data["reason"]) if data.get("reason") is not None else None,
             matched_by=data.get("matched_by"),
             clarification_hint=data.get("clarification_hint"),
             binding_summary=data.get("binding_summary"),
             notes=tuple(str(item) for item in data.get("notes", ()) or ()),
             rewritten_query=str(data["rewritten_query"]) if data.get("rewritten_query") is not None else None,
-            state_snapshot=dict(data.get("state_snapshot", {})) or None,
+            binding_snapshot=dict(data.get("binding_snapshot", {})) or None,
         )
 
 
