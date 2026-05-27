@@ -16,6 +16,9 @@ except ImportError:  # pragma: no cover - optional dependency at runtime
     ChatDeepSeek = None
 
 
+OPENAI_COMPATIBLE_PROVIDERS = {"openai", "zhipu", "bailian", "minimax"}
+
+
 def build_chat_model():
     settings = get_settings()
 
@@ -30,6 +33,9 @@ def build_chat_model():
             base_url=settings.llm_base_url,
             temperature=0,
         )
+
+    if settings.llm_provider not in OPENAI_COMPATIBLE_PROVIDERS:
+        raise RuntimeError(f"Unsupported LLM provider: {settings.llm_provider}")
 
     if not settings.llm_api_key:
         raise RuntimeError(f"Missing API key for provider {settings.llm_provider}")

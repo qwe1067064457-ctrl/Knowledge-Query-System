@@ -11,3 +11,4 @@
 1. 继续减少旧 `capabilities/*` 在主链中的残留调用
 2. 增强 `retrieval_gate_worker` 的模型判定能力
 3. 评估 memory anchor 命中后 hydrate 的接入点
+4. 处理 `qa_runner_e2e` 暴露出的主回答模型 `<think>` 泄露问题

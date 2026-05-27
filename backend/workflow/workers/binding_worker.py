@@ -25,15 +25,27 @@ class BindingWorker:
     _CHALLENGE_TOKENS = ("不对", "有问题", "依据", "为什么", "漏了", "不成立", "错了")
     _FOLLOW_UP_TOKENS = ("这个", "那个", "上面", "刚才", "前面", "另一个", "第二个", "前两个", "第一点", "第二点", "第三点", "第一个", "第三个")
     _ASSERTION_TOKENS = ("这个说法", "那个说法", "这个结论", "那个结论", "你刚才说的", "你上面说的")
+    _SELF_CONTAINED_COMPARISON_TOKENS = ("区别", "不同", "差异", "关系", "比较", "对比")
 
     def classify_query_style(self, query: str) -> str:
         if any(token in query for token in self._CHALLENGE_TOKENS):
             return "challenge"
+        if self._is_self_contained_comparison_query(query):
+            return "standalone"
         if any(token in query for token in ("分别", "前两个", "两个", "两条", "以及", "和", "都")):
             return "multi_target"
         if any(token in query for token in self._FOLLOW_UP_TOKENS):
             return "follow_up"
         return "standalone"
+
+    def _is_self_contained_comparison_query(self, query: str) -> bool:
+        if "和" not in query and "以及" not in query:
+            return False
+        if not any(token in query for token in self._SELF_CONTAINED_COMPARISON_TOKENS):
+            return False
+        if any(token in query for token in self._FOLLOW_UP_TOKENS):
+            return False
+        return True
 
     def filter_relevant_set(
         self,
@@ -64,7 +76,6 @@ class BindingWorker:
         *,
         query: str,
         candidates: list[dict[str, Any]],
-        focus_object_id: str | None = None,
     ) -> dict[str, Any]:
         if not candidates:
             return {
@@ -97,18 +108,6 @@ class BindingWorker:
                 "ambiguity_reason": None,
                 "notes": ("worker_binding_explicit_single",),
             }
-
-        if explicit_hit and focus_object_id:
-            for candidate in reversed(candidates):
-                if str(candidate.get("object_id") or "") == str(focus_object_id):
-                    return {
-                        "binding_ambiguous": False,
-                        "selected_targets": (candidate,),
-                        "binding_confidence": "medium",
-                        "matched_by": "focus_object_continuity",
-                        "ambiguity_reason": None,
-                        "notes": ("worker_binding_focus_object",),
-                    }
 
         if len(candidates) == 1:
             return {

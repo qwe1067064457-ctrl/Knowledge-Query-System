@@ -6,6 +6,7 @@ from typing import Any
 from workflow.helpers.challenge_response_helper import ChallengeResponseHelper
 from workflow.types import (
     ChallengeResult,
+    ContextBindingResult,
     EvidenceAssessmentResult,
     EvidenceRefCandidate,
     QueryUnit,
@@ -36,6 +37,7 @@ class ChallengePower:
         *,
         query: str,
         candidate_targets: list[dict[str, Any]],
+        binding_result: ContextBindingResult | dict[str, Any] | None = None,
         rewritten_query: str | None = None,
         evidence_candidates: list[EvidenceRefCandidate | dict[str, Any]] | None = None,
         binding_worker: Any | None = None,
@@ -43,7 +45,39 @@ class ChallengePower:
         retrieval_power: Any | None = None,
     ) -> ChallengeResult:
         evidence_candidates = list(evidence_candidates or ())
+        binding_contract = self._normalize_binding_result(binding_result)
         identified_targets = self._identify_targets(candidate_targets, evidence_candidates)
+        contract_targets = self._targets_from_binding_contract(binding_contract)
+        if contract_targets:
+            identified_targets = contract_targets
+        elif binding_contract is not None and self._binding_requires_clarification(binding_contract):
+            ambiguous_targets = tuple(dict(item) for item in binding_contract.relevant_set)
+            return ChallengeResult.from_review_evaluation(
+                targets=ambiguous_targets,
+                evidence_assessment=EvidenceAssessmentResult(
+                    sufficient=False,
+                    used_existing_evidence=bool(evidence_candidates),
+                    triggered_additional_retrieval=False,
+                    fallback="binding_fallback",
+                ),
+                evaluation=ReviewEvaluationResult(
+                    status="needs_clarification",
+                    review_findings=(),
+                    answer_constraints={
+                        "must_acknowledge_uncertainty": True,
+                        "clarification_question": binding_contract.clarification_hint
+                        or self.response_helper.build_clarification_question(
+                            query=query,
+                            bound_targets=ambiguous_targets,
+                        ),
+                    },
+                ),
+                review_summary={
+                    "binding_contract_used": True,
+                    "binding_fallback_type": binding_contract.fallback_type,
+                    "binding_reason": binding_contract.reason,
+                },
+            )
         if not identified_targets:
             return ChallengeResult.from_review_evaluation(
                 targets=(),
@@ -62,9 +96,8 @@ class ChallengePower:
                 review_summary={},
             )
         targets = tuple(identified_targets)
-        summary_targets = targets
 
-        if binding_worker is not None:
+        if binding_contract is None and binding_worker is not None:
             bound = binding_worker.bind(query=query, candidates=identified_targets)
             if bound.get("binding_ambiguous"):
                 ambiguous_targets = tuple(bound.get("bound_targets", ()))
@@ -91,7 +124,6 @@ class ChallengePower:
                 )
             if bound.get("bound_targets"):
                 targets = tuple(bound["bound_targets"])
-                summary_targets = targets
 
         if review_worker is None:
             return ChallengeResult.from_review_evaluation(
@@ -171,8 +203,46 @@ class ChallengePower:
             targets=targets,
             evidence_assessment=evidence_assessment,
             evaluation=finalized_assessment,
-            review_summary={},
+            review_summary={
+                "binding_contract_used": binding_contract is not None,
+                "binding_fallback_type": binding_contract.fallback_type if binding_contract is not None else None,
+                "binding_reason": binding_contract.reason if binding_contract is not None else None,
+            },
         )
+
+    def _normalize_binding_result(
+        self,
+        binding_result: ContextBindingResult | dict[str, Any] | None,
+    ) -> ContextBindingResult | None:
+        if binding_result is None:
+            return None
+        if isinstance(binding_result, ContextBindingResult):
+            return binding_result
+        return ContextBindingResult.from_dict(binding_result)
+
+    def _targets_from_binding_contract(
+        self,
+        binding_result: ContextBindingResult | None,
+    ) -> list[dict[str, Any]]:
+        if binding_result is None:
+            return []
+        if binding_result.bound_targets:
+            return [dict(item) for item in binding_result.bound_targets]
+        if not binding_result.resolved_target_ids:
+            return []
+        resolved = {str(item).strip() for item in binding_result.resolved_target_ids if str(item).strip()}
+        if not resolved:
+            return []
+        return [
+            dict(item)
+            for item in binding_result.relevant_set
+            if str(item.get("object_id") or item.get("entry_id") or "").strip() in resolved
+        ]
+
+    def _binding_requires_clarification(self, binding_result: ContextBindingResult) -> bool:
+        if binding_result.needs_clarification or binding_result.binding_ambiguous:
+            return True
+        return str(binding_result.fallback_type or "").strip() == "needs_clarification"
 
     def _identify_targets(
         self,

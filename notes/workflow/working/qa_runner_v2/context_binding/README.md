@@ -1,19 +1,23 @@
-# Context Binding
+# Context Binding Working Handoff
 
-这个目录专门记录 `QA Runner V2` 里的 `context binding` 工作线。
+这个目录已经不再承接 `context binding` 的正式主知识。
 
-它只回答 4 件事：
+正式专题已迁移到：
 
-1. 什么场景才触发 `context binding`
-2. `context binding` 的输入、输出和 relevant set 产物是什么
-3. `Session Working Memory` 和 `context binding` 的边界是什么
-4. 找不到对象时，fallback 怎么做
+- `notes/workflow/context_binding_v2/`
+
+这里现在只保留：
+
+- 迁移说明
+- 压缩交接入口
+- `pressure_testing/` 压测样本与执行记录
+- `working_memory/` working 记忆压测记录
 
 推荐阅读顺序：
 
-1. `trigger_and_scope.md`
-2. `relevant_set.md`
-3. `working_memory_boundary.md`
-4. `rulebook.md`
-5. `fallbacks.md`
-6. `implementation_plan.md`
+1. `../../../../context_binding_v2/README.md`
+2. `../../../../context_binding_v2/architecture.md`
+3. `../../../../context_binding_v2/contracts.md`
+4. `pressure_testing/sample_set.md`
+5. `working_memory/stress_validation.md`
+6. `compression_handoff.md`

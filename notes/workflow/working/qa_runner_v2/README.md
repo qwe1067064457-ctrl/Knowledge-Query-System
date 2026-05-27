@@ -22,8 +22,10 @@
 1. `architecture.md`
 2. `contracts.md`
 3. `working_memory_design.md`
-4. `context_binding/README.md`
+4. `../../context_binding_v2/README.md`
 5. `retrieval_and_challenge.md`
 6. `memory_anchor_and_hydration.md`
-7. `todo.md`
-8. `compression_handoff.md`
+7. `qa_runner_e2e/README.md`
+8. `context_binding/compression_handoff.md`
+9. `todo.md`
+10. `compression_handoff.md`

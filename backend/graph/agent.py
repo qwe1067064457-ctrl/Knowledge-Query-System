@@ -24,6 +24,7 @@ from intent.loaders import load_group_intent_rule_assets
 from intent.rules.knowledge_query_rules import is_knowledge_query
 from knowledge_retrieval import knowledge_orchestrator
 from llm.model_factory import build_chat_model
+from llm.output_sanitizer import StreamingReasoningFilter, sanitize_model_text
 from memory_system.memory_service import MemorySystem
 from memory_system.session_working_memory import SessionWorkingMemoryWriter
 from tools import get_all_tools
@@ -73,13 +74,13 @@ class AgentManager:
         response = await build_chat_model().ainvoke(
             [{"role": "user", "content": prompt}]
         )
-        return _stringify_content(getattr(response, "content", "")).strip()
+        return sanitize_model_text(_stringify_content(getattr(response, "content", "")))
 
     def _llm_text_call_sync(self, prompt: str) -> str:
         response = build_chat_model().invoke(
             [{"role": "user", "content": prompt}]
         )
-        return _stringify_content(getattr(response, "content", "")).strip()
+        return sanitize_model_text(_stringify_content(getattr(response, "content", "")))
 
     def _build_agent(
         self,
@@ -240,11 +241,18 @@ class AgentManager:
         )
 
         final_content_parts: list[str] = []
+        reasoning_filter = StreamingReasoningFilter()
         async for chunk in build_chat_model().astream(model_messages):
             text = _stringify_content(getattr(chunk, "content", ""))
-            if text:
-                final_content_parts.append(text)
-                yield {"type": "token", "content": text}
+            visible_text = reasoning_filter.feed(text)
+            if visible_text:
+                final_content_parts.append(visible_text)
+                yield {"type": "token", "content": visible_text}
+
+        trailing = reasoning_filter.flush()
+        if trailing:
+            final_content_parts.append(trailing)
+            yield {"type": "token", "content": trailing}
 
         yield {"type": "done", "content": "".join(final_content_parts).strip()}
 
