@@ -12,11 +12,9 @@
 1. 最终 truth-like target 判定
 2. 深语义等价判断
 
-## query style
+## query style 触发词
 
 ### challenge
-
-命中词：
 
 - `不对`
 - `有问题`
@@ -27,8 +25,6 @@
 - `错了`
 
 ### follow_up
-
-命中词：
 
 - `这个`
 - `那个`
@@ -44,8 +40,6 @@
 - `第三个`
 
 ### multi_target
-
-命中词：
 
 - `前两个`
 - `两个`
@@ -80,24 +74,11 @@
 - query-content keyword overlap
 - challenge bonus
 
-## fallback routing
+## 规则直出
 
-### `retrieve_on_raw_query`
+规则只在两类场景直出：
 
-- relevant set 为空
-- query 自包含
+- 显式序号 / 多目标模式直接命中
+- relevant set 只剩 1 个高置信候选
 
-### `needs_clarification`
-
-- relevant set 为空但 query 明显依赖上下文
-- 或 relevant set 多个强候选无法稳定区分
-
-### `rewrite_without_target`
-
-- target 不明确
-- 但 topic 可恢复
-
-### `answer_from_context_only`
-
-- 当前问题本身不需要 retrieval
-- 且 answer side 可以直接消费上下文
+其余都交给主大模型。

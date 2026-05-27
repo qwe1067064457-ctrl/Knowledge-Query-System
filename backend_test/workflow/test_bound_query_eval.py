@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from context.models import SessionDialogueState
 from workflow.helpers.bound_query_eval_helper import (
     BoundQueryEvalCase,
     evaluate_bound_query_case,
@@ -11,42 +10,15 @@ from workflow.types import ContextBindingResult
 
 
 def _fake_llm_call(prompt: str) -> str:
-    if "上一轮状态" in prompt:
-        return (
-            '{"focus_question_object_id":"question_2","focus_question_object_text":"Dell XPS 14 重量多少？",'
-            '"focus_predicate":"重量","recent_question_objects":[{"object_id":"question_1","content":"MacBook Pro M3 重量多少？"},'
-            '{"object_id":"question_2","content":"Dell XPS 14 重量多少？"}],"recent_evidence_topics":[],'
-            '"resolution_confidence":"medium","last_update_reason":"llm_state_update"}'
-        )
     return (
         '{"resolved_target_ids":["question_2"],"rewritten_query":"Dell XPS 14 重量多少？",'
-        '"confidence":"high","needs_clarification":false}'
+        '"confidence":"high","needs_clarification":false,"fallback_type":null,"reason":null}'
     )
 
 
 def test_bound_query_short_followup_eval_suite_reports_precision_and_rates() -> None:
     power = ContextBindingPower()
     cases = [
-        {
-            "eval": BoundQueryEvalCase(
-                case_id="focus_continuity",
-                query="你刚才说的这个依据是什么",
-                expected_mode="auto_bind",
-                expected_target_ids=("question_2",),
-            ),
-            "bind": {
-                "query": "你刚才说的这个依据是什么",
-                "candidates": [
-                    {"object_id": "question_1", "object_type": "question_object", "content": "旧问题", "source_power": "workflow"},
-                    {"object_id": "question_2", "object_type": "question_object", "content": "最新问题", "source_power": "workflow"},
-                ],
-                "dialogue_state": SessionDialogueState(
-                    focus_question_object_id="question_2",
-                    focus_question_object_text="最新问题",
-                    resolution_confidence="high",
-                ),
-            },
-        },
         {
             "eval": BoundQueryEvalCase(
                 case_id="llm_rewrite",
@@ -120,11 +92,11 @@ def test_bound_query_short_followup_eval_suite_reports_precision_and_rates() -> 
 
     summary = summarize_bound_query_outcomes(outcomes)
 
-    assert summary["total_cases"] == 5
-    assert summary["auto_bind_count"] == 3
+    assert summary["total_cases"] == 4
+    assert summary["auto_bind_count"] == 2
     assert summary["clarification_count"] == 2
     assert summary["auto_bind_precision"] == 1.0
-    assert summary["clarification_rate"] == 0.4
+    assert summary["clarification_rate"] == 0.5
     assert summary["misbind_rate"] == 0.0
     assert summary["correct_case_rate"] == 1.0
 

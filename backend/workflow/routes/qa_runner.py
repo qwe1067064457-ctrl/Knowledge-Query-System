@@ -140,6 +140,7 @@ class QaRouteRunner(BaseRouteRunner):
                 query=request.message,
                 rewritten_query=binding_result.rewritten_query if binding_result is not None else None,
                 candidate_targets=list(context_bundle.bound_targets()),
+                binding_result=binding_result,
                 evidence_candidates=evidence_candidates,
                 binding_worker=self.binding_worker,
                 review_worker=self.review_worker,

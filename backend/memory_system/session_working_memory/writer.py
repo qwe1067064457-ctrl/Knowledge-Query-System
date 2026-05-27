@@ -11,6 +11,8 @@ class SessionWorkingMemoryWriter:
     _TASK_HINTS = ("核验", "比较", "检查", "判断", "确认", "解释", "质疑", "依据")
     _ASSERTION_HINTS = ("不对", "有问题", "漏了", "没有处理", "依据不足", "不成立", "错了")
     _ANSWER_HINTS = ("是", "不是", "属于", "不属于", "成立", "不成立", "可以", "不可以", "依据", "结论")
+    _ANSWER_SKIP_HINTS = ("继续", "接着", "下一条", "下一步", "如果你愿意", "我可以", "先给", "一句话总结")
+    _ASSERTION_SKIP_HINTS = ("好的", "继续", "嗯", "收到")
 
     def build_entries_from_turn(
         self,
@@ -112,12 +114,29 @@ class SessionWorkingMemoryWriter:
         return [
             segment
             for segment in segments
-            if len(segment) >= 8 and any(token in segment for token in self._ANSWER_HINTS)
+            if self._is_high_value_answer_unit(segment)
         ][:4]
 
     def _extract_user_assertions(self, user_query: str) -> list[str]:
         if not any(token in user_query for token in self._ASSERTION_HINTS):
             return []
         clauses = [clause.strip() for clause in re.split(r"[，。！？!?；;]+", user_query) if clause.strip()]
-        return [clause for clause in clauses if any(token in clause for token in self._ASSERTION_HINTS)][:3]
+        return [clause for clause in clauses if self._is_high_value_assertion(clause)][:3]
 
+    def _is_high_value_answer_unit(self, segment: str) -> bool:
+        text = segment.strip()
+        if len(text) < 8:
+            return False
+        if text.endswith(("吗", "么", "?","？")):
+            return False
+        if any(token in text for token in self._ANSWER_SKIP_HINTS):
+            return False
+        return any(token in text for token in self._ANSWER_HINTS)
+
+    def _is_high_value_assertion(self, clause: str) -> bool:
+        text = clause.strip()
+        if len(text) < 6:
+            return False
+        if any(token == text for token in self._ASSERTION_SKIP_HINTS):
+            return False
+        return any(token in text for token in self._ASSERTION_HINTS)

@@ -11,15 +11,27 @@ class SessionWorkingMemoryResolver:
     _FOLLOW_UP_HINTS = ("这个", "那个", "上面", "刚才", "前面", "另一个", "第二个", "前两个", "第一点", "第二点", "第三点", "第一个", "第三个")
     _MULTI_HINTS = ("分别", "前两个", "两个", "两条", "以及", "和", "都")
     _ASSERTION_HINTS = ("这个说法", "那个说法", "这个结论", "那个结论", "你刚才说的", "你上面说的")
+    _SELF_CONTAINED_COMPARISON_HINTS = ("区别", "不同", "差异", "关系", "比较", "对比")
 
     def classify_query_style(self, query: str) -> str:
         if any(token in query for token in self._CHALLENGE_HINTS):
             return "challenge"
+        if self._is_self_contained_comparison_query(query):
+            return "standalone"
         if any(token in query for token in self._MULTI_HINTS):
             return "multi_target"
         if any(token in query for token in self._FOLLOW_UP_HINTS):
             return "follow_up"
         return "standalone"
+
+    def _is_self_contained_comparison_query(self, query: str) -> bool:
+        if "和" not in query and "以及" not in query:
+            return False
+        if not any(token in query for token in self._SELF_CONTAINED_COMPARISON_HINTS):
+            return False
+        if any(token in query for token in self._FOLLOW_UP_HINTS):
+            return False
+        return True
 
     def build_relevant_entries(
         self,

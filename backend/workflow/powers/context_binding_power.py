@@ -11,10 +11,6 @@ from workflow.workers.binding_worker import BindingWorker
 
 
 class ContextBindingPower:
-    _CONTEXT_DEPENDENT_STYLES = {"challenge", "follow_up", "multi_target"}
-    _EXPLICIT_SINGLE_TOKENS = ("第一个", "第一点", "第二个", "第二点", "第三个", "第三点")
-    _FOCUS_CONTINUITY_TOKENS = ("这个", "那个", "你刚才说的", "上面那个", "刚才那个")
-
     def __init__(
         self,
         response_helper: BindingResponseHelper | None = None,
@@ -40,7 +36,6 @@ class ContextBindingPower:
         query: str,
         candidates: list[dict[str, Any]],
         *,
-        dialogue_state: dict[str, Any] | Any | None = None,
         working_memory: SessionWorkingMemory | dict[str, Any] | None = None,
         recent_messages: list[dict[str, Any]] | None = None,
         llm_call: Any | None = None,
@@ -57,7 +52,6 @@ class ContextBindingPower:
             candidates=candidates,
             working_memory=working_memory,
             memory_anchors=memory_anchors,
-            dialogue_state=dialogue_state,
         )
         filter_result = self.binding_worker.filter_relevant_set(
             query=query,
@@ -100,24 +94,6 @@ class ContextBindingPower:
                     notes=tuple(str(item) for item in direct_resolution.get("notes", ()) or ()),
                     binding_snapshot=binding_snapshot,
                 )
-
-        focus_continuity_target = self._resolve_focus_continuity(query, relevant_set)
-        if focus_continuity_target is not None:
-            rewritten_query = (
-                self._rewrite_from_single_target(query, focus_continuity_target)
-                if rewrite_query
-                else None
-            )
-            return self._build_success_result(
-                targets=(focus_continuity_target,),
-                relevant_set=relevant_set,
-                resolved_target_ids=(str(focus_continuity_target.get("object_id") or ""),),
-                confidence=str(focus_continuity_target.get("confidence") or "medium"),
-                strategy="focus_object_continuity",
-                rewritten_query=rewritten_query,
-                notes=("dialogue_state_focus",),
-                binding_snapshot=binding_snapshot,
-            )
 
         if llm_call is None:
             return self._build_fallback_result(
@@ -196,16 +172,9 @@ class ContextBindingPower:
         candidates: list[dict[str, Any]],
         working_memory: SessionWorkingMemory | dict[str, Any] | None,
         memory_anchors: list[dict[str, Any]] | None,
-        dialogue_state: dict[str, Any] | Any | None,
     ) -> list[dict[str, Any]]:
         pool: list[dict[str, Any]] = []
         seen: set[str] = set()
-
-        focus_candidate = self._candidate_from_dialogue_state(dialogue_state)
-        if focus_candidate is not None:
-            key = self._candidate_key(focus_candidate)
-            seen.add(key)
-            pool.append(focus_candidate)
 
         for candidate in candidates:
             key = self._candidate_key(candidate)
@@ -245,29 +214,6 @@ class ContextBindingPower:
             seen.add(key)
             pool.append(candidate)
         return pool
-
-    def _candidate_from_dialogue_state(self, dialogue_state: dict[str, Any] | Any | None) -> dict[str, Any] | None:
-        if dialogue_state is None:
-            return None
-        if hasattr(dialogue_state, "to_dict"):
-            data = dict(dialogue_state.to_dict())
-        elif isinstance(dialogue_state, dict):
-            data = dict(dialogue_state)
-        else:
-            return None
-        object_id = str(data.get("focus_question_object_id") or "").strip()
-        content = str(data.get("focus_question_object_text") or "").strip()
-        if not object_id and not content:
-            return None
-        return {
-            "object_id": object_id or content,
-            "object_type": "question_object",
-            "content": content or object_id,
-            "source_power": "dialogue_state",
-            "refs": [],
-            "confidence": str(data.get("resolution_confidence") or "medium"),
-            "source_kind": "dialogue_state",
-        }
 
     def _candidate_from_working_memory(self, entry) -> dict[str, Any]:
         return {
@@ -352,6 +298,7 @@ class ContextBindingPower:
             "query": query,
             "query_style": query_style,
             "candidate_count": len(candidate_pool),
+            "candidate_pool_size": len(candidate_pool),
             "relevant_set_size": len(relevant_set),
             "relevant_target_ids": [
                 str(item.get("object_id") or "").strip()
@@ -363,15 +310,16 @@ class ContextBindingPower:
                 for item in relevant_set
                 if str(item.get("object_type") or "").strip()
             ],
+            "candidate_source_counts": self._count_source_kinds(candidate_pool),
+            "relevant_source_counts": self._count_source_kinds(relevant_set),
         }
 
-    def _resolve_focus_continuity(self, query: str, relevant_set: list[dict[str, Any]]) -> dict[str, Any] | None:
-        if not any(token in query for token in self._FOCUS_CONTINUITY_TOKENS):
-            return None
-        for item in relevant_set:
-            if str(item.get("source_kind") or "") == "dialogue_state":
-                return item
-        return None
+    def _count_source_kinds(self, candidates: list[dict[str, Any]]) -> dict[str, int]:
+        counts: dict[str, int] = {}
+        for item in candidates:
+            source_kind = str(item.get("source_kind") or item.get("source_power") or "unknown").strip() or "unknown"
+            counts[source_kind] = counts.get(source_kind, 0) + 1
+        return counts
 
     def _fallback_without_relevant_set(
         self,
@@ -415,6 +363,10 @@ class ContextBindingPower:
             target=targets[-1] if targets else None,
             confidence=confidence,
         )
+        snapshot = dict(binding_snapshot)
+        snapshot["matched_by"] = metadata["matched_by"]
+        snapshot["binding_confidence"] = confidence
+        snapshot["resolved_target_count"] = len(resolved_target_ids)
         return ContextBindingResult(
             bound_targets=targets,
             binding_confidence=confidence,
@@ -425,7 +377,7 @@ class ContextBindingPower:
             rewritten_query=rewritten_query,
             relevant_set=tuple(dict(item) for item in relevant_set),
             resolved_target_ids=resolved_target_ids,
-            binding_snapshot=dict(binding_snapshot),
+            binding_snapshot=snapshot,
         )
 
     def _build_fallback_result(
@@ -445,6 +397,11 @@ class ContextBindingPower:
             rewritten_query=rewritten_query,
         )
         needs_clarification = fallback_type == "needs_clarification"
+        snapshot = dict(binding_snapshot)
+        snapshot["matched_by"] = metadata["matched_by"]
+        snapshot["fallback_type"] = fallback_type
+        snapshot["fallback_reason"] = reason
+        snapshot["candidate_target_ids"] = list(metadata["candidate_target_ids"])
         return ContextBindingResult(
             binding_confidence=confidence,
             binding_ambiguous=needs_clarification,
@@ -458,5 +415,5 @@ class ContextBindingPower:
             needs_clarification=needs_clarification,
             fallback_type=fallback_type,
             reason=reason,
-            binding_snapshot=dict(binding_snapshot),
+            binding_snapshot=snapshot,
         )
