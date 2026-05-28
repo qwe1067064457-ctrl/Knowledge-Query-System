@@ -167,3 +167,62 @@
   - 没有 recovery 时，会稳定停在 `insufficient_evidence`
 - 判定：
   - 当前 existing evidence reuse 边界比之前更稳，没有“相关即足够”的误判
+
+## Round 3
+
+- 时间：2026-05-28
+- 范围：
+  - 继续跑真实样本相关回归
+  - 继续观察 live LLM latency / timeout / fallback
+  - 不再做主链大改，只记录 seam 与小修边界
+- 实际执行：
+  - `python -m pytest -c backend_test\workflow\pytest.ini backend_test\workflow\test_qa_runner_e2e_live_smoke.py -q`
+  - `python -m pytest -c backend_test\workflow\pytest.ini backend_test\workflow\test_route_runners.py backend_test\workflow\test_retrieval_gate.py backend_test\workflow\test_challenge_power.py -q`
+
+### Live E2E 汇总
+
+- 结果：
+  - `test_qa_runner_e2e_live_smoke.py = 2 passed, 1 skipped`
+  - 总耗时约 `280.52s`
+- 关键观察：
+  - `<think>` 泄露当前未复现
+  - live e2e 仍然明显慢于本地 workflow 回归
+  - skip 仍主要来自外部 live 模型运行面，而不是 workflow 主链本地失败
+- 判定：
+  - 当前 live 运行面的主要 seam 是 latency / availability
+  - 不是 `QA Runner` 主骨架塌了
+
+### 本地主链回归汇总
+
+- 结果：
+  - `test_route_runners.py + test_retrieval_gate.py + test_challenge_power.py = 36 passed`
+  - 总耗时约 `14.08s`
+- 关键观察：
+  - retrieval gate 当前轻策略 reason 相关回归稳定
+  - challenge coverage / existing evidence reuse 相关回归稳定
+  - `related_only -> targeted retrieval` 这条链没有回归
+- 判定：
+  - 当前本地主链效率已经较高
+  - 后续继续大改的边际收益不高，更适合继续观测真实运行面
+
+### 全量 workflow 回归补充
+
+- 时间：2026-05-28
+- 实际执行：
+  - `python -m pytest -c backend_test\workflow\pytest.ini backend_test\workflow -q`
+  - `python -m pytest -c backend_test\workflow\pytest.ini backend_test\workflow\test_qa_runner_e2e_live_smoke.py -q -rs`
+- 结果：
+  - `backend_test/workflow = 121 passed, 1 skipped`
+  - 总耗时约 `527.07s`
+  - `test_qa_runner_e2e_live_smoke.py = 2 passed, 1 skipped`
+  - 总耗时约 `255.82s`
+- skip 原因：
+  - `live answer model timed out`
+- 关键观察：
+  - 全量 workflow 当前没有新的功能性失败
+  - 唯一 skip 明确来自 live 主回答模型超时，不是 workflow 逻辑断裂
+  - 全量回归耗时明显被 live e2e 拖长
+- 判定：
+  - 当前 `QA Runner` 的主要运行面风险已经可以明确记为：
+    - `live answer model latency / timeout`
+  - 这更适合走观测和限时保护，而不是主链结构性改造

@@ -54,7 +54,7 @@
   - `route / handling_mode` 已使用 `Literal` 收紧
   - 对外仍保持 string contract
   - `follow_up` 仍不进入 `handling_mode`
-  - `follow_up` 继续留在 intent/context binding 维度
+- `follow_up` 继续留在 intent/context binding 维度
 - `session working memory`
   - 只保执行连续性
   - 不参与 bound query 主判断
@@ -66,6 +66,25 @@
 
 - challenge 深吃 retrieval repair 诊断细节
 - fine-grained claim adjudication 进入主链
+
+本轮新增观察结论：
+
+- `QA Runner` 当前本地主链回归已较稳定：
+  - `test_route_runners.py + test_retrieval_gate.py + test_challenge_power.py = 36 passed`
+  - 耗时约 `14.08s`
+- live e2e 当前仍明显慢于本地主链：
+  - `test_qa_runner_e2e_live_smoke.py = 2 passed, 1 skipped`
+  - 耗时约 `280.52s`
+- 再次复跑确认后：
+  - `backend_test/workflow = 121 passed, 1 skipped`
+  - 唯一 skip 明确来自 `live answer model timed out`
+- 当前最高优先级 seam 已转为：
+  - live latency / timeout / availability
+  - 而不是 `qa route` 主骨架结构性问题
+- 如果没有新的真实 blocker，后续不建议再开大改，只继续：
+  1. 真实样本压测
+  2. live 指标观测
+  3. 低成本高收益小修
 
 如果后续继续增强，优先级固定为：
 

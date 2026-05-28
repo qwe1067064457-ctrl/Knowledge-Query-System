@@ -17,6 +17,13 @@
 - `session working memory` 的定位
 - `daily_log / cases -> memory anchor -> context hydration` 的链路
 
+说明：
+
+- 这个目录继续承接 working 过程、压测记录、handoff、todo 和阶段性结论。
+- 已经相对稳定的工程知识，已开始迁移到：
+  - [notes/workflow/knowledge/qa_runner_v2/README.md](/C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/workflow/knowledge/qa_runner_v2/README.md)
+- 后续如果目标是“沉淀实现知识 / 让别的 agent 快速读懂系统”，优先看 `knowledge/`。
+
 推荐阅读顺序：
 
 1. `architecture.md`

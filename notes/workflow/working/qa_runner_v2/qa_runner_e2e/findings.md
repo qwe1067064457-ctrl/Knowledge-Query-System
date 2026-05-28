@@ -51,7 +51,7 @@
 - 是否需要修复：
   - 否
 
-### 3. 当前最明显的端到端问题不是 binding 塌了，而是主回答模型输出出现 `<think>` 泄露
+### 3. Round 1 里最明显的端到端问题曾经是主回答模型输出出现 `<think>` 泄露
 
 - 现象：
   - 3 条 live e2e 样本的主回答输出都带有明显 `<think>` 前缀
@@ -73,7 +73,7 @@
 - 是否需要修复：
   - 暂不优先
 
-## 当前结论
+## 当前结论（Round 1 结束时）
 
 - `QA Runner payload` 主链目前是能跑通的
 - `binding/review` 的保守信号已经能传给主回答模型
@@ -116,3 +116,63 @@
     1. evidence coverage
     2. existing evidence reuse quality
     3. fine-grained claim adjudication
+
+## Round 3 Findings
+
+### 1. 当前最主要的 seam 已从 `<think>` 泄露转到 live 运行面 latency / availability
+
+- 现象：
+  - `test_qa_runner_e2e_live_smoke.py` 当前结果为 `2 passed, 1 skipped`
+  - 总耗时约 `280.52s`
+  - 本轮未复现 `<think>` 泄露
+- 根因判断：
+  - 当前 answer-side 输出清洗已经比 Round 1 稳
+  - 剩余主要问题更偏 provider / live 运行面延迟与可用性
+- 是否需要修复：
+  - 需要继续观测，但不构成新的 workflow 结构性 blocker
+- 当前分级：
+  - seam / 运行面风险
+
+补充：
+
+- 2026-05-28 再次复跑时：
+  - `test_qa_runner_e2e_live_smoke.py = 2 passed, 1 skipped`
+  - skip 原因明确为 `live answer model timed out`
+  - `backend_test/workflow = 121 passed, 1 skipped`
+- 这进一步说明：
+  - 当前 skip 是 live answer model timeout
+  - 不是 workflow 主链本地回归失败
+
+### 2. 本地主链回归已经进入“稳定 + 高效率”区间
+
+- 现象：
+  - `test_route_runners.py + test_retrieval_gate.py + test_challenge_power.py = 36 passed`
+  - 总耗时约 `14.08s`
+- 根因判断：
+  - `retrieval gate -> challenge coverage -> review` 这条链当前没有明显回归
+  - 主链本地逻辑不再是当前主要风险来源
+- 是否需要修复：
+  - 否
+- 当前分级：
+  - acceptable
+
+### 3. 现在更适合继续跑真实样本和 live 指标，而不是继续大改主链
+
+- 现象：
+  - 真实 challenge 样本与本地 workflow 回归都稳定
+  - live 运行面慢，但没有证据表明需要再改 `qa route` 主骨架
+- 结论：
+  - 当前策略应改为：
+    1. 继续跑真实样本
+    2. 继续看 live 运行指标
+    3. 只做低成本高收益的小修
+    4. 把 seam 记录清楚，不急着全修
+
+## 当前结论（Round 3）
+
+- `QA Runner` 当前已经不需要再做更大的结构性修改
+- 当前最高价值工作已经从“主链重构”转移到：
+  - 真实样本持续压测
+  - live latency / timeout / fallback 观测
+  - challenge coverage 与 existing evidence reuse 的小步优化
+- 如果后续没有新的真实 blocker，不建议再开启大重构

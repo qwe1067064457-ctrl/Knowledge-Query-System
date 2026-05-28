@@ -30,3 +30,13 @@
    - 保持对外 string contract
    - 内部继续优先使用 `Literal` / typed alias
    - 不把 `follow_up` 塞进 `handling_mode`
+
+当前判断：
+
+- `QA Runner` 主链已经进入“稳定 + 继续观测”阶段
+- 当前不建议再开大改
+- 后续默认策略：
+  1. 继续跑真实样本
+  2. 继续看 live 运行指标
+  3. 只做低成本高收益的小修
+  4. 把 seam 记录清楚，不急着全修
