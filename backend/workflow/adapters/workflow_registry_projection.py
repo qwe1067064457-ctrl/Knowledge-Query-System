@@ -95,6 +95,16 @@ def build_execution_summary_metadata(payload) -> dict[str, Any]:
     return {
         "knowledge_scope_status": str(getattr(payload, "knowledge_scope_status", "resolved")),
         "binding_summary": context_summary.binding_summary,
+        "context_summary": {
+            "candidate_count": context_summary.candidate_count,
+            "query_unit_count": context_summary.query_unit_count,
+            "memory_anchor_count": context_summary.memory_anchor_count,
+            "hydrated_memory_entry_count": context_summary.hydrated_memory_entry_count,
+            "memory_hydrated": context_summary.memory_hydrated,
+            "binding_matched_by": context_summary.binding_matched_by,
+            "binding_fallback_type": context_summary.binding_fallback_type,
+            "binding_reason": context_summary.binding_reason,
+        },
         "plan_summary": plan_summary,
         "review_summary": review_summary,
         "evidence_summary": evidence_summary,

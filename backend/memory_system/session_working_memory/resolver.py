@@ -9,7 +9,7 @@ from memory_system.session_working_memory.models import SessionWorkingMemory, Wo
 class SessionWorkingMemoryResolver:
     _CHALLENGE_HINTS = ("不对", "有问题", "依据", "为什么", "漏了", "不成立", "错了")
     _FOLLOW_UP_HINTS = ("这个", "那个", "上面", "刚才", "前面", "另一个", "第二个", "前两个", "第一点", "第二点", "第三点", "第一个", "第三个")
-    _MULTI_HINTS = ("分别", "前两个", "两个", "两条", "以及", "和", "都")
+    _MULTI_HINTS = ("分别", "前两个", "两个", "两条", "以及", "和")
     _ASSERTION_HINTS = ("这个说法", "那个说法", "这个结论", "那个结论", "你刚才说的", "你上面说的")
     _SELF_CONTAINED_COMPARISON_HINTS = ("区别", "不同", "差异", "关系", "比较", "对比")
 
@@ -72,7 +72,7 @@ class SessionWorkingMemoryResolver:
                 ]
                 if matched:
                     return matched
-        if any(token in query for token in ("前两个", "两个", "两条", "分别", "都")):
+        if any(token in query for token in ("前两个", "两个", "两条", "分别")):
             return entries[:2]
         if any(token in query for token in self._ASSERTION_HINTS):
             prioritized = [entry for entry in entries if entry.entry_type in {"answer_unit", "user_assertion"}]

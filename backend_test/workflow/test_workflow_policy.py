@@ -13,13 +13,14 @@ from intent.schema.intent_types import (
     ResolvedTask,
 )
 from workflow.policy import build_workflow_plan
+from workflow.types import WorkflowHandlingMode, WorkflowRoute
 
 
 def _make_analysis(
     *,
     query: str,
-    route: str,
-    handling_mode: str,
+    route: WorkflowRoute,
+    handling_mode: WorkflowHandlingMode,
     capabilities: tuple[str, ...] = (),
     main_intent: MainIntent = "qa",
     task_complexity: str = "simple",
@@ -135,3 +136,30 @@ def test_scope_switch_without_explicit_group_requires_clarification() -> None:
 
     assert plan.knowledge_scope_status == "needs_clarification"
     assert plan.policy_flags.ask_clarification_first is True
+
+
+def test_workflow_plan_keeps_string_contract_and_follow_up_stays_outside_handling_mode() -> None:
+    analysis = _make_analysis(
+        query="把你刚才第二点展开讲讲",
+        route="qa",
+        handling_mode="normal",
+        capabilities=("use_context",),
+        context_dependency="previous_answer",
+        ambiguity_states=("history_dependent",),
+    )
+
+    plan = build_workflow_plan(
+        analysis,
+        is_knowledge_query=False,
+        active_group_id="general",
+        allowed_group_ids=("general",),
+    )
+
+    payload = plan.to_dict()
+
+    assert payload["route"] == "qa"
+    assert isinstance(payload["route"], str)
+    assert payload["handling_mode"] == "normal"
+    assert isinstance(payload["handling_mode"], str)
+    assert plan.policy_flags.need_context_binding is True
+    assert "context_binding_power" in plan.enabled_powers

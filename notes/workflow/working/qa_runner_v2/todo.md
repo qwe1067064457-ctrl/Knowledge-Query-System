@@ -9,6 +9,24 @@
 下一步：
 
 1. 继续减少旧 `capabilities/*` 在主链中的残留调用
-2. 增强 `retrieval_gate_worker` 的模型判定能力
-3. 评估 memory anchor 命中后 hydrate 的接入点
-4. 处理 `qa_runner_e2e` 暴露出的主回答模型 `<think>` 泄露问题
+2. 继续观察 `retrieval_gate_worker` 当前轻策略 gate 的真实收益：
+   - `knowledge_query`
+   - `challenge_turn`
+   - `memory_hit_needs_hydrate`
+   - `context_answer_ok`
+3. 继续观察 QA route 中 `memory anchor -> hydrate` 的真实命中率：
+   - 什么时候摘要足够、不需要 hydrate
+   - 什么时候 hydrate 后仍需要 retrieval
+4. 继续观察 `qa_runner_e2e` 下 live LLM latency / timeout 与 fallback 行为：
+   - binding 是否走了 LLM
+   - retrieval 是否发生
+   - challenge 是否触发 follow-up retrieval
+   - 最终是否 fallback / `needs_clarification`
+5. 如果后续继续增强 challenge，只从这三个入口切入：
+   - evidence coverage
+   - existing evidence reuse quality
+   - fine-grained claim adjudication
+6. 如果继续收 workflow 类型系统：
+   - 保持对外 string contract
+   - 内部继续优先使用 `Literal` / typed alias
+   - 不把 `follow_up` 塞进 `handling_mode`

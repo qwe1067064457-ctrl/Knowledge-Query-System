@@ -3,7 +3,14 @@ from __future__ import annotations
 import re
 
 from intent.schema.intent_types import ControlTrace, IntentAnalysis
-from workflow.types import PowerName, WorkflowAction, WorkflowPlan, WorkflowPolicyFlags
+from workflow.types import (
+    PowerName,
+    WorkflowAction,
+    WorkflowHandlingMode,
+    WorkflowPlan,
+    WorkflowPolicyFlags,
+    WorkflowRoute,
+)
 
 _SCOPE_SWITCH_PATTERNS = (
     re.compile(r"另一个组"),
@@ -99,8 +106,8 @@ def build_workflow_plan(
 
 def _resolve_action(
     *,
-    route: str,
-    handling_mode: str,
+    route: WorkflowRoute,
+    handling_mode: WorkflowHandlingMode,
     is_knowledge_query: bool,
 ) -> WorkflowAction:
     if route == "reject" or handling_mode == "unsupported":
@@ -114,7 +121,7 @@ def _resolve_action(
     return "agent" if route in {"qa", "orchestrated"} else "respond"
 
 
-def _should_use_planner(*, route: str, trace: ControlTrace) -> bool:
+def _should_use_planner(*, route: WorkflowRoute, trace: ControlTrace) -> bool:
     if route != "orchestrated":
         return False
     if trace.task_topology == "staged":
@@ -122,7 +129,7 @@ def _should_use_planner(*, route: str, trace: ControlTrace) -> bool:
     return trace.task_complexity == "complex" and trace.task_shape in {"compare", "mixed"}
 
 
-def _should_decompose_query(*, route: str, trace: ControlTrace) -> bool:
+def _should_decompose_query(*, route: WorkflowRoute, trace: ControlTrace) -> bool:
     if route != "orchestrated":
         return False
     return trace.task_topology == "parallel_queries"
@@ -136,8 +143,8 @@ def _should_bind_context(*, use_context: bool, trace: ControlTrace) -> bool:
 
 def _resolve_enabled_powers(
     *,
-    route: str,
-    handling_mode: str,
+    route: WorkflowRoute,
+    handling_mode: WorkflowHandlingMode,
     use_planner: bool,
     decompose_query: bool,
     is_knowledge_query: bool,

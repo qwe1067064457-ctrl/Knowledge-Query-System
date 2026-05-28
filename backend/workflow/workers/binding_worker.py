@@ -18,9 +18,6 @@ class BindingWorker:
         re.compile(r"以及"),
         re.compile(r"和"),
         re.compile(r"、"),
-        re.compile(r"这些"),
-        re.compile(r"以上"),
-        re.compile(r"都"),
     )
     _CHALLENGE_TOKENS = ("不对", "有问题", "依据", "为什么", "漏了", "不成立", "错了")
     _FOLLOW_UP_TOKENS = ("这个", "那个", "上面", "刚才", "前面", "另一个", "第二个", "前两个", "第一点", "第二点", "第三点", "第一个", "第三个")
@@ -32,7 +29,7 @@ class BindingWorker:
             return "challenge"
         if self._is_self_contained_comparison_query(query):
             return "standalone"
-        if any(token in query for token in ("分别", "前两个", "两个", "两条", "以及", "和", "都")):
+        if any(token in query for token in ("分别", "前两个", "两个", "两条", "以及", "和")):
             return "multi_target"
         if any(token in query for token in self._FOLLOW_UP_TOKENS):
             return "follow_up"

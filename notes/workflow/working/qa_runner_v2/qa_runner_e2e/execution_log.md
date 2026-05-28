@@ -118,3 +118,52 @@
 - 判定：
   - `QA Runner` 的澄清信号已经能传到主回答模型
   - 但主回答输出仍有 `<think>` 泄露
+
+## Round 2
+
+- 时间：2026-05-27
+- 范围：
+  - 真实 challenge case 的 coverage 压测
+  - 重点观察：
+    - `related_only -> targeted retrieval`
+    - existing evidence reuse 是否误判 sufficient
+    - follow-up retrieval 是否只围绕 coverage 缺口 target 触发
+
+### Case E2E-C1 - related-only existing evidence 后成功补齐
+
+- query：`那是模型的问题, 不是我们prompt问题?`
+- 输入上下文：
+  - `recent_messages` = 2 条
+  - `registry_entries.question_object` = 1
+  - `registry_entries.evidence_ref` = 1（related-only, 无 grounded ref）
+  - `retrieval_power` = enabled
+- payload 实际结果：
+  - `status = ready`
+  - `review_status = success`
+  - `used_existing_evidence = True`
+  - `retrieve_if_needed.reason = not_needed`（recovery 后收敛）
+  - `follow_up_retrieval_attempted = True`
+  - `follow_up_retrieval_improved = True`
+- 关键观察：
+  - existing evidence 没有被直接误判 sufficient
+  - 补检索只围绕 disputed target 发生
+  - follow-up query 中保留了目标 claim 文本，没有把 related-only evidence 的描述一起带进去
+- 判定：
+  - `related_only -> targeted retrieval -> success` 这条链当前是成立的
+
+### Case E2E-C2 - related-only existing evidence 且不提供 recovery
+
+- query：`那是模型的问题, 不是我们prompt问题?`
+- 输入上下文：
+  - 与 `E2E-C1` 相同 target 与 existing evidence
+  - `retrieval_power` = disabled
+- payload 实际结果：
+  - `review_status = insufficient_evidence`
+  - `retrieve_if_needed.needed = True`
+  - `retrieve_if_needed.reason = related_evidence_not_grounded`
+  - `follow_up_retrieval_attempted = False`
+- 关键观察：
+  - 只有文本相关的 existing evidence 不会被算作 grounded support
+  - 没有 recovery 时，会稳定停在 `insufficient_evidence`
+- 判定：
+  - 当前 existing evidence reuse 边界比之前更稳，没有“相关即足够”的误判

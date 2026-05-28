@@ -7,6 +7,8 @@ from intent.schema.intent_types import ControlTrace
 
 
 WorkflowAction = Literal["respond", "agent", "knowledge_orchestrator", "reject"]
+WorkflowRoute = Literal["qa", "orchestrated", "chat", "reject"]
+WorkflowHandlingMode = Literal["normal", "challenge", "clarify", "scope_info", "unsupported"]
 KnowledgeScopeStatus = Literal["resolved", "needs_clarification"]
 PowerName = Literal[
     "retrieval_power",
@@ -32,8 +34,8 @@ class WorkflowPolicyFlags:
 
 @dataclass(frozen=True)
 class WorkflowPlan:
-    route: str
-    handling_mode: str
+    route: WorkflowRoute
+    handling_mode: WorkflowHandlingMode
     action: WorkflowAction
     use_context: bool
     cite_sources: bool
@@ -660,6 +662,12 @@ class ContextBundleSummaryView:
     binding_summary: str = "not_applicable"
     candidate_count: int = 0
     query_unit_count: int = 0
+    memory_anchor_count: int = 0
+    hydrated_memory_entry_count: int = 0
+    memory_hydrated: bool = False
+    binding_matched_by: str = ""
+    binding_fallback_type: str = ""
+    binding_reason: str = ""
 
 
 @dataclass(frozen=True)
@@ -791,6 +799,9 @@ class ContextBundle:
     binding_summary: str = "not_applicable"
     candidate_count: int = 0
     query_units: tuple[dict[str, Any], ...] = ()
+    memory_anchor_count: int = 0
+    hydrated_memory_entry_count: int = 0
+    memory_hydrated: bool = False
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -799,6 +810,9 @@ class ContextBundle:
             "binding_summary": self.binding_summary,
             "candidate_count": self.candidate_count,
             "query_units": [dict(item) for item in self.query_units],
+            "memory_anchor_count": self.memory_anchor_count,
+            "hydrated_memory_entry_count": self.hydrated_memory_entry_count,
+            "memory_hydrated": self.memory_hydrated,
         }
 
     def binding_obj(self) -> ContextBindingResult:
@@ -815,10 +829,17 @@ class ContextBundle:
         return tuple(dict(item) for item in self.query_units)
 
     def summary_view(self) -> "ContextBundleSummaryView":
+        binding = self.binding_obj() if self.binding is not None else ContextBindingResult()
         return ContextBundleSummaryView(
             binding_summary=self.binding_summary,
             candidate_count=self.candidate_count,
             query_unit_count=len(self.query_units),
+            memory_anchor_count=self.memory_anchor_count,
+            hydrated_memory_entry_count=self.hydrated_memory_entry_count,
+            memory_hydrated=self.memory_hydrated,
+            binding_matched_by=str(binding.matched_by or ""),
+            binding_fallback_type=str(binding.fallback_type or ""),
+            binding_reason=str(binding.reason or ""),
         )
 
     @classmethod
@@ -842,6 +863,9 @@ class ContextBundle:
             binding_summary=str(data.get("binding_summary", "not_applicable")),
             candidate_count=int(data.get("candidate_count", 0) or 0),
             query_units=tuple(dict(item) for item in data.get("query_units", ()) or ()),
+            memory_anchor_count=int(data.get("memory_anchor_count", 0) or 0),
+            hydrated_memory_entry_count=int(data.get("hydrated_memory_entry_count", 0) or 0),
+            memory_hydrated=bool(data.get("memory_hydrated", False)),
         )
 
 
@@ -970,6 +994,9 @@ class ReviewBundle:
             "review_mode": self.review_mode,
             "review_confidence": self.review_confidence,
             "review_scope": self.review_scope,
+            "used_existing_evidence": False,
+            "retrieve_if_needed_needed": False,
+            "retrieve_if_needed_reason": "",
             "follow_up_retrieval_attempted": False,
             "follow_up_retrieval_improved": False,
             "follow_up_retrieval_sources": [],
@@ -1069,6 +1096,9 @@ class ReviewBundle:
         summary.setdefault("review_mode", review_mode)
         summary.setdefault("review_confidence", review_confidence)
         summary.setdefault("review_scope", review_scope)
+        summary.setdefault("used_existing_evidence", assessment.used_existing_evidence)
+        summary.setdefault("retrieve_if_needed_needed", assessment.needs_follow_up_retrieval())
+        summary.setdefault("retrieve_if_needed_reason", str(assessment.retrieve_if_needed.get("reason", "")))
         summary.setdefault("follow_up_retrieval_attempted", assessment_summary.follow_up_retrieval_attempted)
         summary.setdefault("follow_up_retrieval_improved", assessment_summary.follow_up_retrieval_improved)
         summary.setdefault("follow_up_retrieval_sources", list(assessment.follow_up_retrieval_source_refs()))
@@ -1120,6 +1150,11 @@ class ReviewBundle:
         summary["review_mode"] = self.review_mode
         summary["review_confidence"] = self.review_confidence
         summary["review_scope"] = self.review_scope
+        summary["used_existing_evidence"] = self.evidence_assessment_obj().used_existing_evidence
+        summary["retrieve_if_needed_needed"] = self.evidence_assessment_obj().needs_follow_up_retrieval()
+        summary["retrieve_if_needed_reason"] = str(
+            self.evidence_assessment_obj().retrieve_if_needed.get("reason", "")
+        )
         summary["follow_up_retrieval_attempted"] = self.follow_up_retrieval_attempted()
         summary["follow_up_retrieval_improved"] = self.follow_up_retrieval_improved()
         summary["follow_up_retrieval_sources"] = list(self.follow_up_retrieval_sources())
@@ -1340,8 +1375,8 @@ class ChallengeResult:
 
 @dataclass(frozen=True)
 class ExecutionPayload:
-    route: str
-    handling_mode: str
+    route: WorkflowRoute
+    handling_mode: WorkflowHandlingMode
     action: WorkflowAction
     status: Literal["ready", "needs_clarification", "rejected"] = "ready"
     enabled_powers: tuple[PowerName, ...] = ()

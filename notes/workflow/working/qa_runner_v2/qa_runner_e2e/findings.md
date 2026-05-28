@@ -82,3 +82,37 @@
 - 所以下一步如果继续推进，优先级应转向：
   - 主回答模型输出约束
   - 而不是继续先抠 `Context Binding` 小规则
+
+## Round 2 Findings
+
+### 1. `related_only` existing evidence 现在不会被直接误判成 sufficient
+
+- 现象：
+  - 真实 challenge 问法 `那是模型的问题, 不是我们prompt问题?`
+  - 如果 existing evidence 只是文本相关、没有 grounded ref
+  - 当前会进入：
+    - `retrieve_if_needed.reason = related_evidence_not_grounded`
+    - 而不是直接 success
+- 结论：
+  - existing evidence reuse 边界已经更稳
+
+### 2. targeted retrieval 已经能只围绕 coverage 缺口 target 发生
+
+- 现象：
+  - recovery 场景里只为 disputed target 构 support query
+  - 没有把已覆盖 target 或 related-only evidence 的描述一起重搜
+- 结论：
+  - `related_only -> targeted retrieval` 这条链当前是稳定成立的
+
+### 3. 当前 challenge coverage 的主要收益点已经从“找 target”转到“existing evidence reuse quality”
+
+- 现象：
+  - target 本身在真实 challenge case 里已经相对稳定
+  - 更关键的是：
+    - 已有 evidence 是否只是相关
+    - 是否需要补 grounded evidence
+- 结论：
+  - 后续如果继续增强，优先级仍应保持：
+    1. evidence coverage
+    2. existing evidence reuse quality
+    3. fine-grained claim adjudication

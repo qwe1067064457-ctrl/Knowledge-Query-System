@@ -204,7 +204,7 @@ def test_thread_goal_challenge_prefers_existing_evidence_before_follow_up_retrie
             {
                 "object_id": "evidence_thread_1",
                 "object_type": "evidence_ref",
-                "content": "旧 binding_worker.bind 仍在 challenge 内部使用。",
+                "content": "challenge 会先消费 binding contract，再看 existing evidence 是否足够。",
                 "refs": ["evidence_thread_1"],
             }
         ],

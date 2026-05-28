@@ -1,5 +1,10 @@
 from __future__ import annotations
 
+from datetime import datetime
+
+from context.models import MemoryEntry, TranscriptEntry
+from context.session import DEFAULT_AGENT, SessionManager
+from memory_system.memory_anchor import MemoryAnchorBuilder
 from intent.schema.intent_types import ControlTrace, IntentModifiers
 from workflow.runners.base import RouteExecutionRequest
 from workflow.runners.orchestrated_runner import OrchestratedRouteRunner
@@ -8,8 +13,12 @@ from workflow.types import ChallengeResult, EvidenceAssessmentResult, EvidenceBu
 
 
 class _FakeRetrievalPower:
+    def __init__(self) -> None:
+        self.last_query_units = []
+
     def retrieve(self, query_units, *, top_k: int = 4) -> EvidenceBundle:
         del top_k
+        self.last_query_units = list(query_units)
         return EvidenceBundle(
             query_unit_results=tuple(
                 {
@@ -38,11 +47,49 @@ class _FakeRetrievalPower:
         )
 
 
+class _RelatedOnlyRecoveryRetrievalPower:
+    def __init__(self) -> None:
+        self.last_queries = []
+
+    def retrieve(self, query_units, *, top_k: int = 4) -> EvidenceBundle:
+        del top_k
+        self.last_queries = [unit.text for unit in query_units]
+        return EvidenceBundle(
+            query_unit_results=tuple(
+                {
+                    "unit_id": unit.unit_id,
+                    "query": unit.text,
+                    "origin": unit.origin,
+                    "target_refs": list(unit.target_refs),
+                }
+                for unit in query_units
+            ),
+            merged_evidence_items=(
+                EvidenceItem(
+                    evidence_id="evidence_model_grounded",
+                    source_path="notes/live_llm.md",
+                    source_type="official_structured",
+                    locator="section-1",
+                    snippet="当前结论是不能直接断定这是模型问题，不是 prompt 问题。",
+                    channel="vector",
+                    score=0.95,
+                    query_unit_ids=tuple(unit.unit_id for unit in query_units),
+                ),
+            ),
+            source_refs=("notes/live_llm.md",),
+            coverage_summary={"query_units": len(query_units), "sources": 1},
+            quality_summary={"average_weighted_score": 0.95},
+            missing_evidence_notes=(),
+        )
+
+
 class _CapturingChallengePower:
     def __init__(self) -> None:
         self.last_evidence_candidates = None
+        self.last_kwargs = None
 
     def execute(self, **kwargs):
+        self.last_kwargs = dict(kwargs)
         self.last_evidence_candidates = list(kwargs["evidence_candidates"])
         return ChallengeResult.from_review_evaluation(
             targets=(),
@@ -235,6 +282,8 @@ def test_qa_runner_challenge_with_evidence_candidates_returns_review_bundle() ->
     assert isinstance(payload.review_bundle["review_findings"], list)
     assert payload.review_bundle["review_summary"]["matched_target_refs"] == ["question_1"]
     assert payload.review_bundle["review_summary"]["status_summary"] == "success"
+    assert payload.review_bundle["review_summary"]["used_existing_evidence"] is True
+    assert payload.review_bundle["review_summary"]["retrieve_if_needed_needed"] is False
     assert payload.context_bundle["binding"]["binding_snapshot"]["query_style"] == "challenge"
     assert "question_1" in payload.context_bundle["binding"]["resolved_target_ids"]
     assert "binding_applied" in payload.key_events
@@ -291,6 +340,8 @@ def test_qa_runner_challenge_supports_multi_target_partial_review_bundle() -> No
     assert payload.review_bundle["review_summary"]["unsupported_target_refs"] == ["question_2"]
     assert payload.review_bundle["review_summary"]["needs_more_evidence_targets"] == ["question_2"]
     assert payload.review_bundle["review_summary"]["status_summary"] == "partial_success"
+    assert payload.review_bundle["review_summary"]["used_existing_evidence"] is True
+    assert payload.review_bundle["review_summary"]["retrieve_if_needed_needed"] is True
     assert payload.review_bundle["review_summary"]["follow_up_retrieval_attempted"] is False
     assert "binding_applied" in payload.key_events
 
@@ -344,10 +395,150 @@ def test_qa_runner_challenge_can_resolve_missing_targets_via_follow_up_retrieval
     assert len(payload.review_bundle["targets"]) == 2
     assert payload.review_bundle["review_summary"]["matched_target_count"] == 2
     assert payload.review_bundle["review_summary"]["unsupported_target_refs"] == []
+    assert payload.review_bundle["review_summary"]["used_existing_evidence"] is True
+    assert payload.review_bundle["review_summary"]["retrieve_if_needed_needed"] is False
     assert payload.review_bundle["review_summary"]["follow_up_retrieval_attempted"] is True
     assert payload.review_bundle["review_summary"]["follow_up_retrieval_sources"] == ["kb/law.md"]
+    assert len(runner.retrieval_power.last_query_units) == 1
+    assert runner.retrieval_power.last_query_units[0].target_refs == ("evidence_2",)
     assert "follow_up_retrieval_attempted" in payload.key_events
     assert "follow_up_retrieval_improved" in payload.key_events
+
+
+def test_qa_runner_real_challenge_case_related_only_existing_evidence_uses_targeted_retrieval() -> None:
+    runner = QaRouteRunner()
+    runner.retrieval_power = _RelatedOnlyRecoveryRetrievalPower()
+    plan = _make_plan(
+        route="qa",
+        handling_mode="challenge",
+        enabled_powers=("challenge_power", "retrieval_power", "context_binding_power"),
+        use_context=True,
+    )
+    request = RouteExecutionRequest(
+        message="那是模型的问题, 不是我们prompt问题?",
+        messages=[
+            {"role": "user", "content": "现在回顾一下 live llm resolution 的归因边界。"},
+            {
+                "role": "assistant",
+                "content": (
+                    "第一点：当前结论是不能直接断定这是模型问题，不是 prompt 问题。"
+                    "第二点：当前结论是 live llm 运行面同时包含模型输出、prompt、parser 和连通性风险。"
+                ),
+            },
+            {"role": "user", "content": "那是模型的问题, 不是我们prompt问题?"},
+        ],
+        context={
+            "recent_messages": [
+                {"role": "user", "content": "现在回顾一下 live llm resolution 的归因边界。"},
+                {
+                    "role": "assistant",
+                    "content": (
+                        "第一点：当前结论是不能直接断定这是模型问题，不是 prompt 问题。"
+                        "第二点：当前结论是 live llm 运行面同时包含模型输出、prompt、parser 和连通性风险。"
+                    ),
+                },
+            ],
+            "registry_entries": [
+                {
+                    "object_id": "question_1",
+                    "object_type": "question_object",
+                    "content": "当前结论是不能直接断定这是模型问题，不是 prompt 问题。",
+                    "source_power": "workflow",
+                    "refs": ["evidence_model_grounded"],
+                },
+                {
+                    "object_id": "evidence_related",
+                    "object_type": "evidence_ref",
+                    "content": "当前结论是不能直接断定这是模型问题，不是 prompt 问题，但当前仍不能单点归因。",
+                    "source_power": "retrieval_power",
+                    "source_type": "official_structured",
+                    "channel": "vector",
+                    "refs": [],
+                },
+            ],
+            "recent_power": "workflow",
+            "recent_object_type": "question_object",
+        },
+    )
+
+    payload = runner.run(plan, request)
+
+    assert payload.status == "ready"
+    assert payload.review_bundle["status"] == "success"
+    assert payload.review_bundle["evidence_assessment"]["follow_up_retrieval"]["attempted"] is True
+    assert payload.review_bundle["review_summary"]["used_existing_evidence"] is True
+    assert payload.review_bundle["review_summary"]["follow_up_retrieval_attempted"] is True
+    assert payload.review_bundle["review_summary"]["retrieve_if_needed_needed"] is False
+    assert "follow_up_retrieval_attempted" in payload.key_events
+    assert "follow_up_retrieval_improved" in payload.key_events
+    assert runner.retrieval_power.last_queries
+    assert len(runner.retrieval_power.last_queries) == 1
+    assert "不能直接断定这是模型问题" in runner.retrieval_power.last_queries[0]
+    assert "live llm 运行面同时包含模型输出" not in runner.retrieval_power.last_queries[0]
+
+
+def test_qa_runner_real_challenge_case_related_only_existing_evidence_without_retrieval_stays_insufficient() -> None:
+    runner = QaRouteRunner()
+    plan = _make_plan(
+        route="qa",
+        handling_mode="challenge",
+        enabled_powers=("challenge_power", "context_binding_power"),
+        use_context=True,
+    )
+    request = RouteExecutionRequest(
+        message="那是模型的问题, 不是我们prompt问题?",
+        messages=[
+            {"role": "user", "content": "现在回顾一下 live llm resolution 的归因边界。"},
+            {
+                "role": "assistant",
+                "content": (
+                    "第一点：当前结论是不能直接断定这是模型问题，不是 prompt 问题。"
+                    "第二点：当前结论是 live llm 运行面同时包含模型输出、prompt、parser 和连通性风险。"
+                ),
+            },
+            {"role": "user", "content": "那是模型的问题, 不是我们prompt问题?"},
+        ],
+        context={
+            "recent_messages": [
+                {"role": "user", "content": "现在回顾一下 live llm resolution 的归因边界。"},
+                {
+                    "role": "assistant",
+                    "content": (
+                        "第一点：当前结论是不能直接断定这是模型问题，不是 prompt 问题。"
+                        "第二点：当前结论是 live llm 运行面同时包含模型输出、prompt、parser 和连通性风险。"
+                    ),
+                },
+            ],
+            "registry_entries": [
+                {
+                    "object_id": "question_1",
+                    "object_type": "question_object",
+                    "content": "当前结论是不能直接断定这是模型问题，不是 prompt 问题。",
+                    "source_power": "workflow",
+                    "refs": ["evidence_model_grounded"],
+                },
+                {
+                    "object_id": "evidence_related",
+                    "object_type": "evidence_ref",
+                    "content": "当前结论是不能直接断定这是模型问题，不是 prompt 问题，但当前仍不能单点归因。",
+                    "source_power": "retrieval_power",
+                    "source_type": "official_structured",
+                    "channel": "vector",
+                    "refs": [],
+                },
+            ],
+            "recent_power": "workflow",
+            "recent_object_type": "question_object",
+        },
+    )
+
+    payload = runner.run(plan, request)
+
+    assert payload.review_bundle["status"] == "insufficient_evidence"
+    assert payload.review_bundle["evidence_assessment"]["retrieve_if_needed"]["needed"] is True
+    assert payload.review_bundle["evidence_assessment"]["retrieve_if_needed"]["reason"] == "related_evidence_not_grounded"
+    assert payload.review_bundle["review_summary"]["follow_up_retrieval_attempted"] is False
+    assert "insufficient_evidence" in payload.key_events
 
 
 def test_qa_runner_passes_typed_evidence_candidates_into_challenge_power() -> None:
@@ -384,6 +575,155 @@ def test_qa_runner_passes_typed_evidence_candidates_into_challenge_power() -> No
     runner.run(plan, request)
 
     assert isinstance(runner.challenge_power.last_evidence_candidates[0], EvidenceRefCandidate)
+
+
+def test_qa_runner_hydrates_memory_anchor_context_when_summary_is_not_enough(tmp_path) -> None:
+    runner = QaRouteRunner()
+    session_manager = SessionManager(tmp_path / "storage")
+    session = session_manager.create_session("law", DEFAULT_AGENT, "user_a")
+    session_manager.append_entry(
+        "law",
+        DEFAULT_AGENT,
+        TranscriptEntry(
+            id="entry_1",
+            session_id=session.id,
+            group_id="law",
+            timestamp=1,
+            role="assistant",
+            entry_type="normal",
+            content="之前那个案例里，结论是试用期上限要看合同期限。",
+        ),
+    )
+    anchor = MemoryAnchorBuilder().build(
+        MemoryEntry(
+            content="之前讨论过一个试用期案例。",
+            source="users/default/groups/law/daily_logs/2026-05-24.jsonl",
+            group_id="law",
+            timestamp=datetime.now(),
+            memory_type="daily_log",
+            source_session_id=session.id,
+        )
+    )
+    plan = _make_plan(
+        route="qa",
+        handling_mode="normal",
+        enabled_powers=("context_binding_power",),
+        use_context=True,
+    )
+    request = RouteExecutionRequest(
+        message="那个案例的结论是什么？",
+        messages=[{"role": "user", "content": "那个案例的结论是什么？"}],
+        context={
+            "session_manager": session_manager,
+            "active_group_id": "law",
+            "agent_id": DEFAULT_AGENT,
+            "memory_anchors": [anchor.to_dict()],
+            "memory_anchor_summary_sufficient": False,
+        },
+    )
+
+    payload = runner.run(plan, request)
+
+    assert payload.status == "ready"
+    assert request.context["memory_anchor_hydrated"] is True
+    assert request.context["hydrated_memory_entry_count"] == 1
+    assert payload.context_bundle["memory_anchor_count"] == 1
+    assert payload.context_bundle["hydrated_memory_entry_count"] == 1
+    assert payload.context_bundle["memory_hydrated"] is True
+    assert payload.context_bundle["candidate_count"] == 1
+    assert "memory_anchor_hydrated" in payload.key_events
+    assert payload.context_bundle["binding"]["binding_snapshot"]["candidate_source_counts"]["memory_anchor_hydrate"] == 1
+    assert payload.context_bundle["binding"]["relevant_set"][0]["object_type"] in {"answer_unit", "memory_anchor"}
+
+
+def test_qa_runner_skips_memory_anchor_hydration_when_summary_is_already_enough(tmp_path) -> None:
+    runner = QaRouteRunner()
+    session_manager = SessionManager(tmp_path / "storage")
+    session = session_manager.create_session("law", DEFAULT_AGENT, "user_a")
+    session_manager.append_entry(
+        "law",
+        DEFAULT_AGENT,
+        TranscriptEntry(
+            id="entry_1",
+            session_id=session.id,
+            group_id="law",
+            timestamp=1,
+            role="assistant",
+            entry_type="normal",
+            content="这个上下文不该被 hydrate 进去。",
+        ),
+    )
+    anchor = MemoryAnchorBuilder().build(
+        MemoryEntry(
+            content="之前讨论过一个试用期案例。",
+            source="users/default/groups/law/daily_logs/2026-05-24.jsonl",
+            group_id="law",
+            timestamp=datetime.now(),
+            memory_type="daily_log",
+            source_session_id=session.id,
+        )
+    )
+    plan = _make_plan(
+        route="qa",
+        handling_mode="normal",
+        enabled_powers=("context_binding_power",),
+        use_context=True,
+    )
+    request = RouteExecutionRequest(
+        message="那个案例的结论是什么？",
+        messages=[{"role": "user", "content": "那个案例的结论是什么？"}],
+        context={
+            "session_manager": session_manager,
+            "active_group_id": "law",
+            "agent_id": DEFAULT_AGENT,
+            "memory_anchors": [anchor.to_dict()],
+            "memory_anchor_summary_sufficient": True,
+        },
+    )
+
+    payload = runner.run(plan, request)
+
+    assert payload.status == "ready"
+    assert request.context.get("memory_anchor_hydrated") is None
+    assert payload.context_bundle["memory_anchor_count"] == 1
+    assert payload.context_bundle["hydrated_memory_entry_count"] == 0
+    assert payload.context_bundle["memory_hydrated"] is False
+    assert payload.context_bundle["candidate_count"] == 0
+    assert "memory_anchor_hydrated" not in payload.key_events
+    assert "memory_anchor_hydrate" not in payload.context_bundle["binding"]["binding_snapshot"]["candidate_source_counts"]
+
+
+def test_orchestrated_runner_passes_binding_result_into_challenge_power() -> None:
+    runner = OrchestratedRouteRunner()
+    runner.challenge_power = _CapturingChallengePower()
+    plan = _make_plan(
+        route="orchestrated",
+        handling_mode="challenge",
+        enabled_powers=("challenge_power", "context_binding_power"),
+        use_context=True,
+    )
+    request = RouteExecutionRequest(
+        message="这个依据是什么？",
+        messages=[{"role": "user", "content": "这个依据是什么？"}],
+        context={
+            "registry_entries": [
+                {
+                    "object_id": "question_1",
+                    "object_type": "question_object",
+                    "content": "你刚才这个依据是什么？",
+                    "source_power": "workflow",
+                    "refs": ["evidence_1"],
+                },
+            ],
+            "recent_power": "workflow",
+            "recent_object_type": "question_object",
+        },
+    )
+
+    runner.run(plan, request)
+
+    assert runner.challenge_power.last_kwargs is not None
+    assert runner.challenge_power.last_kwargs["binding_result"] is not None
 
 
 def test_orchestrated_runner_uses_staged_planning_mode_for_staged_tasks() -> None:
@@ -430,3 +770,24 @@ def test_orchestrated_runner_uses_staged_planning_mode_for_staged_tasks() -> Non
     assert payload.plan_bundle["plan_summary"]["planning_mode"] == "staged"
     titles = [step["title"] for step in payload.plan_bundle["ordered_steps"]]
     assert "Preserve stage dependencies" in titles
+
+
+def test_execution_payload_keeps_string_route_and_handling_mode_contract() -> None:
+    runner = QaRouteRunner()
+    plan = _make_plan(
+        route="qa",
+        handling_mode="challenge",
+        enabled_powers=("challenge_power",),
+    )
+    request = RouteExecutionRequest(
+        message="你刚才这个依据是什么？",
+        messages=[{"role": "user", "content": "你刚才这个依据是什么？"}],
+        context={"registry_entries": []},
+    )
+
+    payload = runner.run(plan, request).to_dict()
+
+    assert payload["route"] == "qa"
+    assert isinstance(payload["route"], str)
+    assert payload["handling_mode"] == "challenge"
+    assert isinstance(payload["handling_mode"], str)

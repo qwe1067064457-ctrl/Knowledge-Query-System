@@ -39,7 +39,7 @@ def test_challenge_power_prefers_binding_contract_targets_over_worker_rebinding(
             {
                 "object_id": "evidence_contract",
                 "object_type": "evidence_ref",
-                "content": "challenge 内部仍在走旧 binding_worker.bind 路径。",
+                "content": "challenge 现在优先消费 binding contract，不再自己重做 target binding。",
                 "refs": ["evidence_contract"],
             }
         ],
@@ -50,6 +50,8 @@ def test_challenge_power_prefers_binding_contract_targets_over_worker_rebinding(
     assert result.status == "success"
     assert result.targets[0]["object_id"] == "claim_contract"
     assert result.review_summary["binding_contract_used"] is True
+    assert result.review_summary["used_existing_evidence"] is True
+    assert result.review_summary["retrieve_if_needed_needed"] is False
 
 
 def test_challenge_power_uses_binding_contract_clarification_when_binding_requires_it() -> None:
@@ -81,3 +83,33 @@ def test_challenge_power_uses_binding_contract_clarification_when_binding_requir
     assert result.answer_constraints["clarification_question"] == "请明确你是在问 A 结论还是 B 结论。"
     assert result.review_summary["binding_contract_used"] is True
     assert result.review_summary["binding_fallback_type"] == "needs_clarification"
+
+
+def test_challenge_power_does_not_rebind_targets_when_binding_contract_is_missing() -> None:
+    power = ChallengePower()
+
+    result = power.execute(
+        query="这个依据是什么？",
+        candidate_targets=[
+            {
+                "object_id": "claim_a",
+                "object_type": "answer_unit",
+                "content": "A 结论",
+                "refs": ["evidence_a"],
+            },
+            {
+                "object_id": "claim_b",
+                "object_type": "answer_unit",
+                "content": "B 结论",
+                "refs": ["evidence_b"],
+            },
+        ],
+        binding_result=None,
+        evidence_candidates=[],
+        binding_worker=BindingWorker(),
+        review_worker=ReviewWorker(),
+    )
+
+    assert result.status == "insufficient_evidence"
+    assert tuple(target["object_id"] for target in result.targets) == ("claim_a", "claim_b")
+    assert result.review_summary["binding_contract_used"] is False

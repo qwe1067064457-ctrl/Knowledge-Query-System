@@ -64,3 +64,67 @@ def test_retrieval_quality_check_reports_missing_evidence_and_repairable_state()
     assert result["status"] == "weak"
     assert result["should_repair"] is True
     assert result["missing_evidence"] is True
+
+
+def test_evidence_check_can_reuse_high_quality_existing_evidence_via_text_alignment() -> None:
+    worker = ReviewWorker()
+
+    assessment = worker.evidence_check(
+        query="你刚才这个依据是什么？",
+        targets=[
+            {
+                "object_id": "claim_1",
+                "object_type": "answer_unit",
+                "content": "一年期合同试用期上限一个月",
+                "refs": [],
+            }
+        ],
+        evidence_candidates=[
+            {
+                "object_id": "evidence_1",
+                "object_type": "evidence_ref",
+                "content": "劳动合同法第19条规定一年期合同试用期上限一个月。",
+                "source_type": "official_structured",
+                "channel": "vector",
+                "refs": [],
+            }
+        ],
+    )
+
+    assert assessment.sufficient is True
+    assert assessment.retrieve_if_needed["needed"] is False
+    assert assessment.per_target_assessment[0]["matched_by"] == "text_alignment"
+    assert assessment.per_target_assessment[0]["coverage_status"] == "supported"
+
+
+def test_evidence_check_marks_related_but_not_grounded_existing_evidence_as_insufficient() -> None:
+    worker = ReviewWorker()
+
+    assessment = worker.evidence_check(
+        query="你刚才这个依据是什么？",
+        targets=[
+            {
+                "object_id": "claim_1",
+                "object_type": "answer_unit",
+                "content": "一年期合同试用期上限一个月",
+                "refs": ["evidence_1"],
+            }
+        ],
+        evidence_candidates=[
+            {
+                "object_id": "evidence_related",
+                "object_type": "evidence_ref",
+                "content": "一年期合同试用期上限一个月。",
+                "source_type": "official_structured",
+                "channel": "vector",
+                "refs": [],
+            }
+        ],
+    )
+
+    assert assessment.sufficient is False
+    assert assessment.retrieve_if_needed["needed"] is True
+    assert assessment.retrieve_if_needed["reason"] == "related_evidence_not_grounded"
+    assert assessment.evidence_notes == ("existing_evidence_related_but_not_grounded",)
+    assert assessment.per_target_assessment[0]["matched_by"] == "text_related_only"
+    assert assessment.per_target_assessment[0]["coverage_status"] == "related_only"

@@ -89,3 +89,28 @@
 - 预期:
   - `binding` 应尽量恢复到“下一步策略”
   - 主回答模型应给出可执行建议，而不是只复述现状
+
+## 当前 challenge coverage 真实样式补样本
+
+### E2E-C1
+
+- query: `那是模型的问题, 不是我们prompt问题?`
+- 类型: challenge-like architecture follow-up
+- 输入重点:
+  - target 有稳定 `question_object`
+  - existing evidence 只有 related-only 文本相关，没有 grounded ref
+- 预期:
+  - `ReviewWorker` 不应把 related-only evidence 直接算 sufficient
+  - `retrieve_if_needed.reason = related_evidence_not_grounded`
+  - follow-up retrieval 应只围绕 disputed target 发生
+
+### E2E-C2
+
+- query: `那是模型的问题, 不是我们prompt问题?`
+- 类型: challenge-like architecture follow-up
+- 输入重点:
+  - 与 `E2E-C1` 相同 target
+  - 不提供 retrieval recovery
+- 预期:
+  - 保持 `insufficient_evidence`
+  - 不因 related-only existing evidence 误判 success

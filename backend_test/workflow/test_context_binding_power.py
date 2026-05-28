@@ -194,6 +194,23 @@ def test_true_multi_target_query_still_uses_multi_target_style() -> None:
     assert result.matched_by == "ordinal_rule"
 
 
+def test_summary_query_with_dou_is_not_forced_into_multi_target_style() -> None:
+    power = ContextBindingPower()
+
+    result = power.bind(
+        "所以我们都需要一个 relevant set 吗？",
+        [],
+        recent_messages=[
+            {"role": "assistant", "content": "进入 Context Binding 以后，核心中间产物就是 relevant set。"},
+            {"role": "assistant", "content": "follow_up、challenge、multi_target 会消费这批 relevant set。"},
+        ],
+    )
+
+    assert result.binding_snapshot["query_style"] == "standalone"
+    assert result.fallback_type == "retrieve_on_raw_query"
+    assert result.reason == "query_self_contained"
+
+
 def test_binding_power_returns_public_typed_binding_result() -> None:
     power = ContextBindingPower()
     result = power.bind("一年期劳动合同试用期上限是多少？", [])

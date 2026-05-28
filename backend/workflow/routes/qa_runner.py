@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from dataclasses import replace
 
+from context.session import DEFAULT_AGENT
+from memory_system.memory_anchor import MemoryAnchor
 from workflow.powers.challenge_power import ChallengePower
 from workflow.powers.context_binding_power import ContextBindingPower
 from workflow.powers.retrieval_power import RetrievalPower
@@ -9,6 +11,7 @@ from workflow.retrieval_gate import RetrievalGate
 from workflow.routes.base import BaseRouteRunner, RouteExecutionRequest
 from workflow.types import ContextBindingResult, QueryUnit, WorkflowPlan
 from workflow.workers.binding_worker import BindingWorker
+from workflow.workers.memory_anchor_worker import MemoryAnchorWorker
 from workflow.workers.review_worker import ReviewWorker
 
 
@@ -55,6 +58,7 @@ class QaRouteRunner(BaseRouteRunner):
     def __init__(self) -> None:
         self.binding_worker = BindingWorker()
         self.review_worker = ReviewWorker()
+        self.memory_anchor_worker = MemoryAnchorWorker()
         self.context_binding_power = ContextBindingPower(binding_worker=self.binding_worker)
         self.retrieval_power = RetrievalPower()
         self.challenge_power = ChallengePower()
@@ -69,16 +73,28 @@ class QaRouteRunner(BaseRouteRunner):
         context_bundle = payload.context_bundle_obj()
         answer_constraints = dict(payload.answer_constraints)
         key_events: tuple[str, ...] = ()
+        recent_messages, hydrated_candidates, memory_anchor_count, hydrated_memory_entry_count = self._prepare_memory_anchor_context(
+            plan=plan,
+            request=request,
+        )
+        if hydrated_memory_entry_count:
+            key_events = _merge_key_events(key_events, ("memory_anchor_hydrated",))
+        context_bundle = replace(
+            context_bundle,
+            memory_anchor_count=memory_anchor_count,
+            hydrated_memory_entry_count=hydrated_memory_entry_count,
+            memory_hydrated=hydrated_memory_entry_count > 0,
+        )
 
         binding_result: ContextBindingResult | None = None
-        binding_candidates = self._registry_binding_candidates(request)
+        binding_candidates = [*self._registry_binding_candidates(request), *hydrated_candidates]
         if "context_binding_power" in plan.enabled_powers:
             candidate_entries = self.context_binding_power.collect_candidates(binding_candidates)
             binding_result = self.context_binding_power.bind(
                 request.message,
                 candidate_entries,
                 working_memory=request.context.get("working_memory"),
-                recent_messages=request.context.get("recent_messages"),
+                recent_messages=recent_messages,
                 llm_call=request.context.get("bound_query_llm_call"),
                 base_dir=request.context.get("base_dir"),
                 rewrite_query=bool(plan.rewrite_query),
@@ -165,3 +181,145 @@ class QaRouteRunner(BaseRouteRunner):
             key_events=key_events,
             evidence_bundle=evidence_bundle,
         )
+
+    def _prepare_memory_anchor_context(
+        self,
+        *,
+        plan: WorkflowPlan,
+        request: RouteExecutionRequest,
+    ) -> tuple[list[dict[str, str]], list[dict[str, object]], int, int]:
+        memory_anchors = list(request.context.get("memory_anchors") or ())
+        recent_messages = [
+            {"role": str(item.get("role", "")), "content": str(item.get("content", ""))}
+            for item in request.context.get("recent_messages", ()) or ()
+            if item.get("content")
+        ]
+        existing_hydrated = list(request.context.get("hydrated_memory_context") or ())
+        if existing_hydrated:
+            hydrated_messages = self._project_hydrated_messages(existing_hydrated)
+            hydrated_candidates = self._project_hydrated_candidates(existing_hydrated)
+            return (
+                [*hydrated_messages, *recent_messages],
+                hydrated_candidates,
+                len(memory_anchors),
+                len(existing_hydrated),
+            )
+        if not self._should_hydrate_memory_anchors(plan=plan, request=request, memory_anchors=memory_anchors):
+            return recent_messages, [], len(memory_anchors), 0
+
+        session_manager = request.context.get("session_manager")
+        group_id = str(request.context.get("group_id") or request.context.get("active_group_id") or "").strip()
+        agent_id = str(request.context.get("agent_id") or DEFAULT_AGENT).strip() or DEFAULT_AGENT
+        if session_manager is None or not group_id:
+            return recent_messages, [], len(memory_anchors), 0
+
+        hydrated_entries: list[dict[str, object]] = []
+        seen_entry_ids: set[str] = set()
+        for anchor_payload in memory_anchors:
+            anchor = self._coerce_memory_anchor(anchor_payload)
+            if anchor is None or not anchor.can_hydrate_context:
+                continue
+            for entry in self.memory_anchor_worker.hydrate_context(
+                anchor=anchor,
+                session_manager=session_manager,
+                group_id=group_id,
+                agent_id=agent_id,
+            ):
+                entry_id = str(entry.get("id") or entry.get("content") or "").strip()
+                if entry_id and entry_id in seen_entry_ids:
+                    continue
+                if entry_id:
+                    seen_entry_ids.add(entry_id)
+                hydrated_entries.append(dict(entry))
+
+        if not hydrated_entries:
+            return recent_messages, [], len(memory_anchors), 0
+
+        request.context["hydrated_memory_context"] = [dict(item) for item in hydrated_entries]
+        request.context["memory_anchor_hydrated"] = True
+        request.context["hydrated_memory_entry_count"] = len(hydrated_entries)
+        hydrated_messages = self._project_hydrated_messages(hydrated_entries)
+        hydrated_candidates = self._project_hydrated_candidates(hydrated_entries)
+        return (
+            [*hydrated_messages, *recent_messages],
+            hydrated_candidates,
+            len(memory_anchors),
+            len(hydrated_entries),
+        )
+
+    def _should_hydrate_memory_anchors(
+        self,
+        *,
+        plan: WorkflowPlan,
+        request: RouteExecutionRequest,
+        memory_anchors: list[dict[str, object]],
+    ) -> bool:
+        if not memory_anchors:
+            return False
+        if bool(request.context.get("memory_anchor_summary_sufficient", False)):
+            return False
+        return bool(
+            plan.use_context
+            or plan.handling_mode == "challenge"
+            or plan.policy_flags.need_context_binding
+            or request.is_knowledge_query
+        )
+
+    def _coerce_memory_anchor(self, payload: object) -> MemoryAnchor | None:
+        if isinstance(payload, MemoryAnchor):
+            return payload
+        if not isinstance(payload, dict):
+            return None
+        return MemoryAnchor(
+            memory_type=str(payload.get("memory_type") or "unknown"),
+            source=str(payload.get("source") or ""),
+            source_session_id=str(payload.get("source_session_id") or "").strip() or None,
+            anchor_key=str(payload.get("anchor_key") or payload.get("anchor_id") or "").strip() or None,
+            can_hydrate_context=bool(payload.get("can_hydrate_context", payload.get("source_session_id"))),
+        )
+
+    def _project_hydrated_messages(self, hydrated_entries: list[dict[str, object]]) -> list[dict[str, str]]:
+        projected: list[dict[str, str]] = []
+        for entry in hydrated_entries:
+            content = str(entry.get("content") or "").strip()
+            if not content:
+                continue
+            projected.append(
+                {
+                    "role": str(entry.get("role") or "assistant"),
+                    "content": content,
+                }
+            )
+        return projected
+
+    def _project_hydrated_candidates(self, hydrated_entries: list[dict[str, object]]) -> list[dict[str, object]]:
+        candidates: list[dict[str, object]] = []
+        for index, entry in enumerate(hydrated_entries, start=1):
+            content = str(entry.get("content") or "").strip()
+            if not content:
+                continue
+            role = str(entry.get("role") or "assistant").strip() or "assistant"
+            object_id = str(entry.get("id") or f"hydrated_memory_{index}").strip()
+            candidates.append(
+                {
+                    "object_id": f"hydrated:{object_id}",
+                    "object_type": "question_object" if role == "user" else "answer_unit",
+                    "content": content,
+                    "source_power": "memory_anchor_hydrate",
+                    "source_kind": "memory_anchor_hydrate",
+                    "refs": [
+                        str(item)
+                        for item in (
+                            entry.get("session_id"),
+                            entry.get("id"),
+                        )
+                        if item
+                    ],
+                    "structured_payload": {
+                        "role": role,
+                        "entry_type": str(entry.get("entry_type") or "normal"),
+                        "source_session_id": str(entry.get("session_id") or ""),
+                    },
+                }
+            )
+        return candidates

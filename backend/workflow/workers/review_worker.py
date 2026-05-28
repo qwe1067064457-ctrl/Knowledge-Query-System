@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from workflow.types import EvidenceAssessmentResult, EvidenceBundle, EvidenceRefCandidate, ReviewEvaluationResult
@@ -18,6 +19,13 @@ class ReviewWorker:
         "bm25": "medium",
         "memory": "medium",
         "unknown": "low",
+    }
+    _QUALITY_RANK = {
+        "unknown": -1,
+        "low": 0,
+        "medium": 1,
+        "medium_high": 2,
+        "high": 3,
     }
 
     def retrieval_quality_check(
@@ -56,7 +64,6 @@ class ReviewWorker:
         targets: list[dict[str, Any]],
         evidence_candidates: list[EvidenceRefCandidate | dict[str, Any]],
     ) -> EvidenceAssessmentResult:
-        del query
         normalized_evidence = self._normalize_evidence_candidates(evidence_candidates)
         evidence_refs = self._collect_evidence_refs(normalized_evidence)
         matched_targets = 0
@@ -65,24 +72,54 @@ class ReviewWorker:
         total_target_refs = 0
         total_matched_refs = 0
         for target in targets:
+            explicit_target_refs = {str(ref) for ref in target.get("refs", ()) if ref}
             target_refs = self._target_refs(target)
             target_id = str(target.get("object_id") or target.get("content") or f"target_{len(per_target_assessment) + 1}")
             matched_refs = sorted(target_refs & evidence_refs) if target_refs else []
+            related_evidence_refs = self._related_evidence_refs(
+                query=query,
+                target=target,
+                evidence_candidates=normalized_evidence,
+            )
             matched = False
+            matched_by = "none"
+            coverage_status = "missing"
             if target_refs:
                 if matched_refs:
                     matched_targets += 1
                     matched = True
+                    matched_by = "ref_overlap"
+                    coverage_status = "supported"
             elif evidence_candidates:
+                if related_evidence_refs:
+                    matched_targets += 1
+                    matched = True
+                    matched_refs = list(related_evidence_refs)
+                    matched_by = "text_alignment"
+                    coverage_status = "supported"
+                else:
+                    matched_refs = sorted(evidence_refs)
+
+            if not explicit_target_refs and not matched and evidence_candidates and related_evidence_refs:
                 matched_targets += 1
                 matched = True
-                matched_refs = sorted(evidence_refs)
+                matched_refs = list(related_evidence_refs)
+                matched_by = "text_alignment"
+                coverage_status = "supported"
+
+            if not matched and related_evidence_refs:
+                matched_by = "text_related_only"
+                coverage_status = "related_only"
 
             per_target_assessment.append(
                 {
                     "target_ref": target_id,
+                    "target_refs": sorted(target_refs),
                     "matched": matched,
+                    "matched_by": matched_by,
+                    "coverage_status": coverage_status,
                     "matched_evidence_refs": matched_refs,
+                    "related_evidence_refs": list(related_evidence_refs),
                 }
             )
             per_target_support_counts.append(
@@ -90,6 +127,7 @@ class ReviewWorker:
                     "target_ref": target_id,
                     "support_count": len(matched_refs),
                     "matched_evidence_refs": matched_refs,
+                    "related_evidence_refs": list(related_evidence_refs),
                 }
             )
             total_target_refs += len(target_refs)
@@ -107,6 +145,10 @@ class ReviewWorker:
             for item in per_target_assessment
             if not item.get("matched")
         ]
+        has_related_only_targets = any(
+            item.get("coverage_status") == "related_only"
+            for item in per_target_assessment
+        )
         target_coverage = (matched_targets / len(targets)) if targets else 0.0
         missing_target_ratio = (len(unsupported_target_refs) / len(targets)) if targets else 0.0
         target_evidence_ref_overlap = (total_matched_refs / total_target_refs) if total_target_refs else 0.0
@@ -135,11 +177,20 @@ class ReviewWorker:
             retrieve_if_needed={
                 "needed": bool(targets) and matched_targets < len(targets),
                 "target_refs": unsupported_target_refs,
-                "reason": "insufficient_target_coverage" if unsupported_target_refs else "not_needed",
+                "reason": (
+                    "related_evidence_not_grounded"
+                    if unsupported_target_refs and has_related_only_targets
+                    else "insufficient_target_coverage"
+                    if unsupported_target_refs
+                    else "not_needed"
+                ),
             },
             per_target_assessment=tuple(per_target_assessment),
             per_target_support_counts=tuple(per_target_support_counts),
-            evidence_notes=() if sufficient else ("existing_evidence_not_enough",),
+            evidence_notes=self._build_evidence_notes(
+                sufficient=sufficient,
+                has_related_only_targets=has_related_only_targets,
+            ),
             target_coverage=target_coverage,
             target_evidence_ref_overlap=target_evidence_ref_overlap,
             missing_target_ratio=missing_target_ratio,
@@ -288,11 +339,83 @@ class ReviewWorker:
     def _aggregate_quality_band(self, bands: list[str]) -> str:
         if not bands:
             return "unknown"
-        rank = {
-            "low": 0,
-            "medium": 1,
-            "medium_high": 2,
-            "high": 3,
-        }
-        best = max(bands, key=lambda item: rank.get(item, -1))
+        best = max(bands, key=lambda item: self._QUALITY_RANK.get(item, -1))
         return best
+
+    def _related_evidence_refs(
+        self,
+        *,
+        query: str,
+        target: dict[str, Any],
+        evidence_candidates: list[dict[str, Any]],
+    ) -> tuple[str, ...]:
+        target_text = self._target_text(target)
+        if not target_text:
+            return ()
+        target_tokens = self._extract_alignment_tokens(f"{query} {target_text}")
+        if len(target_tokens) < 2:
+            return ()
+
+        related_refs: list[str] = []
+        for evidence in evidence_candidates:
+            if not self._evidence_can_support_text_alignment(evidence):
+                continue
+            evidence_ref = str(evidence.get("object_id") or "").strip()
+            if not evidence_ref:
+                continue
+            evidence_text = self._evidence_text(evidence)
+            if not evidence_text:
+                continue
+            overlap = [token for token in target_tokens if token in evidence_text]
+            if len(set(overlap)) >= 2:
+                related_refs.append(evidence_ref)
+        return tuple(sorted(dict.fromkeys(related_refs)))
+
+    def _target_text(self, target: dict[str, Any]) -> str:
+        structured = target.get("structured_payload")
+        disputed_span = ""
+        if isinstance(structured, dict):
+            disputed_span = str(structured.get("disputed_span") or "").strip()
+        return disputed_span or str(target.get("content") or "").strip()
+
+    def _evidence_text(self, evidence: dict[str, Any]) -> str:
+        return " ".join(
+            part.strip()
+            for part in (
+                str(evidence.get("content") or ""),
+                str(evidence.get("snippet") or ""),
+            )
+            if part and part.strip()
+        )
+
+    def _evidence_can_support_text_alignment(self, evidence: dict[str, Any]) -> bool:
+        source_band = self._SOURCE_TYPE_QUALITY.get(str(evidence.get("source_type") or "unknown"), "low")
+        channel_band = self._CHANNEL_QUALITY.get(str(evidence.get("channel") or "unknown"), "low")
+        return (
+            self._QUALITY_RANK.get(source_band, -1) >= self._QUALITY_RANK["medium_high"]
+            or self._QUALITY_RANK.get(channel_band, -1) >= self._QUALITY_RANK["medium_high"]
+        )
+
+    def _extract_alignment_tokens(self, text: str) -> list[str]:
+        raw_tokens = re.findall(r"[\u4e00-\u9fff]{2,6}|[A-Za-z0-9_]{3,}", text)
+        seen: set[str] = set()
+        ordered: list[str] = []
+        for token in raw_tokens:
+            value = token.strip()
+            if not value or value in seen:
+                continue
+            seen.add(value)
+            ordered.append(value)
+        return ordered
+
+    def _build_evidence_notes(
+        self,
+        *,
+        sufficient: bool,
+        has_related_only_targets: bool,
+    ) -> tuple[str, ...]:
+        if sufficient:
+            return ()
+        if has_related_only_targets:
+            return ("existing_evidence_related_but_not_grounded",)
+        return ("existing_evidence_not_enough",)

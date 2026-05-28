@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import re
 from typing import Any
 
 from workflow.helpers.challenge_response_helper import ChallengeResponseHelper
@@ -15,20 +14,6 @@ from workflow.types import (
 
 
 class ChallengePower:
-    _MULTI_TARGET_PATTERNS = (
-        re.compile(r"前两个"),
-        re.compile(r"两个"),
-        re.compile(r"两条"),
-        re.compile(r"多条"),
-        re.compile(r"分别"),
-        re.compile(r"以及"),
-        re.compile(r"和"),
-        re.compile(r"、"),
-        re.compile(r"这些"),
-        re.compile(r"以上"),
-        re.compile(r"都"),
-    )
-
     def __init__(self, response_helper: ChallengeResponseHelper | None = None) -> None:
         self.response_helper = response_helper or ChallengeResponseHelper()
 
@@ -97,34 +82,6 @@ class ChallengePower:
             )
         targets = tuple(identified_targets)
 
-        if binding_contract is None and binding_worker is not None:
-            bound = binding_worker.bind(query=query, candidates=identified_targets)
-            if bound.get("binding_ambiguous"):
-                ambiguous_targets = tuple(bound.get("bound_targets", ()))
-                return ChallengeResult.from_review_evaluation(
-                    targets=ambiguous_targets,
-                    evidence_assessment=EvidenceAssessmentResult(
-                        sufficient=False,
-                        used_existing_evidence=bool(evidence_candidates),
-                        triggered_additional_retrieval=False,
-                        fallback="binding_fallback",
-                    ),
-                    evaluation=ReviewEvaluationResult(
-                        status="needs_clarification",
-                        review_findings=(),
-                        answer_constraints={
-                            "must_acknowledge_uncertainty": True,
-                            "clarification_question": self.response_helper.build_clarification_question(
-                                query=query,
-                                bound_targets=ambiguous_targets,
-                            ),
-                        },
-                    ),
-                    review_summary={},
-                )
-            if bound.get("bound_targets"):
-                targets = tuple(bound["bound_targets"])
-
         if review_worker is None:
             return ChallengeResult.from_review_evaluation(
                 targets=targets,
@@ -188,7 +145,14 @@ class ChallengePower:
                         ),
                     },
                 ),
-                review_summary={},
+                review_summary={
+                    "binding_contract_used": binding_contract is not None,
+                    "binding_fallback_type": binding_contract.fallback_type if binding_contract is not None else None,
+                    "binding_reason": binding_contract.reason if binding_contract is not None else None,
+                    "used_existing_evidence": failed_assessment.used_existing_evidence,
+                    "retrieve_if_needed_needed": failed_assessment.needs_follow_up_retrieval(),
+                    "retrieve_if_needed_reason": str(failed_assessment.retrieve_if_needed.get("reason", "")),
+                },
             )
 
         answer_constraints = dict(assessment.answer_constraints)
@@ -207,6 +171,9 @@ class ChallengePower:
                 "binding_contract_used": binding_contract is not None,
                 "binding_fallback_type": binding_contract.fallback_type if binding_contract is not None else None,
                 "binding_reason": binding_contract.reason if binding_contract is not None else None,
+                "used_existing_evidence": evidence_assessment.used_existing_evidence,
+                "retrieve_if_needed_needed": evidence_assessment.needs_follow_up_retrieval(),
+                "retrieve_if_needed_reason": str(evidence_assessment.retrieve_if_needed.get("reason", "")),
             },
         )
 
@@ -324,10 +291,12 @@ class ChallengePower:
         units: list[QueryUnit] = []
         for index, target in enumerate(targets, start=1):
             target_id = str(target.get("object_id") or target.get("content") or f"target_{index}")
-            if requested and target_id not in requested:
+            target_refs = tuple(str(ref) for ref in target.get("refs", ()) if ref)
+            candidate_refs = {target_id, *target_refs}
+            if requested and requested.isdisjoint(candidate_refs):
                 continue
-            target_text = str(target.get("content") or target_id).strip()
-            target_refs = tuple(str(ref) for ref in target.get("refs", ()) if ref) or (target_id,)
+            target_text = self._target_support_text(target, fallback=target_id)
+            target_refs = target_refs or (target_id,)
             support_text = f"{query} {target_text}".strip()
             units.append(
                 QueryUnit(
@@ -338,3 +307,11 @@ class ChallengePower:
                 )
             )
         return units
+
+    def _target_support_text(self, target: dict[str, Any], *, fallback: str) -> str:
+        structured = target.get("structured_payload")
+        if isinstance(structured, dict):
+            disputed_span = str(structured.get("disputed_span") or "").strip()
+            if disputed_span:
+                return disputed_span
+        return str(target.get("content") or fallback).strip()

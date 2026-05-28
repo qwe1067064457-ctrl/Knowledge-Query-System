@@ -277,7 +277,50 @@ def test_challenge_power_uses_follow_up_retrieval_when_more_evidence_is_needed()
     assert payload["review_summary"]["follow_up_retrieval_sources"] == ["kb/law.md"]
     assert payload["review_summary"]["follow_up_retrieval_retrieved_evidence_count"] == 1
     assert retrieval.last_queries
+    assert len(retrieval.last_queries) == 1
     assert retrieval.last_queries[0].startswith("请核验前两个结论的法条依据")
+    assert "一年期合同试用期上限一个月" in retrieval.last_queries[0]
+    assert "试用期最长一个月" not in retrieval.last_queries[0]
+
+
+def test_challenge_power_follow_up_retrieval_targets_only_missing_target_refs() -> None:
+    power = ChallengePower()
+    retrieval = _FakeRetrievalPower()
+
+    result = power.execute(
+        query="前两个结论的依据都对吗？",
+        rewritten_query="请核验前两个结论的法条依据",
+        candidate_targets=[
+            {
+                "object_id": "claim_1",
+                "object_type": "claim",
+                "content": "试用期最长一个月",
+                "refs": ["evidence_1"],
+            },
+            {
+                "object_id": "claim_2",
+                "object_type": "claim",
+                "content": "一年期合同试用期上限一个月",
+                "refs": ["evidence_2", "section-19"],
+            },
+        ],
+        evidence_candidates=[
+            {
+                "object_id": "evidence_1",
+                "object_type": "evidence_ref",
+                "content": "劳动合同法第19条",
+                "refs": ["evidence_1"],
+            }
+        ],
+        review_worker=ReviewWorker(),
+        retrieval_power=retrieval,
+    )
+
+    assert result.status == "success"
+    assert result.evidence_assessment["follow_up_retrieval"]["attempted"] is True
+    follow_up_units = result.evidence_assessment["follow_up_retrieval"]["query_units"]
+    assert len(follow_up_units) == 1
+    assert follow_up_units[0]["target_refs"] == ["evidence_2", "section-19"]
 
 
 def test_challenge_result_can_convert_directly_to_review_bundle() -> None:

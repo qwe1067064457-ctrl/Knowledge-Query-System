@@ -27,3 +27,36 @@
 - 不服务：
   - 普通短句复述
   - 无 anchor 时的上下文伪造
+
+## 本轮实现
+
+当前 `qa route` 已接入最小可消费 hydration 入口：
+
+1. 命中 `memory_anchors`
+2. 判断摘要是否已足够
+3. 如果摘要不足，再按 anchor 回放 transcript 上下文
+4. hydrate 结果进入：
+   - `recent_messages`
+   - binding candidate side
+
+当前明确保留的边界：
+
+- hydrate 结果不是最终 evidence
+- hydrate 结果只用于补上下文，不直接替代 retrieval
+- working memory 仍负责执行连续性
+- memory anchor 仍负责历史锚定
+
+## 当前观测口径
+
+当前至少会观测：
+
+- `memory_anchor_count`
+- `hydrated_memory_entry_count`
+- `memory_hydrated`
+- retrieval gate 是否给出 `memory_hit_needs_hydrate`
+
+因此下一步重点不再是“有没有 hydrate 入口”，而是：
+
+1. hydrate 触发是否过多
+2. hydrate 后是否真的减少误 retrieval
+3. hydrate 后是否仍然需要 challenge follow-up retrieval
