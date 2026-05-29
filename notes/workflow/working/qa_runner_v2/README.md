@@ -28,11 +28,14 @@
 
 1. `architecture.md`
 2. `contracts.md`
-3. `working_memory_design.md`
-4. `../../context_binding_v2/README.md`
-5. `retrieval_and_challenge.md`
-6. `memory_anchor_and_hydration.md`
-7. `qa_runner_e2e/README.md`
-8. `context_binding/compression_handoff.md`
-9. `todo.md`
-10. `compression_handoff.md`
+3. `orchestrated_execution_layer.md`
+4. `orchestrated_answer_layer.md`
+5. `execution_state_machine.md`
+6. `working_memory_design.md`
+7. `../../context_binding_v2/README.md`
+8. `retrieval_and_challenge.md`
+9. `memory_anchor_and_hydration.md`
+10. `qa_runner_e2e/README.md`
+11. `context_binding/compression_handoff.md`
+12. `todo.md`
+13. `compression_handoff.md`

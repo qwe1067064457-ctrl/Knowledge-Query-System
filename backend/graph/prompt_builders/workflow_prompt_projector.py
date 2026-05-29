@@ -4,6 +4,8 @@ Project workflow payloads into prompt-facing behavior and result instructions.
 from __future__ import annotations
 
 from workflow import WorkflowPlan
+from workflow.orchestrated.answer_layer.projectors.answer_layer_projector import build_answer_assembly_package
+from workflow.orchestrated.answer_layer.projectors.answer_prompt_block_builder import build_answer_prompt_blocks
 
 
 def build_answer_behavior_rules_from_workflow(plan: WorkflowPlan) -> list[str]:
@@ -117,4 +119,11 @@ def build_answer_result_projection_rules_from_workflow(payload) -> list[str]:
             instructions.append(
                 "The evidence bundle is still incomplete. Do not overstate certainty and call out missing support when needed."
             )
+    if getattr(payload, "route", "") == "orchestrated":
+        package = build_answer_assembly_package(
+            question=str(payload.plan_bundle_obj().goal or "") or "Current orchestrated request",
+            payload=payload,
+        )
+        prompt_blocks = build_answer_prompt_blocks(package)
+        instructions.extend(prompt_blocks.as_ordered_blocks())
     return instructions

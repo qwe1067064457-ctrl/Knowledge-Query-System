@@ -32,7 +32,11 @@ def build_workflow_plan(
     trace = control.trace
     capabilities = set(control.capabilities)
     handling_mode = control.handling_mode
-    route = control.route
+    route = _apply_admission_control(
+        route=control.route,
+        query=analysis.input.user_query,
+        trace=trace,
+    )
 
     use_context = "use_context" in capabilities
     cite_sources = "cite_sources" in capabilities
@@ -133,6 +137,36 @@ def _should_decompose_query(*, route: WorkflowRoute, trace: ControlTrace) -> boo
     if route != "orchestrated":
         return False
     return trace.task_topology == "parallel_queries"
+
+
+def _apply_admission_control(
+    *,
+    route: WorkflowRoute,
+    query: str,
+    trace: ControlTrace,
+) -> WorkflowRoute:
+    if route != "orchestrated":
+        return route
+    if _requires_orchestrated(query=query, trace=trace):
+        return route
+    return "qa"
+
+
+def _requires_orchestrated(*, query: str, trace: ControlTrace) -> bool:
+    if trace.task_topology == "staged":
+        return True
+    if _has_explicit_parallel_markers(query):
+        return True
+    return trace.task_complexity == "complex" and trace.task_shape in {"compare", "mixed"}
+
+
+def _has_explicit_parallel_markers(query: str) -> bool:
+    normalized = str(query or "").strip()
+    if not normalized:
+        return False
+    if len([part for part in re.split(r"[？?]\s*|\n+", normalized) if part.strip()]) > 1:
+        return True
+    return any(marker in normalized for marker in ("并且", "同时", "分别", "顺便", "另外", "再"))
 
 
 def _should_bind_context(*, use_context: bool, trace: ControlTrace) -> bool:

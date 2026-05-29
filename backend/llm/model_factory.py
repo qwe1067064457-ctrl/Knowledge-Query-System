@@ -16,7 +16,7 @@ except ImportError:  # pragma: no cover - optional dependency at runtime
     ChatDeepSeek = None
 
 
-OPENAI_COMPATIBLE_PROVIDERS = {"openai", "zhipu", "bailian", "minimax"}
+OPENAI_COMPATIBLE_PROVIDERS = {"openai", "zhipu", "bailian", "minimax", "xiaomi"}
 
 
 def build_chat_model():

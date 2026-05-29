@@ -38,6 +38,8 @@ class PlanFormatHelper:
                 "checkpoint_count": len(deduped_checkpoints),
                 "comparison_unit_count": len(normalized.get("comparison_units", ())),
                 "bound_target_ref_count": len(normalized.get("bound_target_refs", ())),
+                "execution_unit_count": len(normalized.get("execution_graph", {}).get("units", ())),
+                "dag": bool(normalized.get("execution_graph", {}).get("execution_summary", {}).get("dag", True)),
                 "refined": bool(normalized.get("refined", False)),
                 "fallback_used": bool(normalized.get("fallback_used", False)),
                 "fallback_reason": list(normalized.get("fallback_reason", ())),

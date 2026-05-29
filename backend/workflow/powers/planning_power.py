@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import Any
 
 from workflow.helpers.plan_format_helper import PlanFormatHelper
-from workflow.types import PlanBundle
+from workflow.types import GlobalBindingFrame, PlanBundle
 
 
 class PlanningPower:
@@ -18,6 +18,13 @@ class PlanningPower:
         task_topology: str,
         query_units: list[dict[str, Any]] | None = None,
         bound_targets: list[dict[str, Any]] | None = None,
+        global_binding_frame: GlobalBindingFrame | dict[str, Any] | None = None,
+        binding_enabled: bool = False,
+        recent_messages_summary: list[dict[str, Any]] | None = None,
+        working_memory_hints: list[dict[str, Any]] | None = None,
+        memory_anchor_hints: list[dict[str, Any]] | None = None,
+        llm_call: Any | None = None,
+        base_dir: Any | None = None,
         planner_worker: Any | None = None,
     ) -> dict[str, Any]:
         return self.build_plan_bundle_obj(
@@ -26,6 +33,13 @@ class PlanningPower:
             task_topology=task_topology,
             query_units=query_units,
             bound_targets=bound_targets,
+            global_binding_frame=global_binding_frame,
+            binding_enabled=binding_enabled,
+            recent_messages_summary=recent_messages_summary,
+            working_memory_hints=working_memory_hints,
+            memory_anchor_hints=memory_anchor_hints,
+            llm_call=llm_call,
+            base_dir=base_dir,
             planner_worker=planner_worker,
         ).to_dict()
 
@@ -37,6 +51,13 @@ class PlanningPower:
         task_topology: str,
         query_units: list[dict[str, Any]] | None = None,
         bound_targets: list[dict[str, Any]] | None = None,
+        global_binding_frame: GlobalBindingFrame | dict[str, Any] | None = None,
+        binding_enabled: bool = False,
+        recent_messages_summary: list[dict[str, Any]] | None = None,
+        working_memory_hints: list[dict[str, Any]] | None = None,
+        memory_anchor_hints: list[dict[str, Any]] | None = None,
+        llm_call: Any | None = None,
+        base_dir: Any | None = None,
         planner_worker: Any | None = None,
     ) -> PlanBundle:
         task_frame = self.normalize_task_frame(
@@ -45,6 +66,13 @@ class PlanningPower:
             task_topology=task_topology,
             query_units=query_units,
             bound_targets=bound_targets,
+            global_binding_frame=global_binding_frame,
+            binding_enabled=binding_enabled,
+            recent_messages_summary=recent_messages_summary,
+            working_memory_hints=working_memory_hints,
+            memory_anchor_hints=memory_anchor_hints,
+            llm_call=llm_call,
+            base_dir=base_dir,
         )
         if planner_worker is None:
             return self._fallback_bundle(task_frame, issues=["missing_planner_worker"])
@@ -73,13 +101,32 @@ class PlanningPower:
         task_topology: str,
         query_units: list[dict[str, Any]] | None = None,
         bound_targets: list[dict[str, Any]] | None = None,
+        global_binding_frame: GlobalBindingFrame | dict[str, Any] | None = None,
+        binding_enabled: bool = False,
+        recent_messages_summary: list[dict[str, Any]] | None = None,
+        working_memory_hints: list[dict[str, Any]] | None = None,
+        memory_anchor_hints: list[dict[str, Any]] | None = None,
+        llm_call: Any | None = None,
+        base_dir: Any | None = None,
     ) -> dict[str, Any]:
+        frame = (
+            global_binding_frame
+            if isinstance(global_binding_frame, GlobalBindingFrame)
+            else GlobalBindingFrame.from_dict(dict(global_binding_frame or {}))
+        )
         return {
             "goal": query,
             "task_shape": task_shape,
             "task_topology": task_topology,
             "query_units": list(query_units or ()),
             "bound_targets": list(bound_targets or ()),
+            "global_binding_frame": frame.to_dict(),
+            "binding_enabled": binding_enabled,
+            "recent_messages_summary": list(recent_messages_summary or ()),
+            "working_memory_hints": list(working_memory_hints or ()),
+            "memory_anchor_hints": list(memory_anchor_hints or ()),
+            "llm_call": llm_call,
+            "base_dir": base_dir,
             "planning_mode_hint": self._resolve_planning_mode(task_shape=task_shape, task_topology=task_topology, query_units=query_units),
         }
 
@@ -91,6 +138,7 @@ class PlanningPower:
         checkpoint_ids = {str(item.get("checkpoint_id", "")) for item in bundle.execution_checkpoints}
         comparison_units = list(bundle.comparison_units)
         bound_target_refs = list(bundle.bound_target_refs)
+        execution_graph = bundle.execution_graph_obj()
 
         if task_frame.get("query_units") and not (
             "Handle each query unit explicitly" in titles or "Refine coverage for every query unit" in titles
@@ -117,6 +165,8 @@ class PlanningPower:
                 for title in titles
             ):
                 issues.append("missing_compare_step")
+        if execution_graph.unit_objs() and not execution_graph.is_dag():
+            issues.append("execution_graph_cycle")
 
         return list(dict.fromkeys(issues))
 
@@ -150,6 +200,7 @@ class PlanningPower:
         bundle.setdefault("comparison_units", [])
         bundle.setdefault("execution_checkpoints", [])
         bundle.setdefault("bound_target_refs", [])
+        bundle.setdefault("execution_graph", {"units": [], "edges": [], "execution_summary": {"dag": True}})
         bundle["refined"] = refined
         bundle["fallback_used"] = False
         return PlanBundle.from_dict(self.format_helper.normalize_bundle(bundle))
@@ -168,6 +219,7 @@ class PlanningPower:
             "comparison_units": [],
             "execution_checkpoints": [],
             "bound_target_refs": [],
+            "execution_graph": {"units": [], "edges": [], "execution_summary": {"dag": True}},
             "fallback_reason": list(issues),
             "refined": False,
             "fallback_used": True,
