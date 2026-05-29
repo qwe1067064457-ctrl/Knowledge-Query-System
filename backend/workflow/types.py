@@ -4,7 +4,13 @@ from dataclasses import asdict, dataclass, field
 from typing import Any, Literal
 
 from intent.schema.intent_types import ControlTrace
-
+from workflow.contracts.graph import (
+    ExecutionEdge,
+    ExecutionGraph,
+    ExecutionUnit,
+    GlobalBindingFrame,
+    UnitResult,
+)
 
 WorkflowAction = Literal["respond", "agent", "knowledge_orchestrator", "reject"]
 WorkflowRoute = Literal["qa", "orchestrated", "chat", "reject"]
@@ -30,6 +36,9 @@ class WorkflowPolicyFlags:
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+    def binding_enabled(self) -> bool:
+        return self.need_context_binding
 
 
 @dataclass(frozen=True)
@@ -114,6 +123,14 @@ class RetrievalQualityAssessment:
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+    @property
+    def binding_enable_flag(self) -> bool:
+        return self.need_context_binding
+
+    @property
+    def binding_enable_flag(self) -> bool:
+        return self.need_context_binding
 
 
 @dataclass(frozen=True)
@@ -668,6 +685,7 @@ class ContextBundleSummaryView:
     binding_matched_by: str = ""
     binding_fallback_type: str = ""
     binding_reason: str = ""
+    global_binding_scope: str = "none"
 
 
 @dataclass(frozen=True)
@@ -677,6 +695,8 @@ class PlanBundleSummaryView:
     checkpoint_count: int = 0
     comparison_unit_count: int = 0
     bound_target_ref_count: int = 0
+    execution_unit_count: int = 0
+    dag: bool = True
     refined: bool = False
     fallback_used: bool = False
 
@@ -796,6 +816,7 @@ class ContextBindingResult:
 class ContextBundle:
     trace: dict[str, Any] = field(default_factory=dict)
     binding: ContextBindingResult | dict[str, Any] | None = None
+    global_binding_frame: GlobalBindingFrame | dict[str, Any] | None = None
     binding_summary: str = "not_applicable"
     candidate_count: int = 0
     query_units: tuple[dict[str, Any], ...] = ()
@@ -807,6 +828,7 @@ class ContextBundle:
         return {
             "trace": dict(self.trace),
             "binding": None if self.binding is None else self.binding_obj().to_dict(),
+            "global_binding_frame": None if self.global_binding_frame is None else self.global_binding_frame_obj().to_dict(),
             "binding_summary": self.binding_summary,
             "candidate_count": self.candidate_count,
             "query_units": [dict(item) for item in self.query_units],
@@ -819,6 +841,11 @@ class ContextBundle:
         if isinstance(self.binding, ContextBindingResult):
             return self.binding
         return ContextBindingResult.from_dict(dict(self.binding or {}))
+
+    def global_binding_frame_obj(self) -> GlobalBindingFrame:
+        if isinstance(self.global_binding_frame, GlobalBindingFrame):
+            return self.global_binding_frame
+        return GlobalBindingFrame.from_dict(dict(self.global_binding_frame or {}))
 
     def bound_targets(self) -> tuple[dict[str, Any], ...]:
         if self.binding is None:
@@ -840,6 +867,11 @@ class ContextBundle:
             binding_matched_by=str(binding.matched_by or ""),
             binding_fallback_type=str(binding.fallback_type or ""),
             binding_reason=str(binding.reason or ""),
+            global_binding_scope=(
+                self.global_binding_frame_obj().binding_scope_hint
+                if self.global_binding_frame is not None
+                else "none"
+            ),
         )
 
     @classmethod
@@ -857,9 +889,17 @@ class ContextBundle:
             binding = binding_payload
         else:
             binding = ContextBindingResult.from_dict(dict(binding_payload))
+        global_binding_payload = data.get("global_binding_frame")
+        if global_binding_payload is None:
+            global_binding_frame = None
+        elif isinstance(global_binding_payload, GlobalBindingFrame):
+            global_binding_frame = global_binding_payload
+        else:
+            global_binding_frame = GlobalBindingFrame.from_dict(dict(global_binding_payload))
         return cls(
             trace=dict(data.get("trace", default_trace or {})),
             binding=binding,
+            global_binding_frame=global_binding_frame,
             binding_summary=str(data.get("binding_summary", "not_applicable")),
             candidate_count=int(data.get("candidate_count", 0) or 0),
             query_units=tuple(dict(item) for item in data.get("query_units", ()) or ()),
@@ -880,6 +920,8 @@ class PlanBundle:
     comparison_units: tuple[dict[str, Any], ...] = ()
     execution_checkpoints: tuple[dict[str, Any], ...] = ()
     bound_target_refs: tuple[str, ...] = ()
+    execution_graph: ExecutionGraph | dict[str, Any] = field(default_factory=dict)
+    unit_results: tuple[UnitResult | dict[str, Any], ...] = ()
     format_helper_applied: bool = False
     refined: bool = False
     fallback_used: bool = False
@@ -893,6 +935,8 @@ class PlanBundle:
             "checkpoint_count": summary.checkpoint_count,
             "comparison_unit_count": summary.comparison_unit_count,
             "bound_target_ref_count": summary.bound_target_ref_count,
+            "execution_unit_count": summary.execution_unit_count,
+            "dag": summary.dag,
             "refined": summary.refined,
             "fallback_used": summary.fallback_used,
             "fallback_reason": list(self.fallback_reason),
@@ -905,12 +949,15 @@ class PlanBundle:
         return self.summary_dict()
 
     def summary_view(self) -> "PlanBundleSummaryView":
+        graph = self.execution_graph_obj()
         return PlanBundleSummaryView(
             planning_mode=self.planning_mode,
             step_count=len(self.ordered_steps),
             checkpoint_count=len(self.execution_checkpoints),
             comparison_unit_count=len(self.comparison_units),
             bound_target_ref_count=len(self.bound_target_refs),
+            execution_unit_count=len(graph.unit_objs()),
+            dag=graph.is_dag() if graph.unit_objs() else True,
             refined=self.refined,
             fallback_used=self.fallback_used,
         )
@@ -933,6 +980,17 @@ class PlanBundle:
     def is_fallback(self) -> bool:
         return self.fallback_used
 
+    def execution_graph_obj(self) -> ExecutionGraph:
+        if isinstance(self.execution_graph, ExecutionGraph):
+            return self.execution_graph
+        return ExecutionGraph.from_dict(dict(self.execution_graph or {}))
+
+    def unit_result_objs(self) -> tuple[UnitResult, ...]:
+        return tuple(
+            item if isinstance(item, UnitResult) else UnitResult.from_dict(item)
+            for item in self.unit_results
+        )
+
     def to_dict(self) -> dict[str, Any]:
         return {
             "goal": self.goal,
@@ -944,6 +1002,8 @@ class PlanBundle:
             "comparison_units": [dict(item) for item in self.comparison_units],
             "execution_checkpoints": [dict(item) for item in self.execution_checkpoints],
             "bound_target_refs": list(self.bound_target_refs),
+            "execution_graph": self.execution_graph_obj().to_dict(),
+            "unit_results": [item.to_dict() for item in self.unit_result_objs()],
             "format_helper_applied": self.format_helper_applied,
             "refined": self.refined,
             "fallback_used": self.fallback_used,
@@ -965,6 +1025,8 @@ class PlanBundle:
             comparison_units=tuple(dict(item) for item in data.get("comparison_units", ()) or ()),
             execution_checkpoints=tuple(dict(item) for item in data.get("execution_checkpoints", ()) or ()),
             bound_target_refs=tuple(str(item) for item in data.get("bound_target_refs", ()) or ()),
+            execution_graph=ExecutionGraph.from_dict(dict(data.get("execution_graph", {}))),
+            unit_results=tuple(dict(item) for item in data.get("unit_results", ()) or ()),
             format_helper_applied=bool(data.get("format_helper_applied", False)),
             refined=bool(data.get("refined", summary.get("refined", False))),
             fallback_used=bool(data.get("fallback_used", summary.get("fallback_used", False))),
