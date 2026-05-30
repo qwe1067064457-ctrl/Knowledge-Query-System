@@ -1,5 +1,6 @@
 """
-Scoped memory system for per-user core memory, daily logs, and group-shared cases.
+Scoped memory system for per-user/global core memory, group-scoped daily logs,
+and group-scoped domain cases.
 """
 from __future__ import annotations
 
@@ -12,7 +13,11 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, cast
 
 from context.models import MemoryEntry, MemoryScope, MemoryType
+from memory_system.extraction import MemoryExtractionPipeline
+from memory_system.jobs import MemoryWriteQueue, MemoryWriteWorker
 from memory_system.policy_loader import MemoryPolicyLoader
+from memory_system.validation import MemoryValidator
+from retrieval_infra.query.memory_hybrid_retriever import MemoryHybridRetriever
 
 
 class MemorySystem:
@@ -22,7 +27,7 @@ class MemorySystem:
     Supported memory layers:
     - core memory: user_global / user_group
     - daily log: user_group
-    - domain case: group_shared
+    - domain case: user_group
     """
 
     def __init__(self, base_storage_path: Path) -> None:
@@ -32,6 +37,11 @@ class MemorySystem:
         self.users_path.mkdir(parents=True, exist_ok=True)
         self.groups_path.mkdir(parents=True, exist_ok=True)
         self.policy_loader = MemoryPolicyLoader(self.base_storage_path)
+        self.hybrid_retriever = MemoryHybridRetriever(self.base_storage_path)
+        self.extraction_pipeline = MemoryExtractionPipeline()
+        self.validator = MemoryValidator()
+        self.write_queue = MemoryWriteQueue()
+        self.write_worker = MemoryWriteWorker(self.write_queue)
 
     @staticmethod
     def _safe_segment(value: str, field_name: str) -> str:
@@ -48,36 +58,38 @@ class MemorySystem:
         return self._safe_segment(user_id, "user_id")
 
     def _user_global_dir(self, user_id: str) -> Path:
-        path = self.users_path / self._safe_user_id(user_id) / "global"
+        path = self.users_path / self._safe_user_id(user_id) / "memory" / "core"
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+
+    def _group_dir(self, group_id: str) -> Path:
+        path = self.groups_path / self._safe_group_id(group_id)
         path.mkdir(parents=True, exist_ok=True)
         return path
 
     def _user_group_dir(self, user_id: str, group_id: str) -> Path:
-        path = self.users_path / self._safe_user_id(user_id) / "groups" / self._safe_group_id(group_id)
-        path.mkdir(parents=True, exist_ok=True)
-        return path
-
-    def _group_shared_dir(self, group_id: str) -> Path:
-        path = self.groups_path / self._safe_group_id(group_id) / "shared"
+        path = self._group_dir(group_id) / "users" / self._safe_user_id(user_id) / "memory"
         path.mkdir(parents=True, exist_ok=True)
         return path
 
     def _core_file(self, user_id: str, scope: MemoryScope, group_id: Optional[str] = None) -> Path:
         if scope == "user_global":
-            return self._user_global_dir(user_id) / "core.json"
+            return self._user_global_dir(user_id) / "global.json"
         if scope == "user_group":
             if not group_id:
                 raise ValueError("group_id is required for user_group core memory")
-            return self._user_group_dir(user_id, group_id) / "core.json"
-        raise ValueError("core memory does not support group_shared scope")
+            return self._user_group_dir(user_id, group_id) / "core" / "group.json"
+        raise ValueError("core memory does not support non-user scopes")
 
     def _daily_log_dir(self, user_id: str, group_id: str) -> Path:
-        path = self._user_group_dir(user_id, group_id) / "daily_logs"
+        path = self._user_group_dir(user_id, group_id) / "daily_log"
         path.mkdir(parents=True, exist_ok=True)
         return path
 
-    def _domain_cases_file(self, group_id: str) -> Path:
-        return self._group_shared_dir(group_id) / "domain_cases.jsonl"
+    def _domain_cases_file(self, group_id: str, user_id: str) -> Path:
+        path = self._user_group_dir(user_id, group_id) / "domain_case"
+        path.mkdir(parents=True, exist_ok=True)
+        return path / "domain_cases.jsonl"
 
     @staticmethod
     def _now() -> datetime:
@@ -92,8 +104,11 @@ class MemorySystem:
         group_id: str,
         user_id: Optional[str] = None,
         title: Optional[str] = None,
+        subject: Optional[str] = None,
         tags: Optional[List[str]] = None,
         source_session_id: Optional[str] = None,
+        anchor_spans: Optional[List[Dict[str, Any]]] = None,
+        confidence: float = 0.0,
         metadata: Optional[Dict[str, Any]] = None,
         timestamp: Optional[datetime] = None,
     ) -> Dict[str, Any]:
@@ -103,11 +118,14 @@ class MemorySystem:
             "scope": scope,
             "memory_type": memory_type,
             "title": title,
+            "subject": subject,
             "content": content.strip(),
             "tags": tags or [],
             "group_id": group_id,
             "user_id": user_id,
             "source_session_id": source_session_id,
+            "anchor_spans": anchor_spans or [],
+            "confidence": confidence,
             "metadata": metadata or {},
             "created_at": now.isoformat(),
             "updated_at": now.isoformat(),
@@ -124,6 +142,7 @@ class MemorySystem:
 
     @staticmethod
     def _write_json(path: Path, payload: Any) -> None:
+        path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
 
     @staticmethod
@@ -199,12 +218,6 @@ class MemorySystem:
         markers = self._core_policy(policy).get("explicit_markers", [])
         return any(marker in text for marker in markers)
 
-    def _classify_core_scope(self, content: str, policy: Dict[str, Any]) -> MemoryScope:
-        group_keywords = self._core_policy(policy).get("group_scope_keywords", [])
-        if any(keyword in content for keyword in group_keywords):
-            return "user_group"
-        return "user_global"
-
     def _extract_core_candidates(
         self,
         messages: List[Dict[str, Any]],
@@ -215,24 +228,84 @@ class MemorySystem:
 
         min_len = int(self._core_policy(policy).get("min_candidate_length", 6))
         max_len = int(self._core_policy(policy).get("max_candidate_length", 120))
-        candidates: List[Dict[str, str]] = []
-        seen: set[str] = set()
-        for message in messages:
-            if message.get("role") != "user":
-                continue
-            content = str(message.get("content", "") or "").strip()
-            for sentence in self._split_sentences(content):
-                if not self._has_explicit_long_term_signal(sentence, policy):
-                    continue
-                if len(sentence) < min_len or len(sentence) > max_len:
-                    continue
-                scope = self._classify_core_scope(sentence, policy)
-                signature = f"{scope}:{sentence}"
-                if signature in seen:
-                    continue
-                seen.add(signature)
-                candidates.append({"scope": scope, "content": sentence})
-        return candidates
+        return self.extraction_pipeline.extract_core_candidates(
+            messages=messages,
+            explicit_markers=list(self._core_policy(policy).get("explicit_markers", [])),
+            min_len=min_len,
+            max_len=max_len,
+            split_sentences=self._split_sentences,
+        )
+
+    def _extract_anchor_spans(
+        self,
+        *,
+        source_session_id: Optional[str],
+        messages: List[Dict[str, Any]],
+        tail_span_size: int = 6,
+    ) -> List[Dict[str, Any]]:
+        if not source_session_id or not messages:
+            return []
+        span_messages = [item for item in messages[-tail_span_size:] if isinstance(item, dict)]
+        entry_ids = [str(item.get("id") or "").strip() for item in span_messages if str(item.get("id") or "").strip()]
+        if entry_ids:
+            return [
+                {
+                    "source_session_id": source_session_id,
+                    "start_entry_id": entry_ids[0],
+                    "end_entry_id": entry_ids[-1],
+                    "reason": "recent_context_window",
+                    "confidence": 0.8,
+                }
+            ]
+        return [
+            {
+                "source_session_id": source_session_id,
+                "tail_count": min(tail_span_size, len(messages)),
+                "reason": "recent_context_window",
+                "confidence": 0.5,
+            }
+        ]
+
+    def _extract_daily_log_candidate(
+        self,
+        *,
+        summary: str,
+        messages: List[Dict[str, Any]],
+        source_session_id: Optional[str],
+        policy: Dict[str, Any],
+    ) -> Optional[Dict[str, Any]]:
+        if not self._enabled("daily_log", policy):
+            return None
+
+        cleaned_summary = summary.strip()
+        if not cleaned_summary or cleaned_summary == "NO_REPLY":
+            return None
+
+        anchor_spans = self._extract_anchor_spans(
+            source_session_id=source_session_id,
+            messages=messages,
+        )
+        if source_session_id and not anchor_spans:
+            anchor_spans = [
+                {
+                    "source_session_id": source_session_id,
+                    "reason": "session_checkpoint",
+                    "confidence": 0.3,
+                }
+            ]
+
+        subject = "conversation_checkpoint"
+        for message in reversed(messages):
+            if message.get("role") == "user" and message.get("content"):
+                subject = str(message["content"]).strip()[:48] or subject
+                break
+
+        return self.extraction_pipeline.extract_daily_log(
+            summary=cleaned_summary,
+            subject=subject,
+            anchor_spans=anchor_spans,
+            source_session_id=source_session_id,
+        )
 
     def _looks_like_completed_result(self, text: str, policy: Dict[str, Any]) -> bool:
         markers = self._domain_case_policy(policy).get("completion_markers", [])
@@ -249,32 +322,64 @@ class MemorySystem:
         group_id: str,
         messages: List[Dict[str, Any]],
         summary: str,
+        source_session_id: Optional[str],
         policy: Dict[str, Any],
     ) -> Optional[Dict[str, str]]:
         if not self._enabled("domain_case", policy):
             return None
 
-        source_text = summary.strip()
-        if not source_text:
-            for message in reversed(messages):
-                if message.get("role") == "assistant" and message.get("content"):
-                    source_text = str(message["content"]).strip()
-                    break
+        return self.extraction_pipeline.extract_domain_case(
+            group_id=group_id,
+            messages=messages,
+            summary=summary,
+            source_session_id=source_session_id,
+            anchor_spans=self._extract_anchor_spans(
+                source_session_id=source_session_id,
+                messages=messages,
+            ),
+            looks_like_completed_result=lambda text: self._looks_like_completed_result(text, policy),
+            looks_like_case_body=lambda text: self._looks_like_case_body(text, policy),
+        )
 
-        if not source_text:
-            return None
-        if not self._looks_like_completed_result(source_text, policy):
-            return None
-        if not self._looks_like_case_body(source_text, policy):
-            return None
-
-        title_seed = ""
-        for message in reversed(messages):
-            if message.get("role") == "user" and message.get("content"):
-                title_seed = str(message["content"]).strip()
-                break
-        title_seed = title_seed[:24] if title_seed else "会话案例"
-        return {"title": f"{group_id}::{title_seed}", "content": source_text}
+    def _persist_memory_payload(self, payload: Dict[str, Any], *, group_id: str, agent_id: str, user_id: str) -> None:
+        memory_type = str(payload.get("memory_type") or "").strip()
+        if memory_type == "daily_log":
+            self.write_daily_log(
+                group_id,
+                agent_id,
+                str(payload["content"]),
+                user_id=user_id,
+                source_session_id=payload.get("source_session_id"),
+                subject=payload.get("subject"),
+                confidence=float(payload.get("confidence") or 0.0),
+                anchor_spans=cast(List[Dict[str, Any]], payload.get("anchor_spans") or []),
+            )
+            return
+        if memory_type == "core":
+            scope = cast(MemoryScope, payload["scope"])
+            self.write_core_memory(
+                user_id=user_id,
+                group_id=group_id if scope == "user_group" else None,
+                scope=scope,
+                content=str(payload["content"]),
+                source_session_id=payload.get("source_session_id"),
+                subject=payload.get("subject"),
+                confidence=float(payload.get("confidence") or 0.0),
+                anchor_spans=cast(List[Dict[str, Any]], payload.get("anchor_spans") or []),
+            )
+            return
+        if memory_type == "domain_case":
+            self.write_domain_case(
+                group_id=group_id,
+                user_id=user_id,
+                title=str(payload["title"]),
+                content=str(payload["content"]),
+                source_session_id=payload.get("source_session_id"),
+                subject=payload.get("subject"),
+                confidence=float(payload.get("confidence") or 0.0),
+                anchor_spans=cast(List[Dict[str, Any]], payload.get("anchor_spans") or []),
+            )
+            return
 
     def _simple_bm25(self, query: str, document: str) -> float:
         normalized_query = re.sub(r"\s+", "", query.lower())
@@ -317,9 +422,12 @@ class MemorySystem:
             memory_type=record.get("memory_type", "daily_log"),
             user_id=record.get("user_id"),
             title=record.get("title"),
+            subject=record.get("subject"),
             tags=record.get("tags") or [],
             source_session_id=record.get("source_session_id"),
-            metadata=dict(record.get("metadata", {}) or {}),
+            anchor_spans=record.get("anchor_spans") or [],
+            confidence=float(record.get("confidence") or 0.0),
+            metadata={"id": record.get("id"), **dict(record.get("metadata", {}) or {})},
         )
 
     def capture_checkpoint(
@@ -339,36 +447,43 @@ class MemorySystem:
         case_written = 0
 
         if self._enabled("daily_log", policy) and self._daily_log_policy(policy).get("checkpoint_enabled", True):
-            if summary and summary != "NO_REPLY":
-                self.write_daily_log(
-                    group_id,
-                    agent_id,
-                    summary,
-                    user_id=user_id,
-                    source_session_id=source_session_id,
+            daily_log_candidate = self._extract_daily_log_candidate(
+                summary=summary,
+                messages=messages,
+                source_session_id=source_session_id,
+                policy=policy,
+            )
+            if daily_log_candidate:
+                recent_logs = self.get_recent_memories(group_id, agent_id, days=3, user_id=user_id)
+                validated_daily_log = self.validator.validate_daily_log(
+                    daily_log_candidate,
+                    recent_entries=recent_logs,
                 )
-                daily_log_written = True
+                if validated_daily_log:
+                    self.write_queue.enqueue(validated_daily_log)
+                    daily_log_written = True
 
         for candidate in self._extract_core_candidates(messages, policy):
-            scope = cast(MemoryScope, candidate["scope"])
-            self.write_core_memory(
-                user_id=user_id,
-                group_id=group_id if scope == "user_group" else None,
-                scope=scope,
-                content=candidate["content"],
-                source_session_id=source_session_id,
-            )
-            core_written += 1
+            validated_core = self.validator.validate_core(candidate)
+            if validated_core:
+                self.write_queue.enqueue(validated_core)
+                core_written += 1
 
-        case_candidate = self._extract_domain_case_candidate(group_id, messages, summary, policy)
+        case_candidate = self._extract_domain_case_candidate(group_id, messages, summary, source_session_id, policy)
         if case_candidate:
-            self.write_domain_case(
+            existing_cases = self._search_domain_cases(
+                user_id=user_id,
                 group_id=group_id,
-                title=case_candidate["title"],
-                content=case_candidate["content"],
-                source_session_id=source_session_id,
+                query=str(case_candidate.get("subject") or case_candidate.get("title") or ""),
+                min_score=0.01,
             )
-            case_written += 1
+            validated_case = self.validator.validate_domain_case(
+                case_candidate,
+                recent_entries=existing_cases,
+            )
+            if validated_case:
+                self.write_queue.enqueue(validated_case)
+                case_written += 1
 
         return {
             "daily_log_written": daily_log_written,
@@ -384,8 +499,11 @@ class MemorySystem:
         scope: MemoryScope,
         content: str,
         title: Optional[str] = None,
+        subject: Optional[str] = None,
         tags: Optional[List[str]] = None,
         source_session_id: Optional[str] = None,
+        confidence: float = 0.0,
+        anchor_spans: Optional[List[Dict[str, Any]]] = None,
         metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         if scope not in {"user_global", "user_group"}:
@@ -399,8 +517,11 @@ class MemorySystem:
             group_id=group_id or "__global__",
             user_id=user_id,
             title=title,
+            subject=subject,
             tags=tags,
             source_session_id=source_session_id,
+            anchor_spans=anchor_spans,
+            confidence=confidence,
             metadata=metadata,
         )
         payload["items"] = self._dedupe_core_records(payload.get("items", []), record)
@@ -415,8 +536,11 @@ class MemorySystem:
         *,
         user_id: str = "default",
         title: Optional[str] = None,
+        subject: Optional[str] = None,
         tags: Optional[List[str]] = None,
         source_session_id: Optional[str] = None,
+        confidence: float = 0.0,
+        anchor_spans: Optional[List[Dict[str, Any]]] = None,
         metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         del agent_id
@@ -430,8 +554,11 @@ class MemorySystem:
             group_id=group_id,
             user_id=user_id,
             title=title,
+            subject=subject,
             tags=tags,
             source_session_id=source_session_id,
+            anchor_spans=anchor_spans,
+            confidence=confidence,
             metadata=metadata,
             timestamp=datetime.combine(target_date, datetime.min.time()),
         )
@@ -446,8 +573,11 @@ class MemorySystem:
         *,
         user_id: str = "default",
         title: Optional[str] = None,
+        subject: Optional[str] = None,
         tags: Optional[List[str]] = None,
         source_session_id: Optional[str] = None,
+        confidence: float = 0.0,
+        anchor_spans: Optional[List[Dict[str, Any]]] = None,
         metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
         self.write_daily_log(
@@ -457,8 +587,11 @@ class MemorySystem:
             target_date=target_date,
             user_id=user_id,
             title=title,
+            subject=subject,
             tags=tags,
             source_session_id=source_session_id,
+            confidence=confidence,
+            anchor_spans=anchor_spans,
             metadata=metadata,
         )
 
@@ -466,22 +599,30 @@ class MemorySystem:
         self,
         *,
         group_id: str,
+        user_id: str = "default",
         title: str,
         content: str,
+        subject: Optional[str] = None,
         tags: Optional[List[str]] = None,
         source_session_id: Optional[str] = None,
+        confidence: float = 0.0,
+        anchor_spans: Optional[List[Dict[str, Any]]] = None,
         metadata: Optional[Dict[str, Any]] = None,
     ) -> None:
-        target = self._domain_cases_file(group_id)
+        user_id = self._safe_user_id(user_id)
+        target = self._domain_cases_file(group_id, user_id)
         record = self._make_record(
-            scope="group_shared",
+            scope="user_group",
             memory_type="domain_case",
             content=content,
             group_id=group_id,
-            user_id=None,
+            user_id=user_id,
             title=title,
+            subject=subject,
             tags=tags,
             source_session_id=source_session_id,
+            confidence=confidence,
+            anchor_spans=anchor_spans,
             metadata=metadata,
         )
         self._append_jsonl(target, record)
@@ -489,21 +630,16 @@ class MemorySystem:
     def get_core_memories(self, *, user_id: str, group_id: str) -> List[MemoryEntry]:
         entries: List[MemoryEntry] = []
         seen: set[tuple[str, str, str]] = set()
-        global_file = self._core_file(user_id, "user_global")
-        for item in self._read_json(global_file, {"items": []}).get("items", []):
-            entry = self._to_memory_entry(item, source=str(global_file.relative_to(self.base_storage_path)))
-            key = (entry.scope, entry.title or "", entry.content)
-            if key not in seen:
-                seen.add(key)
-                entries.append(entry)
-
-        group_file = self._core_file(user_id, "user_group", group_id=group_id)
-        for item in self._read_json(group_file, {"items": []}).get("items", []):
-            entry = self._to_memory_entry(item, source=str(group_file.relative_to(self.base_storage_path)))
-            key = (entry.scope, entry.title or "", entry.content)
-            if key not in seen:
-                seen.add(key)
-                entries.append(entry)
+        for file_path in (
+            self._core_file(user_id, "user_global"),
+            self._core_file(user_id, "user_group", group_id=group_id),
+        ):
+            for item in self._read_json(file_path, {"items": []}).get("items", []):
+                entry = self._to_memory_entry(item, source=str(file_path.relative_to(self.base_storage_path)))
+                key = (entry.scope, entry.title or "", entry.content)
+                if key not in seen:
+                    seen.add(key)
+                    entries.append(entry)
         return entries
 
     def _search_core_memories(self, *, user_id: str, group_id: str, query: str, min_score: float) -> List[MemoryEntry]:
@@ -543,9 +679,9 @@ class MemorySystem:
                     results.append(self._to_memory_entry(item, source=str(log_path.relative_to(self.base_storage_path)), score=score))
         return results
 
-    def _search_domain_cases(self, *, group_id: str, query: str, min_score: float) -> List[MemoryEntry]:
+    def _search_domain_cases(self, *, user_id: str, group_id: str, query: str, min_score: float) -> List[MemoryEntry]:
         results: List[MemoryEntry] = []
-        cases_path = self._domain_cases_file(group_id)
+        cases_path = self._domain_cases_file(group_id, user_id)
         for item in self._read_jsonl(cases_path):
             text = f"{item.get('title', '')}\n{item.get('content', '')}"
             score = self._simple_bm25(query, text)
@@ -610,8 +746,9 @@ class MemorySystem:
         results: List[MemoryEntry] = []
         if include_core:
             results.extend(self._search_core_memories(user_id=user_id, group_id=group_id, query=query, min_score=min_score))
+        hybrid_entries: List[MemoryEntry] = []
         if include_daily_logs:
-            results.extend(
+            hybrid_entries.extend(
                 self._search_daily_logs(
                     user_id=user_id,
                     group_id=group_id,
@@ -622,7 +759,17 @@ class MemorySystem:
                 )
             )
         if include_domain_cases:
-            results.extend(self._search_domain_cases(group_id=group_id, query=query, min_score=min_score))
+            hybrid_entries.extend(self._search_domain_cases(user_id=user_id, group_id=group_id, query=query, min_score=min_score))
+        if hybrid_entries:
+            results.extend(
+                self.hybrid_retriever.retrieve(
+                    group_id=group_id,
+                    user_id=user_id,
+                    query=query,
+                    memory_entries=hybrid_entries,
+                    top_k=top_k,
+                )
+            )
 
         results.sort(key=lambda item: item.score, reverse=True)
         if use_mmr and len(results) > top_k:
@@ -699,6 +846,9 @@ class MemorySystem:
             summary=content,
             source_session_id=source_session_id,
         )
+        await self.write_worker.drain(
+            lambda payload: self._persist_memory_payload(payload, group_id=group_id, agent_id=agent_id, user_id=user_id)
+        )
         return {
             "flushed": checkpoint["daily_log_written"],
             "group_id": group_id,
@@ -715,7 +865,7 @@ class MemorySystem:
             self._core_file(user_id, "user_global"),
             self._core_file(user_id, "user_group", group_id=group_id),
             *sorted(self._daily_log_dir(user_id, group_id).glob("*.jsonl")),
-            self._domain_cases_file(group_id),
+            self._domain_cases_file(group_id, user_id),
         ]
         for path in paths:
             if path.exists():

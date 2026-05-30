@@ -43,7 +43,6 @@ class GroupManagementService:
         self.storage_dir = self.backend_dir / "storage"
         self.users_dir = self.storage_dir / "users"
         self.groups_dir = self.storage_dir / "groups"
-        self.knowledge_groups_dir = self.backend_dir / "knowledge" / "groups"
         self._lock = threading.RLock()
 
     @staticmethod
@@ -87,8 +86,14 @@ class GroupManagementService:
     def _group_members_path(self, group_id: str) -> Path:
         return self.groups_dir / self._safe_segment(group_id, "group_id") / "members.json"
 
-    def _knowledge_group_dir(self, group_id: str) -> Path:
-        return self.knowledge_groups_dir / self._safe_segment(group_id, "group_id")
+    @staticmethod
+    def _knowledge_raw_subdirs(group_id: str) -> tuple[str, ...]:
+        mapping = {
+            "general": ("ai", "ecommerce", "finance", "security", "uploads"),
+            "law": ("cn", "us", "cases", "uploads"),
+            "medicine": ("open_access_pdf", "pmc_ftp_pdf", "pmc_open_access", "yiigle_cn", "uploads"),
+        }
+        return mapping.get(group_id, ("uploads",))
 
     def _load_default_memory_policy(self) -> dict[str, Any]:
         policy_path = self.backend_dir / "memory_system" / "policy.default.json"
@@ -118,23 +123,45 @@ class GroupManagementService:
 
     def _ensure_group_layout(self, group: GroupRecord) -> None:
         group_dir = self.groups_dir / group.id
-        shared_dir = group_dir / "shared"
-        knowledge_dir = self._knowledge_group_dir(group.id)
-        documents_dir = knowledge_dir / "documents"
-        uploads_dir = knowledge_dir / "uploads"
+        storage_knowledge_dir = group_dir / "knowledge"
+        storage_dirs = (
+            group_dir / "users",
+            storage_knowledge_dir / "raw",
+            storage_knowledge_dir / "parsed",
+            storage_knowledge_dir / "normalized",
+            storage_knowledge_dir / "chunked",
+            storage_knowledge_dir / "meta",
+            storage_knowledge_dir / "indexes" / "current" / "lexical",
+            storage_knowledge_dir / "indexes" / "current" / "vector",
+            storage_knowledge_dir / "indexes" / "next" / "lexical",
+            storage_knowledge_dir / "indexes" / "next" / "vector",
+            storage_knowledge_dir / "indexes" / "snapshots",
+            group_dir / "registries",
+            group_dir / "meta",
+        )
+        for path in storage_dirs:
+            path.mkdir(parents=True, exist_ok=True)
+        for subdir in self._knowledge_raw_subdirs(group.id):
+            (storage_knowledge_dir / "raw" / subdir).mkdir(parents=True, exist_ok=True)
 
-        shared_dir.mkdir(parents=True, exist_ok=True)
-        documents_dir.mkdir(parents=True, exist_ok=True)
-        uploads_dir.mkdir(parents=True, exist_ok=True)
-        (shared_dir / "domain_cases.jsonl").touch(exist_ok=True)
-        (documents_dir / ".gitkeep").touch(exist_ok=True)
-        (uploads_dir / ".gitkeep").touch(exist_ok=True)
-        readme = knowledge_dir / "README.md"
-        if not readme.exists():
-            readme.write_text(
-                f"# {group.name}\n\nGroup knowledge base for `{group.id}`.\n",
-                encoding="utf-8",
-            )
+        placeholders = (
+            storage_knowledge_dir / "raw" / ".gitkeep",
+            storage_knowledge_dir / "parsed" / ".gitkeep",
+            storage_knowledge_dir / "normalized" / ".gitkeep",
+            storage_knowledge_dir / "chunked" / ".gitkeep",
+            storage_knowledge_dir / "meta" / "source_catalog.jsonl",
+            storage_knowledge_dir / "meta" / "source_layout.json",
+            group_dir / "registries" / "source_registry.jsonl",
+            group_dir / "registries" / "build_registry.jsonl",
+            group_dir / "registries" / "checkpoints.json",
+            group_dir / "registries" / "index_manifest.json",
+        )
+        for path in placeholders:
+            if not path.exists():
+                if path.suffix in {".json", ".jsonl"}:
+                    path.write_text("[]\n" if path.name.endswith(".jsonl") else "{}\n", encoding="utf-8")
+                else:
+                    path.touch()
 
     def create_user(
         self,
@@ -226,7 +253,6 @@ class GroupManagementService:
                 raise ConflictError(f"Group already exists: {group_id}")
 
             now = self._now()
-            knowledge_dir = self._knowledge_group_dir(group_id)
             default_policy = self._load_default_memory_policy()
             effective_policy = _deep_merge(default_policy, memory_policy or {})
             group = GroupRecord(
@@ -239,9 +265,9 @@ class GroupManagementService:
                 created_at=now,
                 updated_at=now,
                 knowledge={
-                    "root": f"knowledge/groups/{group_id}",
-                    "documents": f"knowledge/groups/{group_id}/documents",
-                    "uploads": f"knowledge/groups/{group_id}/uploads",
+                    "storage_root": f"storage/groups/{group_id}/knowledge",
+                    "raw": f"storage/groups/{group_id}/knowledge/raw",
+                    "indexes": f"storage/groups/{group_id}/knowledge/indexes",
                 },
                 memory_policy=effective_policy,
                 metadata=metadata or {},
@@ -259,7 +285,6 @@ class GroupManagementService:
             self._write_json(meta_path, payload)
             self._write_json(self._group_members_path(group_id), {"items": [membership.to_dict()]})
             self._upsert_registry_item(self._groups_registry_path(), payload)
-            knowledge_dir.mkdir(parents=True, exist_ok=True)
             return payload
 
     def get_group(self, group_id: str) -> dict[str, Any]:

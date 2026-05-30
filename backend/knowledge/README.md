@@ -1,3 +1,12 @@
-# Knowledge Base
+# Knowledge Migration Area
 
-把需要长期检索的资料放在这里，支持 `.md`、`.txt`、`.json` 等文本文件。
+本目录不再作为线上知识库数据源根目录。
+
+当前只保留：
+
+- 历史资料与迁移参考
+- 迁移说明文档
+
+正式运行时知识源统一位于：
+
+- `backend/storage/groups/{group_id}/knowledge/raw/`

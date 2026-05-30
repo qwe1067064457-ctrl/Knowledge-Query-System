@@ -45,28 +45,71 @@ class SessionManager:
             )
         return value
 
-    def _get_group_path(self, group_id: str, agent_id: str) -> Path:
-        """获取指定组的会话存储路径"""
+    def _get_group_root(self, group_id: str) -> Path:
         group_id = self._safe_segment(group_id, "group_id")
-        agent_id = self._safe_segment(agent_id, "agent_id")
-        group_path = self.groups_path / group_id / "agents" / agent_id / "sessions"
+        group_path = self.groups_path / group_id
         group_path.mkdir(parents=True, exist_ok=True)
         return group_path
 
-    def _get_meta_path(self, group_id: str, agent_id: str, session_id: str) -> Path:
-        return self._get_group_path(group_id, agent_id) / f"{session_id}.meta.json"
+    def _get_user_sessions_path(self, group_id: str, user_id: str) -> Path:
+        user_id = self._safe_segment(user_id, "user_id")
+        sessions_path = self._get_group_root(group_id) / "users" / user_id / "sessions"
+        (sessions_path / "transcripts").mkdir(parents=True, exist_ok=True)
+        return sessions_path
+
+    def _get_meta_path(self, group_id: str, user_id: str, session_id: str) -> Path:
+        return self._get_user_sessions_path(group_id, user_id) / f"{session_id}.meta.json"
+
+    def _get_transcript_path(self, group_id: str, user_id: str, session_id: str) -> Path:
+        return self._get_user_sessions_path(group_id, user_id) / "transcripts" / f"{session_id}.jsonl"
+
+    def _resolve_user_id(self, group_id: str, session_id: str, agent_id: str) -> Optional[str]:
+        self._safe_segment(agent_id, "agent_id")
+        conn = self._get_db_connection(group_id)
+        try:
+            cursor = conn.execute(
+                "SELECT user_id FROM sessions WHERE id = ? AND agent_id = ?",
+                (session_id, agent_id),
+            )
+            row = cursor.fetchone()
+        finally:
+            conn.close()
+        if row:
+            return str(row[0])
+        return None
+
+    def resolve_user_id_any_group(self, session_id: str, agent_id: str) -> Optional[str]:
+        self._safe_segment(agent_id, "agent_id")
+        if not self.groups_path.exists():
+            return None
+        for group_dir in sorted(path for path in self.groups_path.iterdir() if path.is_dir()):
+            conn = self._get_db_connection(group_dir.name)
+            try:
+                cursor = conn.execute(
+                    "SELECT user_id FROM sessions WHERE id = ? AND agent_id = ?",
+                    (session_id, agent_id),
+                )
+                row = cursor.fetchone()
+            finally:
+                conn.close()
+            if row:
+                return str(row[0])
+        return None
 
     def _load_meta(self, group_id: str, agent_id: str, session_id: str) -> Dict[str, Any]:
-        meta_path = self._get_meta_path(group_id, agent_id, session_id)
-        if not meta_path.exists():
-            return {}
-        try:
-            return json.loads(meta_path.read_text(encoding="utf-8"))
-        except json.JSONDecodeError:
-            return {}
+        user_id = self._resolve_user_id(group_id, session_id, agent_id)
+        if user_id:
+            meta_path = self._get_meta_path(group_id, user_id, session_id)
+            if meta_path.exists():
+                try:
+                    return json.loads(meta_path.read_text(encoding="utf-8"))
+                except json.JSONDecodeError:
+                    return {}
+        return {}
 
     def _write_meta(self, group_id: str, agent_id: str, session: Session) -> None:
-        meta_path = self._get_meta_path(group_id, agent_id, session.id)
+        del agent_id
+        meta_path = self._get_meta_path(group_id, session.user_id, session.id)
         meta_path.write_text(
             json.dumps(session.to_dict(), ensure_ascii=False, default=str),
             encoding="utf-8",
@@ -94,11 +137,9 @@ class SessionManager:
         """)
         conn.commit()
 
-    def _get_db_connection(self, group_id: str, agent_id: str) -> sqlite3.Connection:
-        """获取指定组的数据库连接"""
-        sessions_dir = self._get_group_path(group_id, agent_id)
-        db_path = sessions_dir / "index.db"
-
+    def _get_db_connection(self, group_id: str) -> sqlite3.Connection:
+        """获取指定组的数据库连接。"""
+        db_path = self._get_group_root(group_id) / "session_index.sqlite"
         conn = sqlite3.connect(str(db_path))
         self._ensure_schema(conn)
         return conn
@@ -111,6 +152,8 @@ class SessionManager:
         metadata: Optional[Dict] = None
     ) -> Session:
         """创建新会话"""
+        agent_id = self._safe_segment(agent_id, "agent_id")
+        user_id = self._safe_segment(user_id, "user_id")
         session_id = f"session_{datetime.now().strftime('%Y%m%d_%H%M%S')}_{uuid.uuid4().hex[:8]}"
         now = datetime.now()
 
@@ -125,12 +168,11 @@ class SessionManager:
             metadata=metadata
         )
 
-        sessions_dir = self._get_group_path(group_id, agent_id)
         self._write_meta(group_id, agent_id, session)
-        transcript_path = sessions_dir / f"{session_id}.jsonl"
+        transcript_path = self._get_transcript_path(group_id, user_id, session_id)
         transcript_path.touch()
 
-        conn = self._get_db_connection(group_id, agent_id)
+        conn = self._get_db_connection(group_id)
         conn.execute(
             "INSERT INTO sessions VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
@@ -158,12 +200,13 @@ class SessionManager:
         agent_id: str
     ) -> Optional[Session]:
         """获取会话元数据"""
-        conn = self._get_db_connection(group_id, agent_id)
+        agent_id = self._safe_segment(agent_id, "agent_id")
+        conn = self._get_db_connection(group_id)
         cursor = conn.execute(
             """SELECT id, group_id, user_id, agent_id, created_at, last_active_at,
                       archived_at, status, turn_count, total_tokens
-               FROM sessions WHERE id = ?""",
-            (session_id,)
+               FROM sessions WHERE id = ? AND agent_id = ?""",
+            (session_id, agent_id)
         )
         row = cursor.fetchone()
         conn.close()
@@ -194,6 +237,7 @@ class SessionManager:
         agent_id: str,
         metadata: Dict[str, Any],
     ) -> Optional[Session]:
+        agent_id = self._safe_segment(agent_id, "agent_id")
         session = self.get_session(session_id, group_id, agent_id)
         if session is None:
             return None
@@ -207,6 +251,7 @@ class SessionManager:
         group_id: str,
         agent_id: str,
     ) -> SessionDialogueState | None:
+        agent_id = self._safe_segment(agent_id, "agent_id")
         session = self.get_session(session_id, group_id, agent_id)
         if session is None:
             return None
@@ -223,6 +268,7 @@ class SessionManager:
         agent_id: str,
         state: SessionDialogueState | dict[str, Any],
     ) -> Optional[Session]:
+        agent_id = self._safe_segment(agent_id, "agent_id")
         session = self.get_session(session_id, group_id, agent_id)
         if session is None:
             return None
@@ -243,6 +289,7 @@ class SessionManager:
         group_id: str,
         agent_id: str,
     ) -> SessionWorkingMemory | None:
+        agent_id = self._safe_segment(agent_id, "agent_id")
         session = self.get_session(session_id, group_id, agent_id)
         if session is None:
             return None
@@ -250,6 +297,7 @@ class SessionManager:
             group_id=group_id,
             agent_id=agent_id,
             session_id=session_id,
+            user_id=session.user_id,
         )
         if loaded is not None:
             return loaded
@@ -273,6 +321,7 @@ class SessionManager:
         agent_id: str,
         memory: SessionWorkingMemory | dict[str, Any],
     ) -> Optional[Session]:
+        agent_id = self._safe_segment(agent_id, "agent_id")
         session = self.get_session(session_id, group_id, agent_id)
         if session is None:
             return None
@@ -280,6 +329,7 @@ class SessionManager:
             group_id=group_id,
             agent_id=agent_id,
             session_id=session_id,
+            user_id=session.user_id,
             memory=memory,
         )
         metadata = dict(session.metadata or {})
@@ -295,17 +345,18 @@ class SessionManager:
         entry: TranscriptEntry
     ) -> None:
         """追加转录条目"""
+        agent_id = self._safe_segment(agent_id, "agent_id")
         if entry.group_id != group_id:
             raise ValueError("entry.group_id must match group_id")
 
-        sessions_dir = self._get_group_path(group_id, agent_id)
-        transcript_path = sessions_dir / f"{entry.session_id}.jsonl"
+        user_id = self._resolve_user_id(group_id, entry.session_id, agent_id) or DEFAULT_USER
+        transcript_path = self._get_transcript_path(group_id, user_id, entry.session_id)
 
         with open(transcript_path, "a", encoding="utf-8") as f:
             f.write(json.dumps(entry.to_dict(), ensure_ascii=False) + "\n")
 
-        conn = self._get_db_connection(group_id, agent_id)
-        cursor = conn.execute("SELECT id FROM sessions WHERE id = ?", (entry.session_id,))
+        conn = self._get_db_connection(group_id)
+        cursor = conn.execute("SELECT id FROM sessions WHERE id = ? AND agent_id = ?", (entry.session_id, agent_id))
         exists = cursor.fetchone() is not None
 
         if not exists:
@@ -317,7 +368,7 @@ class SessionManager:
                 (
                     entry.session_id,
                     group_id,
-                    DEFAULT_USER,
+                    user_id,
                     agent_id,
                     entry.timestamp,
                     entry.timestamp,
@@ -333,7 +384,7 @@ class SessionManager:
                 Session(
                     id=entry.session_id,
                     group_id=group_id,
-                    user_id=DEFAULT_USER,
+                    user_id=user_id,
                     agent_id=agent_id,
                     created_at=datetime.fromtimestamp(entry.timestamp / 1000),
                     last_active_at=datetime.fromtimestamp(entry.timestamp / 1000),
@@ -377,9 +428,11 @@ class SessionManager:
         since_timestamp: Optional[int] = None
     ) -> List[TranscriptEntry]:
         """获取会话转录"""
-        sessions_dir = self._get_group_path(group_id, agent_id)
-        transcript_path = sessions_dir / f"{session_id}.jsonl"
-
+        agent_id = self._safe_segment(agent_id, "agent_id")
+        user_id = self._resolve_user_id(group_id, session_id, agent_id)
+        if not user_id:
+            return []
+        transcript_path = self._get_transcript_path(group_id, user_id, session_id)
         if not transcript_path.exists():
             return []
 
@@ -415,12 +468,13 @@ class SessionManager:
         limit: int = 20
     ) -> List[Session]:
         """列出用户的所有会话"""
-        conn = self._get_db_connection(group_id, agent_id)
+        agent_id = self._safe_segment(agent_id, "agent_id")
+        conn = self._get_db_connection(group_id)
 
         query = """SELECT id, group_id, user_id, agent_id, created_at, last_active_at,
                           archived_at, status, turn_count, total_tokens
-                   FROM sessions WHERE user_id = ?"""
-        params: List[Any] = [user_id]
+                   FROM sessions WHERE user_id = ? AND agent_id = ?"""
+        params: List[Any] = [user_id, agent_id]
 
         if status:
             query += " AND status = ?"
@@ -457,15 +511,17 @@ class SessionManager:
         agent_id: str
     ) -> None:
         """归档会话"""
-        conn = self._get_db_connection(group_id, agent_id)
+        agent_id = self._safe_segment(agent_id, "agent_id")
+        conn = self._get_db_connection(group_id)
         conn.execute(
             """UPDATE sessions
                SET status = ?, archived_at = ?
-               WHERE id = ?""",
+               WHERE id = ? AND agent_id = ?""",
             (
                 SessionStatus.ARCHIVED.value,
                 int(datetime.now().timestamp() * 1000),
-                session_id
+                session_id,
+                agent_id,
             )
         )
         conn.commit()
@@ -482,12 +538,14 @@ class SessionManager:
         agent_id: str
     ) -> None:
         """删除会话"""
-        sessions_dir = self._get_group_path(group_id, agent_id)
-        (sessions_dir / f"{session_id}.jsonl").unlink(missing_ok=True)
-        (sessions_dir / f"{session_id}.meta.json").unlink(missing_ok=True)
+        agent_id = self._safe_segment(agent_id, "agent_id")
+        user_id = self._resolve_user_id(group_id, session_id, agent_id)
+        if user_id:
+            self._get_transcript_path(group_id, user_id, session_id).unlink(missing_ok=True)
+            self._get_meta_path(group_id, user_id, session_id).unlink(missing_ok=True)
 
-        conn = self._get_db_connection(group_id, agent_id)
-        conn.execute("DELETE FROM sessions WHERE id = ?", (session_id,))
+        conn = self._get_db_connection(group_id)
+        conn.execute("DELETE FROM sessions WHERE id = ? AND agent_id = ?", (session_id, agent_id))
         conn.commit()
         conn.close()
 

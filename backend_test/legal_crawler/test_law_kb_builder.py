@@ -40,16 +40,17 @@ def test_build_law_knowledge_base_copies_documents_and_writes_indexes(workspace:
     summary = build_law_knowledge_base(backend_dir=backend_dir, source_dir=source_dir)
 
     assert summary.copied == 2
-    assert (backend_dir / "knowledge" / "groups" / "law" / "README.md").exists()
-    assert (backend_dir / "knowledge" / "groups" / "law" / "documents" / "index.md").exists()
-    assert (backend_dir / "knowledge" / "groups" / "law" / "documents" / "us" / "ecfr" / "index.md").exists()
-    assert (backend_dir / "knowledge" / "groups" / "law" / "documents" / "cn" / "index.md").exists()
+    assert (backend_dir / "storage" / "groups" / "law" / "knowledge" / "README.md").exists()
+    assert (backend_dir / "storage" / "groups" / "law" / "knowledge" / "raw" / "index.md").exists()
+    assert (backend_dir / "storage" / "groups" / "law" / "knowledge" / "raw" / "us" / "ecfr" / "index.md").exists()
+    assert (backend_dir / "storage" / "groups" / "law" / "knowledge" / "raw" / "cn" / "index.md").exists()
     assert (
         backend_dir
-        / "knowledge"
+        / "storage"
         / "groups"
         / "law"
-        / "documents"
+        / "knowledge"
+        / "raw"
         / "us"
         / "ecfr"
         / "agriculture"
@@ -57,10 +58,11 @@ def test_build_law_knowledge_base_copies_documents_and_writes_indexes(workspace:
     ).exists()
     assert (
         backend_dir
-        / "knowledge"
+        / "storage"
         / "groups"
         / "law"
-        / "documents"
+        / "knowledge"
+        / "raw"
         / "us"
         / "ecfr"
         / "tax"
@@ -80,7 +82,9 @@ def test_build_law_knowledge_base_writes_manifest_and_minimal_storage(workspace:
     assert manifest["total_documents"] == 1
     assert manifest["categories"]["health"]["count"] == 1
     assert (backend_dir / "storage" / "groups" / "law" / "meta.json").exists()
-    assert (backend_dir / "storage" / "groups" / "law" / "shared" / "domain_cases" / "index.json").exists()
+    assert (backend_dir / "storage" / "groups" / "law" / "users").exists()
+    assert (backend_dir / "storage" / "groups" / "law" / "knowledge" / "indexes" / "current" / "lexical").exists()
+    assert (backend_dir / "storage" / "groups" / "law" / "registries" / "source_registry.jsonl").exists()
 
 
 def test_build_law_knowledge_base_rejects_missing_source(workspace: Path) -> None:

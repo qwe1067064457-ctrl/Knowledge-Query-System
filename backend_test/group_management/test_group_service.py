@@ -3,9 +3,9 @@ from __future__ import annotations
 import unittest
 
 try:
-    from .helpers import make_service, read_json, read_jsonl, seed_user, temp_backend_dir
+    from .helpers import make_service, read_json, seed_user, temp_backend_dir
 except ImportError:  # pragma: no cover - supports direct unittest discovery from this folder.
-    from helpers import make_service, read_json, read_jsonl, seed_user, temp_backend_dir
+    from helpers import make_service, read_json, seed_user, temp_backend_dir
 
 from backend.group_management import ConflictError, NotFoundError, ValidationError
 
@@ -39,9 +39,7 @@ class GroupServiceTests(unittest.TestCase):
 
             meta_path = backend_dir / "storage" / "groups" / "law" / "meta.json"
             members_path = backend_dir / "storage" / "groups" / "law" / "members.json"
-            cases_path = backend_dir / "storage" / "groups" / "law" / "shared" / "domain_cases.jsonl"
-            knowledge_dir = backend_dir / "knowledge" / "groups" / "law"
-
+            knowledge_storage_dir = backend_dir / "storage" / "groups" / "law" / "knowledge"
             meta = read_json(meta_path)
             members = read_json(members_path)["items"]
 
@@ -50,11 +48,12 @@ class GroupServiceTests(unittest.TestCase):
             self.assertEqual(meta["metadata"], {"domain": "legal"})
             self.assertEqual(members[0]["user_id"], "u1")
             self.assertEqual(members[0]["role"], "owner")
-            self.assertTrue(cases_path.exists())
-            self.assertEqual(read_jsonl(cases_path), [])
-            self.assertTrue((knowledge_dir / "README.md").exists())
-            self.assertTrue((knowledge_dir / "documents" / ".gitkeep").exists())
-            self.assertTrue((knowledge_dir / "uploads" / ".gitkeep").exists())
+            self.assertTrue((backend_dir / "storage" / "groups" / "law" / "users").exists())
+            self.assertTrue((backend_dir / "storage" / "groups" / "law" / "registries" / "source_registry.jsonl").exists())
+            self.assertEqual(read_json(knowledge_storage_dir / "meta" / "source_layout.json"), {})
+            self.assertTrue((knowledge_storage_dir / "raw" / "cn").exists())
+            self.assertTrue((knowledge_storage_dir / "raw" / "us").exists())
+            self.assertTrue((knowledge_storage_dir / "raw" / "cases").exists())
 
     def test_create_group_writes_default_memory_policy_and_deep_merges_override(self) -> None:
         with temp_backend_dir() as backend_dir:
@@ -95,13 +94,25 @@ class GroupServiceTests(unittest.TestCase):
             active_groups = service.list_groups()
             all_groups = service.list_groups(include_archived=True)
             group_dir = backend_dir / "storage" / "groups" / "law"
-            knowledge_dir = backend_dir / "knowledge" / "groups" / "law"
 
             self.assertEqual(archived["status"], "archived")
             self.assertEqual(active_groups, [])
             self.assertEqual(len(all_groups), 1)
             self.assertTrue(group_dir.exists())
-            self.assertTrue(knowledge_dir.exists())
+            self.assertFalse((backend_dir / "knowledge" / "groups" / "law").exists())
+
+    def test_create_group_initializes_medicine_specific_raw_subdirs(self) -> None:
+        with temp_backend_dir() as backend_dir:
+            service = make_service(backend_dir)
+            seed_user(service, "u1")
+
+            service.create_group(group_id="medicine", name="Medicine KB", created_by="u1")
+
+            raw_root = backend_dir / "storage" / "groups" / "medicine" / "knowledge" / "raw"
+            self.assertTrue((raw_root / "open_access_pdf").exists())
+            self.assertTrue((raw_root / "pmc_ftp_pdf").exists())
+            self.assertTrue((raw_root / "pmc_open_access").exists())
+            self.assertTrue((raw_root / "yiigle_cn").exists())
 
     def test_missing_default_policy_still_allows_group_creation_with_empty_policy(self) -> None:
         with temp_backend_dir(with_policy=False) as backend_dir:
@@ -131,7 +142,7 @@ class GroupServiceTests(unittest.TestCase):
             )
 
             self.assertEqual(updated["default_agent_id"], "legal_qa")
-            self.assertEqual(updated["knowledge"]["root"], "knowledge/groups/law")
+            self.assertEqual(updated["knowledge"]["storage_root"], "storage/groups/law/knowledge")
             self.assertEqual(updated["memory_policy"]["core"]["min_candidate_length"], 8)
             self.assertEqual(updated["memory_policy"]["core"]["explicit_markers"], ["always", "default"])
             self.assertEqual(updated["metadata"], {"owner_note": "managed"})

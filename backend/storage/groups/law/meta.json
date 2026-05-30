@@ -5,9 +5,9 @@
   "status": "active",
   "default_agent_id": "default",
   "knowledge": {
-    "root": "knowledge/groups/law",
-    "documents": "knowledge/groups/law/documents",
-    "uploads": "knowledge/groups/law/uploads"
+    "root": "storage/groups/law/knowledge",
+    "raw": "storage/groups/law/knowledge/raw",
+    "indexes": "storage/groups/law/knowledge/indexes"
   },
   "memory_policy": {},
   "metadata": {

@@ -12,6 +12,7 @@ class MemoryAnchor:
     source: str
     source_session_id: str | None = None
     anchor_key: str | None = None
+    anchor_spans: tuple[dict[str, Any], ...] = ()
     can_hydrate_context: bool = False
 
     def to_dict(self) -> dict[str, Any]:
@@ -20,6 +21,7 @@ class MemoryAnchor:
             "source": self.source,
             "source_session_id": self.source_session_id,
             "anchor_key": self.anchor_key,
+            "anchor_spans": list(self.anchor_spans),
             "can_hydrate_context": self.can_hydrate_context,
         }
 
@@ -34,5 +36,6 @@ class MemoryAnchorBuilder:
             source=entry.source,
             source_session_id=entry.source_session_id,
             anchor_key=anchor_key,
+            anchor_spans=tuple(entry.anchor_spans or ()),
             can_hydrate_context=bool(entry.source_session_id),
         )

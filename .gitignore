@@ -29,3 +29,6 @@ backend/temp_*.txt
 .DS_Store
 Thumbs.db
 backend/demo/
+backend_test/retrieval_infra/.test_tmp
+backend_test/legal_crawler/.test_tmp
+.test_tmp

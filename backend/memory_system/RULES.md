@@ -9,19 +9,20 @@
   - 阶段性结果、会话摘要、近期推进记录
   - 作用域为 `user_group`
 - `domain_case`
-  - 组共享的案例、判例、病例、可复用结论
-  - 作用域为 `group_shared`
+  - 同一用户在当前组内可复用的案例、判例、病例、结论
+  - 作用域为 `user_group`
 
 ## 写入时机
 
 - `daily_log`
-  - checkpoint 或 compaction flush 时默认写入
+  - checkpoint 或 compaction flush 时进入结构化写入链
   - 是否启用由 `memory_policy.daily_log.checkpoint_enabled` 控制
+  - 不再因“summary 非空”直接落盘；需要抽取出 summary、anchor spans、confidence
 
 - `core`
   - 只从用户消息中提取“显式长期信号”
   - 触发词来自 `memory_policy.core.explicit_markers`
-  - `user_global / user_group` 由 `memory_policy.core.group_scope_keywords` 判断
+  - 默认写为 `user_global`；仅调用方显式要求时写为 `user_group`
 
 - `domain_case`
   - 只在 checkpoint 时尝试提取
@@ -35,8 +36,15 @@
   - 同一用户跨所有组都成立的长期记忆
 - `user_group`
   - 同一用户仅在当前组成立的长期记忆
-- `group_shared`
-  - 当前组内共享的案例、经验、规范
+## 存储布局
+
+- `core`
+  - `backend/storage/users/{user_id}/memory/core/global.json`
+  - `backend/storage/groups/{group_id}/users/{user_id}/memory/core/group.json`
+- `daily_log`
+  - `backend/storage/groups/{group_id}/users/{user_id}/memory/daily_log/YYYY-MM-DD.jsonl`
+- `domain_case`
+  - `backend/storage/groups/{group_id}/users/{user_id}/memory/domain_case/domain_cases.jsonl`
 
 ## 规则来源
 
@@ -59,7 +67,6 @@ group 元数据缺字段时，按默认规则补齐。
     "enabled_memory_types": ["core", "daily_log", "domain_case"],
     "core": {
       "explicit_markers": ["以后", "默认"],
-      "group_scope_keywords": ["法律", "法条"],
       "min_candidate_length": 6,
       "max_candidate_length": 120
     },

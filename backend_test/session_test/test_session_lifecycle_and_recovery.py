@@ -70,12 +70,13 @@ def test_delete_session_removes_metadata_and_transcript(session_manager, make_en
     transcript_path = (
         session_manager.groups_path
         / "law"
-        / "agents"
-        / "agent_a"
+        / "users"
+        / "u"
         / "sessions"
+        / "transcripts"
         / f"{session.id}.jsonl"
     )
-    meta_path = transcript_path.with_suffix(".meta.json")
+    meta_path = transcript_path.parent.parent / f"{session.id}.meta.json"
 
     session_manager.delete_session(session.id, "law", "agent_a")
 

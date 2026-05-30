@@ -95,5 +95,10 @@ class ContextRegistryManager:
         return pruned
 
     def _registry_path(self, group_id: str, agent_id: str, session_id: str) -> Path:
-        sessions_dir = self.session_manager._get_group_path(group_id, agent_id)
+        user_id = self.session_manager._resolve_user_id(group_id, session_id, agent_id)
+        if not user_id:
+            user_id = self.session_manager.resolve_user_id_any_group(session_id, agent_id)
+        if not user_id:
+            user_id = "default"
+        sessions_dir = self.session_manager._get_user_sessions_path(group_id, user_id)
         return sessions_dir / f"{session_id}.registry.json"

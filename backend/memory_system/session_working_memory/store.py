@@ -17,21 +17,37 @@ class SessionWorkingMemoryStore:
         self.base_storage_path = Path(base_storage_path)
         self.retention = SessionWorkingMemoryRetention()
 
-    def get_paths(self, *, group_id: str, agent_id: str, session_id: str) -> tuple[Path, Path]:
-        session_dir = self.base_storage_path / "groups" / group_id / "agents" / agent_id / "sessions"
+    def get_paths(
+        self,
+        *,
+        group_id: str,
+        agent_id: str,
+        session_id: str,
+        user_id: str | None = None,
+    ) -> tuple[Path, Path]:
+        if not user_id:
+            raise ValueError("user_id is required for session working memory paths")
+        session_dir = self.base_storage_path / "groups" / group_id / "users" / user_id / "sessions"
         session_dir.mkdir(parents=True, exist_ok=True)
         return (
             session_dir / f"{session_id}.working_memory.jsonl",
             session_dir / f"{session_id}.working_memory.head.json",
         )
 
-    def load(self, *, group_id: str, agent_id: str, session_id: str) -> SessionWorkingMemory | None:
-        jsonl_path, head_path = self.get_paths(group_id=group_id, agent_id=agent_id, session_id=session_id)
-        if not jsonl_path.exists() and not head_path.exists():
-            return None
-        entries = self._read_jsonl(jsonl_path)
-        head = WorkingMemoryHead.from_dict(self._read_json(head_path, {}))
-        return SessionWorkingMemory(entries=entries, head=head)
+    def load(
+        self,
+        *,
+        group_id: str,
+        agent_id: str,
+        session_id: str,
+        user_id: str | None = None,
+    ) -> SessionWorkingMemory | None:
+        jsonl_path, head_path = self.get_paths(group_id=group_id, agent_id=agent_id, session_id=session_id, user_id=user_id)
+        if jsonl_path.exists() or head_path.exists():
+            entries = self._read_jsonl(jsonl_path)
+            head = WorkingMemoryHead.from_dict(self._read_json(head_path, {}))
+            return SessionWorkingMemory(entries=entries, head=head)
+        return None
 
     def save(
         self,
@@ -39,6 +55,7 @@ class SessionWorkingMemoryStore:
         group_id: str,
         agent_id: str,
         session_id: str,
+        user_id: str | None = None,
         memory: SessionWorkingMemory | dict[str, Any],
     ) -> SessionWorkingMemory:
         normalized = (
@@ -47,7 +64,7 @@ class SessionWorkingMemoryStore:
             else SessionWorkingMemory.from_dict(memory)
         )
         normalized = self.retention.merge(SessionWorkingMemory(), normalized.entries)
-        jsonl_path, head_path = self.get_paths(group_id=group_id, agent_id=agent_id, session_id=session_id)
+        jsonl_path, head_path = self.get_paths(group_id=group_id, agent_id=agent_id, session_id=session_id, user_id=user_id)
         self._write_jsonl(jsonl_path, normalized.entries)
         self._write_json(head_path, normalized.head.to_dict())
         return normalized
@@ -58,11 +75,12 @@ class SessionWorkingMemoryStore:
         group_id: str,
         agent_id: str,
         session_id: str,
+        user_id: str | None = None,
         entries: list[WorkingMemoryEntry],
     ) -> SessionWorkingMemory:
-        current = self.load(group_id=group_id, agent_id=agent_id, session_id=session_id)
+        current = self.load(group_id=group_id, agent_id=agent_id, session_id=session_id, user_id=user_id)
         merged = self.retention.merge(current, entries)
-        jsonl_path, head_path = self.get_paths(group_id=group_id, agent_id=agent_id, session_id=session_id)
+        jsonl_path, head_path = self.get_paths(group_id=group_id, agent_id=agent_id, session_id=session_id, user_id=user_id)
         self._write_jsonl(jsonl_path, merged.entries)
         self._write_json(head_path, merged.head.to_dict())
         return merged
@@ -96,4 +114,3 @@ class SessionWorkingMemoryStore:
 
     def _write_json(self, path: Path, payload: Any) -> None:
         path.write_text(json.dumps(payload, ensure_ascii=False, indent=2), encoding="utf-8")
-
