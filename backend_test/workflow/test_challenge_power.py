@@ -1,6 +1,9 @@
 from __future__ import annotations
 
 from workflow.powers.challenge_power import ChallengePower
+from workflow.orchestrated.execution_layer.adapters.retrieval_adapter import build_retrieval_workers
+from workflow.orchestrated.execution_layer.adapters.review_adapter import build_review_workers
+from workflow.orchestrated.execution_layer.workers.registry import WorkerRegistry
 from workflow.types import (
     ChallengeResult,
     EvidenceAssessmentResult,
@@ -47,6 +50,15 @@ class _FakeRetrievalPower:
             quality_summary={"average_weighted_score": 0.9},
             missing_evidence_notes=(),
         )
+
+
+def _build_registry(*, review_worker, retrieval_power) -> WorkerRegistry:
+    registry = WorkerRegistry()
+    for worker in build_retrieval_workers(retrieval_power=retrieval_power, review_worker=review_worker):
+        registry.register(worker)
+    for worker in build_review_workers(review_worker=review_worker):
+        registry.register(worker)
+    return registry
 
 
 def test_challenge_power_returns_success_when_targets_have_matching_evidence() -> None:
@@ -229,6 +241,7 @@ def test_challenge_power_supports_multi_target_partial_success() -> None:
 def test_challenge_power_uses_follow_up_retrieval_when_more_evidence_is_needed() -> None:
     power = ChallengePower()
     retrieval = _FakeRetrievalPower()
+    registry = _build_registry(review_worker=ReviewWorker(), retrieval_power=retrieval)
 
     result = power.execute(
         query="前两个结论的依据都对吗？",
@@ -258,6 +271,7 @@ def test_challenge_power_uses_follow_up_retrieval_when_more_evidence_is_needed()
         binding_worker=BindingWorker(),
         review_worker=ReviewWorker(),
         retrieval_power=retrieval,
+        worker_registry=registry,
     )
 
     assert result.status == "success"
@@ -286,6 +300,7 @@ def test_challenge_power_uses_follow_up_retrieval_when_more_evidence_is_needed()
 def test_challenge_power_follow_up_retrieval_targets_only_missing_target_refs() -> None:
     power = ChallengePower()
     retrieval = _FakeRetrievalPower()
+    registry = _build_registry(review_worker=ReviewWorker(), retrieval_power=retrieval)
 
     result = power.execute(
         query="前两个结论的依据都对吗？",
@@ -314,6 +329,7 @@ def test_challenge_power_follow_up_retrieval_targets_only_missing_target_refs() 
         ],
         review_worker=ReviewWorker(),
         retrieval_power=retrieval,
+        worker_registry=registry,
     )
 
     assert result.status == "success"

@@ -1,8 +1,5 @@
-from workflow.orchestrated.execution_layer.executors.registry import (
-    BaseCapabilityExecutor,
-    CapabilityExecutionPlan,
-    CapabilityExecutorRegistry,
-)
+from workflow.orchestrated.execution_layer.executors.base import BaseCapabilityExecutor
+from workflow.orchestrated.execution_layer.executors.registry import CapabilityExecutorRegistry
 from workflow.orchestrated.execution_layer.executors.qa_like_executor import QaLikeExecutor
 from workflow.orchestrated.execution_layer.executors.chat_like_executor import ChatLikeExecutor
 from workflow.orchestrated.execution_layer.executors.reject_like_executor import RejectLikeExecutor
@@ -12,7 +9,6 @@ from workflow.orchestrated.execution_layer.executors.synthesis_executor import S
 
 __all__ = [
     "BaseCapabilityExecutor",
-    "CapabilityExecutionPlan",
     "CapabilityExecutorRegistry",
     "QaLikeExecutor",
     "ChatLikeExecutor",

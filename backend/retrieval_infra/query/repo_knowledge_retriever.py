@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 
 from retrieval_infra.indexing.repo_knowledge_manager import RepoKnowledgeIndexManager
-from retrieval_infra.query.reranker import HeuristicCrossEncoderReranker
+from retrieval_infra.query.reranker import LocalCrossEncoderReranker
 
 from knowledge_retrieval.types import Evidence, HybridRetrievalResult
 
@@ -13,7 +13,7 @@ class RepoKnowledgeRetriever:
 
     def __init__(self, backend_dir=None) -> None:
         self.manager = RepoKnowledgeIndexManager(backend_dir=backend_dir)
-        self.reranker = HeuristicCrossEncoderReranker()
+        self.reranker = LocalCrossEncoderReranker()
 
     def retrieve(
         self,

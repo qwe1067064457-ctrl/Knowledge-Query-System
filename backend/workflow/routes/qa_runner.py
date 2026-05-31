@@ -8,6 +8,9 @@ from workflow.powers.challenge_power import ChallengePower
 from workflow.powers.context_binding_power import ContextBindingPower
 from workflow.powers.retrieval_power import RetrievalPower
 from workflow.retrieval_gate import RetrievalGate
+from workflow.orchestrated.execution_layer.adapters.retrieval_adapter import build_retrieval_workers
+from workflow.orchestrated.execution_layer.adapters.review_adapter import build_review_workers
+from workflow.orchestrated.execution_layer.workers.registry import WorkerRegistry
 from workflow.routes.base import BaseRouteRunner, RouteExecutionRequest
 from workflow.types import ContextBindingResult, QueryUnit, WorkflowPlan
 from workflow.workers.binding_worker import BindingWorker
@@ -64,7 +67,19 @@ class QaRouteRunner(BaseRouteRunner):
         self.challenge_power = ChallengePower()
         self.retrieval_gate = RetrievalGate()
 
+    def _build_worker_registry(self) -> WorkerRegistry:
+        registry = WorkerRegistry()
+        for worker in build_retrieval_workers(
+            retrieval_power=self.retrieval_power,
+            review_worker=self.review_worker,
+        ):
+            registry.register(worker)
+        for worker in build_review_workers(review_worker=self.review_worker):
+            registry.register(worker)
+        return registry
+
     def run(self, plan: WorkflowPlan, request: RouteExecutionRequest):
+        worker_registry = self._build_worker_registry()
         payload = self._build_payload(
             plan,
             request,
@@ -161,6 +176,7 @@ class QaRouteRunner(BaseRouteRunner):
                 binding_worker=self.binding_worker,
                 review_worker=self.review_worker,
                 retrieval_power=self.retrieval_power if "retrieval_power" in plan.enabled_powers else None,
+                worker_registry=worker_registry,
             )
             review_bundle = self._normalize_review_bundle_obj(challenge.to_review_bundle())
             answer_constraints.update(challenge.answer_constraints)

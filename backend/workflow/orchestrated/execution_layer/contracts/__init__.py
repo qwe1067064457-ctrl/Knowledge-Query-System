@@ -1,4 +1,8 @@
 from workflow.orchestrated.execution_layer.contracts.execution_layer_result import ExecutionLayerResult
+from workflow.orchestrated.execution_layer.contracts.unit_execution_outcome import (
+    UnitExecutionContext,
+    UnitExecutionOutcome,
+)
 from workflow.orchestrated.execution_layer.contracts.graph import (
     BindingMode,
     ExecutionEdge,
@@ -32,4 +36,6 @@ __all__ = [
     "UnitState",
     "VerifyResultPayload",
     "normalize_result_payload",
+    "UnitExecutionContext",
+    "UnitExecutionOutcome",
 ]

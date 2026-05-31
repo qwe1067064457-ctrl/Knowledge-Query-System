@@ -23,6 +23,7 @@ from retrieval_infra.indexing.repo_knowledge_manager import RepoKnowledgeIndexMa
 from retrieval_infra.normalization import DocumentNormalizer
 from retrieval_infra.parsing import SimpleTextParser
 from retrieval_infra.query.repo_knowledge_retriever import RepoKnowledgeRetriever
+from retrieval_infra.query.reranker import LocalCrossEncoderReranker
 from retrieval_infra.queue import WorkQueue
 
 
@@ -332,3 +333,47 @@ def test_memory_hybrid_retriever_recalls_domain_case_and_daily_log(local_tmp_pat
 
     assert hits
     assert {item.memory_type for item in hits} == {"daily_log", "domain_case"}
+
+
+def test_local_cross_encoder_reranker_falls_back_to_heuristic_when_no_model() -> None:
+    from knowledge_retrieval.types import Evidence
+
+    reranker = LocalCrossEncoderReranker(model_ref="definitely_missing_model")
+    ranked = reranker.rerank(
+        "breach liability",
+        [
+            Evidence(source_path="a.md", source_type="md", locator="p1", snippet="breach liability analysis", channel="bm25", score=0.2),
+            Evidence(source_path="b.md", source_type="md", locator="p2", snippet="cardiology", channel="bm25", score=0.1),
+        ],
+        top_k=2,
+    )
+
+    assert reranker.active_backend == "heuristic"
+    assert ranked[0].snippet == "breach liability analysis"
+
+
+def test_local_cross_encoder_reranker_prefers_local_model_backend(monkeypatch: pytest.MonkeyPatch, local_tmp_path: Path) -> None:
+    from knowledge_retrieval.types import Evidence
+
+    model_dir = local_tmp_path / "fake_reranker"
+    model_dir.mkdir(parents=True, exist_ok=True)
+    reranker = LocalCrossEncoderReranker(model_ref=str(model_dir))
+
+    monkeypatch.setattr(reranker, "_discover_local_model", lambda: model_dir)
+    monkeypatch.setattr(
+        reranker,
+        "_load_local_cross_encoder",
+        lambda _model_path: (lambda query, evidences: [0.1 if "cardiology" in item.snippet else 0.9 for item in evidences]),
+    )
+
+    ranked = reranker.rerank(
+        "breach liability",
+        [
+            Evidence(source_path="a.md", source_type="md", locator="p1", snippet="cardiology note", channel="vector", score=0.8),
+            Evidence(source_path="b.md", source_type="md", locator="p2", snippet="breach liability analysis", channel="vector", score=0.1),
+        ],
+        top_k=2,
+    )
+
+    assert reranker.active_backend == str(model_dir)
+    assert ranked[0].snippet == "breach liability analysis"
