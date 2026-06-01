@@ -9,6 +9,16 @@ from typing import Any
 from retrieval_infra.contracts import BuildCheckpoint, BuildRequest
 
 
+def _sqlite_path(path: Path) -> str:
+    resolved = path.resolve()
+    raw = str(resolved)
+    if raw.startswith("\\\\?\\"):
+        return raw
+    if len(raw) >= 240 and resolved.drive:
+        return f"\\\\?\\{raw}"
+    return raw
+
+
 class StateStore:
     """隔离的构建历史层与恢复层。
 
@@ -51,7 +61,11 @@ class StateStore:
         self._ensure_recovery_schema()
 
     def append_build(self, request: BuildRequest, *, status: str) -> None:
-        payload = request.to_dict() | {"status": status, "recorded_at": datetime.now().isoformat()}
+        payload = request.to_dict() | {
+            "build_input_fingerprint": request.build_input_fingerprint,
+            "status": status,
+            "recorded_at": datetime.now().isoformat(),
+        }
         self._append_jsonl(self.build_registry_path, payload)
 
     def append_build_history(self, payload: dict[str, Any]) -> None:
@@ -223,14 +237,48 @@ class StateStore:
         return self._load_checkpoint_table(self.activation_checkpoints_path, "activation_checkpoints", ("build_id",))
 
     def _ensure_recovery_schema(self) -> None:
-        self._ensure_checkpoint_db(self.scan_checkpoints_path, "scan_checkpoints", ("build_id TEXT PRIMARY KEY",))
+        self._ensure_checkpoint_db(
+            self.scan_checkpoints_path,
+            """
+            CREATE TABLE IF NOT EXISTS scan_checkpoints (
+                build_id TEXT PRIMARY KEY,
+                payload_json TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            )
+            """,
+        )
         self._ensure_checkpoint_db(
             self.document_checkpoints_path,
-            "document_checkpoints",
-            ("build_id TEXT NOT NULL", "doc_id TEXT NOT NULL", "PRIMARY KEY (build_id, doc_id)"),
+            """
+            CREATE TABLE IF NOT EXISTS document_checkpoints (
+                build_id TEXT NOT NULL,
+                doc_id TEXT NOT NULL,
+                payload_json TEXT NOT NULL,
+                updated_at TEXT NOT NULL,
+                PRIMARY KEY (build_id, doc_id)
+            )
+            """,
         )
-        self._ensure_checkpoint_db(self.index_checkpoints_path, "index_checkpoints", ("build_id TEXT PRIMARY KEY",))
-        self._ensure_checkpoint_db(self.activation_checkpoints_path, "activation_checkpoints", ("build_id TEXT PRIMARY KEY",))
+        self._ensure_checkpoint_db(
+            self.index_checkpoints_path,
+            """
+            CREATE TABLE IF NOT EXISTS index_checkpoints (
+                build_id TEXT PRIMARY KEY,
+                payload_json TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            )
+            """,
+        )
+        self._ensure_checkpoint_db(
+            self.activation_checkpoints_path,
+            """
+            CREATE TABLE IF NOT EXISTS activation_checkpoints (
+                build_id TEXT PRIMARY KEY,
+                payload_json TEXT NOT NULL,
+                updated_at TEXT NOT NULL
+            )
+            """,
+        )
 
     @staticmethod
     def _append_jsonl(path: Path, payload: dict[str, Any]) -> None:
@@ -239,18 +287,10 @@ class StateStore:
             handle.write(json.dumps(payload, ensure_ascii=False) + "\n")
 
     @staticmethod
-    def _ensure_checkpoint_db(db_path: Path, table_name: str, key_columns_sql: tuple[str, ...]) -> None:
+    def _ensure_checkpoint_db(db_path: Path, create_table_sql: str) -> None:
         db_path.parent.mkdir(parents=True, exist_ok=True)
-        with sqlite3.connect(db_path) as conn:
-            conn.execute(
-                f"""
-                CREATE TABLE IF NOT EXISTS {table_name} (
-                    {", ".join(key_columns_sql)},
-                    payload_json TEXT NOT NULL,
-                    updated_at TEXT NOT NULL
-                )
-                """
-            )
+        with sqlite3.connect(_sqlite_path(db_path)) as conn:
+            conn.execute(create_table_sql)
             conn.commit()
 
     @staticmethod
@@ -265,7 +305,7 @@ class StateStore:
         updated_at = datetime.now().isoformat()
         columns = ", ".join([*key_columns, "payload_json", "updated_at"])
         placeholders = ", ".join(["?"] * (len(key_columns) + 2))
-        with sqlite3.connect(db_path) as conn:
+        with sqlite3.connect(_sqlite_path(db_path)) as conn:
             conn.execute(
                 f"INSERT OR REPLACE INTO {table_name} ({columns}) VALUES ({placeholders})",
                 (*key_values, json.dumps(payload, ensure_ascii=False), updated_at),
@@ -277,7 +317,7 @@ class StateStore:
         if not db_path.exists():
             return {}
         key_expr = " || '::' || ".join(key_columns) if len(key_columns) > 1 else key_columns[0]
-        with sqlite3.connect(db_path) as conn:
+        with sqlite3.connect(_sqlite_path(db_path)) as conn:
             rows = conn.execute(f"SELECT {key_expr}, payload_json FROM {table_name}").fetchall()
         output: dict[str, dict[str, Any]] = {}
         for key, payload_json in rows:

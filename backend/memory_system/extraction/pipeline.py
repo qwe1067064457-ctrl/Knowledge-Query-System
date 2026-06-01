@@ -142,7 +142,7 @@ scope_hint: {scope_hint}
         conversation_material = self._build_recent_conversation_material(messages)
         payload = self._call_json_model(
             f"""
-你是 daily_log extractor。请从最近对话材料中抽取一条阶段性长期记忆。
+你是 daily_log extractor。请把下面最近对话材料抽取成 daily_log。
 要求：
 1. 只输出 JSON，不要解释。
 2. memory_type 固定 daily_log，scope 固定 user_group。

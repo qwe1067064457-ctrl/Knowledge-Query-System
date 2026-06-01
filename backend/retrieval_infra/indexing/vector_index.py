@@ -14,6 +14,16 @@ def _tokenize(text: str) -> list[str]:
     return re.findall(r"[\u4e00-\u9fff]|[A-Za-z0-9_]+", text.lower())
 
 
+def _sqlite_path(path: Path) -> str:
+    resolved = path.resolve()
+    raw = str(resolved)
+    if raw.startswith("\\\\?\\"):
+        return raw
+    if len(raw) >= 240 and resolved.drive:
+        return f"\\\\?\\{raw}"
+    return raw
+
+
 class SimpleVectorIndex:
     """持久化稀疏向量召回后端。
 
@@ -24,7 +34,7 @@ class SimpleVectorIndex:
     def __init__(self, db_path: Path) -> None:
         self.db_path = Path(db_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
-        with sqlite3.connect(self.db_path) as conn:
+        with sqlite3.connect(_sqlite_path(self.db_path)) as conn:
             conn.execute(
                 """
                 CREATE TABLE IF NOT EXISTS vectors (
@@ -54,7 +64,7 @@ class SimpleVectorIndex:
             for term in counter:
                 doc_freq[term] += 1
         total_docs = max(1, len(chunk_counters))
-        with sqlite3.connect(self.db_path) as conn:
+        with sqlite3.connect(_sqlite_path(self.db_path)) as conn:
             conn.execute("DELETE FROM vectors")
             conn.execute("DELETE FROM vector_globals")
             conn.executemany(
@@ -81,7 +91,7 @@ class SimpleVectorIndex:
         if not query_counter:
             return []
         scores: list[tuple[str, float]] = []
-        with sqlite3.connect(self.db_path) as conn:
+        with sqlite3.connect(_sqlite_path(self.db_path)) as conn:
             globals_rows = dict(conn.execute("SELECT key, value FROM vector_globals").fetchall())
             total_docs = int(globals_rows.get("total_docs") or "1")
             doc_freq = Counter(json.loads(globals_rows.get("doc_freq") or "{}"))

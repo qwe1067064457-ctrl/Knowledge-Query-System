@@ -17,7 +17,8 @@
 - `daily_log`
   - checkpoint 或 compaction flush 时进入结构化写入链
   - 是否启用由 `memory_policy.daily_log.checkpoint_enabled` 控制
-  - 不再因“summary 非空”直接落盘；需要抽取出 summary、anchor spans、confidence
+  - 不再依赖统一 flush summary 作为唯一输入；由 recent messages / compaction materials 进入 `DailyLogExtractor`
+  - 需要抽取出 subject、content、anchor spans、confidence
 
 - `core`
   - 只从用户消息中提取“显式长期信号”
@@ -29,6 +30,15 @@
   - 必须同时满足：
     - 完成态标记：`memory_policy.domain_case.completion_markers`
     - 结构化标记：`memory_policy.domain_case.structural_markers` 或 `case_markers`
+
+## 当前写入链
+
+- `core`
+  - `CoreGate -> CoreExtractor -> validator -> async write`
+- `daily_log`
+  - `DailyLogGate -> DailyLogExtractor -> validator -> async write`
+- `domain_case`
+  - `DomainCaseGate -> DomainCaseExtractor -> validator -> async write`
 
 ## 作用域语义
 

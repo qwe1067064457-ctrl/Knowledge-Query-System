@@ -7,6 +7,7 @@ from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
 from typing import Iterable
+import uuid
 
 from retrieval_infra.adapters import KnowledgeSourceAdapter
 from retrieval_infra.chunking import TextChunker
@@ -159,57 +160,77 @@ class RepoKnowledgeIndexManager:
                 stage="started",
                 status="running",
             )
-            parsed = self.parser.parse(doc_id, source)
-            normalized = self.normalizer.normalize(parsed)
-            doc_chunks = self.chunker.chunk(normalized)
-            self._validate_document_outputs(source=source, doc_kind=doc_kind, doc_chunks=tuple(doc_chunks))
-            for chunk in doc_chunks:
-                all_chunks.append(chunk)
-                if bool(chunk.metadata.get("structured_only")):
-                    table_chunks.append(chunk)
-                    pool = "table"
-                else:
-                    text_chunks.append(chunk)
-                    pool = "text"
-                chunk_meta[chunk.chunk_id] = {
-                    "doc_id": chunk.doc_id,
-                    "source_path": chunk.source_path,
-                    "locator": chunk.locator,
-                    "file_type": chunk.file_type,
-                    "pool": pool,
-                    "structured_only": bool(chunk.metadata.get("structured_only")),
-                            "analysis_available": bool(chunk.metadata.get("analysis_available", False)),
-                        }
-            text_count = sum(1 for chunk in doc_chunks if not bool(chunk.metadata.get("structured_only")))
-            table_count = len(doc_chunks) - text_count
-            doc_results.append(
-                {
-                    "source_id": source.source_id,
-                    "doc_id": doc_id,
-                    "source_path": source.source_path,
-                    "doc_kind": doc_kind,
-                    "chunk_count": text_count,
-                    "table_record_count": table_count,
-                }
-            )
-            state_store.write_document_checkpoint(
-                build_id=build_id,
-                doc_id=doc_id,
-                source_id=source.source_id,
-                source_path=source.source_path,
-                doc_kind=doc_kind,
-                stage="text_ready" if doc_kind == "text" else "table_ready",
-                status="completed",
-                chunk_count=text_count,
-                table_record_count=table_count,
-            )
-            self._work_queue(group_id).enqueue_document(
-                build_id=build_id,
-                doc_id=doc_id,
-                source_path=source.source_path,
-                stage="completed",
-                status="completed",
-            )
+            try:
+                parsed = self.parser.parse(doc_id, source)
+                normalized = self.normalizer.normalize(parsed)
+                doc_chunks = self.chunker.chunk(normalized)
+                self._validate_document_outputs(source=source, doc_kind=doc_kind, doc_chunks=tuple(doc_chunks))
+                for chunk in doc_chunks:
+                    all_chunks.append(chunk)
+                    if bool(chunk.metadata.get("structured_only")):
+                        table_chunks.append(chunk)
+                        pool = "table"
+                    else:
+                        text_chunks.append(chunk)
+                        pool = "text"
+                    chunk_meta[chunk.chunk_id] = {
+                        "doc_id": chunk.doc_id,
+                        "source_path": chunk.source_path,
+                        "locator": chunk.locator,
+                        "file_type": chunk.file_type,
+                        "pool": pool,
+                        "structured_only": bool(chunk.metadata.get("structured_only")),
+                        "analysis_available": bool(chunk.metadata.get("analysis_available", False)),
+                    }
+                text_count = sum(1 for chunk in doc_chunks if not bool(chunk.metadata.get("structured_only")))
+                table_count = len(doc_chunks) - text_count
+                doc_results.append(
+                    {
+                        "source_id": source.source_id,
+                        "doc_id": doc_id,
+                        "source_path": source.source_path,
+                        "doc_kind": doc_kind,
+                        "chunk_count": text_count,
+                        "table_record_count": table_count,
+                    }
+                )
+                state_store.write_document_checkpoint(
+                    build_id=build_id,
+                    doc_id=doc_id,
+                    source_id=source.source_id,
+                    source_path=source.source_path,
+                    doc_kind=doc_kind,
+                    stage="text_ready" if doc_kind == "text" else "table_ready",
+                    status="completed",
+                    chunk_count=text_count,
+                    table_record_count=table_count,
+                )
+                self._work_queue(group_id).enqueue_document(
+                    build_id=build_id,
+                    doc_id=doc_id,
+                    source_path=source.source_path,
+                    stage="completed",
+                    status="completed",
+                )
+            except Exception as exc:
+                state_store.write_document_checkpoint(
+                    build_id=build_id,
+                    doc_id=doc_id,
+                    source_id=source.source_id,
+                    source_path=source.source_path,
+                    doc_kind=doc_kind,
+                    stage="failed",
+                    status="failed",
+                    error=str(exc),
+                )
+                self._work_queue(group_id).enqueue_document(
+                    build_id=build_id,
+                    doc_id=doc_id,
+                    source_path=source.source_path,
+                    stage="failed",
+                    status="failed",
+                )
+                raise
 
         state_store.write_scan_checkpoint(
             build_id=build_id,
@@ -547,9 +568,10 @@ class RepoKnowledgeIndexManager:
         }
 
     def _new_build_id(self, group_id: str) -> str:
-        timestamp = datetime.now().strftime("%m%d%H%M%S%f")
+        timestamp = datetime.now().strftime("%m%d%H%M%S")
         compact_group = group_id[:3] if group_id else "grp"
-        return f"b_{compact_group}_{timestamp}"
+        suffix = uuid.uuid4().hex[:6]
+        return f"b_{compact_group}_{timestamp}_{suffix}"
 
     def _current_timestamp(self) -> float:
         import time

@@ -14,13 +14,23 @@ def _tokenize(text: str) -> list[str]:
     return re.findall(r"[\u4e00-\u9fff]|[A-Za-z0-9_]+", text.lower())
 
 
+def _sqlite_path(path: Path) -> str:
+    resolved = path.resolve()
+    raw = str(resolved)
+    if raw.startswith("\\\\?\\"):
+        return raw
+    if len(raw) >= 240 and resolved.drive:
+        return f"\\\\?\\{raw}"
+    return raw
+
+
 class LexicalIndex:
     def __init__(self, db_path: Path, globals_path: Path) -> None:
         self.db_path = Path(db_path)
         self.globals_path = Path(globals_path)
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         self.globals_path.parent.mkdir(parents=True, exist_ok=True)
-        with sqlite3.connect(self.db_path) as conn:
+        with sqlite3.connect(_sqlite_path(self.db_path)) as conn:
             conn.execute(
                 """
                 CREATE TABLE IF NOT EXISTS postings (
@@ -68,7 +78,7 @@ class LexicalIndex:
                 term_to_postings[term].append((chunk.chunk_id, tf))
                 term_df[term] += 1
 
-        with sqlite3.connect(self.db_path) as conn:
+        with sqlite3.connect(_sqlite_path(self.db_path)) as conn:
             conn.execute("DELETE FROM postings")
             conn.execute("DELETE FROM term_stats")
             conn.execute("DELETE FROM chunk_profiles")
@@ -109,7 +119,7 @@ class LexicalIndex:
         if total_docs <= 0 or avg_doc_length <= 0:
             return []
 
-        with sqlite3.connect(self.db_path) as conn:
+        with sqlite3.connect(_sqlite_path(self.db_path)) as conn:
             chunk_lengths = {
                 str(row[0]): int(row[1])
                 for row in conn.execute("SELECT chunk_id, doc_length FROM chunk_profiles").fetchall()
