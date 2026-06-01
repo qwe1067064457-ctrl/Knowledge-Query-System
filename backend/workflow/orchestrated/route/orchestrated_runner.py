@@ -52,7 +52,7 @@ def _challenge_events(challenge) -> tuple[str, ...]:
     events: list[str] = []
     if challenge.follow_up_retrieval_attempted():
         events.append("follow_up_retrieval_attempted")
-    if challenge.review_bundle_obj().follow_up_retrieval_improved():
+    if challenge.challenge_result_bundle_obj().follow_up_retrieval_improved():
         events.append("follow_up_retrieval_improved")
     if challenge.status == "needs_clarification":
         events.append("clarification_required")
@@ -109,13 +109,12 @@ class OrchestratedRouteRunner(BaseRouteRunner):
         binding_candidates = self._registry_binding_candidates(request)
         recent_messages = list(request.context.get("recent_messages") or ())
         working_memory = request.context.get("working_memory")
-        memory_anchors = list(request.context.get("memory_anchors") or ())
         global_binding_frame = self.global_binding_worker.build_frame(
             query=request.message,
             candidates=binding_candidates,
             recent_messages=recent_messages,
             working_memory=working_memory,
-            memory_anchors=memory_anchors,
+            memory_anchors=[],
             llm_call=request.context.get("global_binding_llm_call") or request.context.get("bound_query_llm_call"),
             base_dir=request.context.get("base_dir"),
         )
@@ -147,9 +146,8 @@ class OrchestratedRouteRunner(BaseRouteRunner):
                 bound_targets=list(context_bundle.bound_targets()),
                 global_binding_frame=global_binding_frame,
                 binding_enabled=plan.policy_flags.binding_enabled(),
-                recent_messages_summary=self._recent_messages_summary(recent_messages),
+                recent_messages_truncated=self._recent_messages_truncated(recent_messages),
                 working_memory_hints=self._working_memory_hints(request.message, working_memory),
-                memory_anchor_hints=self._memory_anchor_hints(memory_anchors),
                 llm_call=request.context.get("planning_llm_call") or request.context.get("bound_query_llm_call"),
                 base_dir=request.context.get("base_dir"),
                 planner_worker=self.planner_worker,
@@ -212,7 +210,7 @@ class OrchestratedRouteRunner(BaseRouteRunner):
             key_events = _merge_key_events(key_events, _binding_events(binding_result))
         key_events = _merge_key_events(key_events, execution_result.key_events)
         if evidence_bundle is not None:
-            retrieval_quality = self.review_worker.retrieval_quality_check(evidence_bundle=evidence_bundle)
+            retrieval_quality = worker_registry.get("retrieval_quality")(evidence_bundle=evidence_bundle)
             key_events = _merge_key_events(
                 key_events,
                 _retrieval_events(
@@ -250,7 +248,7 @@ class OrchestratedRouteRunner(BaseRouteRunner):
                 seen_evidence_ids.add(object_id)
                 evidence_candidates.append(candidate)
 
-        review_bundle = payload.review_bundle_obj()
+        challenge_result_bundle = payload.challenge_result_bundle_obj()
         if "challenge_power" in plan.enabled_powers:
             challenge = self.challenge_power.execute(
                 query=request.message,
@@ -263,7 +261,9 @@ class OrchestratedRouteRunner(BaseRouteRunner):
                 retrieval_power=self.retrieval_power if "retrieval_power" in plan.enabled_powers else None,
                 worker_registry=worker_registry,
             )
-            review_bundle = self._normalize_review_bundle_obj(challenge.to_review_bundle())
+            challenge_result_bundle = self._normalize_challenge_result_bundle_obj(
+                challenge.to_challenge_result_bundle()
+            )
             answer_constraints.update(challenge.answer_constraints)
             key_events = _merge_key_events(
                 key_events,
@@ -277,13 +277,13 @@ class OrchestratedRouteRunner(BaseRouteRunner):
             plan,
             context_bundle=context_bundle,
             plan_bundle=plan_bundle,
-            review_bundle=review_bundle,
+            review_bundle=challenge_result_bundle,
             answer_constraints=answer_constraints,
             key_events=key_events,
             evidence_bundle=evidence_bundle,
         )
 
-    def _recent_messages_summary(self, recent_messages: list[dict[str, str]]) -> list[dict[str, str]]:
+    def _recent_messages_truncated(self, recent_messages: list[dict[str, str]]) -> list[dict[str, str]]:
         return [
             {
                 "role": str(item.get("role") or "").strip(),
@@ -320,15 +320,4 @@ class OrchestratedRouteRunner(BaseRouteRunner):
                 "structured_payload": dict(entry.structured_payload),
             }
             for entry in entries
-        ]
-
-    def _memory_anchor_hints(self, memory_anchors: list[dict[str, object]]) -> list[dict[str, str]]:
-        return [
-            {
-                "anchor_id": str(item.get("anchor_id") or item.get("source_session_id") or "").strip(),
-                "summary": str(item.get("summary") or item.get("content") or "").strip(),
-                "confidence": str(item.get("confidence") or "medium").strip(),
-            }
-            for item in memory_anchors[:5]
-            if str(item.get("summary") or item.get("content") or "").strip()
         ]

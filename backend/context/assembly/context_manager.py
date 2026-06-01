@@ -375,9 +375,6 @@ class ContextManager:
             agent_id=agent_id,
             query=query,
             top_k=self.config.memory_top_k,
-            time_decay_half_life=self.config.memory_time_decay_half_life,
-            use_mmr=self.config.memory_use_mmr,
-            mmr_lambda=self.config.memory_mmr_lambda,
             user_id=user_id,
         )
         if not memories:
@@ -487,25 +484,19 @@ class ContextManager:
 
         if self.config.memory_flush_enabled:
             try:
-                context_str = json.dumps(messages[-50:], ensure_ascii=False)
-                flush_prompt = (
-                    "提取对你主人重要的信息\n"
-                    "你即将失去当前上下文。请提取对后续对话有长期价值的要点，"
-                    "优先关注用户偏好、已确认决策、重要事实和当前约束。\n\n"
-                    "如果没有值得记录的内容，回复 NO_REPLY。\n\n"
-                    f"上下文：\n{context_str[:8000]}"
+                flush_result = await self.memory_sys.flush_from_context(
+                    group_id,
+                    agent_id,
+                    "",
+                    user_id=user_id,
+                    source_session_id=session_id,
+                    messages=messages,
                 )
-                important_info = await self._call_llm_text(flush_prompt)
-                if important_info and important_info.strip() != "NO_REPLY":
-                    flush_result = await self.memory_sys.flush_from_context(
-                        group_id,
-                        agent_id,
-                        important_info,
-                        user_id=user_id,
-                        source_session_id=session_id,
-                        messages=messages,
-                    )
-                    memory_flushed = bool(flush_result.get("flushed"))
+                memory_flushed = bool(
+                    flush_result.get("flushed")
+                    or flush_result.get("core_written")
+                    or flush_result.get("domain_case_written")
+                )
             except Exception as exc:  # pragma: no cover
                 print(f"Memory flush failed: {exc}")
 

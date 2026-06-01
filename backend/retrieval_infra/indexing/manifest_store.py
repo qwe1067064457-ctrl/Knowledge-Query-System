@@ -12,39 +12,53 @@ class ManifestStore:
         self.manifest_path = Path(manifest_path)
         self.manifest_path.parent.mkdir(parents=True, exist_ok=True)
 
-    def load(self, namespace: str, *, default_active_slot: str = "current") -> IndexManifest:
+    def load(self, namespace: str) -> IndexManifest:
         if not self.manifest_path.exists():
-            return IndexManifest(namespace=namespace, active_slot=default_active_slot)
+            return IndexManifest(namespace=namespace)
         payload = json.loads(self.manifest_path.read_text(encoding="utf-8"))
         return IndexManifest(
             namespace=str(payload.get("namespace", namespace)),
-            active_slot=str(payload.get("active_slot", default_active_slot)),
-            previous_slot=payload.get("previous_slot"),
+            current_build_id=payload.get("current_build_id"),
+            current_snapshot_id=payload.get("current_snapshot_id"),
+            previous_snapshot_id=payload.get("previous_snapshot_id"),
             activated_at=payload.get("activated_at"),
-            snapshot_id=payload.get("snapshot_id"),
         )
 
     def save(self, manifest: IndexManifest) -> None:
         self.manifest_path.write_text(json.dumps(manifest.to_dict(), ensure_ascii=False, indent=2), encoding="utf-8")
 
-    def switch(self, namespace: str, *, active_slot: str, previous_slot: str, snapshot_id: str | None = None) -> IndexManifest:
+    def activate(
+        self,
+        namespace: str,
+        *,
+        current_build_id: str,
+        current_snapshot_id: str,
+        previous_snapshot_id: str | None = None,
+    ) -> IndexManifest:
         manifest = IndexManifest(
             namespace=namespace,
-            active_slot=active_slot,
-            previous_slot=previous_slot,
+            current_build_id=current_build_id,
+            current_snapshot_id=current_snapshot_id,
+            previous_snapshot_id=previous_snapshot_id,
             activated_at=datetime.now().isoformat(),
-            snapshot_id=snapshot_id,
         )
         self.save(manifest)
         return manifest
 
-    def rollback(self, namespace: str, *, active_slot: str, previous_slot: str | None, snapshot_id: str | None = None) -> IndexManifest:
+    def rollback(
+        self,
+        namespace: str,
+        *,
+        current_build_id: str,
+        current_snapshot_id: str,
+        previous_snapshot_id: str | None = None,
+    ) -> IndexManifest:
         manifest = IndexManifest(
             namespace=namespace,
-            active_slot=active_slot,
-            previous_slot=previous_slot,
+            current_build_id=current_build_id,
+            current_snapshot_id=current_snapshot_id,
+            previous_snapshot_id=previous_snapshot_id,
             activated_at=datetime.now().isoformat(),
-            snapshot_id=snapshot_id,
         )
         self.save(manifest)
         return manifest

@@ -6,9 +6,8 @@ from typing import Any, Literal
 
 
 BuildMode = Literal["full", "incremental", "resume"]
-BuildStatus = Literal["pending", "running", "paused", "failed", "completed", "switched", "rolled_back"]
+BuildStatus = Literal["pending", "running", "failed", "validated", "activated", "rolled_back"]
 SourceKind = Literal["knowledge", "daily_log", "domain_case"]
-SlotName = Literal["current", "next"]
 
 
 @dataclass(frozen=True)
@@ -84,12 +83,17 @@ class BuildRequest:
     group_id: str
     namespace: str
     mode: BuildMode
-    target_slot: SlotName
     source_ids: tuple[str, ...]
+    source_fingerprint: str
+    candidate_dir: str
     user_id: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
+
+    @property
+    def build_input_fingerprint(self) -> str:
+        return self.source_fingerprint
 
 
 @dataclass(frozen=True)
@@ -111,10 +115,10 @@ class BuildCheckpoint:
 @dataclass(frozen=True)
 class IndexManifest:
     namespace: str
-    active_slot: SlotName
-    previous_slot: SlotName | None = None
+    current_build_id: str | None = None
+    current_snapshot_id: str | None = None
+    previous_snapshot_id: str | None = None
     activated_at: str | None = None
-    snapshot_id: str | None = None
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)

@@ -20,6 +20,7 @@ class PlanningPower:
         bound_targets: list[dict[str, Any]] | None = None,
         global_binding_frame: GlobalBindingFrame | dict[str, Any] | None = None,
         binding_enabled: bool = False,
+        recent_messages_truncated: list[dict[str, Any]] | None = None,
         recent_messages_summary: list[dict[str, Any]] | None = None,
         working_memory_hints: list[dict[str, Any]] | None = None,
         memory_anchor_hints: list[dict[str, Any]] | None = None,
@@ -35,6 +36,7 @@ class PlanningPower:
             bound_targets=bound_targets,
             global_binding_frame=global_binding_frame,
             binding_enabled=binding_enabled,
+            recent_messages_truncated=recent_messages_truncated,
             recent_messages_summary=recent_messages_summary,
             working_memory_hints=working_memory_hints,
             memory_anchor_hints=memory_anchor_hints,
@@ -53,6 +55,7 @@ class PlanningPower:
         bound_targets: list[dict[str, Any]] | None = None,
         global_binding_frame: GlobalBindingFrame | dict[str, Any] | None = None,
         binding_enabled: bool = False,
+        recent_messages_truncated: list[dict[str, Any]] | None = None,
         recent_messages_summary: list[dict[str, Any]] | None = None,
         working_memory_hints: list[dict[str, Any]] | None = None,
         memory_anchor_hints: list[dict[str, Any]] | None = None,
@@ -68,6 +71,7 @@ class PlanningPower:
             bound_targets=bound_targets,
             global_binding_frame=global_binding_frame,
             binding_enabled=binding_enabled,
+            recent_messages_truncated=recent_messages_truncated,
             recent_messages_summary=recent_messages_summary,
             working_memory_hints=working_memory_hints,
             memory_anchor_hints=memory_anchor_hints,
@@ -103,6 +107,7 @@ class PlanningPower:
         bound_targets: list[dict[str, Any]] | None = None,
         global_binding_frame: GlobalBindingFrame | dict[str, Any] | None = None,
         binding_enabled: bool = False,
+        recent_messages_truncated: list[dict[str, Any]] | None = None,
         recent_messages_summary: list[dict[str, Any]] | None = None,
         working_memory_hints: list[dict[str, Any]] | None = None,
         memory_anchor_hints: list[dict[str, Any]] | None = None,
@@ -114,6 +119,11 @@ class PlanningPower:
             if isinstance(global_binding_frame, GlobalBindingFrame)
             else GlobalBindingFrame.from_dict(dict(global_binding_frame or {}))
         )
+        truncated_messages = (
+            list(recent_messages_truncated or ())
+            if recent_messages_truncated is not None
+            else list(recent_messages_summary or ())
+        )
         return {
             "goal": query,
             "task_shape": task_shape,
@@ -122,9 +132,9 @@ class PlanningPower:
             "bound_targets": list(bound_targets or ()),
             "global_binding_frame": frame.to_dict(),
             "binding_enabled": binding_enabled,
-            "recent_messages_summary": list(recent_messages_summary or ()),
+            "recent_messages_truncated": truncated_messages,
+            "recent_messages_summary": truncated_messages,
             "working_memory_hints": list(working_memory_hints or ()),
-            "memory_anchor_hints": list(memory_anchor_hints or ()),
             "llm_call": llm_call,
             "base_dir": base_dir,
             "planning_mode_hint": self._resolve_planning_mode(task_shape=task_shape, task_topology=task_topology, query_units=query_units),

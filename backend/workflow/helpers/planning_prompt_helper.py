@@ -11,6 +11,16 @@ _DEFAULT_PLANNING_PROMPT = """你是一个 orchestration planner。
 目标：
 根据 task frame 输出最小可执行 ExecutionGraph。
 
+术语解释：
+- `unit`：执行图中的一个最小执行单元，不是普通语义分句。
+- `capability`：这是 schema 里的字段名，本质上表示 `executor type`，也就是这个 unit 交给哪类 executor 处理。
+- `qa_like`：普通问答型单元，目标是产出单点回答材料。
+- `chat_like`：闲聊/轻交流型单元，不做重检索和重判断。
+- `reject_like`：拒答或边界说明型单元。
+- `compare`：比较型单元，要求覆盖对象、维度、差异或取舍。
+- `verify`：判断/核验型单元，先判断某说法、前提或条件是否成立。
+- `synthesis`：汇总型单元，整合前序 unit 结果形成最终回答材料。
+
 要求：
 1. 只输出 JSON。
 2. 优先生成最小可执行 graph，不要把 unit 拆得过碎。
@@ -22,7 +32,7 @@ _DEFAULT_PLANNING_PROMPT = """你是一个 orchestration planner。
 8. 只有在执行上真正独立时才拆 unit；不要把纯语义切句误当成 execution unit。
 9. 对 staged / conditional 任务，优先表达依赖和条件，不要伪装成并列 graph。
 10. 如果多个 branch 共用同一 retrieval/binding/answer slot，应优先合并而不是细切。
-11. unit 总数应尽量控制在 2~4 个；只有确有必要时才接近上限。
+11. 默认把 unit 总数控制在 2~4 个；但如果用户显式提出多个独立 query，且每个 query 都需要独立执行，可以放宽到 6 个左右。不要为了形式压缩而漏掉显式 query coverage。
 
 输出 JSON：
 {
@@ -122,13 +132,9 @@ class PlanningPromptHelper:
     def _load_prompt(self, base_dir: Path | None, *, filename: str, fallback: str) -> str:
         if base_dir is None:
             return fallback
-        candidate_paths = (
-            base_dir / "workflow" / "orchestrated" / "planning" / "prompts" / filename,
-            base_dir / "prompts" / "workflow" / filename,
-        )
-        for prompt_path in candidate_paths:
-            if prompt_path.exists():
-                return prompt_path.read_text(encoding="utf-8").strip()
+        prompt_path = base_dir / "workflow" / "orchestrated" / "planning" / "prompts" / filename
+        if prompt_path.exists():
+            return prompt_path.read_text(encoding="utf-8").strip()
         return fallback
 
     def _json(self, payload: Any) -> str:

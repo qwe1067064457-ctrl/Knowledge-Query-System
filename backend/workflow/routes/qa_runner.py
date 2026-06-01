@@ -46,7 +46,7 @@ def _challenge_events(challenge) -> tuple[str, ...]:
     events: list[str] = []
     if challenge.follow_up_retrieval_attempted():
         events.append("follow_up_retrieval_attempted")
-    if challenge.review_bundle_obj().follow_up_retrieval_improved():
+    if challenge.challenge_result_bundle_obj().follow_up_retrieval_improved():
         events.append("follow_up_retrieval_improved")
     if challenge.status == "needs_clarification":
         events.append("clarification_required")
@@ -153,7 +153,8 @@ class QaRouteRunner(BaseRouteRunner):
                     continue
                 seen.add(candidate.object_id)
                 evidence_candidates.append(candidate)
-            retrieval_quality = self.review_worker.retrieval_quality_check(evidence_bundle=evidence_bundle)
+            retrieval_quality_worker = worker_registry.get("retrieval_quality")
+            retrieval_quality = retrieval_quality_worker(evidence_bundle=evidence_bundle)
             key_events = _merge_key_events(
                 key_events,
                 _retrieval_events(
@@ -165,7 +166,7 @@ class QaRouteRunner(BaseRouteRunner):
             if retrieval_decision.should_clarify_first and payload.status == "ready":
                 payload = replace(payload, status="needs_clarification")
 
-        review_bundle = payload.review_bundle_obj()
+        challenge_result_bundle = payload.challenge_result_bundle_obj()
         if "challenge_power" in plan.enabled_powers:
             challenge = self.challenge_power.execute(
                 query=request.message,
@@ -178,7 +179,9 @@ class QaRouteRunner(BaseRouteRunner):
                 retrieval_power=self.retrieval_power if "retrieval_power" in plan.enabled_powers else None,
                 worker_registry=worker_registry,
             )
-            review_bundle = self._normalize_review_bundle_obj(challenge.to_review_bundle())
+            challenge_result_bundle = self._normalize_challenge_result_bundle_obj(
+                challenge.to_challenge_result_bundle()
+            )
             answer_constraints.update(challenge.answer_constraints)
             key_events = _merge_key_events(
                 key_events,
@@ -192,7 +195,7 @@ class QaRouteRunner(BaseRouteRunner):
             plan,
             context_bundle=context_bundle,
             plan_bundle=payload.plan_bundle,
-            review_bundle=review_bundle,
+            review_bundle=challenge_result_bundle,
             answer_constraints=answer_constraints,
             key_events=key_events,
             evidence_bundle=evidence_bundle,

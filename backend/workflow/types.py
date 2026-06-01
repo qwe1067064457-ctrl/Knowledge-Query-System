@@ -714,6 +714,9 @@ class ReviewBundleSummaryView:
     follow_up_retrieval_improved: bool = False
 
 
+ChallengeResultBundleSummaryView = ReviewBundleSummaryView
+
+
 @dataclass(frozen=True)
 class EvidenceBundleSummaryView:
     retrieval_quality_status: str = "not_applicable"
@@ -1360,6 +1363,9 @@ class ReviewBundle:
         )
 
 
+ChallengeResultBundle = ReviewBundle
+
+
 @dataclass(frozen=True)
 class ChallengeResult:
     status: str
@@ -1403,7 +1409,7 @@ class ChallengeResult:
         )
 
     def to_dict(self) -> dict[str, Any]:
-        payload = self.review_bundle_obj().to_dict()
+        payload = self.challenge_result_bundle_obj().to_dict()
         payload["answer_constraints"] = dict(self.answer_constraints)
         return payload
 
@@ -1422,8 +1428,17 @@ class ChallengeResult:
             review_summary=self.review_summary,
         )
 
+    def challenge_result_bundle_obj(self) -> ChallengeResultBundle:
+        return self.to_challenge_result_bundle()
+
+    def to_challenge_result_bundle(self) -> ChallengeResultBundle:
+        return self.to_review_bundle()
+
     def review_summary_view(self) -> ReviewBundleSummaryView:
         return self.review_bundle_obj().summary_view()
+
+    def challenge_result_summary_view(self) -> ChallengeResultBundleSummaryView:
+        return self.challenge_result_bundle_obj().summary_view()
 
     def matched_target_refs(self) -> tuple[str, ...]:
         return self.review_bundle_obj().matched_target_refs()
@@ -1453,6 +1468,7 @@ class ExecutionPayload:
     notes: tuple[str, ...] = ()
 
     def to_dict(self) -> dict[str, Any]:
+        review_bundle_payload = self.review_bundle_obj().to_dict()
         return {
             "route": self.route,
             "handling_mode": self.handling_mode,
@@ -1464,7 +1480,8 @@ class ExecutionPayload:
             "context_bundle": self.context_bundle_obj().to_dict(),
             "evidence_bundle": self.evidence_bundle.to_dict() if self.evidence_bundle else None,
             "plan_bundle": self.plan_bundle_obj().to_dict(),
-            "review_bundle": self.review_bundle_obj().to_dict(),
+            "review_bundle": review_bundle_payload,
+            "challenge_result_bundle": review_bundle_payload,
             "answer_constraints": dict(self.answer_constraints),
             "key_events": list(self.key_events),
             "notes": list(self.notes),
@@ -1485,6 +1502,9 @@ class ExecutionPayload:
             return self.review_bundle
         return ReviewBundle.from_dict(dict(self.review_bundle or {}))
 
+    def challenge_result_bundle_obj(self) -> ChallengeResultBundle:
+        return self.review_bundle_obj()
+
     def context_summary_view(self) -> ContextBundleSummaryView:
         return self.context_bundle_obj().summary_view()
 
@@ -1493,6 +1513,9 @@ class ExecutionPayload:
 
     def review_summary_view(self) -> ReviewBundleSummaryView:
         return self.review_bundle_obj().summary_view()
+
+    def challenge_result_summary_view(self) -> ChallengeResultBundleSummaryView:
+        return self.challenge_result_bundle_obj().summary_view()
 
     def evidence_summary_view(self) -> EvidenceBundleSummaryView:
         if self.evidence_bundle is None:

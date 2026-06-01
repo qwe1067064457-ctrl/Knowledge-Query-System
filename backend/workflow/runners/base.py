@@ -8,7 +8,15 @@ from workflow.adapters.workflow_registry_consumer import (
     evidence_candidates,
     normalize_registry_entries,
 )
-from workflow.types import ContextBundle, EvidenceRefCandidate, ExecutionPayload, PlanBundle, ReviewBundle, WorkflowPlan
+from workflow.types import (
+    ChallengeResultBundle,
+    ContextBundle,
+    EvidenceRefCandidate,
+    ExecutionPayload,
+    PlanBundle,
+    ReviewBundle,
+    WorkflowPlan,
+)
 
 
 @dataclass
@@ -108,6 +116,12 @@ class BaseRouteRunner:
     def _default_review_bundle_obj(self) -> ReviewBundle:
         return ReviewBundle()
 
+    def _default_challenge_result_bundle(self) -> dict[str, Any]:
+        return self._default_challenge_result_bundle_obj().to_dict()
+
+    def _default_challenge_result_bundle_obj(self) -> ChallengeResultBundle:
+        return self._default_review_bundle_obj()
+
     def _normalize_context_bundle(self, plan: WorkflowPlan, context_bundle: dict[str, Any] | None) -> dict[str, Any]:
         return self._normalize_context_bundle_obj(plan, context_bundle).to_dict()
 
@@ -135,6 +149,20 @@ class BaseRouteRunner:
         if isinstance(review_bundle, ReviewBundle):
             return review_bundle
         return ReviewBundle.from_dict(review_bundle)
+
+    def _normalize_challenge_result_bundle(
+        self,
+        challenge_result_bundle: dict[str, Any] | None,
+    ) -> dict[str, Any]:
+        return self._normalize_challenge_result_bundle_obj(challenge_result_bundle).to_dict()
+
+    def _normalize_challenge_result_bundle_obj(
+        self,
+        challenge_result_bundle: ChallengeResultBundle | dict[str, Any] | None,
+    ) -> ChallengeResultBundle:
+        if isinstance(challenge_result_bundle, ReviewBundle):
+            return challenge_result_bundle
+        return ChallengeResultBundle.from_dict(challenge_result_bundle)
 
     def _finalize_payload(
         self,

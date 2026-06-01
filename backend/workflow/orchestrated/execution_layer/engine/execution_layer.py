@@ -8,7 +8,7 @@ from workflow.orchestrated.execution_layer.contracts.unit_execution_outcome impo
     UnitExecutionContext,
     UnitExecutionOutcome,
 )
-from workflow.orchestrated.execution_layer.executors.registry import CapabilityExecutorRegistry
+from workflow.orchestrated.execution_layer.executors.registry import ExecutorRegistry
 from workflow.orchestrated.execution_layer.adapters.context_binding_adapter import build_context_binding_workers
 from workflow.orchestrated.execution_layer.adapters.retrieval_adapter import build_retrieval_workers
 from workflow.orchestrated.execution_layer.adapters.review_adapter import build_review_workers
@@ -22,10 +22,10 @@ class ExecutionLayer:
     def __init__(
         self,
         *,
-        executor_registry: CapabilityExecutorRegistry | None = None,
+        executor_registry: ExecutorRegistry | None = None,
         runtime: LangGraphExecutionRuntime | None = None,
     ) -> None:
-        self.executor_registry = executor_registry or CapabilityExecutorRegistry()
+        self.executor_registry = executor_registry or ExecutorRegistry()
         self.runtime = runtime or LangGraphExecutionRuntime()
 
     def execute(

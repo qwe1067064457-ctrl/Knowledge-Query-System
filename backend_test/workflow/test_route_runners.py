@@ -268,9 +268,11 @@ def test_qa_runner_challenge_with_evidence_candidates_returns_review_bundle() ->
     )
 
     payload = runner.run(plan, request)
+    exported = payload.to_dict()
 
     assert payload.status == "ready"
     assert payload.review_bundle["status"] == "success"
+    assert exported["challenge_result_bundle"] == exported["review_bundle"]
     assert payload.review_bundle["evidence_assessment"]["sufficient"] is True
     assert payload.review_bundle["evidence_assessment"]["retrieve_if_needed"]["needed"] is False
     assert payload.context_bundle["binding"] is not None
@@ -327,9 +329,11 @@ def test_qa_runner_challenge_supports_multi_target_partial_review_bundle() -> No
     )
 
     payload = runner.run(plan, request)
+    exported = payload.to_dict()
 
     assert payload.status == "ready"
     assert payload.review_bundle["status"] == "partial_success"
+    assert exported["challenge_result_bundle"] == exported["review_bundle"]
     assert payload.review_bundle["evidence_assessment"]["partially_sufficient"] is True
     assert payload.review_bundle["evidence_assessment"]["needs_more_evidence_targets"] == ["question_2"]
     assert len(payload.review_bundle["review_findings"]) == 2

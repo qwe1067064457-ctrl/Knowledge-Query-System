@@ -19,7 +19,7 @@ QA Runner V2 继续采用：
     - `need_retrieval gate`
     - `retrieval`
     - `retrieval_quality`
-    - `challenge/review`
+    - `ChallengePower(仅 challenge mode)`
     - `payload`
   - `orchestrated_runner` 串：
     - `global binding frame`
@@ -27,7 +27,6 @@ QA Runner V2 继续采用：
     - `planning -> execution_graph`
     - `execution layer`
     - `retrieval_quality(consumed by execution)`
-    - `challenge/review(optional)`
     - `payload`
 
 - `powers/`
@@ -49,7 +48,7 @@ QA Runner V2 继续采用：
     - `execution_worker`
     - `retrieval_gate_worker`
     - `memory_anchor_worker`
-  - `execution_worker` 下新增 capability executor registry：
+  - `execution_worker` 下新增 executor registry：
     - `qa_like_executor`
     - `chat_like_executor`
     - `reject_like_executor`
@@ -67,7 +66,7 @@ QA Runner V2 继续采用：
 
 当前 QA Runner V2 正式主链：
 
-`need_retrieval gate -> retrieval -> retrieval_quality -> challenge/review -> payload -> answer`
+`need_retrieval gate -> retrieval -> retrieval_quality -> ChallengePower(仅 challenge mode) -> WorkflowPayload -> light answer projection -> shared final render`
 
 约束：
 
@@ -83,9 +82,9 @@ QA Runner V2 继续采用：
 
 ## Orchestrated V2 主链
 
-当前 `orchestrated` 的 V1 收口方向改为：
+当前 `orchestrated` 的收口方向改为：
 
-`resolver/control signal -> workflow policy admission -> orchestrated route -> global binding frame -> decomposition(显式并列时才开启) -> planning(execution graph) -> execution layer -> challenge/review(optional) -> payload -> answer`
+`resolver/control signal -> workflow policy admission -> orchestrated route -> global binding frame -> decomposition(显式并列时才开启) -> planning(execution graph) -> execution layer -> ExecutionRuntimeResult -> WorkflowPayload -> orchestrated answer layer -> shared final render`
 
 约束：
 
@@ -110,3 +109,7 @@ QA Runner V2 继续采用：
   - 区分 `parallel / staged / conditional / synthesis`
   - 按 `pre_shared / lazy / skip` 调用 `ContextBindingPower`
   - 消费 `retrieval_quality` 影响 unit state，而不是只写 `key_events`
+- `ChallengePower`
+  - 是 challenge-specific orchestration
+  - 只在 `handling_mode=challenge` 时进入
+  - 不是 execution 尾部的可选外挂

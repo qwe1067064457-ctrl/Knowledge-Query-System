@@ -138,7 +138,7 @@ planner prompt 当前应显式约束：
 
 `ExecutionWorker` 之下新增：
 
-- `CapabilityExecutorRegistry`
+- `ExecutorRegistry`
 
 它负责按 `unit.capability` 分发到：
 
@@ -148,6 +148,11 @@ planner prompt 当前应显式约束：
 - `compare_executor`
 - `verify_executor`
 - `synthesis_executor`
+
+说明：
+
+- `CapabilityExecutorRegistry` 现在作为兼容别名保留
+- 正式 owner 名称收敛到 `ExecutorRegistry`
 
 当前约束：
 
@@ -161,6 +166,13 @@ planner prompt 当前应显式约束：
 
 ## 当前主链
 
-V1 主链建议固定为：
+当前建议主链固定为：
 
-`resolver/control signal -> workflow policy -> route dispatch -> global binding frame -> decomposition(if explicit parallel) -> planning(execution graph) -> execution layer -> challenge/review(optional) -> payload`
+`resolver/control signal -> workflow policy -> route dispatch -> global binding frame -> decomposition(if explicit parallel) -> planning(execution graph) -> execution runtime -> WorkflowPayload -> orchestrated answer layer -> shared final render`
+
+补充说明：
+
+- `ExecutionPayload` 仍然是 rich structured transport，不新增 query/result 中间压缩层
+- `challenge` 不再表述为 execution 尾部的“可选外挂”
+- 当 `handling_mode=challenge` 时，应进入 `ChallengePower` 这条 challenge-specific orchestration
+- `ChallengePower` 内部会复用 challenge/review workers，但它本身仍是 power owner，不等于单个 worker

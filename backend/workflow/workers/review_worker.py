@@ -3,6 +3,10 @@ from __future__ import annotations
 import re
 from typing import Any
 
+from workflow.helpers.challenge_review_helper import (
+    build_challenge_answer_constraints,
+    summarize_challenge_findings,
+)
 from workflow.types import EvidenceAssessmentResult, EvidenceBundle, EvidenceRefCandidate, ReviewEvaluationResult
 
 
@@ -200,7 +204,7 @@ class ReviewWorker:
             channel_quality_band=self._derive_channel_quality_band(normalized_evidence),
         )
 
-    def re_evaluate(
+    def challenge_re_evaluate(
         self,
         *,
         query: str,
@@ -213,7 +217,7 @@ class ReviewWorker:
             if isinstance(evidence_assessment, EvidenceAssessmentResult)
             else EvidenceAssessmentResult.from_dict(evidence_assessment)
         )
-        findings = self.summarize_review_findings(
+        findings = summarize_challenge_findings(
             targets=targets,
             evidence_assessment=assessment_result,
         )
@@ -223,77 +227,26 @@ class ReviewWorker:
         return ReviewEvaluationResult(
             status=status,
             review_findings=tuple(findings),
-            answer_constraints=self.build_review_answer_constraints(
+            answer_constraints=build_challenge_answer_constraints(
                 evidence_assessment=assessment_result,
                 sufficient=sufficient,
             ),
         )
 
-    def summarize_review_findings(
-        self,
-        *,
-        targets: list[dict[str, Any]],
-        evidence_assessment: EvidenceAssessmentResult,
-    ) -> tuple[dict[str, Any], ...]:
-        supporting_refs = list(evidence_assessment.supporting_evidence_refs)
-        findings = []
-        for index, target in enumerate(targets, start=1):
-            target_ref = target.get("object_id") or target.get("content") or f"target_{index}"
-            matched_refs = evidence_assessment.matched_evidence_refs_for(str(target_ref))
-            if evidence_assessment.target_is_matched(str(target_ref)):
-                judgment = "supported"
-                reason = "Coarse evidence coverage indicates the current challenge target is supported by retrieved evidence."
-            else:
-                judgment = "insufficient_evidence"
-                reason = "Coarse evidence coverage indicates the current challenge target still lacks enough supporting evidence."
-            findings.append(
-                {
-                    "target_ref": target_ref,
-                    "judgment": judgment,
-                    "reason": reason,
-                    "supporting_evidence_refs": matched_refs or supporting_refs,
-                }
-            )
-        return tuple(findings)
-
-    def build_review_answer_constraints(
-        self,
-        *,
-        evidence_assessment: EvidenceAssessmentResult,
-        sufficient: bool,
-    ) -> dict[str, Any]:
-        return {
-            "must_cite_sources": True,
-            "must_acknowledge_uncertainty": not sufficient,
-            "source_type_quality_band": evidence_assessment.source_type_quality_band,
-            "channel_quality_band": evidence_assessment.channel_quality_band,
-        }
-
-    def review(
+    def re_evaluate(
         self,
         *,
         query: str,
         targets: list[dict[str, Any]],
-        evidence_candidates: list[EvidenceRefCandidate | dict[str, Any]] | None = None,
-    ) -> dict[str, Any]:
-        evidence_candidates = list(evidence_candidates or ())
-        evidence_assessment = self.evidence_check(
-            query=query,
-            targets=targets,
-            evidence_candidates=evidence_candidates,
-        )
-        reevaluation = self.re_evaluate(
+        evidence_assessment: EvidenceAssessmentResult | dict[str, Any],
+        evidence_candidates: list[EvidenceRefCandidate | dict[str, Any]],
+    ) -> ReviewEvaluationResult:
+        return self.challenge_re_evaluate(
             query=query,
             targets=targets,
             evidence_assessment=evidence_assessment,
             evidence_candidates=evidence_candidates,
         )
-        return {
-            "status": reevaluation.status,
-            "evidence_assessment": evidence_assessment.to_dict(),
-            "review_findings": reevaluation.review_findings,
-            "answer_constraints": reevaluation.answer_constraints,
-        }
 
     def _normalize_evidence_candidates(
         self,

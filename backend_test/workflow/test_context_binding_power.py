@@ -194,6 +194,42 @@ def test_true_multi_target_query_still_uses_multi_target_style() -> None:
     assert result.matched_by == "ordinal_rule"
 
 
+def test_ordinal_rule_does_not_assume_relevant_set_order_without_stable_unit_index() -> None:
+    power = ContextBindingPower()
+    memory = _working_memory(
+        WorkingMemoryEntry(
+            entry_id="wm_answer_a",
+            entry_type="answer_unit",
+            turn_id="turn_1",
+            source_kind="answer",
+            source_ref="turn_1:answer:1",
+            content="候选A：先确认合同主体。",
+            confidence="high",
+        ),
+        WorkingMemoryEntry(
+            entry_id="wm_answer_b",
+            entry_type="answer_unit",
+            turn_id="turn_1",
+            source_kind="answer",
+            source_ref="turn_1:answer:2",
+            content="候选B：再检查期限条款。",
+            confidence="high",
+        ),
+    )
+
+    result = power.bind(
+        "第二个怎么处理？",
+        [],
+        working_memory=memory,
+        rewrite_query=True,
+    )
+
+    assert result.binding_ambiguous is True
+    assert result.matched_by != "ordinal_rule"
+    assert result.fallback_type == "needs_clarification"
+    assert result.reason == "no_llm_resolution_available"
+
+
 def test_summary_query_with_dou_is_not_forced_into_multi_target_style() -> None:
     power = ContextBindingPower()
 

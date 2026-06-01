@@ -42,7 +42,16 @@ class TextChunker:
                         file_type=document.file_type,
                         content=unit,
                         locator=dict(section.get("locator") or {}) | {"section_index": section_index, "chunk_index": chunk_index},
-                        metadata=dict(document.metadata) | {"heading": section.get("heading"), "structured_only": bool(section.get("structured_only"))},
+                        metadata=dict(document.metadata)
+                        | {
+                            "heading": section.get("heading"),
+                            "structured_only": bool(section.get("structured_only")),
+                            "analysis_available": bool(section.get("analysis_available", False)),
+                            "field_roles": dict(section.get("field_roles") or {}),
+                            "headers": list(section.get("headers") or []),
+                            "row_count": int(section.get("row_count") or 0),
+                            "preview_rows": list(section.get("preview_rows") or []),
+                        },
                         revision=document.revision,
                     )
                 )

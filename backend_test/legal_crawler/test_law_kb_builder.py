@@ -83,8 +83,9 @@ def test_build_law_knowledge_base_writes_manifest_and_minimal_storage(workspace:
     assert manifest["categories"]["health"]["count"] == 1
     assert (backend_dir / "storage" / "groups" / "law" / "meta.json").exists()
     assert (backend_dir / "storage" / "groups" / "law" / "users").exists()
-    assert (backend_dir / "storage" / "groups" / "law" / "knowledge" / "indexes" / "current" / "lexical").exists()
-    assert (backend_dir / "storage" / "groups" / "law" / "registries" / "source_registry.jsonl").exists()
+    assert (backend_dir / "storage" / "groups" / "law" / "knowledge" / "indexes" / "current" / "text_pool" / "lexical").exists()
+    assert (backend_dir / "storage" / "groups" / "law" / "registries" / "history" / "source_registry.jsonl").exists()
+    assert (backend_dir / "storage" / "groups" / "law" / "registries" / "recovery" / "scan_checkpoints.sqlite").exists()
 
 
 def test_build_law_knowledge_base_rejects_missing_source(workspace: Path) -> None:

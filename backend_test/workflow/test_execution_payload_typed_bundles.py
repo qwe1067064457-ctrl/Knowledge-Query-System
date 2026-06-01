@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 from workflow.types import (
+    ChallengeResultBundle,
+    ChallengeResultBundleSummaryView,
     ContextBundle,
     ContextBindingResult,
     EvidenceBundle,
@@ -87,6 +89,7 @@ def test_execution_payload_accepts_typed_bundles_and_serializes_contract() -> No
     assert result["plan_bundle"]["plan_summary"]["planning_mode"] == "compare"
     assert result["plan_bundle"]["query_units"][0]["unit_id"] == "q1"
     assert result["review_bundle"]["review_mode"] == "challenge_review"
+    assert result["challenge_result_bundle"] == result["review_bundle"]
     assert result["review_bundle"]["review_summary"]["unsupported_target_refs"] == ["claim_2"]
     assert result["evidence_bundle"]["evidence_summary"]["retrieval_quality_status"] == "good"
     assert result["key_events"] == ["binding_applied", "follow_up_retrieval_attempted"]
@@ -150,6 +153,34 @@ def test_execution_payload_summary_views_consume_typed_bundles() -> None:
     assert payload.context_bundle_obj().summary_view() == context_view
     assert payload.plan_bundle_obj().summary_view() == plan_view
     assert payload.review_bundle_obj().summary_view() == review_view
+
+
+def test_execution_payload_exposes_challenge_result_bundle_alias_views() -> None:
+    payload = ExecutionPayload(
+        route="qa",
+        handling_mode="challenge",
+        action="respond",
+        review_bundle=ReviewBundle(
+            review_mode="challenge_review",
+            review_confidence="medium",
+            review_scope="single_target",
+            status="success",
+            targets=({"target_ref": "claim_1"},),
+            review_summary={
+                "status_summary": "success",
+                "matched_target_count": 1,
+                "target_count": 1,
+            },
+        ),
+    )
+
+    bundle = payload.challenge_result_bundle_obj()
+    summary = payload.challenge_result_summary_view()
+
+    assert isinstance(bundle, ChallengeResultBundle)
+    assert isinstance(summary, ChallengeResultBundleSummaryView)
+    assert summary.status_summary == "success"
+    assert summary.target_count == 1
 
 
 def test_context_bundle_accepts_typed_binding_result() -> None:
@@ -236,6 +267,46 @@ def test_review_bundle_can_be_built_from_challenge_result_inputs() -> None:
     assert bundle.matched_target_refs() == ("claim_1",)
     assert bundle.needs_more_evidence_targets() == ("claim_2",)
     assert bundle.follow_up_retrieval_attempted() is True
+
+
+def test_challenge_result_can_export_challenge_result_bundle_alias() -> None:
+    challenge = ReviewEvaluationResult(
+        status="partial_success",
+        review_findings=(
+            {"target_ref": "claim_1", "judgment": "supported"},
+            {"target_ref": "claim_2", "judgment": "insufficient_evidence"},
+        ),
+        answer_constraints={"must_cite_sources": True},
+    )
+    result = ExecutionPayload(
+        route="qa",
+        handling_mode="challenge",
+        action="respond",
+    )
+    # 保留一个极小黑盒：alias path 应稳定返回兼容 bundle/view。
+    bundle = ReviewBundle.from_review_evaluation(
+        targets=(
+            {"object_id": "claim_1"},
+            {"object_id": "claim_2"},
+        ),
+        evidence_assessment=EvidenceAssessmentResult(
+            partially_sufficient=True,
+            matched_target_count=1,
+            target_count=2,
+            needs_more_evidence_targets=("claim_2",),
+        ),
+        evaluation=challenge,
+    )
+
+    payload = ExecutionPayload(
+        route=result.route,
+        handling_mode=result.handling_mode,
+        action=result.action,
+        review_bundle=bundle,
+    )
+
+    assert payload.challenge_result_bundle_obj().review_mode == "challenge_review"
+    assert payload.challenge_result_summary_view().needs_more_evidence_target_count == 1
 
 
 def test_review_bundle_can_be_built_directly_from_review_evaluation() -> None:

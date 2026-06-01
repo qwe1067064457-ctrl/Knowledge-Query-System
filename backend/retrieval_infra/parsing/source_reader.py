@@ -90,18 +90,48 @@ class SourceReader:
                     rows = self._read_xlsx_rows(archive, normalized_target, shared_strings)
                     headers = rows[0] if rows else []
                     preview = rows[1:4] if len(rows) > 1 else []
+                    field_roles = self._infer_field_roles(headers)
+                    summary = self._build_sheet_summary(sheet_name, headers, field_roles, len(rows))
                     sheets_payload.append(
                         {
                             "sheet_name": sheet_name,
                             "headers": headers,
                             "row_count": max(0, len(rows) - 1 if headers else len(rows)),
                             "preview_rows": preview,
+                            "field_roles": field_roles,
+                            "summary": summary,
                         }
                     )
         except Exception:
             return ""
         payload: dict[str, object] = {"type": "excel_workbook", "file": path.name, "sheets": sheets_payload}
         return json.dumps(payload, ensure_ascii=False, indent=2)
+
+    def _infer_field_roles(self, headers: list[str]) -> dict[str, str]:
+        roles: dict[str, str] = {}
+        for header in headers:
+            normalized = str(header).strip().lower()
+            if not normalized:
+                continue
+            if any(token in normalized for token in ("date", "time", "month", "year", "日期", "时间", "月份", "年度")):
+                roles[header] = "time"
+            elif any(token in normalized for token in ("amount", "price", "revenue", "cost", "sales", "metric", "金额", "价格", "销售", "收入", "成本")):
+                roles[header] = "metric"
+            elif any(token in normalized for token in ("id", "编号", "编码", "patient", "user", "客户", "订单")):
+                roles[header] = "identifier"
+            else:
+                roles[header] = "category"
+        return roles
+
+    def _build_sheet_summary(self, sheet_name: str, headers: list[str], field_roles: dict[str, str], row_count: int) -> str:
+        header_text = ", ".join(str(item) for item in headers if str(item).strip())
+        role_text = ", ".join(f"{key}:{value}" for key, value in field_roles.items())
+        return (
+            f"Sheet {sheet_name}. "
+            f"Fields: {header_text or 'none'}. "
+            f"Field roles: {role_text or 'none'}. "
+            f"Approx row count: {max(0, row_count - 1 if headers else row_count)}."
+        )
 
     def _read_docx(self, path: Path) -> str:
         try:

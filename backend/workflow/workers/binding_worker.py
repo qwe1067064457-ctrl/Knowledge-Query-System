@@ -217,18 +217,35 @@ class BindingWorker:
     def _direct_resolution(self, query: str, relevant_set: list[dict[str, Any]]) -> dict[str, Any] | None:
         if not relevant_set:
             return None
-        ordinal_tokens = ("第一个", "第一点", "第二个", "第二点", "第三个", "第三点", "前两个", "两个", "两条", "分别")
-        if any(token in query for token in ordinal_tokens):
-            ids = [
-                str(item.get("object_id") or item.get("entry_id") or "").strip()
-                for item in relevant_set
-                if str(item.get("object_id") or item.get("entry_id") or "").strip()
-            ]
-            return {
-                "resolved_target_ids": ids,
-                "confidence": "high" if len(ids) == 1 else "medium",
-                "strategy": "ordinal_rule",
-            }
+        specific_ordinals = {"第一个": 1, "第一点": 1, "第二个": 2, "第二点": 2, "第三个": 3, "第三点": 3}
+        requested_index = next((index for token, index in specific_ordinals.items() if token in query), None)
+        indexed_candidates = []
+        for item in relevant_set:
+            unit_index = self._candidate_unit_index(item)
+            object_id = str(item.get("object_id") or item.get("entry_id") or "").strip()
+            if unit_index is None or not object_id:
+                continue
+            indexed_candidates.append((unit_index, object_id))
+
+        if requested_index is not None:
+            matched_ids = [object_id for unit_index, object_id in indexed_candidates if unit_index == requested_index]
+            if len(matched_ids) == 1:
+                return {
+                    "resolved_target_ids": matched_ids,
+                    "confidence": "high",
+                    "strategy": "ordinal_rule",
+                }
+            return None
+
+        if "前两个" in query:
+            ordered_candidates = sorted(indexed_candidates, key=lambda item: item[0])
+            actual_prefix = [unit_index for unit_index, _ in ordered_candidates[:2]]
+            if actual_prefix == [1, 2]:
+                return {
+                    "resolved_target_ids": [object_id for _, object_id in ordered_candidates[:2]],
+                    "confidence": "medium",
+                    "strategy": "ordinal_rule",
+                }
         if len(relevant_set) == 1:
             candidate = relevant_set[0]
             confidence = str(candidate.get("confidence") or "high").strip().lower()
@@ -240,3 +257,17 @@ class BindingWorker:
                 "strategy": "single_relevant_candidate",
             }
         return None
+
+    def _candidate_unit_index(self, candidate: dict[str, Any]) -> int | None:
+        raw = candidate.get("unit_index")
+        if raw is None and isinstance(candidate.get("structured_payload"), dict):
+            raw = candidate.get("structured_payload", {}).get("unit_index")
+        if raw is None:
+            content = str(candidate.get("content") or "").strip()
+            ordinal_markers = {"第一个": 1, "第一点": 1, "第二个": 2, "第二点": 2, "第三个": 3, "第三点": 3}
+            raw = next((index for token, index in ordinal_markers.items() if token in content), None)
+        try:
+            unit_index = int(raw or 0)
+        except (TypeError, ValueError):
+            return None
+        return unit_index if unit_index > 0 else None

@@ -1,4 +1,5 @@
 from workflow.contracts.graph import ExecutionGraph, ExecutionUnit, GlobalBindingFrame
+from workflow.orchestrated.execution_layer.contracts import ExecutionRuntimeResult
 from workflow.orchestrated.execution_layer.engine.execution_layer import ExecutionLayer
 from workflow.orchestrated.execution_layer.workers.base import BaseWorker
 from workflow.orchestrated.execution_layer.workers.registry import WorkerRegistry
@@ -88,6 +89,7 @@ def test_execution_layer_builds_compat_binding_workers_from_power() -> None:
 
     assert result.unit_results[0].used_binding is True
     assert "这个结论" in str(result.unit_results[0].result_payload.get("summary", ""))
+    assert isinstance(result, ExecutionRuntimeResult)
 
 
 def test_execution_layer_compat_registry_stays_empty_without_power_or_worker_registry() -> None:

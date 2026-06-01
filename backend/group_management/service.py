@@ -131,12 +131,16 @@ class GroupManagementService:
             storage_knowledge_dir / "normalized",
             storage_knowledge_dir / "chunked",
             storage_knowledge_dir / "meta",
-            storage_knowledge_dir / "indexes" / "current" / "lexical",
-            storage_knowledge_dir / "indexes" / "current" / "vector",
-            storage_knowledge_dir / "indexes" / "next" / "lexical",
-            storage_knowledge_dir / "indexes" / "next" / "vector",
+            storage_knowledge_dir / "indexes" / "current" / "text_pool" / "lexical",
+            storage_knowledge_dir / "indexes" / "current" / "text_pool" / "vector",
+            storage_knowledge_dir / "indexes" / "current" / "table_pool" / "lexical",
+            storage_knowledge_dir / "indexes" / "current" / "table_pool" / "vector",
+            storage_knowledge_dir / "indexes" / "builds" / "running",
+            storage_knowledge_dir / "indexes" / "builds" / "latest",
             storage_knowledge_dir / "indexes" / "snapshots",
             group_dir / "registries",
+            group_dir / "registries" / "history",
+            group_dir / "registries" / "recovery",
             group_dir / "meta",
         )
         for path in storage_dirs:
@@ -151,9 +155,10 @@ class GroupManagementService:
             storage_knowledge_dir / "chunked" / ".gitkeep",
             storage_knowledge_dir / "meta" / "source_catalog.jsonl",
             storage_knowledge_dir / "meta" / "source_layout.json",
-            group_dir / "registries" / "source_registry.jsonl",
-            group_dir / "registries" / "build_registry.jsonl",
-            group_dir / "registries" / "checkpoints.json",
+            group_dir / "registries" / "history" / "source_registry.jsonl",
+            group_dir / "registries" / "history" / "build_registry.jsonl",
+            group_dir / "registries" / "history" / "build_history.jsonl",
+            group_dir / "registries" / "history" / "validation_history.jsonl",
             group_dir / "registries" / "index_manifest.json",
         )
         for path in placeholders:
@@ -162,6 +167,15 @@ class GroupManagementService:
                     path.write_text("[]\n" if path.name.endswith(".jsonl") else "{}\n", encoding="utf-8")
                 else:
                     path.touch()
+        for sqlite_path in (
+            group_dir / "registries" / "work_queue.sqlite",
+            group_dir / "registries" / "recovery" / "scan_checkpoints.sqlite",
+            group_dir / "registries" / "recovery" / "document_checkpoints.sqlite",
+            group_dir / "registries" / "recovery" / "index_checkpoints.sqlite",
+            group_dir / "registries" / "recovery" / "activation_checkpoints.sqlite",
+        ):
+            if not sqlite_path.exists():
+                sqlite_path.touch()
 
     def create_user(
         self,

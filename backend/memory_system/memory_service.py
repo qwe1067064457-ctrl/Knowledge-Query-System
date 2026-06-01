@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple, cast
 
 from context.models import MemoryEntry, MemoryScope, MemoryType
-from memory_system.extraction import MemoryExtractionPipeline
+from memory_system.extraction import CoreGate, DailyLogGate, DomainCaseGate, MemoryExtractionPipeline
 from memory_system.jobs import MemoryWriteQueue, MemoryWriteWorker
 from memory_system.policy_loader import MemoryPolicyLoader
 from memory_system.validation import MemoryValidator
@@ -39,9 +39,15 @@ class MemorySystem:
         self.policy_loader = MemoryPolicyLoader(self.base_storage_path)
         self.hybrid_retriever = MemoryHybridRetriever(self.base_storage_path)
         self.extraction_pipeline = MemoryExtractionPipeline()
+        self.core_gate = CoreGate()
+        self.daily_log_gate = DailyLogGate()
+        self.domain_case_gate = DomainCaseGate()
         self.validator = MemoryValidator()
         self.write_queue = MemoryWriteQueue()
         self.write_worker = MemoryWriteWorker(self.write_queue)
+
+    def set_extractor_llm_call(self, llm_call) -> None:
+        self.extraction_pipeline.set_model_call(llm_call)
 
     @staticmethod
     def _safe_segment(value: str, field_name: str) -> str:
@@ -225,11 +231,16 @@ class MemorySystem:
     ) -> List[Dict[str, str]]:
         if not self._enabled("core", policy):
             return []
-
+        gated_messages = self.core_gate.select_candidate_messages(
+            messages,
+            explicit_markers=list(self._core_policy(policy).get("explicit_markers", [])),
+        )
+        if not gated_messages:
+            return []
         min_len = int(self._core_policy(policy).get("min_candidate_length", 6))
         max_len = int(self._core_policy(policy).get("max_candidate_length", 120))
         return self.extraction_pipeline.extract_core_candidates(
-            messages=messages,
+            messages=gated_messages,
             explicit_markers=list(self._core_policy(policy).get("explicit_markers", [])),
             min_len=min_len,
             max_len=max_len,
@@ -269,16 +280,18 @@ class MemorySystem:
     def _extract_daily_log_candidate(
         self,
         *,
-        summary: str,
+        compaction_summary: str,
         messages: List[Dict[str, Any]],
         source_session_id: Optional[str],
         policy: Dict[str, Any],
     ) -> Optional[Dict[str, Any]]:
         if not self._enabled("daily_log", policy):
             return None
-
-        cleaned_summary = summary.strip()
-        if not cleaned_summary or cleaned_summary == "NO_REPLY":
+        if not self.daily_log_gate.should_extract(
+            checkpoint_enabled=bool(self._daily_log_policy(policy).get("checkpoint_enabled", True)),
+            messages=messages,
+            compaction_summary=compaction_summary,
+        ):
             return None
 
         anchor_spans = self._extract_anchor_spans(
@@ -301,7 +314,8 @@ class MemorySystem:
                 break
 
         return self.extraction_pipeline.extract_daily_log(
-            summary=cleaned_summary,
+            messages=messages,
+            compaction_summary=compaction_summary.strip(),
             subject=subject,
             anchor_spans=anchor_spans,
             source_session_id=source_session_id,
@@ -321,17 +335,24 @@ class MemorySystem:
         self,
         group_id: str,
         messages: List[Dict[str, Any]],
-        summary: str,
+        compaction_summary: str,
         source_session_id: Optional[str],
         policy: Dict[str, Any],
     ) -> Optional[Dict[str, str]]:
         if not self._enabled("domain_case", policy):
             return None
+        if not self.domain_case_gate.should_extract(
+            messages=messages,
+            compaction_summary=compaction_summary,
+            looks_like_completed_result=lambda text: self._looks_like_completed_result(text, policy),
+            looks_like_case_body=lambda text: self._looks_like_case_body(text, policy),
+        ):
+            return None
 
         return self.extraction_pipeline.extract_domain_case(
             group_id=group_id,
             messages=messages,
-            summary=summary,
+            summary=compaction_summary,
             source_session_id=source_session_id,
             anchor_spans=self._extract_anchor_spans(
                 source_session_id=source_session_id,
@@ -448,7 +469,7 @@ class MemorySystem:
 
         if self._enabled("daily_log", policy) and self._daily_log_policy(policy).get("checkpoint_enabled", True):
             daily_log_candidate = self._extract_daily_log_candidate(
-                summary=summary,
+                compaction_summary=summary,
                 messages=messages,
                 source_session_id=source_session_id,
                 policy=policy,

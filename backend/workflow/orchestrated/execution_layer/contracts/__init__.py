@@ -1,4 +1,7 @@
-from workflow.orchestrated.execution_layer.contracts.execution_layer_result import ExecutionLayerResult
+from workflow.orchestrated.execution_layer.contracts.execution_layer_result import (
+    ExecutionLayerResult,
+    ExecutionRuntimeResult,
+)
 from workflow.orchestrated.execution_layer.contracts.unit_execution_outcome import (
     UnitExecutionContext,
     UnitExecutionOutcome,
@@ -27,6 +30,7 @@ __all__ = [
     "ExecutionEdgeType",
     "ExecutionGraph",
     "ExecutionLayerResult",
+    "ExecutionRuntimeResult",
     "ExecutionUnit",
     "ExecutionUnitCapability",
     "GlobalBindingFrame",

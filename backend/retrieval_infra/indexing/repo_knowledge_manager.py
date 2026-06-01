@@ -4,12 +4,13 @@ import hashlib
 import json
 import shutil
 from dataclasses import dataclass
+from datetime import datetime
 from pathlib import Path
 from typing import Iterable
 
 from retrieval_infra.adapters import KnowledgeSourceAdapter
 from retrieval_infra.chunking import TextChunker
-from retrieval_infra.contracts import BuildCheckpoint, BuildRequest, IndexManifest
+from retrieval_infra.contracts import BuildRequest, IndexManifest
 from retrieval_infra.indexing.chunk_store import ChunkStore
 from retrieval_infra.indexing.lexical_index import LexicalIndex
 from retrieval_infra.indexing.manifest_store import ManifestStore
@@ -25,9 +26,19 @@ from knowledge_retrieval.types import IndexStatus
 @dataclass(frozen=True)
 class GroupKnowledgeAssets:
     chunk_store: ChunkStore
-    lexical: LexicalIndex
-    vector: SimpleVectorIndex
+    text_lexical: LexicalIndex
+    text_vector: SimpleVectorIndex
+    table_lexical: LexicalIndex
+    table_vector: SimpleVectorIndex
     chunk_meta: dict[str, dict[str, object]]
+
+    @property
+    def lexical(self) -> LexicalIndex:
+        return self.text_lexical
+
+    @property
+    def vector(self) -> SimpleVectorIndex:
+        return self.text_vector
 
 
 class RepoKnowledgeIndexManager:
@@ -54,12 +65,12 @@ class RepoKnowledgeIndexManager:
         vector_ready = False
         bm25_ready = False
         for group_id in self._discover_groups():
-            slot_dir = self._active_slot_dir(group_id)
-            if (slot_dir / "chunk_store.sqlite").exists():
+            current_dir = self._current_dir(group_id)
+            if (current_dir / "chunk_store.sqlite").exists():
                 indexed_files += 1
-            if (slot_dir / "vector" / "index.sqlite").exists():
+            if (current_dir / "text_pool" / "vector" / "index.sqlite").exists() or (current_dir / "table_pool" / "vector" / "index.sqlite").exists():
                 vector_ready = True
-            if (slot_dir / "lexical" / "term_postings.sqlite").exists():
+            if (current_dir / "text_pool" / "lexical" / "term_postings.sqlite").exists() or (current_dir / "table_pool" / "lexical" / "term_postings.sqlite").exists():
                 bm25_ready = True
         ready = indexed_files > 0 and (vector_ready or bm25_ready)
         return IndexStatus(
@@ -80,112 +91,217 @@ class RepoKnowledgeIndexManager:
             self._building = False
 
     def ensure_group_built(self, group_id: str) -> GroupKnowledgeAssets:
-        slot_dir = self._active_slot_dir(group_id)
-        manifest = self._manifest_store(group_id).load("knowledge")
-        if not (slot_dir / "chunk_store.sqlite").exists():
-            self._build_group(group_id, mode="full", preferred_target_slot="next" if manifest.active_slot == "current" else "current")
-            slot_dir = self._active_slot_dir(group_id)
-        return self._load_assets(slot_dir)
+        current_dir = self._current_dir(group_id)
+        if not (current_dir / "chunk_store.sqlite").exists():
+            self._build_group(group_id, mode="full")
+        return self._load_assets(self._current_dir(group_id))
 
-    def _build_group(self, group_id: str, *, mode: str, preferred_target_slot: str | None = None) -> None:
+    def _build_group(self, group_id: str, *, mode: str) -> None:
         manifest_store = self._manifest_store(group_id)
         manifest = manifest_store.load("knowledge")
-        active_slot = manifest.active_slot
-        target_slot = preferred_target_slot or ("next" if active_slot == "current" else "current")
-        target_dir = self._slot_dir(group_id, target_slot)
         source_documents = tuple(self._load_group_sources(group_id))
-        build_id = f"build_{group_id}_{target_slot}"
+        source_fingerprint = self._fingerprint_sources(source_documents)
+        build_id = self._new_build_id(group_id)
+        candidate_dir = self._candidate_dir(group_id, build_id)
+        candidate_dir.mkdir(parents=True, exist_ok=True)
+        self._prepare_candidate_layout(candidate_dir)
+
         request = BuildRequest(
             build_id=build_id,
             group_id=group_id,
             namespace="knowledge",
             mode=mode,  # type: ignore[arg-type]
-            target_slot=target_slot,  # type: ignore[arg-type]
             source_ids=tuple(doc.source_id for doc in source_documents),
+            source_fingerprint=source_fingerprint,
+            candidate_dir=str(candidate_dir),
         )
         state_store = self._state_store(group_id)
         state_store.append_build(request, status="running")
-        self._work_queue(group_id).enqueue_build(build_id=build_id, namespace="knowledge", group_id=group_id, user_id=None, mode=mode, status="running")
+        self._write_source_registry(group_id, request=request, source_documents=source_documents, state_store=state_store)
+        self._work_queue(group_id).enqueue_build(
+            build_id=build_id,
+            namespace="knowledge",
+            group_id=group_id,
+            user_id=None,
+            mode=mode,
+            status="running",
+        )
 
-        chunks = []
+        all_chunks = []
+        text_chunks = []
+        table_chunks = []
         chunk_meta: dict[str, dict[str, object]] = {}
         scanned_count = 0
         last_seen_file = ""
         last_seen_hash = ""
-        last_seen_mtime = 0
+
+        doc_results: list[dict[str, object]] = []
         for source in source_documents:
             scanned_count += 1
             last_seen_file = source.source_path
             if source.revision:
-                parts = source.revision.split(":")
-                if len(parts) == 2:
-                    try:
-                        last_seen_mtime = int(parts[0])
-                    except ValueError:
-                        last_seen_mtime = 0
                 last_seen_hash = source.revision
+            doc_id = self._doc_id_for_source(source.source_path)
+            doc_kind = self._doc_kind_for_source(source.file_type)
             self._work_queue(group_id).enqueue_document(
                 build_id=build_id,
-                doc_id=self._doc_id_for_source(source.source_path),
+                doc_id=doc_id,
                 source_path=source.source_path,
-                stage="parsing",
+                stage="running",
                 status="running",
             )
-            parsed = self.parser.parse(self._doc_id_for_source(source.source_path), source)
+            state_store.write_document_checkpoint(
+                build_id=build_id,
+                doc_id=doc_id,
+                source_id=source.source_id,
+                source_path=source.source_path,
+                doc_kind=doc_kind,
+                stage="started",
+                status="running",
+            )
+            parsed = self.parser.parse(doc_id, source)
             normalized = self.normalizer.normalize(parsed)
             doc_chunks = self.chunker.chunk(normalized)
+            self._validate_document_outputs(source=source, doc_kind=doc_kind, doc_chunks=tuple(doc_chunks))
             for chunk in doc_chunks:
-                chunks.append(chunk)
+                all_chunks.append(chunk)
+                if bool(chunk.metadata.get("structured_only")):
+                    table_chunks.append(chunk)
+                    pool = "table"
+                else:
+                    text_chunks.append(chunk)
+                    pool = "text"
                 chunk_meta[chunk.chunk_id] = {
                     "doc_id": chunk.doc_id,
                     "source_path": chunk.source_path,
                     "locator": chunk.locator,
                     "file_type": chunk.file_type,
+                    "pool": pool,
+                    "structured_only": bool(chunk.metadata.get("structured_only")),
+                            "analysis_available": bool(chunk.metadata.get("analysis_available", False)),
+                        }
+            text_count = sum(1 for chunk in doc_chunks if not bool(chunk.metadata.get("structured_only")))
+            table_count = len(doc_chunks) - text_count
+            doc_results.append(
+                {
+                    "source_id": source.source_id,
+                    "doc_id": doc_id,
+                    "source_path": source.source_path,
+                    "doc_kind": doc_kind,
+                    "chunk_count": text_count,
+                    "table_record_count": table_count,
                 }
-            state_store.write_checkpoint(
-                BuildCheckpoint(
-                    source_id=source.source_id,
-                    build_id=build_id,
-                    group_id=group_id,
-                    namespace="knowledge",
-                    user_id=None,
-                    scan_checkpoint={
-                        "mode": "file_tree",
-                        "last_seen_file": last_seen_file,
-                        "last_seen_mtime": last_seen_mtime,
-                        "last_seen_hash": last_seen_hash,
-                        "scanned_file_count": scanned_count,
-                    },
-                    doc_local_progress={"chunk_index": max(0, len(doc_chunks) - 1)},
-                    pipeline_progress={
-                        "stage": "chunked",
-                        "parsed_docs": scanned_count,
-                        "chunked_docs": scanned_count,
-                        "embedded_chunks": len(chunks),
-                        "indexed_lexical_chunks": 0,
-                        "indexed_vector_chunks": 0,
-                    },
-                )
+            )
+            state_store.write_document_checkpoint(
+                build_id=build_id,
+                doc_id=doc_id,
+                source_id=source.source_id,
+                source_path=source.source_path,
+                doc_kind=doc_kind,
+                stage="text_ready" if doc_kind == "text" else "table_ready",
+                status="completed",
+                chunk_count=text_count,
+                table_record_count=table_count,
+            )
+            self._work_queue(group_id).enqueue_document(
+                build_id=build_id,
+                doc_id=doc_id,
+                source_path=source.source_path,
+                stage="completed",
+                status="completed",
             )
 
-        chunk_tuple = tuple(chunks)
-        chunk_store = ChunkStore(target_dir / "chunk_store.sqlite")
-        lexical = LexicalIndex(target_dir / "lexical" / "term_postings.sqlite", target_dir / "lexical" / "globals.json")
-        vector = SimpleVectorIndex(target_dir / "vector" / "index.sqlite")
-        chunk_store.upsert_chunks(chunk_tuple)
-        lexical.rebuild(chunk_tuple)
-        vector.rebuild(chunk_tuple)
-        (target_dir / "chunk_meta.json").write_text(json.dumps(chunk_meta, ensure_ascii=False, indent=2), encoding="utf-8")
-        (target_dir / "build_fingerprint.json").write_text(
-            json.dumps({"fingerprint": self._fingerprint_sources(source_documents)}, ensure_ascii=False, indent=2),
-            encoding="utf-8",
+        state_store.write_scan_checkpoint(
+            build_id=build_id,
+            group_id=group_id,
+            namespace="knowledge",
+            build_input_fingerprint=source_fingerprint,
+            last_seen_file=last_seen_file,
+            last_seen_revision=last_seen_hash,
+            scanned_file_count=scanned_count,
+            status="completed",
         )
 
-        state_store.append_build(request, status="completed")
-        snapshot_id = f"{group_id}_{target_slot}"
-        self._snapshot_slot(group_id, target_slot, snapshot_id)
-        manifest_store.switch("knowledge", active_slot=target_slot, previous_slot=active_slot, snapshot_id=snapshot_id)
-        state_store.append_build(request, status="switched")
+        chunk_tuple = tuple(all_chunks)
+        chunk_store = ChunkStore(candidate_dir / "chunk_store.sqlite")
+        chunk_store.upsert_chunks(chunk_tuple)
+        self._rebuild_pool(candidate_dir / "text_pool", tuple(text_chunks))
+        self._rebuild_pool(candidate_dir / "table_pool", tuple(table_chunks))
+        (candidate_dir / "chunk_meta.json").write_text(json.dumps(chunk_meta, ensure_ascii=False, indent=2), encoding="utf-8")
+        (candidate_dir / "build_fingerprint.json").write_text(
+            json.dumps({"fingerprint": source_fingerprint, "source_ids": list(request.source_ids)}, ensure_ascii=False, indent=2),
+            encoding="utf-8",
+        )
+        state_store.write_index_checkpoint(
+            build_id=build_id,
+            group_id=group_id,
+            namespace="knowledge",
+            text_lexical_ready=True,
+            text_vector_ready=True,
+            table_lexical_ready=True,
+            table_vector_ready=True,
+            chunk_count=len(text_chunks),
+            table_summary_count=len(table_chunks),
+        )
+
+        validation_result = self._validate_candidate(
+            candidate_dir=candidate_dir,
+            source_documents=source_documents,
+            chunk_meta=chunk_meta,
+            text_chunk_count=len(text_chunks),
+            table_record_count=len(table_chunks),
+        )
+        state_store.append_validation_history(
+            {
+                "build_id": build_id,
+                "group_id": group_id,
+                "namespace": "knowledge",
+                "status": "passed" if validation_result["passed"] else "failed",
+                **validation_result,
+            }
+        )
+        state_store.append_build(request, status="validated")
+        snapshot_id = f"s_{build_id}"
+        self._snapshot_from_candidate(group_id, candidate_dir, snapshot_id)
+        self._promote_candidate_to_latest(group_id, candidate_dir, build_id)
+        self._promote_candidate_to_current(group_id, candidate_dir)
+        manifest_store.activate(
+            "knowledge",
+            current_build_id=build_id,
+            current_snapshot_id=snapshot_id,
+            previous_snapshot_id=manifest.current_snapshot_id,
+        )
+        state_store.write_activation_checkpoint(
+            build_id=build_id,
+            snapshot_id=snapshot_id,
+            snapshot_created=True,
+            current_promoted=True,
+            manifest_activated=True,
+        )
+        state_store.append_build(request, status="activated")
+        state_store.append_build_history(
+            {
+                "build_id": build_id,
+                "group_id": group_id,
+                "namespace": "knowledge",
+                "source_count": len(source_documents),
+                "text_chunk_count": len(text_chunks),
+                "table_record_count": len(table_chunks),
+                "snapshot_id": snapshot_id,
+                "candidate_dir": str(candidate_dir),
+                "current_build_id": build_id,
+                "doc_results": doc_results,
+                "build_input_fingerprint": source_fingerprint,
+            }
+        )
+        self._work_queue(group_id).enqueue_build(
+            build_id=build_id,
+            namespace="knowledge",
+            group_id=group_id,
+            user_id=None,
+            mode=mode,
+            status="activated",
+        )
         self._last_built_at = self._current_timestamp()
 
     def _discover_groups(self) -> list[str]:
@@ -221,53 +337,127 @@ class RepoKnowledgeIndexManager:
         return ManifestStore(self.storage_groups_dir / group_id / "registries" / "index_manifest.json")
 
     def _state_store(self, group_id: str) -> StateStore:
-        return StateStore(
-            build_registry_path=self.storage_groups_dir / group_id / "registries" / "build_registry.jsonl",
-            checkpoints_path=self.storage_groups_dir / group_id / "registries" / "checkpoints.json",
-        )
+        return StateStore(registries_dir=self.storage_groups_dir / group_id / "registries")
 
     def _work_queue(self, group_id: str) -> WorkQueue:
         return WorkQueue(self.storage_groups_dir / group_id / "registries" / "work_queue.sqlite")
 
-    def _slot_dir(self, group_id: str, slot: str) -> Path:
-        path = self.storage_groups_dir / group_id / "knowledge" / "indexes" / slot
-        (path / "lexical").mkdir(parents=True, exist_ok=True)
-        (path / "vector").mkdir(parents=True, exist_ok=True)
+    def _source_registry_path(self, group_id: str) -> Path:
+        path = self.storage_groups_dir / group_id / "registries" / "history" / "source_registry.jsonl"
+        path.parent.mkdir(parents=True, exist_ok=True)
         return path
 
-    def _active_slot_dir(self, group_id: str) -> Path:
-        manifest = self._manifest_store(group_id).load("knowledge")
-        return self._slot_dir(group_id, manifest.active_slot)
+    def _current_dir(self, group_id: str) -> Path:
+        path = self.storage_groups_dir / group_id / "knowledge" / "indexes" / "current"
+        path.mkdir(parents=True, exist_ok=True)
+        return path
 
-    def _snapshot_slot(self, group_id: str, slot: str, snapshot_id: str) -> None:
-        source_dir = self._slot_dir(group_id, slot)
-        snapshot_dir = self.storage_groups_dir / group_id / "knowledge" / "indexes" / "snapshots" / snapshot_id
+    def _builds_root(self, group_id: str) -> Path:
+        path = self.storage_groups_dir / group_id / "knowledge" / "indexes" / "builds"
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+
+    def _running_builds_root(self, group_id: str) -> Path:
+        path = self._builds_root(group_id) / "running"
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+
+    def _latest_builds_root(self, group_id: str) -> Path:
+        path = self._builds_root(group_id) / "latest"
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+
+    def _candidate_dir(self, group_id: str, build_id: str) -> Path:
+        return self._running_builds_root(group_id) / build_id
+
+    def _snapshots_root(self, group_id: str) -> Path:
+        path = self.storage_groups_dir / group_id / "knowledge" / "indexes" / "snapshots"
+        path.mkdir(parents=True, exist_ok=True)
+        return path
+
+    def _snapshot_dir(self, group_id: str, snapshot_id: str) -> Path:
+        return self._snapshots_root(group_id) / snapshot_id
+
+    def _prepare_candidate_layout(self, candidate_dir: Path) -> None:
+        for pool in ("text_pool", "table_pool"):
+            (candidate_dir / pool / "lexical").mkdir(parents=True, exist_ok=True)
+            (candidate_dir / pool / "vector").mkdir(parents=True, exist_ok=True)
+
+    def _rebuild_pool(self, pool_dir: Path, chunks: tuple) -> None:
+        lexical = LexicalIndex(pool_dir / "lexical" / "term_postings.sqlite", pool_dir / "lexical" / "globals.json")
+        vector = SimpleVectorIndex(pool_dir / "vector" / "index.sqlite")
+        lexical.rebuild(chunks)
+        vector.rebuild(chunks)
+
+    def _promote_candidate_to_latest(self, group_id: str, candidate_dir: Path, build_id: str) -> None:
+        latest_dir = self._latest_builds_root(group_id) / build_id
+        self._copy_tree_contents(candidate_dir, latest_dir)
+
+    def _promote_candidate_to_current(self, group_id: str, candidate_dir: Path) -> None:
+        current_dir = self._current_dir(group_id)
+        self._copy_tree_contents(candidate_dir, current_dir)
+
+    def _snapshot_from_candidate(self, group_id: str, candidate_dir: Path, snapshot_id: str) -> None:
+        snapshot_dir = self._snapshot_dir(group_id, snapshot_id)
         snapshot_dir.mkdir(parents=True, exist_ok=True)
-        for relative in (
-            Path("chunk_store.sqlite"),
-            Path("chunk_meta.json"),
-            Path("build_fingerprint.json"),
-            Path("lexical") / "term_postings.sqlite",
-            Path("lexical") / "globals.json",
-            Path("vector") / "index.sqlite",
-        ):
-            source = source_dir / relative
-            if not source.exists():
-                continue
-            target = snapshot_dir / relative
-            target.parent.mkdir(parents=True, exist_ok=True)
-            shutil.copy2(source, target)
+        self._copy_tree_contents(candidate_dir, snapshot_dir)
         (snapshot_dir / "manifest.json").write_text(
-            json.dumps(IndexManifest(namespace="knowledge", active_slot=slot, previous_slot=None, snapshot_id=snapshot_id).to_dict(), ensure_ascii=False, indent=2),
+            json.dumps(
+                IndexManifest(
+                    namespace="knowledge",
+                    current_build_id=candidate_dir.name,
+                    current_snapshot_id=snapshot_id,
+                    previous_snapshot_id=None,
+                ).to_dict(),
+                ensure_ascii=False,
+                indent=2,
+            ),
             encoding="utf-8",
         )
 
-    def _load_assets(self, slot_dir: Path) -> GroupKnowledgeAssets:
-        chunk_meta_path = slot_dir / "chunk_meta.json"
+    def _copy_tree_contents(self, source_dir: Path, target_dir: Path) -> None:
+        target_dir.mkdir(parents=True, exist_ok=True)
+        for path in source_dir.rglob("*"):
+            relative = path.relative_to(source_dir)
+            target = target_dir / relative
+            if path.is_dir():
+                target.mkdir(parents=True, exist_ok=True)
+                continue
+            target.parent.mkdir(parents=True, exist_ok=True)
+            shutil.copy2(path, target)
+
+    def _write_source_registry(self, group_id: str, *, request: BuildRequest, source_documents: tuple, state_store: StateStore) -> None:
+        now = datetime.now().isoformat()
+        payload = {
+            "build_id": request.build_id,
+            "group_id": request.group_id,
+            "namespace": request.namespace,
+            "build_input_fingerprint": request.source_fingerprint,
+            "source_ids": list(request.source_ids),
+            "sources": [
+                {
+                    "source_id": source.source_id,
+                    "source_path": source.source_path,
+                    "file_type": source.file_type,
+                    "revision": source.revision,
+                    "scan_status": "done",
+                    "discovered_at": now,
+                    "scanned_at": now,
+                    "scan_error": None,
+                }
+                for source in source_documents
+            ],
+        }
+        state_store.append_source_registry(payload)
+
+    def _load_assets(self, current_dir: Path) -> GroupKnowledgeAssets:
+        chunk_meta_path = current_dir / "chunk_meta.json"
         return GroupKnowledgeAssets(
-            chunk_store=ChunkStore(slot_dir / "chunk_store.sqlite"),
-            lexical=LexicalIndex(slot_dir / "lexical" / "term_postings.sqlite", slot_dir / "lexical" / "globals.json"),
-            vector=SimpleVectorIndex(slot_dir / "vector" / "index.sqlite"),
+            chunk_store=ChunkStore(current_dir / "chunk_store.sqlite"),
+            text_lexical=LexicalIndex(current_dir / "text_pool" / "lexical" / "term_postings.sqlite", current_dir / "text_pool" / "lexical" / "globals.json"),
+            text_vector=SimpleVectorIndex(current_dir / "text_pool" / "vector" / "index.sqlite"),
+            table_lexical=LexicalIndex(current_dir / "table_pool" / "lexical" / "term_postings.sqlite", current_dir / "table_pool" / "lexical" / "globals.json"),
+            table_vector=SimpleVectorIndex(current_dir / "table_pool" / "vector" / "index.sqlite"),
             chunk_meta=json.loads(chunk_meta_path.read_text(encoding="utf-8")) if chunk_meta_path.exists() else {},
         )
 
@@ -295,6 +485,73 @@ class RepoKnowledgeIndexManager:
             digest.update((source.revision or "").encode("utf-8"))
         return digest.hexdigest()
 
+    def _doc_kind_for_source(self, file_type: str) -> str:
+        return "table" if file_type.lower() in {"xlsx", "xls", "csv", "tsv"} else "text"
+
+    def _validate_document_outputs(self, *, source, doc_kind: str, doc_chunks: tuple) -> None:
+        if doc_kind == "table":
+            if not any(bool(chunk.metadata.get("structured_only")) for chunk in doc_chunks):
+                raise ValueError(f"table source produced no summary records: {source.source_path}")
+            return
+        if len(doc_chunks) <= 0:
+            raise ValueError(f"text source produced no chunks: {source.source_path}")
+
+    def _validate_candidate(
+        self,
+        *,
+        candidate_dir: Path,
+        source_documents: tuple,
+        chunk_meta: dict[str, dict[str, object]],
+        text_chunk_count: int,
+        table_record_count: int,
+    ) -> dict[str, object]:
+        required_files = (
+            candidate_dir / "chunk_store.sqlite",
+            candidate_dir / "chunk_meta.json",
+            candidate_dir / "build_fingerprint.json",
+            candidate_dir / "text_pool" / "lexical" / "term_postings.sqlite",
+            candidate_dir / "text_pool" / "lexical" / "globals.json",
+            candidate_dir / "text_pool" / "vector" / "index.sqlite",
+            candidate_dir / "table_pool" / "lexical" / "term_postings.sqlite",
+            candidate_dir / "table_pool" / "lexical" / "globals.json",
+            candidate_dir / "table_pool" / "vector" / "index.sqlite",
+        )
+        missing = [str(path) for path in required_files if not path.exists()]
+        source_counts: dict[str, int] = {}
+        table_sources: set[str] = set()
+        for chunk in chunk_meta.values():
+            source_path = str(chunk.get("source_path") or "")
+            source_counts[source_path] = source_counts.get(source_path, 0) + 1
+            if bool(chunk.get("structured_only")):
+                table_sources.add(source_path)
+        missing_outputs: list[str] = []
+        for source in source_documents:
+            count = source_counts.get(source.source_path, 0)
+            if self._doc_kind_for_source(source.file_type) == "table":
+                if source.source_path not in table_sources:
+                    missing_outputs.append(source.source_path)
+            elif count <= 0:
+                missing_outputs.append(source.source_path)
+        passed = not missing and not missing_outputs
+        if not passed:
+            raise ValueError(
+                f"candidate validation failed: missing_files={missing}, missing_outputs={missing_outputs}"
+            )
+        return {
+            "passed": True,
+            "source_count": len(source_documents),
+            "text_chunk_count": text_chunk_count,
+            "table_record_count": table_record_count,
+            "missing_files": [],
+            "missing_outputs": [],
+        }
+
+    def _new_build_id(self, group_id: str) -> str:
+        timestamp = datetime.now().strftime("%m%d%H%M%S%f")
+        compact_group = group_id[:3] if group_id else "grp"
+        return f"b_{compact_group}_{timestamp}"
+
     def _current_timestamp(self) -> float:
         import time
+
         return time.time()

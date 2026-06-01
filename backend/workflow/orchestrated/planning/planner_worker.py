@@ -170,9 +170,10 @@ class PlannerWorker:
             "query_units": normalized_units,
             "global_binding_frame": global_binding_frame.to_dict(),
             "binding_enabled": bool(task_frame.get("binding_enabled", False)),
-            "recent_messages_summary": list(task_frame.get("recent_messages_summary", ()) or ()),
+            "recent_messages_truncated": list(
+                task_frame.get("recent_messages_truncated", task_frame.get("recent_messages_summary", ())) or ()
+            ),
             "working_memory_hints": list(task_frame.get("working_memory_hints", ()) or ()),
-            "memory_anchor_hints": list(task_frame.get("memory_anchor_hints", ()) or ()),
             "constraints": {
                 "max_units": 6,
                 "prefer_minimal_graph": True,
@@ -326,7 +327,7 @@ class PlannerWorker:
         plan["fallback_used"] = False
         return plan
 
-    def _collapse_query_units(self, query_units: list[dict[str, Any]], *, max_units: int = 4) -> list[dict[str, Any]]:
+    def _collapse_query_units(self, query_units: list[dict[str, Any]], *, max_units: int = 6) -> list[dict[str, Any]]:
         if len(query_units) <= max_units:
             return [dict(item) for item in query_units]
         collapsed = [dict(item) for item in query_units[: max_units - 1]]

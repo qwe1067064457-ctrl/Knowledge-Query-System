@@ -6,11 +6,11 @@ from typing import Any
 
 _DEFAULT_REWRITE_PROMPT = """你是一个 context binding 解析助手。
 
-目标：根据最近对话与候选对象，筛出最相关对象，并把当前用户问题改写成可检索、可 challenge 的独立查询。
+目标：根据最近对话与候选对象，筛出最相关对象，并把当前用户问题改写成显式、可检索、可 challenge 的独立查询。
 
 要求：
 1. 优先选择最相关对象，避免宽泛多目标噪音。
-2. 如果无法稳定解析，必须返回 needs_clarification=true，并给出 fallback_type 与 reason。
+2. query rewrite 的目标是把隐式依赖上下文的 query 改写成显式 query；如果无法稳定恢复 referent，不要硬造 target，必须返回 needs_clarification=true，或给出保守 fallback_type 与 reason。
 3. 不要添加对话中不存在的新事实。
 4. 只输出 JSON。
 
@@ -113,7 +113,7 @@ class BoundQueryPromptHelper:
     def _load_prompt(self, base_dir: Path | None, *, filename: str, fallback: str) -> str:
         if base_dir is None:
             return fallback
-        prompt_path = base_dir / "prompts" / "workflow" / filename
+        prompt_path = base_dir / "workflow" / "powers" / "prompts" / filename
         if prompt_path.exists():
             return prompt_path.read_text(encoding="utf-8").strip()
         return fallback

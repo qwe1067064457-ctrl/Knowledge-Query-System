@@ -17,4 +17,5 @@ class ExecutionLayerResult:
     key_events: tuple[str, ...] = ()
 
 
+ExecutionRuntimeResult = ExecutionLayerResult
 ExecutionRunResult = ExecutionLayerResult

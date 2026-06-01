@@ -11,7 +11,7 @@ from workflow.orchestrated.execution_layer.executors.synthesis_executor import S
 from workflow.orchestrated.execution_layer.executors.verify_executor import VerifyExecutor
 
 
-class CapabilityExecutorRegistry:
+class ExecutorRegistry:
     def __init__(self) -> None:
         executors = (
             QaLikeExecutor(),
@@ -32,3 +32,6 @@ class CapabilityExecutorRegistry:
     ) -> BaseCapabilityExecutor:
         del request, working_memory
         return self._executors.get(unit.capability, self._executors["qa_like"])
+
+
+CapabilityExecutorRegistry = ExecutorRegistry

@@ -12,9 +12,17 @@ _DEFAULT_GLOBAL_BINDING_PROMPT = """你是一个 orchestration global binding fr
 3. 给出 shared target 候选和 binding strategy hint。
 4. 不做 deep binding，不要假装唯一确定最终 target。
 
+术语解释：
+- `query_is_context_dependent`：当前 query 是否依赖最近上下文，不等于已经完成 target resolution。
+- `binding_scope_hint`：上下文依赖范围的高层判断，取值 `global | partial | none`。
+- `shared_target_candidates`：多个片段可能共同依赖的一组 target 候选，不等于最终 resolved target。
+- `recommended_binding_mode`：给后续 execution 的 binding strategy hint，不是最终执行结果。
+- `segment_hints`：对每个语义片段的细化 framing，描述哪个片段依赖上下文、依赖类型是什么。
+- `notes`：附加说明或保守判断理由，不是 graph node。
+
 要求：
 1. 只输出 JSON。
-2. 可以利用 rule_frame、最近对话、working memory hints、memory anchor hints、候选对象。
+2. 可以利用 rule_frame、最近对话、working memory hints、候选对象。
 3. 如果没有足够证据，不要过度推断；优先输出 conservative frame。
 4. 如果只有局部片段依赖上下文，必须输出 segment_hints。
 5. 单句请求也允许输出 segment_hints；segment_hints 表示局部上下文依赖分布，不等于 execution unit。
@@ -58,9 +66,6 @@ recent_messages:
 working_memory_hints:
 {working_memory_hints_json}
 
-memory_anchor_hints:
-{memory_anchor_hints_json}
-
 binding_candidates:
 {binding_candidates_json}
 
@@ -90,7 +95,6 @@ class GlobalBindingPromptHelper:
             .replace("{rule_frame_json}", self._json(rule_frame))
             .replace("{recent_messages_json}", self._json(recent_messages[-6:]))
             .replace("{working_memory_hints_json}", self._json(working_memory_hints[:6]))
-            .replace("{memory_anchor_hints_json}", self._json(memory_anchor_hints[:6]))
             .replace("{binding_candidates_json}", self._json(binding_candidates[:8]))
         )
 
@@ -169,13 +173,9 @@ class GlobalBindingPromptHelper:
     def _load_prompt(self, base_dir: Path | None, *, filename: str, fallback: str) -> str:
         if base_dir is None:
             return fallback
-        candidate_paths = (
-            base_dir / "workflow" / "orchestrated" / "binding" / "prompts" / filename,
-            base_dir / "prompts" / "workflow" / filename,
-        )
-        for prompt_path in candidate_paths:
-            if prompt_path.exists():
-                return prompt_path.read_text(encoding="utf-8").strip()
+        prompt_path = base_dir / "workflow" / "orchestrated" / "binding" / "prompts" / filename
+        if prompt_path.exists():
+            return prompt_path.read_text(encoding="utf-8").strip()
         return fallback
 
     def _json(self, payload: Any) -> str:

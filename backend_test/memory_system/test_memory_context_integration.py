@@ -335,8 +335,6 @@ class MemoryContextIntegrationTests(unittest.TestCase):
                 context = make_context_manager(workspace)
 
                 def fake_llm(prompt: str) -> str:
-                    if "提取对你主人重要的信息" in prompt:
-                        return "- Record: the user confirmed archived sessions still accept writes."
                     return "Compaction summary"
 
                 context.config.memory_flush_enabled = True
@@ -345,6 +343,9 @@ class MemoryContextIntegrationTests(unittest.TestCase):
                 session = sessions.create_session("law", "default", "u1")
                 for index in range(6):
                     role = "user" if index % 2 == 0 else "assistant"
+                    content = (
+                        "the user confirmed archived sessions still accept writes. " if index == 0 else ""
+                    ) + ("Very long context body " * 40)
                     sessions.append_entry(
                         "law",
                         "default",
@@ -352,7 +353,7 @@ class MemoryContextIntegrationTests(unittest.TestCase):
                             session.id,
                             "law",
                             role,
-                            "Very long context body " * 40,
+                            content,
                             token_count=120,
                         ),
                     )

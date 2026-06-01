@@ -64,6 +64,7 @@ class AgentManager:
 
         self.raw_session_manager = SessionManager(base_dir / "storage")
         self.memory_system = MemorySystem(base_dir / "storage")
+        self.memory_system.set_extractor_llm_call(self._llm_text_call_sync)
         self.context_manager = ContextManager(self.raw_session_manager, self.memory_system)
         self.context_manager.set_llm_call(self._llm_text_call)
 

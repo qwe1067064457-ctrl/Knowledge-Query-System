@@ -151,7 +151,7 @@ def test_planning_power_accepts_model_generated_execution_graph() -> None:
         task_topology="staged",
         global_binding_frame={},
         binding_enabled=False,
-        recent_messages_summary=[{"role": "user", "content": "我们在讨论schema调整。"}],
+        recent_messages_truncated=[{"role": "user", "content": "我们在讨论schema调整。"}],
         llm_call=llm_call,
         planner_worker=PlannerWorker(),
     )
@@ -160,6 +160,68 @@ def test_planning_power_accepts_model_generated_execution_graph() -> None:
     assert graph.is_dag() is True
     assert graph.graph_notes == ("llm_graph",)
     assert bundle.planning_mode == "staged"
+
+
+def test_planning_power_prompt_uses_recent_messages_truncated_field() -> None:
+    power = PlanningPower()
+
+    def llm_call(prompt: str) -> str:
+        assert "recent_messages_truncated" in prompt
+        assert '"content": "最近一条消息"' in prompt
+        return """
+        {
+          "units": [
+            {
+              "unit_id": "unit_primary",
+              "goal": "回答问题",
+              "capability": "qa_like",
+              "depends_on": [],
+              "proceed_if": null,
+              "output_slot": "final_answer",
+              "binding_mode": "skip",
+              "retrieval_mode": "auto",
+              "stop_when": null,
+              "notes": []
+            }
+          ],
+          "edges": [],
+          "graph_notes": ["uses_recent_messages_truncated"]
+        }
+        """
+
+    bundle = power.build_plan_bundle_obj(
+        query="这个方案怎么落地？",
+        task_shape="single_question",
+        task_topology="single",
+        recent_messages_truncated=[{"role": "user", "content": "最近一条消息"}],
+        llm_call=llm_call,
+        planner_worker=PlannerWorker(),
+    )
+
+    assert bundle.execution_graph_obj().graph_notes == ("uses_recent_messages_truncated",)
+
+
+def test_planning_power_keeps_six_explicit_query_units_without_forced_grouping() -> None:
+    power = PlanningPower()
+    query_units = [
+        {"unit_id": f"q{i}", "text": f"问题{i}", "origin": "primary"}
+        for i in range(1, 7)
+    ]
+
+    bundle = power.build_plan_bundle_obj(
+        query="；".join(item["text"] for item in query_units),
+        task_shape="single_question",
+        task_topology="parallel_queries",
+        query_units=query_units,
+        planner_worker=PlannerWorker(),
+    )
+
+    graph = bundle.execution_graph_obj()
+    unit_ids = [unit.unit_id for unit in graph.unit_objs()]
+
+    assert "q_grouped" not in unit_ids
+    assert unit_ids[:6] == [f"q{i}" for i in range(1, 7)]
+    assert len(graph.unit_objs()) == 7
 
 
 def test_planning_power_falls_back_to_rule_graph_when_model_output_invalid() -> None:

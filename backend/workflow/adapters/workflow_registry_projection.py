@@ -48,10 +48,10 @@ def _whitelist_convenience_fields(
 def build_execution_summary_metadata(payload) -> dict[str, Any]:
     context_summary = payload.context_summary_view()
     plan_summary_view = payload.plan_summary_view()
-    review_summary_view = payload.review_summary_view()
+    review_summary_view = payload.challenge_result_summary_view()
     evidence_summary_view = payload.evidence_summary_view()
     plan_bundle = payload.plan_bundle_obj()
-    review_bundle = payload.review_bundle_obj()
+    review_bundle = payload.challenge_result_bundle_obj()
 
     evidence_summary = {}
     if getattr(payload, "evidence_bundle", None) is not None:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from collections import defaultdict
 
 from retrieval_infra.indexing.repo_knowledge_manager import RepoKnowledgeIndexManager
 from retrieval_infra.query.reranker import LocalCrossEncoderReranker
@@ -26,20 +27,47 @@ class RepoKnowledgeRetriever:
         del query_hints
         vector_hits: list[Evidence] = []
         bm25_hits: list[Evidence] = []
+        text_hits: list[Evidence] = []
+        table_hits: list[Evidence] = []
         for group_id in self.manager._discover_groups():
             assets = self.manager.ensure_group_built(group_id)
-            vector_scores = assets.vector.query(query, top_k=max(top_k * 2, top_k))
-            lexical_scores = assets.lexical.query(query, top_k=max(top_k * 2, top_k))
-            vector_hits.extend(self._to_evidences(vector_scores, assets.chunk_meta, assets.chunk_store, path_filters, channel="vector"))
-            bm25_hits.extend(self._to_evidences(lexical_scores, assets.chunk_meta, assets.chunk_store, path_filters, channel="bm25"))
+            text_vector_scores = assets.text_vector.query(query, top_k=max(top_k * 3, top_k))
+            text_lexical_scores = assets.text_lexical.query(query, top_k=max(top_k * 3, top_k))
+            table_vector_scores = assets.table_vector.query(query, top_k=max(3, top_k))
+            table_lexical_scores = assets.table_lexical.query(query, top_k=max(3, top_k))
+
+            text_vector_hits = self._to_evidences(text_vector_scores, assets.chunk_meta, assets.chunk_store, path_filters, channel="vector", pool="text")
+            text_bm25_hits = self._to_evidences(text_lexical_scores, assets.chunk_meta, assets.chunk_store, path_filters, channel="bm25", pool="text")
+            table_vector_hits = self._to_evidences(table_vector_scores, assets.chunk_meta, assets.chunk_store, path_filters, channel="vector", pool="table")
+            table_bm25_hits = self._to_evidences(table_lexical_scores, assets.chunk_meta, assets.chunk_store, path_filters, channel="bm25", pool="table")
+
+            vector_hits.extend([*text_vector_hits, *table_vector_hits])
+            bm25_hits.extend([*text_bm25_hits, *table_bm25_hits])
+            text_hits.extend([*text_vector_hits, *text_bm25_hits])
+            table_hits.extend([*table_vector_hits, *table_bm25_hits])
         vector_hits.sort(key=lambda item: item.score or 0.0, reverse=True)
         bm25_hits.sort(key=lambda item: item.score or 0.0, reverse=True)
-        merged = self._dedupe_and_merge(vector_hits, bm25_hits)
+        merged = self._rrf_merge(
+            [
+                text_hits[: max(top_k * 3, top_k * 2)],
+                table_hits[: max(3, top_k)],
+                vector_hits[: max(top_k * 3, top_k * 2)],
+                bm25_hits[: max(top_k * 3, top_k * 2)],
+            ]
+        )
         reranked = self.reranker.rerank(query, merged, top_k=top_k)
         reranked_ids = {(item.source_path, item.locator) for item in reranked}
         reranked_vector = [item for item in vector_hits if (item.source_path, item.locator) in reranked_ids][:top_k]
         reranked_bm25 = [item for item in bm25_hits if (item.source_path, item.locator) in reranked_ids][:top_k]
-        return HybridRetrievalResult(vector_evidences=reranked_vector, bm25_evidences=reranked_bm25)
+        reranked_text = [item for item in text_hits if (item.source_path, item.locator) in reranked_ids][:top_k]
+        reranked_table = [item for item in table_hits if (item.source_path, item.locator) in reranked_ids][:top_k]
+        return HybridRetrievalResult(
+            vector_evidences=reranked_vector,
+            bm25_evidences=reranked_bm25,
+            text_hits=reranked_text,
+            table_hits=reranked_table,
+            merged_hits=reranked,
+        )
 
     def status(self):
         return self.manager.status()
@@ -53,11 +81,13 @@ class RepoKnowledgeRetriever:
     def configure(self, backend_dir) -> None:
         self.manager.configure(backend_dir)
 
-    def _to_evidences(self, hits, chunk_meta, chunk_store, path_filters, *, channel: str) -> list[Evidence]:
+    def _to_evidences(self, hits, chunk_meta, chunk_store, path_filters, *, channel: str, pool: str) -> list[Evidence]:
         payload: list[Evidence] = []
         for chunk_id, score in hits:
             meta = chunk_meta.get(chunk_id)
             if not meta:
+                continue
+            if str(meta.get("pool") or "") != pool:
                 continue
             source_path = str(meta["source_path"])
             if not self._matches_path_filters(source_path, path_filters):
@@ -72,6 +102,11 @@ class RepoKnowledgeRetriever:
                     channel=channel,  # type: ignore[arg-type]
                     score=score,
                     parent_id=str(meta["doc_id"]),
+                    metadata={
+                        "pool": pool,
+                        "structured_only": bool(meta.get("structured_only")),
+                        "analysis_available": bool(meta.get("analysis_available")),
+                    },
                 )
             )
         return payload
@@ -97,11 +132,19 @@ class RepoKnowledgeRetriever:
             return json.dumps(locator, ensure_ascii=False)
         return str(locator)
 
-    def _dedupe_and_merge(self, vector_hits: list[Evidence], bm25_hits: list[Evidence]) -> list[Evidence]:
-        merged: dict[tuple[str, str], Evidence] = {}
-        for item in [*vector_hits, *bm25_hits]:
-            key = (item.source_path, item.locator)
-            existing = merged.get(key)
-            if existing is None or (item.score or 0.0) > (existing.score or 0.0):
-                merged[key] = item
-        return list(merged.values())
+    def _rrf_merge(self, channels: list[list[Evidence]], *, k: int = 60) -> list[Evidence]:
+        fused_scores: defaultdict[tuple[str, str], float] = defaultdict(float)
+        representative: dict[tuple[str, str], Evidence] = {}
+        for channel_hits in channels:
+            for rank, item in enumerate(channel_hits, start=1):
+                key = (item.source_path, item.locator)
+                fused_scores[key] += 1.0 / (k + rank)
+                if key not in representative or (item.score or 0.0) > (representative[key].score or 0.0):
+                    representative[key] = item
+        merged: list[Evidence] = []
+        for key, evidence in representative.items():
+            evidence.score = max(float(evidence.score or 0.0), fused_scores[key])
+            evidence.channel = "fused"
+            merged.append(evidence)
+        merged.sort(key=lambda item: item.score or 0.0, reverse=True)
+        return merged

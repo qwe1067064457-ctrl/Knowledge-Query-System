@@ -6,13 +6,20 @@
 3. 给出 shared target 候选和 binding strategy hint。
 4. 只做 frame / hint，不做 deep binding，不要假装唯一确定最终 target。
 
+术语解释：
+- `query_is_context_dependent`：当前 query 是否依赖最近上下文，不等于已经完成 target resolution。
+- `binding_scope_hint`：上下文依赖范围的高层判断，取值 `global | partial | none`。
+- `shared_target_candidates`：多个片段可能共同依赖的一组 target 候选，不等于最终 resolved target。
+- `recommended_binding_mode`：给后续 execution 的 binding strategy hint，不是最终执行结果。
+- `segment_hints`：对每个语义片段的细化 framing，描述哪个片段依赖上下文、依赖类型是什么。
+- `notes`：附加说明或保守判断理由，不是 graph node。
+
 要求：
 1. 只输出 JSON。
 2. 你可以利用：
    - `rule_frame`
    - `recent_messages`
    - `working_memory_hints`
-   - `memory_anchor_hints`
    - `binding_candidates`
 3. 如果没有足够证据，不要过度推断；优先输出 conservative frame。
 4. 如果只有局部片段依赖上下文，必须输出 `segment_hints`。
@@ -59,9 +66,6 @@ recent_messages:
 
 working_memory_hints:
 {working_memory_hints_json}
-
-memory_anchor_hints:
-{memory_anchor_hints_json}
 
 binding_candidates:
 {binding_candidates_json}

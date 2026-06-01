@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import sys
 import shutil
+import zipfile
 import uuid
 from contextlib import contextmanager
 from pathlib import Path
@@ -79,28 +80,38 @@ def test_manifest_store_switch_and_rollback_round_trip(local_tmp_path: Path) -> 
     store = ManifestStore(local_tmp_path / "index_manifest.json")
 
     initial = store.load("knowledge")
-    switched = store.switch("knowledge", active_slot="next", previous_slot="current", snapshot_id="snap_001")
-    rolled_back = store.rollback("knowledge", active_slot="current", previous_slot="next", snapshot_id="snap_000")
+    switched = store.activate(
+        "knowledge",
+        current_build_id="build_001",
+        current_snapshot_id="snap_001",
+        previous_snapshot_id="snap_000",
+    )
+    rolled_back = store.rollback(
+        "knowledge",
+        current_build_id="build_rollback",
+        current_snapshot_id="snap_rollback",
+        previous_snapshot_id="snap_001",
+    )
 
-    assert initial.active_slot == "current"
-    assert switched.active_slot == "next"
-    assert switched.previous_slot == "current"
-    assert rolled_back.active_slot == "current"
-    assert rolled_back.previous_slot == "next"
+    assert initial.current_build_id is None
+    assert switched.current_build_id == "build_001"
+    assert switched.current_snapshot_id == "snap_001"
+    assert switched.previous_snapshot_id == "snap_000"
+    assert rolled_back.current_build_id == "build_rollback"
+    assert rolled_back.current_snapshot_id == "snap_rollback"
+    assert rolled_back.previous_snapshot_id == "snap_001"
 
 
 def test_state_store_persists_build_and_checkpoint(local_tmp_path: Path) -> None:
-    store = StateStore(
-        build_registry_path=local_tmp_path / "build_registry.jsonl",
-        checkpoints_path=local_tmp_path / "checkpoints.json",
-    )
+    store = StateStore(registries_dir=local_tmp_path / "registries")
     request = BuildRequest(
         build_id="build_001",
         group_id="general",
         namespace="knowledge",
         mode="incremental",
-        target_slot="next",
         source_ids=("knowledge_general_ai",),
+        source_fingerprint="fp_001",
+        candidate_dir=str(local_tmp_path / "candidate" / "build_001"),
     )
     checkpoint = BuildCheckpoint(
         source_id="knowledge_general_ai",
@@ -122,12 +133,13 @@ def test_state_store_persists_build_and_checkpoint(local_tmp_path: Path) -> None
     store.append_build(request, status="running")
     store.write_checkpoint(checkpoint)
 
-    lines = [json.loads(line) for line in (local_tmp_path / "build_registry.jsonl").read_text(encoding="utf-8").splitlines() if line.strip()]
-    persisted = json.loads((local_tmp_path / "checkpoints.json").read_text(encoding="utf-8"))
+    lines = [json.loads(line) for line in (local_tmp_path / "registries" / "history" / "build_registry.jsonl").read_text(encoding="utf-8").splitlines() if line.strip()]
+    persisted_scan = store.load_scan_checkpoints()
+    persisted_docs = store.load_document_checkpoints()
 
     assert lines[0]["status"] == "running"
-    assert persisted["knowledge_general_ai"]["pipeline_progress"]["stage"] == "chunked"
-    assert persisted["knowledge_general_ai"]["scan_checkpoint"]["last_seen_file"].endswith("report.txt")
+    assert persisted_scan["build_001"]["last_seen_file"].endswith("report.txt")
+    assert persisted_docs["build_001::knowledge_general_ai"]["stage"] == "chunked"
 
 
 def test_work_queue_tracks_build_and_document_rows(local_tmp_path: Path) -> None:
@@ -232,14 +244,26 @@ def test_repo_knowledge_index_manager_rebuilds_and_switches_slots(local_tmp_path
     manager.rebuild_index()
 
     status = manager.status()
-    manifest_path = backend_dir / "storage" / "groups" / "general" / "registries" / "index_manifest.json"
+    group_root = backend_dir / "storage" / "groups" / "general"
+    manifest_path = group_root / "registries" / "index_manifest.json"
     manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
 
     assert status.ready is True
     assert status.indexed_files >= 1
     assert status.vector_ready is True
     assert status.bm25_ready is True
-    assert manifest["active_slot"] in {"current", "next"}
+    assert manifest["current_build_id"].startswith("b_gen_")
+    assert manifest["current_snapshot_id"].startswith("s_b_gen_")
+    assert "active_slot" not in manifest
+    assert (group_root / "knowledge" / "indexes" / "builds" / "running" / manifest["current_build_id"]).exists()
+    assert (group_root / "knowledge" / "indexes" / "builds" / "latest" / manifest["current_build_id"]).exists()
+    assert (group_root / "registries" / "history" / "source_registry.jsonl").exists()
+    assert (group_root / "registries" / "history" / "build_history.jsonl").exists()
+    assert (group_root / "registries" / "history" / "validation_history.jsonl").exists()
+    assert (group_root / "registries" / "recovery" / "scan_checkpoints.sqlite").exists()
+    assert (group_root / "registries" / "recovery" / "document_checkpoints.sqlite").exists()
+    assert (group_root / "registries" / "recovery" / "index_checkpoints.sqlite").exists()
+    assert (group_root / "registries" / "recovery" / "activation_checkpoints.sqlite").exists()
 
 
 def test_parser_preserves_pdf_page_locators(local_tmp_path: Path) -> None:
@@ -291,6 +315,64 @@ def test_parser_keeps_excel_as_structured_summary_blocks(local_tmp_path: Path) -
     assert parsed.sections[0]["locator"].get("sheet_name") == "metrics"
     assert chunks
     assert all(chunk.metadata.get("structured_only") is True for chunk in chunks)
+    assert all(chunk.metadata.get("analysis_available") is True for chunk in chunks)
+
+
+def test_repo_knowledge_retriever_returns_table_hits_with_analysis_flag(local_tmp_path: Path) -> None:
+    backend_dir = local_tmp_path / "backend"
+    workbook_path = backend_dir / "storage" / "groups" / "general" / "knowledge" / "raw" / "finance" / "metrics.xlsx"
+    workbook_path.parent.mkdir(parents=True, exist_ok=True)
+    with zipfile.ZipFile(workbook_path, "w") as archive:
+        archive.writestr(
+            "xl/workbook.xml",
+            """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"
+ xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">
+  <sheets>
+    <sheet name="monthly_revenue" sheetId="1" r:id="rId1"/>
+  </sheets>
+</workbook>""",
+        )
+        archive.writestr(
+            "xl/_rels/workbook.xml.rels",
+            """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">
+  <Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/>
+</Relationships>""",
+        )
+        archive.writestr(
+            "xl/worksheets/sheet1.xml",
+            """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">
+  <sheetData>
+    <row r="1">
+      <c r="A1" t="inlineStr"><is><t>date</t></is></c>
+      <c r="B1" t="inlineStr"><is><t>product</t></is></c>
+      <c r="C1" t="inlineStr"><is><t>region</t></is></c>
+      <c r="D1" t="inlineStr"><is><t>revenue</t></is></c>
+    </row>
+    <row r="2">
+      <c r="A2" t="inlineStr"><is><t>2025-01</t></is></c>
+      <c r="B2" t="inlineStr"><is><t>A</t></is></c>
+      <c r="C2" t="inlineStr"><is><t>华东</t></is></c>
+      <c r="D2" t="inlineStr"><is><t>183200</t></is></c>
+    </row>
+    <row r="3">
+      <c r="A3" t="inlineStr"><is><t>2025-02</t></is></c>
+      <c r="B3" t="inlineStr"><is><t>B</t></is></c>
+      <c r="C3" t="inlineStr"><is><t>华南</t></is></c>
+      <c r="D3" t="inlineStr"><is><t>97500</t></is></c>
+    </row>
+  </sheetData>
+</worksheet>""",
+        )
+
+    retriever = RepoKnowledgeRetriever(backend_dir=backend_dir)
+    result = retriever.retrieve("哪个 region 的 revenue 更高", top_k=5)
+
+    assert result.table_hits
+    assert any(item.metadata.get("analysis_available") is True for item in result.table_hits)
+    assert any(item.metadata.get("structured_only") is True for item in result.table_hits)
 
 
 def test_memory_hybrid_retriever_recalls_domain_case_and_daily_log(local_tmp_path: Path) -> None:

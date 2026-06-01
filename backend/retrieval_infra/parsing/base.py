@@ -142,7 +142,15 @@ class SimpleTextParser:
                 continue
             headers = ", ".join(str(item) for item in sheet.get("headers", []) if str(item).strip())
             preview_rows = sheet.get("preview_rows", [])
-            text_parts = [f"sheet={sheet.get('sheet_name', '')}", f"headers={headers}", f"row_count={sheet.get('row_count', 0)}"]
+            field_roles = sheet.get("field_roles", {})
+            text_parts = [
+                str(sheet.get("summary") or "").strip(),
+                f"sheet={sheet.get('sheet_name', '')}",
+                f"headers={headers}",
+                f"row_count={sheet.get('row_count', 0)}",
+            ]
+            if field_roles:
+                text_parts.append(f"field_roles={json.dumps(field_roles, ensure_ascii=False)}")
             if preview_rows:
                 text_parts.append(f"preview={json.dumps(preview_rows, ensure_ascii=False)}")
             sections.append(
@@ -156,6 +164,11 @@ class SimpleTextParser:
                         "row_group_end": int(sheet.get("row_count") or 0),
                     },
                     "structured_only": True,
+                    "field_roles": field_roles,
+                    "headers": list(sheet.get("headers") or []),
+                    "row_count": int(sheet.get("row_count") or 0),
+                    "preview_rows": list(preview_rows),
+                    "analysis_available": True,
                 }
             )
         return sections or self._parse_text(source)

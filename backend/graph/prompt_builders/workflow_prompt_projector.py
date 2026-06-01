@@ -60,7 +60,7 @@ def build_answer_result_projection_rules_from_workflow(payload) -> list[str]:
     instructions: list[str] = []
     context_summary = payload.context_summary_view()
     plan_summary = payload.plan_summary_view()
-    review_summary = payload.review_summary_view()
+    review_summary = payload.challenge_result_summary_view()
     evidence_summary = payload.evidence_summary_view()
     key_events = set(getattr(payload, "key_events", ()) or ())
 

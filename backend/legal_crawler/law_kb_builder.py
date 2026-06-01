@@ -59,12 +59,16 @@ def ensure_law_storage_structure(backend_dir: Path, group_id: str = "law") -> Pa
         knowledge_root / "normalized",
         knowledge_root / "chunked",
         knowledge_root / "meta",
-        knowledge_root / "indexes" / "current" / "lexical",
-        knowledge_root / "indexes" / "current" / "vector",
-        knowledge_root / "indexes" / "next" / "lexical",
-        knowledge_root / "indexes" / "next" / "vector",
+        knowledge_root / "indexes" / "current" / "text_pool" / "lexical",
+        knowledge_root / "indexes" / "current" / "text_pool" / "vector",
+        knowledge_root / "indexes" / "current" / "table_pool" / "lexical",
+        knowledge_root / "indexes" / "current" / "table_pool" / "vector",
+        knowledge_root / "indexes" / "builds" / "running",
+        knowledge_root / "indexes" / "builds" / "latest",
         knowledge_root / "indexes" / "snapshots",
         storage_root / "registries",
+        storage_root / "registries" / "history",
+        storage_root / "registries" / "recovery",
     ):
         path.mkdir(parents=True, exist_ok=True)
 
@@ -91,15 +95,26 @@ def ensure_law_storage_structure(backend_dir: Path, group_id: str = "law") -> Pa
         )
 
     for path in (
-        storage_root / "registries" / "source_registry.jsonl",
-        storage_root / "registries" / "build_registry.jsonl",
-        storage_root / "registries" / "checkpoints.json",
+        storage_root / "registries" / "history" / "source_registry.jsonl",
+        storage_root / "registries" / "history" / "build_registry.jsonl",
+        storage_root / "registries" / "history" / "build_history.jsonl",
+        storage_root / "registries" / "history" / "validation_history.jsonl",
         storage_root / "registries" / "index_manifest.json",
         knowledge_root / "meta" / "source_catalog.jsonl",
         knowledge_root / "meta" / "source_layout.json",
     ):
         if not path.exists():
             path.write_text("[]\n" if path.name.endswith(".jsonl") else "{}\n", encoding="utf-8")
+    for sqlite_path in (
+        storage_root / "registries" / "work_queue.sqlite",
+        storage_root / "registries" / "recovery" / "scan_checkpoints.sqlite",
+        storage_root / "registries" / "recovery" / "document_checkpoints.sqlite",
+        storage_root / "registries" / "recovery" / "index_checkpoints.sqlite",
+        storage_root / "registries" / "recovery" / "activation_checkpoints.sqlite",
+    ):
+        sqlite_path.parent.mkdir(parents=True, exist_ok=True)
+        if not sqlite_path.exists():
+            sqlite_path.touch()
 
     return storage_root
 
