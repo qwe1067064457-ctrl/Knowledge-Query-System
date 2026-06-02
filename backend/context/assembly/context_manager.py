@@ -726,18 +726,3 @@ class ContextManager:
             agent_id=agent_id,
             limit=limit,
         )
-
-    def prune_registry(
-        self,
-        *,
-        tenant_id: str,
-        group_id: str,
-        agent_id: str,
-        session_id: str,
-    ) -> ContextRegistry:
-        return self.registry_mgr.prune_registry(
-            session_id=session_id,
-            tenant_id=tenant_id,
-            group_id=group_id,
-            agent_id=agent_id,
-        )

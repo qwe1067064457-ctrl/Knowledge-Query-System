@@ -17,6 +17,7 @@ from memory_system.extraction import CoreGate, DailyLogGate, DomainCaseGate, Mem
 from memory_system.jobs import MemoryWriteQueue, MemoryWriteWorker
 from memory_system.policy_loader import MemoryPolicyLoader
 from memory_system.validation import MemoryValidator
+from retrieval_infra.indexing.memory_index_manager import MemoryIndexManager
 from retrieval_infra.query.memory_hybrid_retriever import MemoryHybridRetriever
 
 
@@ -37,6 +38,7 @@ class MemorySystem:
         self.users_path.mkdir(parents=True, exist_ok=True)
         self.groups_path.mkdir(parents=True, exist_ok=True)
         self.policy_loader = MemoryPolicyLoader(self.base_storage_path)
+        self.index_manager = MemoryIndexManager(self.base_storage_path)
         self.hybrid_retriever = MemoryHybridRetriever(self.base_storage_path)
         self.extraction_pipeline = MemoryExtractionPipeline()
         self.core_gate = CoreGate()
@@ -168,6 +170,21 @@ class MemorySystem:
                     continue
                 try:
                     rows.append(json.loads(line))
+                except json.JSONDecodeError:
+                    continue
+        return rows
+
+    @staticmethod
+    def _read_jsonl_with_line_numbers(path: Path) -> List[Tuple[int, Dict[str, Any]]]:
+        if not path.exists():
+            return []
+        rows: List[Tuple[int, Dict[str, Any]]] = []
+        with path.open("r", encoding="utf-8") as handle:
+            for line_no, line in enumerate(handle, start=1):
+                if not line.strip():
+                    continue
+                try:
+                    rows.append((line_no, json.loads(line)))
                 except json.JSONDecodeError:
                     continue
         return rows
@@ -426,13 +443,23 @@ class MemorySystem:
             return 1.0
         return max(0.1, 2 ** (-days_diff / half_life_days))
 
-    def _to_memory_entry(self, record: Dict[str, Any], *, source: str, score: float = 0.0) -> MemoryEntry:
+    def _to_memory_entry(
+        self,
+        record: Dict[str, Any],
+        *,
+        source: str,
+        score: float = 0.0,
+        extra_metadata: Optional[Dict[str, Any]] = None,
+    ) -> MemoryEntry:
         timestamp_raw = record.get("updated_at") or record.get("created_at") or self._now().isoformat()
         timestamp = (
             datetime.fromisoformat(timestamp_raw)
             if isinstance(timestamp_raw, str)
             else datetime.fromtimestamp(float(timestamp_raw))
         )
+        metadata = {"id": record.get("id"), **dict(record.get("metadata", {}) or {})}
+        if extra_metadata:
+            metadata.update(extra_metadata)
         return MemoryEntry(
             content=str(record.get("content", "")),
             source=source,
@@ -448,7 +475,7 @@ class MemorySystem:
             source_session_id=record.get("source_session_id"),
             anchor_spans=record.get("anchor_spans") or [],
             confidence=float(record.get("confidence") or 0.0),
-            metadata={"id": record.get("id"), **dict(record.get("metadata", {}) or {})},
+            metadata=metadata,
         )
 
     def capture_checkpoint(
@@ -710,6 +737,66 @@ class MemorySystem:
                 results.append(self._to_memory_entry(item, source=str(cases_path.relative_to(self.base_storage_path)), score=score))
         return results
 
+    def _load_indexable_memory_entries(self, *, user_id: str, group_id: str) -> List[MemoryEntry]:
+        entries: List[MemoryEntry] = []
+        daily_dir = self._daily_log_dir(user_id, group_id)
+        for log_path in sorted(daily_dir.glob("*.jsonl")):
+            try:
+                log_date = date.fromisoformat(log_path.stem)
+            except ValueError:
+                continue
+            relative_source = str(log_path.relative_to(self.base_storage_path))
+            for line_no, item in self._read_jsonl_with_line_numbers(log_path):
+                entries.append(
+                    self._to_memory_entry(
+                        item,
+                        source=relative_source,
+                        extra_metadata={
+                            "entry_locator": {"date": log_date.isoformat(), "line_no": line_no},
+                            "revision": str(item.get("updated_at") or item.get("created_at") or ""),
+                        },
+                    )
+                )
+
+        cases_path = self._domain_cases_file(group_id, user_id)
+        if cases_path.exists():
+            relative_source = str(cases_path.relative_to(self.base_storage_path))
+            for line_no, item in self._read_jsonl_with_line_numbers(cases_path):
+                entries.append(
+                    self._to_memory_entry(
+                        item,
+                        source=relative_source,
+                        extra_metadata={
+                            "entry_locator": {"line_no": line_no},
+                            "revision": str(item.get("updated_at") or item.get("created_at") or ""),
+                        },
+                    )
+                )
+        return entries
+
+    def _filter_hybrid_hits(
+        self,
+        *,
+        entries: List[MemoryEntry],
+        min_score: float,
+        date_range: Optional[Tuple[date, date]],
+        time_decay_half_life: int,
+    ) -> List[MemoryEntry]:
+        current_date = date.today()
+        filtered: List[MemoryEntry] = []
+        for entry in entries:
+            adjusted_score = entry.score
+            if entry.memory_type == "daily_log":
+                entry_date = entry.timestamp.date()
+                if date_range and not (date_range[0] <= entry_date <= date_range[1]):
+                    continue
+                adjusted_score *= self._time_decay(entry_date, current_date, time_decay_half_life)
+            if adjusted_score < min_score:
+                continue
+            entry.score = adjusted_score
+            filtered.append(entry)
+        return filtered
+
     def _mmr_deduplicate(self, entries: List[MemoryEntry], lambda_param: float = 0.7, top_k: int = 5) -> List[MemoryEntry]:
         if not entries:
             return []
@@ -767,30 +854,32 @@ class MemorySystem:
         results: List[MemoryEntry] = []
         if include_core:
             results.extend(self._search_core_memories(user_id=user_id, group_id=group_id, query=query, min_score=min_score))
-        hybrid_entries: List[MemoryEntry] = []
-        if include_daily_logs:
-            hybrid_entries.extend(
-                self._search_daily_logs(
-                    user_id=user_id,
-                    group_id=group_id,
-                    query=query,
-                    min_score=min_score,
-                    date_range=date_range,
-                    time_decay_half_life=time_decay_half_life,
-                )
-            )
-        if include_domain_cases:
-            hybrid_entries.extend(self._search_domain_cases(user_id=user_id, group_id=group_id, query=query, min_score=min_score))
-        if hybrid_entries:
-            results.extend(
-                self.hybrid_retriever.retrieve(
+        should_use_hybrid = include_daily_logs or include_domain_cases
+        indexable_entries = self._load_indexable_memory_entries(user_id=user_id, group_id=group_id) if should_use_hybrid else []
+        if indexable_entries:
+            self.index_manager.ensure_built(group_id=group_id, user_id=user_id, memory_entries=indexable_entries)
+            visible_entries = [
+                entry
+                for entry in indexable_entries
+                if (include_daily_logs and entry.memory_type == "daily_log")
+                or (include_domain_cases and entry.memory_type == "domain_case")
+            ]
+            if visible_entries:
+                hybrid_hits = self.hybrid_retriever.retrieve(
                     group_id=group_id,
                     user_id=user_id,
                     query=query,
-                    memory_entries=hybrid_entries,
-                    top_k=top_k,
+                    memory_entries=visible_entries,
+                    top_k=max(top_k * 5, 20),
                 )
-            )
+                results.extend(
+                    self._filter_hybrid_hits(
+                        entries=hybrid_hits,
+                        min_score=min_score,
+                        date_range=date_range,
+                        time_decay_half_life=time_decay_half_life,
+                    )
+                )
 
         results.sort(key=lambda item: item.score, reverse=True)
         if use_mmr and len(results) > top_k:

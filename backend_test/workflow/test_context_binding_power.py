@@ -12,7 +12,7 @@ def _working_memory(*entries: WorkingMemoryEntry) -> SessionWorkingMemory:
     )
 
 
-def test_explicit_second_point_uses_relevant_set_rule_resolution() -> None:
+def test_explicit_second_point_without_llm_now_falls_back_to_clarification() -> None:
     power = ContextBindingPower()
     memory = _working_memory(
         WorkingMemoryEntry(
@@ -44,12 +44,13 @@ def test_explicit_second_point_uses_relevant_set_rule_resolution() -> None:
         rewrite_query=True,
     )
 
-    assert result.binding_ambiguous is False
-    assert result.matched_by == "ordinal_rule"
-    assert result.relevant_set[0]["object_id"] == "wm_answer_2"
-    assert result.resolved_target_ids == ("wm_answer_2",)
-    assert result.bound_targets[0]["object_id"] == "wm_answer_2"
-    assert result.binding_snapshot["query_style"] == "follow_up"
+    assert result.binding_ambiguous is True
+    assert result.matched_by == "fallback"
+    assert result.resolved_target_ids == ()
+    assert result.bound_targets == ()
+    assert result.fallback_type == "needs_clarification"
+    assert result.reason == "no_llm_resolution_available"
+    assert result.binding_snapshot["query_style"] == "standalone"
 
 
 def test_followup_can_use_llm_resolution_after_relevant_set_filtering() -> None:
@@ -162,7 +163,7 @@ def test_self_contained_comparison_query_is_not_misclassified_as_multi_target() 
     assert result.reason == "query_self_contained"
 
 
-def test_true_multi_target_query_still_uses_multi_target_style() -> None:
+def test_count_based_multi_target_query_without_llm_now_falls_back_to_clarification() -> None:
     power = ContextBindingPower()
     memory = _working_memory(
         WorkingMemoryEntry(
@@ -190,8 +191,10 @@ def test_true_multi_target_query_still_uses_multi_target_style() -> None:
     result = power.bind("前两个分别怎么处理？", [], working_memory=memory, rewrite_query=True)
 
     assert result.binding_snapshot["query_style"] == "multi_target"
-    assert result.resolved_target_ids == ("wm_answer_1", "wm_answer_2")
-    assert result.matched_by == "ordinal_rule"
+    assert result.resolved_target_ids == ()
+    assert result.matched_by == "fallback"
+    assert result.fallback_type == "needs_clarification"
+    assert result.reason == "no_llm_resolution_available"
 
 
 def test_ordinal_rule_does_not_assume_relevant_set_order_without_stable_unit_index() -> None:

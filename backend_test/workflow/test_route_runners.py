@@ -5,6 +5,7 @@ from datetime import datetime
 from context.models import MemoryEntry, TranscriptEntry
 from context.session import DEFAULT_AGENT, SessionManager
 from memory_system.memory_anchor import MemoryAnchorBuilder
+from memory_system.session_working_memory.models import SessionWorkingMemory, WorkingMemoryEntry, WorkingMemoryHead
 from intent.schema.intent_types import ControlTrace, IntentModifiers
 from workflow.runners.base import RouteExecutionRequest
 from workflow.runners.orchestrated_runner import OrchestratedRouteRunner
@@ -100,6 +101,13 @@ class _CapturingChallengePower:
                 answer_constraints={"must_acknowledge_uncertainty": True},
             ),
         )
+
+
+def _working_memory(*entries: WorkingMemoryEntry) -> SessionWorkingMemory:
+    return SessionWorkingMemory(
+        entries=list(entries),
+        head=WorkingMemoryHead(active_entry_ids=[entry.entry_id for entry in entries]),
+    )
 
 
 def _make_plan(
@@ -304,20 +312,6 @@ def test_qa_runner_challenge_supports_multi_target_partial_review_bundle() -> No
         context={
             "registry_entries": [
                 {
-                    "object_id": "question_1",
-                    "object_type": "question_object",
-                    "content": "第一个结论的依据是什么？",
-                    "source_power": "workflow",
-                    "refs": ["evidence_1"],
-                },
-                {
-                    "object_id": "question_2",
-                    "object_type": "question_object",
-                    "content": "第二个结论的依据是什么？",
-                    "source_power": "workflow",
-                    "refs": ["evidence_2"],
-                },
-                {
                     "object_id": "evidence_1",
                     "object_type": "evidence_ref",
                     "content": "劳动合同法第19条",
@@ -325,29 +319,51 @@ def test_qa_runner_challenge_supports_multi_target_partial_review_bundle() -> No
                     "refs": ["evidence_1"],
                 },
             ],
+            "working_memory": _working_memory(
+                WorkingMemoryEntry(
+                    entry_id="wm_answer_1",
+                    entry_type="answer_unit",
+                    turn_id="turn_1",
+                    source_kind="answer",
+                    source_ref="turn_1:answer:1",
+                    content="第一点：第一个结论的依据是什么？",
+                    structured_payload={"unit_index": 1, "refs": ["evidence_1"]},
+                    confidence="high",
+                ),
+                WorkingMemoryEntry(
+                    entry_id="wm_answer_2",
+                    entry_type="answer_unit",
+                    turn_id="turn_1",
+                    source_kind="answer",
+                    source_ref="turn_1:answer:2",
+                    content="第二点：第二个结论的依据是什么？",
+                    structured_payload={"unit_index": 2, "refs": ["evidence_2"]},
+                    confidence="high",
+                ),
+            ),
         },
     )
 
     payload = runner.run(plan, request)
     exported = payload.to_dict()
 
-    assert payload.status == "ready"
-    assert payload.review_bundle["status"] == "partial_success"
+    assert payload.status == "needs_clarification"
+    assert payload.review_bundle["status"] == "needs_clarification"
     assert exported["challenge_result_bundle"] == exported["review_bundle"]
-    assert payload.review_bundle["evidence_assessment"]["partially_sufficient"] is True
-    assert payload.review_bundle["evidence_assessment"]["needs_more_evidence_targets"] == ["question_2"]
-    assert len(payload.review_bundle["review_findings"]) == 2
+    assert payload.review_bundle["evidence_assessment"]["sufficient"] is False
+    assert payload.review_bundle["review_findings"] == []
     assert payload.review_bundle["review_mode"] == "challenge_review"
-    assert payload.review_bundle["review_confidence"] == "medium"
+    assert payload.review_bundle["review_confidence"] == "low"
     assert payload.review_bundle["review_scope"] == "multi_target"
     assert len(payload.review_bundle["targets"]) == 2
-    assert payload.review_bundle["review_summary"]["unsupported_target_refs"] == ["question_2"]
-    assert payload.review_bundle["review_summary"]["needs_more_evidence_targets"] == ["question_2"]
-    assert payload.review_bundle["review_summary"]["status_summary"] == "partial_success"
+    assert [item["object_id"] for item in payload.review_bundle["targets"]] == ["wm_answer_1", "wm_answer_2"]
+    assert payload.review_bundle["review_summary"]["unsupported_target_refs"] == []
+    assert payload.review_bundle["review_summary"]["needs_more_evidence_targets"] == []
+    assert payload.review_bundle["review_summary"]["status_summary"] == "needs_clarification"
     assert payload.review_bundle["review_summary"]["used_existing_evidence"] is True
-    assert payload.review_bundle["review_summary"]["retrieve_if_needed_needed"] is True
+    assert payload.review_bundle["review_summary"]["retrieve_if_needed_needed"] is False
     assert payload.review_bundle["review_summary"]["follow_up_retrieval_attempted"] is False
-    assert "binding_applied" in payload.key_events
+    assert "clarification_required" in payload.key_events
 
 
 def test_qa_runner_challenge_can_resolve_missing_targets_via_follow_up_retrieval() -> None:
@@ -364,20 +380,6 @@ def test_qa_runner_challenge_can_resolve_missing_targets_via_follow_up_retrieval
         context={
             "registry_entries": [
                 {
-                    "object_id": "question_1",
-                    "object_type": "question_object",
-                    "content": "第一个结论的依据是什么？",
-                    "source_power": "workflow",
-                    "refs": ["evidence_1"],
-                },
-                {
-                    "object_id": "question_2",
-                    "object_type": "question_object",
-                    "content": "第二个结论的依据是什么？",
-                    "source_power": "workflow",
-                    "refs": ["evidence_2"],
-                },
-                {
                     "object_id": "evidence_1",
                     "object_type": "evidence_ref",
                     "content": "劳动合同法第19条",
@@ -385,28 +387,48 @@ def test_qa_runner_challenge_can_resolve_missing_targets_via_follow_up_retrieval
                     "refs": ["evidence_1"],
                 },
             ],
+            "working_memory": _working_memory(
+                WorkingMemoryEntry(
+                    entry_id="wm_answer_1",
+                    entry_type="answer_unit",
+                    turn_id="turn_1",
+                    source_kind="answer",
+                    source_ref="turn_1:answer:1",
+                    content="第一点：第一个结论的依据是什么？",
+                    structured_payload={"unit_index": 1, "refs": ["evidence_1"]},
+                    confidence="high",
+                ),
+                WorkingMemoryEntry(
+                    entry_id="wm_answer_2",
+                    entry_type="answer_unit",
+                    turn_id="turn_1",
+                    source_kind="answer",
+                    source_ref="turn_1:answer:2",
+                    content="第二点：第二个结论的依据是什么？",
+                    structured_payload={"unit_index": 2, "refs": ["evidence_2"]},
+                    confidence="high",
+                ),
+            ),
         },
     )
 
     payload = runner.run(plan, request)
 
-    assert payload.status == "ready"
-    assert payload.review_bundle["status"] == "success"
-    assert payload.review_bundle["evidence_assessment"]["follow_up_retrieval"]["attempted"] is True
+    assert payload.status == "needs_clarification"
+    assert payload.review_bundle["status"] == "needs_clarification"
     assert payload.review_bundle["review_mode"] == "challenge_review"
-    assert payload.review_bundle["review_confidence"] == "medium"
+    assert payload.review_bundle["review_confidence"] == "low"
     assert payload.review_bundle["review_scope"] == "multi_target"
     assert len(payload.review_bundle["targets"]) == 2
-    assert payload.review_bundle["review_summary"]["matched_target_count"] == 2
+    assert [item["object_id"] for item in payload.review_bundle["targets"]] == ["wm_answer_1", "wm_answer_2"]
+    assert payload.review_bundle["review_summary"]["matched_target_count"] == 0
     assert payload.review_bundle["review_summary"]["unsupported_target_refs"] == []
     assert payload.review_bundle["review_summary"]["used_existing_evidence"] is True
     assert payload.review_bundle["review_summary"]["retrieve_if_needed_needed"] is False
-    assert payload.review_bundle["review_summary"]["follow_up_retrieval_attempted"] is True
-    assert payload.review_bundle["review_summary"]["follow_up_retrieval_sources"] == ["kb/law.md"]
-    assert len(runner.retrieval_power.last_query_units) == 1
-    assert runner.retrieval_power.last_query_units[0].target_refs == ("evidence_2",)
-    assert "follow_up_retrieval_attempted" in payload.key_events
-    assert "follow_up_retrieval_improved" in payload.key_events
+    assert payload.review_bundle["review_summary"]["follow_up_retrieval_attempted"] is False
+    assert payload.review_bundle["review_summary"]["follow_up_retrieval_sources"] == []
+    assert runner.retrieval_power.last_query_units == []
+    assert "clarification_required" in payload.key_events
 
 
 def test_qa_runner_real_challenge_case_related_only_existing_evidence_uses_targeted_retrieval() -> None:

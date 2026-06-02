@@ -32,7 +32,10 @@ class StateStore:
         registries_dir: Path | None = None,
         build_registry_path: Path | None = None,
         checkpoints_path: Path | None = None,
+        item_label: str = "document",
     ) -> None:
+        if item_label not in {"document", "entry"}:
+            raise ValueError("item_label must be 'document' or 'entry'")
         if registries_dir is not None:
             self.registries_dir = Path(registries_dir)
         elif build_registry_path is not None:
@@ -47,6 +50,7 @@ class StateStore:
         self.recovery_dir = self.registries_dir / "recovery"
         self.history_dir.mkdir(parents=True, exist_ok=True)
         self.recovery_dir.mkdir(parents=True, exist_ok=True)
+        self.item_label = item_label
 
         self.build_registry_path = build_registry_path or (self.history_dir / "build_registry.jsonl")
         self.build_history_path = self.history_dir / "build_history.jsonl"
@@ -54,7 +58,9 @@ class StateStore:
         self.source_registry_path = self.history_dir / "source_registry.jsonl"
 
         self.scan_checkpoints_path = self.recovery_dir / "scan_checkpoints.sqlite"
+        self.item_checkpoints_path = self.recovery_dir / f"{self.item_label}_checkpoints.sqlite"
         self.document_checkpoints_path = self.recovery_dir / "document_checkpoints.sqlite"
+        self.entry_checkpoints_path = self.recovery_dir / "entry_checkpoints.sqlite"
         self.index_checkpoints_path = self.recovery_dir / "index_checkpoints.sqlite"
         self.activation_checkpoints_path = self.recovery_dir / "activation_checkpoints.sqlite"
 
@@ -133,11 +139,41 @@ class StateStore:
             "table_record_count": table_record_count,
             "error": error,
         }
-        self._upsert_checkpoint(
-            self.document_checkpoints_path,
+        self._write_item_checkpoint(
+            db_path=self.document_checkpoints_path,
             table_name="document_checkpoints",
-            key_columns=("build_id", "doc_id"),
-            key_values=(build_id, doc_id),
+            item_id=doc_id,
+            payload=payload,
+        )
+
+    def write_entry_checkpoint(
+        self,
+        *,
+        build_id: str,
+        entry_id: str,
+        source_id: str,
+        source_path: str,
+        memory_type: str,
+        stage: str,
+        status: str,
+        chunk_count: int = 0,
+        error: str | None = None,
+    ) -> None:
+        payload = {
+            "build_id": build_id,
+            "entry_id": entry_id,
+            "source_id": source_id,
+            "source_path": source_path,
+            "memory_type": memory_type,
+            "stage": stage,
+            "status": status,
+            "chunk_count": chunk_count,
+            "error": error,
+        }
+        self._write_item_checkpoint(
+            db_path=self.entry_checkpoints_path,
+            table_name="entry_checkpoints",
+            item_id=entry_id,
             payload=payload,
         )
 
@@ -230,6 +266,9 @@ class StateStore:
     def load_document_checkpoints(self) -> dict[str, dict[str, Any]]:
         return self._load_checkpoint_table(self.document_checkpoints_path, "document_checkpoints", ("build_id", "doc_id"))
 
+    def load_entry_checkpoints(self) -> dict[str, dict[str, Any]]:
+        return self._load_checkpoint_table(self.entry_checkpoints_path, "entry_checkpoints", ("build_id", "entry_id"))
+
     def load_index_checkpoints(self) -> dict[str, dict[str, Any]]:
         return self._load_checkpoint_table(self.index_checkpoints_path, "index_checkpoints", ("build_id",))
 
@@ -248,16 +287,29 @@ class StateStore:
             """,
         )
         self._ensure_checkpoint_db(
-            self.document_checkpoints_path,
-            """
-            CREATE TABLE IF NOT EXISTS document_checkpoints (
-                build_id TEXT NOT NULL,
-                doc_id TEXT NOT NULL,
-                payload_json TEXT NOT NULL,
-                updated_at TEXT NOT NULL,
-                PRIMARY KEY (build_id, doc_id)
-            )
-            """,
+            self.item_checkpoints_path,
+            (
+                """
+                CREATE TABLE IF NOT EXISTS document_checkpoints (
+                    build_id TEXT NOT NULL,
+                    doc_id TEXT NOT NULL,
+                    payload_json TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    PRIMARY KEY (build_id, doc_id)
+                )
+                """
+                if self.item_label == "document"
+                else
+                """
+                CREATE TABLE IF NOT EXISTS entry_checkpoints (
+                    build_id TEXT NOT NULL,
+                    entry_id TEXT NOT NULL,
+                    payload_json TEXT NOT NULL,
+                    updated_at TEXT NOT NULL,
+                    PRIMARY KEY (build_id, entry_id)
+                )
+                """
+            ),
         )
         self._ensure_checkpoint_db(
             self.index_checkpoints_path,
@@ -311,6 +363,23 @@ class StateStore:
                 (*key_values, json.dumps(payload, ensure_ascii=False), updated_at),
             )
             conn.commit()
+
+    def _write_item_checkpoint(
+        self,
+        *,
+        db_path: Path,
+        table_name: str,
+        item_id: str,
+        payload: dict[str, Any],
+    ) -> None:
+        key_columns = ("build_id", "doc_id") if table_name == "document_checkpoints" else ("build_id", "entry_id")
+        self._upsert_checkpoint(
+            db_path,
+            table_name=table_name,
+            key_columns=key_columns,
+            key_values=(str(payload["build_id"]), item_id),
+            payload=payload,
+        )
 
     @staticmethod
     def _load_checkpoint_table(db_path: Path, table_name: str, key_columns: tuple[str, ...]) -> dict[str, dict[str, Any]]:

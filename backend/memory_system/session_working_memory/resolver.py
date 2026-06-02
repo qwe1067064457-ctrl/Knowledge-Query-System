@@ -8,8 +8,8 @@ from memory_system.session_working_memory.models import SessionWorkingMemory, Wo
 
 class SessionWorkingMemoryResolver:
     _CHALLENGE_HINTS = ("不对", "有问题", "依据", "为什么", "漏了", "不成立", "错了")
-    _FOLLOW_UP_HINTS = ("这个", "那个", "上面", "刚才", "前面", "另一个", "第二个", "前两个", "第一点", "第二点", "第三点", "第一个", "第三个")
-    _MULTI_HINTS = ("分别", "前两个", "两个", "两条", "以及", "和")
+    _FOLLOW_UP_HINTS = ("这个", "那个", "上面", "刚才", "前面", "另一个")
+    _MULTI_HINTS = ("分别", "以及", "和")
     _ASSERTION_HINTS = ("这个说法", "那个说法", "这个结论", "那个结论", "你刚才说的", "你上面说的")
     _SELF_CONTAINED_COMPARISON_HINTS = ("区别", "不同", "差异", "关系", "比较", "对比")
 
@@ -48,7 +48,6 @@ class SessionWorkingMemoryResolver:
         entries = memory.active_entries() or memory.entries
         query_style = self.classify_query_style(query)
         filtered = self._filter_by_type(entries, query_style=query_style)
-        filtered = self._apply_explicit_patterns(query, filtered)
         ranked = sorted(filtered, key=lambda entry: self._score_entry(query, entry, query_style), reverse=True)
         return ranked[:max_candidates]
 
@@ -61,28 +60,6 @@ class SessionWorkingMemoryResolver:
         }.get(query_style, {"resolved_query", "focus_task"})
         result = [entry for entry in entries if entry.entry_type in allowed and entry.status == "active"]
         return result or [entry for entry in entries if entry.status == "active"]
-
-    def _apply_explicit_patterns(self, query: str, entries: list[WorkingMemoryEntry]) -> list[WorkingMemoryEntry]:
-        for token, index in {"第一个": 1, "第一点": 1, "第二个": 2, "第二点": 2, "第三个": 3, "第三点": 3}.items():
-            if token in query:
-                matched = [
-                    entry for entry in entries
-                    if entry.entry_type == "answer_unit"
-                    and int(entry.structured_payload.get("unit_index", 0) or 0) == index
-                ]
-                if matched:
-                    return matched
-        if any(token in query for token in ("前两个", "两个", "两条", "分别")):
-            return entries[:2]
-        if any(token in query for token in self._ASSERTION_HINTS):
-            prioritized = [entry for entry in entries if entry.entry_type in {"answer_unit", "user_assertion"}]
-            if prioritized:
-                return prioritized
-        if any(token in query for token in ("这个", "那个", "上面那个", "刚才那个")):
-            narrowed = [entry for entry in entries if entry.entry_type in {"answer_unit", "user_assertion", "review_outcome"}]
-            if narrowed:
-                return narrowed
-        return entries
 
     def _score_entry(self, query: str, entry: WorkingMemoryEntry, query_style: str) -> int:
         score = 0

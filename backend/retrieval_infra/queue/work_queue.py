@@ -15,8 +15,13 @@ def _sqlite_path(path: Path) -> str:
 
 
 class WorkQueue:
-    def __init__(self, db_path: Path) -> None:
+    def __init__(self, db_path: Path, *, item_label: str = "document") -> None:
+        if item_label not in {"document", "entry"}:
+            raise ValueError("item_label must be 'document' or 'entry'")
         self.db_path = Path(db_path)
+        self.item_label = item_label
+        self.item_table = f"{item_label}_queue"
+        self.item_id_column = "doc_id" if item_label == "document" else "entry_id"
         self.db_path.parent.mkdir(parents=True, exist_ok=True)
         with sqlite3.connect(_sqlite_path(self.db_path)) as conn:
             conn.execute(
@@ -32,14 +37,14 @@ class WorkQueue:
                 """
             )
             conn.execute(
-                """
-                CREATE TABLE IF NOT EXISTS document_queue (
+                f"""
+                CREATE TABLE IF NOT EXISTS {self.item_table} (
                     build_id TEXT NOT NULL,
-                    doc_id TEXT NOT NULL,
+                    {self.item_id_column} TEXT NOT NULL,
                     source_path TEXT NOT NULL,
                     stage TEXT NOT NULL,
                     status TEXT NOT NULL,
-                    PRIMARY KEY (build_id, doc_id)
+                    PRIMARY KEY (build_id, {self.item_id_column})
                 )
                 """
             )
@@ -54,9 +59,15 @@ class WorkQueue:
             conn.commit()
 
     def enqueue_document(self, *, build_id: str, doc_id: str, source_path: str, stage: str, status: str = "pending") -> None:
+        self._enqueue_item(build_id=build_id, item_id=doc_id, source_path=source_path, stage=stage, status=status)
+
+    def enqueue_entry(self, *, build_id: str, entry_id: str, source_path: str, stage: str, status: str = "pending") -> None:
+        self._enqueue_item(build_id=build_id, item_id=entry_id, source_path=source_path, stage=stage, status=status)
+
+    def _enqueue_item(self, *, build_id: str, item_id: str, source_path: str, stage: str, status: str) -> None:
         with sqlite3.connect(_sqlite_path(self.db_path)) as conn:
             conn.execute(
-                "INSERT OR REPLACE INTO document_queue(build_id, doc_id, source_path, stage, status) VALUES (?, ?, ?, ?, ?)",
-                (build_id, doc_id, source_path, stage, status),
+                f"INSERT OR REPLACE INTO {self.item_table}(build_id, {self.item_id_column}, source_path, stage, status) VALUES (?, ?, ?, ?, ?)",
+                (build_id, item_id, source_path, stage, status),
             )
             conn.commit()

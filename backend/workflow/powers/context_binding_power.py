@@ -45,6 +45,7 @@ class ContextBindingPower:
         recent_object_type: str | None = None,
         memory_anchors: list[dict[str, Any]] | None = None,
     ) -> ContextBindingResult:
+        del recent_power, recent_object_type
         recent_messages = list(recent_messages or ())
         query_style = self.working_memory_resolver.classify_query_style(query)
         relevant_pool = self._build_relevant_pool(
@@ -221,7 +222,7 @@ class ContextBindingPower:
             "object_type": entry.entry_type,
             "content": entry.content,
             "source_power": "session_working_memory",
-            "refs": [],
+            "refs": list(entry.structured_payload.get("refs", ()) or ()),
             "confidence": entry.confidence,
             "source_kind": entry.source_kind,
             "structured_payload": dict(entry.structured_payload),

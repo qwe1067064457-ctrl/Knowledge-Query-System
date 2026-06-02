@@ -1,12 +1,14 @@
 from __future__ import annotations
 
+from concurrent.futures import ThreadPoolExecutor, as_completed
 import hashlib
 import json
 import shutil
 from dataclasses import dataclass
 from datetime import datetime
+import os
 from pathlib import Path
-from typing import Iterable
+from typing import Any, Iterable
 import uuid
 
 from retrieval_infra.adapters import KnowledgeSourceAdapter
@@ -40,6 +42,20 @@ class GroupKnowledgeAssets:
     @property
     def vector(self) -> SimpleVectorIndex:
         return self.text_vector
+
+
+@dataclass(frozen=True)
+class DocumentBuildResult:
+    source_id: str
+    source_path: str
+    doc_id: str
+    doc_kind: str
+    status: str
+    doc_chunks: tuple
+    text_chunk_count: int
+    table_record_count: int
+    warnings: tuple[str, ...]
+    error: str | None = None
 
 
 class RepoKnowledgeIndexManager:
@@ -132,16 +148,9 @@ class RepoKnowledgeIndexManager:
         text_chunks = []
         table_chunks = []
         chunk_meta: dict[str, dict[str, object]] = {}
-        scanned_count = 0
-        last_seen_file = ""
-        last_seen_hash = ""
-
         doc_results: list[dict[str, object]] = []
+        worker_count = self._document_worker_count(len(source_documents))
         for source in source_documents:
-            scanned_count += 1
-            last_seen_file = source.source_path
-            if source.revision:
-                last_seen_hash = source.revision
             doc_id = self._doc_id_for_source(source.source_path)
             doc_kind = self._doc_kind_for_source(source.file_type)
             self._work_queue(group_id).enqueue_document(
@@ -156,16 +165,48 @@ class RepoKnowledgeIndexManager:
                 doc_id=doc_id,
                 source_id=source.source_id,
                 source_path=source.source_path,
-                doc_kind=doc_kind,
-                stage="started",
-                status="running",
-            )
-            try:
-                parsed = self.parser.parse(doc_id, source)
-                normalized = self.normalizer.normalize(parsed)
-                doc_chunks = self.chunker.chunk(normalized)
-                self._validate_document_outputs(source=source, doc_kind=doc_kind, doc_chunks=tuple(doc_chunks))
-                for chunk in doc_chunks:
+                    doc_kind=doc_kind,
+                    stage="started",
+                    status="running",
+                )
+        with ThreadPoolExecutor(max_workers=worker_count, thread_name_prefix=f"kb-{group_id}") as executor:
+            future_map = {executor.submit(self._process_source_document, source): source for source in source_documents}
+            for future in as_completed(future_map):
+                source = future_map[future]
+                result = future.result()
+                doc_results.append(
+                    {
+                        "source_id": result.source_id,
+                        "doc_id": result.doc_id,
+                        "source_path": result.source_path,
+                        "doc_kind": result.doc_kind,
+                        "chunk_count": result.text_chunk_count,
+                        "table_record_count": result.table_record_count,
+                        "status": result.status,
+                        "warnings": list(result.warnings),
+                        "error": result.error,
+                    }
+                )
+                if result.status != "completed":
+                    state_store.write_document_checkpoint(
+                        build_id=build_id,
+                        doc_id=result.doc_id,
+                        source_id=result.source_id,
+                        source_path=result.source_path,
+                        doc_kind=result.doc_kind,
+                        stage="failed",
+                        status="failed",
+                        error=result.error or "document task failed",
+                    )
+                    self._work_queue(group_id).enqueue_document(
+                        build_id=build_id,
+                        doc_id=result.doc_id,
+                        source_path=result.source_path,
+                        stage="failed",
+                        status="failed",
+                    )
+                    continue
+                for chunk in result.doc_chunks:
                     all_chunks.append(chunk)
                     if bool(chunk.metadata.get("structured_only")):
                         table_chunks.append(chunk)
@@ -182,55 +223,28 @@ class RepoKnowledgeIndexManager:
                         "structured_only": bool(chunk.metadata.get("structured_only")),
                         "analysis_available": bool(chunk.metadata.get("analysis_available", False)),
                     }
-                text_count = sum(1 for chunk in doc_chunks if not bool(chunk.metadata.get("structured_only")))
-                table_count = len(doc_chunks) - text_count
-                doc_results.append(
-                    {
-                        "source_id": source.source_id,
-                        "doc_id": doc_id,
-                        "source_path": source.source_path,
-                        "doc_kind": doc_kind,
-                        "chunk_count": text_count,
-                        "table_record_count": table_count,
-                    }
-                )
                 state_store.write_document_checkpoint(
                     build_id=build_id,
-                    doc_id=doc_id,
-                    source_id=source.source_id,
-                    source_path=source.source_path,
-                    doc_kind=doc_kind,
-                    stage="text_ready" if doc_kind == "text" else "table_ready",
+                    doc_id=result.doc_id,
+                    source_id=result.source_id,
+                    source_path=result.source_path,
+                    doc_kind=result.doc_kind,
+                    stage="text_ready" if result.doc_kind == "text" else "table_ready",
                     status="completed",
-                    chunk_count=text_count,
-                    table_record_count=table_count,
+                    chunk_count=result.text_chunk_count,
+                    table_record_count=result.table_record_count,
                 )
                 self._work_queue(group_id).enqueue_document(
                     build_id=build_id,
-                    doc_id=doc_id,
-                    source_path=source.source_path,
+                    doc_id=result.doc_id,
+                    source_path=result.source_path,
                     stage="completed",
                     status="completed",
                 )
-            except Exception as exc:
-                state_store.write_document_checkpoint(
-                    build_id=build_id,
-                    doc_id=doc_id,
-                    source_id=source.source_id,
-                    source_path=source.source_path,
-                    doc_kind=doc_kind,
-                    stage="failed",
-                    status="failed",
-                    error=str(exc),
-                )
-                self._work_queue(group_id).enqueue_document(
-                    build_id=build_id,
-                    doc_id=doc_id,
-                    source_path=source.source_path,
-                    stage="failed",
-                    status="failed",
-                )
-                raise
+
+        scanned_count = len(source_documents)
+        last_seen_file = source_documents[-1].source_path if source_documents else ""
+        last_seen_hash = source_documents[-1].revision if source_documents else ""
 
         state_store.write_scan_checkpoint(
             build_id=build_id,
@@ -271,6 +285,7 @@ class RepoKnowledgeIndexManager:
             chunk_meta=chunk_meta,
             text_chunk_count=len(text_chunks),
             table_record_count=len(table_chunks),
+            doc_results=tuple(doc_results),
         )
         state_store.append_validation_history(
             {
@@ -281,6 +296,20 @@ class RepoKnowledgeIndexManager:
                 **validation_result,
             }
         )
+        if not bool(validation_result["passed"]):
+            state_store.append_build(request, status="failed")
+            self._work_queue(group_id).enqueue_build(
+                build_id=build_id,
+                namespace="knowledge",
+                group_id=group_id,
+                user_id=None,
+                mode=mode,
+                status="failed",
+            )
+            raise ValueError(
+                "candidate validation failed: "
+                f"blocking_errors={validation_result['blocking_errors']}, warnings={validation_result['warnings']}"
+            )
         state_store.append_build(request, status="validated")
         snapshot_id = f"s_{build_id}"
         self._snapshot_from_candidate(group_id, candidate_dir, snapshot_id)
@@ -313,6 +342,7 @@ class RepoKnowledgeIndexManager:
                 "current_build_id": build_id,
                 "doc_results": doc_results,
                 "build_input_fingerprint": source_fingerprint,
+                "validation": validation_result,
             }
         )
         self._work_queue(group_id).enqueue_build(
@@ -506,16 +536,83 @@ class RepoKnowledgeIndexManager:
             digest.update((source.revision or "").encode("utf-8"))
         return digest.hexdigest()
 
+    def _document_worker_count(self, source_count: int) -> int:
+        if source_count <= 1:
+            return 1
+        cpu_workers = os.cpu_count() or 4
+        return max(2, min(source_count, cpu_workers, 8))
+
+    def _process_source_document(self, source) -> DocumentBuildResult:
+        doc_id = self._doc_id_for_source(source.source_path)
+        doc_kind = self._doc_kind_for_source(source.file_type)
+        try:
+            parsed = self.parser.parse(doc_id, source)
+            normalized = self.normalizer.normalize(parsed)
+            doc_chunks = tuple(self.chunker.chunk(normalized))
+            validation = self._validate_document_outputs(source=source, doc_kind=doc_kind, doc_chunks=doc_chunks)
+            if validation["blocking_errors"]:
+                return DocumentBuildResult(
+                    source_id=source.source_id,
+                    source_path=source.source_path,
+                    doc_id=doc_id,
+                    doc_kind=doc_kind,
+                    status="failed",
+                    doc_chunks=(),
+                    text_chunk_count=0,
+                    table_record_count=0,
+                    warnings=tuple(validation["warnings"]),
+                    error="; ".join(str(item) for item in validation["blocking_errors"]),
+                )
+            return DocumentBuildResult(
+                source_id=source.source_id,
+                source_path=source.source_path,
+                doc_id=doc_id,
+                doc_kind=doc_kind,
+                status="completed",
+                doc_chunks=doc_chunks,
+                text_chunk_count=int(validation["text_chunk_count"]),
+                table_record_count=int(validation["table_record_count"]),
+                warnings=tuple(str(item) for item in validation["warnings"]),
+            )
+        except Exception as exc:
+            return DocumentBuildResult(
+                source_id=source.source_id,
+                source_path=source.source_path,
+                doc_id=doc_id,
+                doc_kind=doc_kind,
+                status="failed",
+                doc_chunks=(),
+                text_chunk_count=0,
+                table_record_count=0,
+                warnings=(),
+                error=str(exc),
+            )
+
     def _doc_kind_for_source(self, file_type: str) -> str:
         return "table" if file_type.lower() in {"xlsx", "xls", "csv", "tsv"} else "text"
 
-    def _validate_document_outputs(self, *, source, doc_kind: str, doc_chunks: tuple) -> None:
+    def _validate_document_outputs(self, *, source, doc_kind: str, doc_chunks: tuple) -> dict[str, object]:
+        blocking_errors: list[str] = []
+        warnings: list[str] = []
+        text_chunk_count = sum(1 for chunk in doc_chunks if not bool(chunk.metadata.get("structured_only")))
+        table_record_count = len(doc_chunks) - text_chunk_count
         if doc_kind == "table":
             if not any(bool(chunk.metadata.get("structured_only")) for chunk in doc_chunks):
-                raise ValueError(f"table source produced no summary records: {source.source_path}")
-            return
-        if len(doc_chunks) <= 0:
-            raise ValueError(f"text source produced no chunks: {source.source_path}")
+                blocking_errors.append(f"table source produced no summary records: {source.source_path}")
+            return {
+                "blocking_errors": blocking_errors,
+                "warnings": warnings,
+                "text_chunk_count": text_chunk_count,
+                "table_record_count": table_record_count,
+            }
+        if text_chunk_count <= 0:
+            warnings.append(f"text source produced no chunks: {source.source_path}")
+        return {
+            "blocking_errors": blocking_errors,
+            "warnings": warnings,
+            "text_chunk_count": text_chunk_count,
+            "table_record_count": table_record_count,
+        }
 
     def _validate_candidate(
         self,
@@ -525,6 +622,7 @@ class RepoKnowledgeIndexManager:
         chunk_meta: dict[str, dict[str, object]],
         text_chunk_count: int,
         table_record_count: int,
+        doc_results: tuple[dict[str, object], ...],
     ) -> dict[str, object]:
         required_files = (
             candidate_dir / "chunk_store.sqlite",
@@ -538,6 +636,8 @@ class RepoKnowledgeIndexManager:
             candidate_dir / "table_pool" / "vector" / "index.sqlite",
         )
         missing = [str(path) for path in required_files if not path.exists()]
+        blocking_errors = [f"missing required asset: {path}" for path in missing]
+        warnings: list[str] = []
         source_counts: dict[str, int] = {}
         table_sources: set[str] = set()
         for chunk in chunk_meta.values():
@@ -545,26 +645,44 @@ class RepoKnowledgeIndexManager:
             source_counts[source_path] = source_counts.get(source_path, 0) + 1
             if bool(chunk.get("structured_only")):
                 table_sources.add(source_path)
-        missing_outputs: list[str] = []
+        failed_sources = {
+            str(result.get("source_path") or "")
+            for result in doc_results
+            if str(result.get("status") or "") == "failed"
+        }
+        warnings.extend(
+            warning
+            for result in doc_results
+            for warning in list(result.get("warnings") or [])
+            if str(warning).strip()
+        )
         for source in source_documents:
             count = source_counts.get(source.source_path, 0)
             if self._doc_kind_for_source(source.file_type) == "table":
                 if source.source_path not in table_sources:
-                    missing_outputs.append(source.source_path)
+                    blocking_errors.append(f"table source missing structured output: {source.source_path}")
+            elif source.source_path in failed_sources:
+                blocking_errors.append(f"text source failed during document task: {source.source_path}")
             elif count <= 0:
-                missing_outputs.append(source.source_path)
-        passed = not missing and not missing_outputs
-        if not passed:
-            raise ValueError(
-                f"candidate validation failed: missing_files={missing}, missing_outputs={missing_outputs}"
-            )
+                warnings.append(f"text source missing indexable output: {source.source_path}")
+        if text_chunk_count + table_record_count <= 0:
+            blocking_errors.append("no indexable artifacts produced for candidate build")
+        passed = not blocking_errors
         return {
-            "passed": True,
+            "passed": passed,
             "source_count": len(source_documents),
             "text_chunk_count": text_chunk_count,
             "table_record_count": table_record_count,
-            "missing_files": [],
-            "missing_outputs": [],
+            "blocking_errors": blocking_errors,
+            "warnings": warnings,
+            "metrics": {
+                "source_count": len(source_documents),
+                "doc_completed_count": sum(1 for result in doc_results if str(result.get("status") or "") == "completed"),
+                "doc_failed_count": sum(1 for result in doc_results if str(result.get("status") or "") == "failed"),
+                "warning_count": len(warnings),
+                "table_source_count": sum(1 for source in source_documents if self._doc_kind_for_source(source.file_type) == "table"),
+                "text_source_count": sum(1 for source in source_documents if self._doc_kind_for_source(source.file_type) == "text"),
+            },
         }
 
     def _new_build_id(self, group_id: str) -> str:

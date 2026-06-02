@@ -3,6 +3,7 @@ from __future__ import annotations
 import json
 import sys
 import shutil
+import time
 import zipfile
 import uuid
 from contextlib import contextmanager
@@ -266,6 +267,106 @@ def test_repo_knowledge_index_manager_rebuilds_and_switches_slots(local_tmp_path
     assert (group_root / "registries" / "recovery" / "activation_checkpoints.sqlite").exists()
 
 
+def test_repo_knowledge_index_manager_warns_but_activates_when_one_text_source_has_no_chunks(local_tmp_path: Path) -> None:
+    backend_dir = local_tmp_path / "backend"
+    missing_file = backend_dir / "storage" / "groups" / "general" / "knowledge" / "raw" / "ai" / "emptyish.txt"
+    good_file = backend_dir / "storage" / "groups" / "general" / "knowledge" / "raw" / "ai" / "agent_report.txt"
+    missing_file.parent.mkdir(parents=True, exist_ok=True)
+    missing_file.write_text("This file will be suppressed by the test chunker.", encoding="utf-8")
+    good_file.write_text("Agent retrieval planning and orchestration.", encoding="utf-8")
+
+    manager = RepoKnowledgeIndexManager(backend_dir=backend_dir)
+    original_chunker = manager.chunker
+
+    class SelectiveChunker:
+        def chunk(self, document):
+            if document.source_path.endswith("emptyish.txt"):
+                return ()
+            return original_chunker.chunk(document)
+
+    manager.chunker = SelectiveChunker()
+    manager.rebuild_index()
+
+    group_root = backend_dir / "storage" / "groups" / "general"
+    manifest_path = group_root / "registries" / "index_manifest.json"
+    validation_rows = [
+        json.loads(line)
+        for line in (group_root / "registries" / "history" / "validation_history.jsonl").read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+
+    manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+    assert manifest["current_build_id"]
+    assert validation_rows[-1]["status"] == "passed"
+    assert any("emptyish.txt" in warning for warning in validation_rows[-1]["warnings"])
+    assert validation_rows[-1]["blocking_errors"] == []
+
+
+def test_repo_knowledge_index_manager_fails_when_no_indexable_artifacts_are_produced(local_tmp_path: Path) -> None:
+    backend_dir = local_tmp_path / "backend"
+    source_file = backend_dir / "storage" / "groups" / "general" / "knowledge" / "raw" / "ai" / "emptyish.txt"
+    source_file.parent.mkdir(parents=True, exist_ok=True)
+    source_file.write_text("This file will be suppressed by the test chunker.", encoding="utf-8")
+
+    manager = RepoKnowledgeIndexManager(backend_dir=backend_dir)
+
+    class EmptyChunker:
+        def chunk(self, document):
+            return ()
+
+    manager.chunker = EmptyChunker()
+    with pytest.raises(ValueError, match="candidate validation failed"):
+        manager.rebuild_index()
+
+    group_root = backend_dir / "storage" / "groups" / "general"
+    manifest_path = group_root / "registries" / "index_manifest.json"
+    validation_rows = [
+        json.loads(line)
+        for line in (group_root / "registries" / "history" / "validation_history.jsonl").read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+    build_rows = [
+        json.loads(line)
+        for line in (group_root / "registries" / "history" / "build_registry.jsonl").read_text(encoding="utf-8").splitlines()
+        if line.strip()
+    ]
+
+    if manifest_path.exists():
+        manifest = json.loads(manifest_path.read_text(encoding="utf-8"))
+        assert manifest["current_build_id"] is None
+    else:
+        assert manifest_path.exists() is False
+    assert validation_rows[-1]["status"] == "failed"
+    assert any("no indexable artifacts produced" in item for item in validation_rows[-1]["blocking_errors"])
+    assert build_rows[-1]["status"] == "failed"
+
+
+def test_repo_knowledge_index_manager_processes_documents_with_multiple_workers(local_tmp_path: Path) -> None:
+    backend_dir = local_tmp_path / "backend"
+    first_file = backend_dir / "storage" / "groups" / "general" / "knowledge" / "raw" / "ai" / "doc_one.txt"
+    second_file = backend_dir / "storage" / "groups" / "general" / "knowledge" / "raw" / "ai" / "doc_two.txt"
+    first_file.parent.mkdir(parents=True, exist_ok=True)
+    first_file.write_text("Parallel build first document.", encoding="utf-8")
+    second_file.write_text("Parallel build second document.", encoding="utf-8")
+
+    manager = RepoKnowledgeIndexManager(backend_dir=backend_dir)
+    original_chunker = manager.chunker
+    worker_threads: set[str] = set()
+
+    class TrackingChunker:
+        def chunk(self, document):
+            import threading
+
+            worker_threads.add(threading.current_thread().name)
+            time.sleep(0.05)
+            return original_chunker.chunk(document)
+
+    manager.chunker = TrackingChunker()
+    manager.rebuild_index()
+
+    assert len(worker_threads) >= 2
+
+
 def test_parser_preserves_pdf_page_locators(local_tmp_path: Path) -> None:
     source = KnowledgeSourceAdapter().build_source_document(
         source_id="knowledge_general_pdf",
@@ -379,9 +480,11 @@ def test_memory_hybrid_retriever_recalls_domain_case_and_daily_log(local_tmp_pat
     from datetime import datetime
 
     from context.models import MemoryEntry
+    from retrieval_infra.indexing.memory_index_manager import MemoryIndexManager
     from retrieval_infra.query.memory_hybrid_retriever import MemoryHybridRetriever
 
     storage_root = local_tmp_path / "storage"
+    manager = MemoryIndexManager(storage_root)
     retriever = MemoryHybridRetriever(storage_root)
     entries = [
         MemoryEntry(
@@ -404,6 +507,7 @@ def test_memory_hybrid_retriever_recalls_domain_case_and_daily_log(local_tmp_pat
             metadata={"id": "mem_case_1"},
         ),
     ]
+    manager.ensure_built(group_id="law", user_id="u1", memory_entries=entries)
 
     hits = retriever.retrieve(
         group_id="law",
@@ -415,6 +519,92 @@ def test_memory_hybrid_retriever_recalls_domain_case_and_daily_log(local_tmp_pat
 
     assert hits
     assert {item.memory_type for item in hits} == {"daily_log", "domain_case"}
+
+
+def test_memory_index_manager_builds_current_latest_snapshot_and_entry_history(local_tmp_path: Path) -> None:
+    from datetime import datetime
+    import sqlite3
+
+    from context.models import MemoryEntry
+    from retrieval_infra.indexing.memory_index_manager import MemoryIndexManager
+
+    storage_root = local_tmp_path / "storage"
+    manager = MemoryIndexManager(storage_root)
+    entries = [
+        MemoryEntry(
+            content="今天确认 breach liability 与 damages 继续联动分析。",
+            source="groups/law/users/u1/memory/daily_log/2026-06-02.jsonl",
+            group_id="law",
+            user_id="u1",
+            timestamp=datetime.now(),
+            memory_type="daily_log",
+            title="Daily checkpoint",
+            metadata={"id": "mem_daily_build_1", "entry_locator": {"date": "2026-06-02", "line_no": 1}},
+        ),
+        MemoryEntry(
+            content="该案例强调 breach liability 的 foreseeability 分析。",
+            source="groups/law/users/u1/memory/domain_case/domain_cases.jsonl",
+            group_id="law",
+            user_id="u1",
+            timestamp=datetime.now(),
+            memory_type="domain_case",
+            title="Breach liability case",
+            metadata={"id": "mem_case_build_1", "entry_locator": {"line_no": 1}},
+        ),
+    ]
+
+    manager.ensure_built(group_id="law", user_id="u1", memory_entries=entries)
+
+    memory_root = storage_root / "groups" / "law" / "users" / "u1" / "indexes" / "memory"
+    manifest = json.loads((memory_root / "registries" / "index_manifest.json").read_text(encoding="utf-8"))
+    build_id = manifest["current_build_id"]
+    snapshot_id = manifest["current_snapshot_id"]
+
+    assert build_id.startswith("mb_law_u1_")
+    assert snapshot_id.startswith("s_mb_law_u1_")
+    assert (memory_root / "current" / "chunk_store.sqlite").exists()
+    assert (memory_root / "builds" / "running" / build_id / "chunk_store.sqlite").exists()
+    assert (memory_root / "builds" / "latest" / build_id / "chunk_store.sqlite").exists()
+    assert (memory_root / "snapshots" / snapshot_id / "chunk_store.sqlite").exists()
+    assert (memory_root / "registries" / "recovery" / "entry_checkpoints.sqlite").exists()
+    assert (memory_root / "registries" / "history" / "source_registry.jsonl").exists()
+
+    with sqlite3.connect(memory_root / "registries" / "work_queue.sqlite") as conn:
+        build_row = conn.execute("SELECT status FROM build_queue WHERE build_id = ?", (build_id,)).fetchone()
+        entry_row = conn.execute("SELECT stage, status FROM entry_queue WHERE entry_id = ?", ("mem_daily_build_1",)).fetchone()
+
+    assert build_row == ("activated",)
+    assert entry_row == ("completed", "completed")
+
+
+def test_memory_index_manager_reuses_current_when_fingerprint_is_unchanged(local_tmp_path: Path) -> None:
+    from datetime import datetime
+
+    from context.models import MemoryEntry
+    from retrieval_infra.indexing.memory_index_manager import MemoryIndexManager
+
+    storage_root = local_tmp_path / "storage"
+    manager = MemoryIndexManager(storage_root)
+    entries = [
+        MemoryEntry(
+            content="今天继续讨论 breach liability。",
+            source="groups/law/users/u1/memory/daily_log/2026-06-02.jsonl",
+            group_id="law",
+            user_id="u1",
+            timestamp=datetime.now(),
+            memory_type="daily_log",
+            metadata={"id": "mem_daily_same_1", "entry_locator": {"date": "2026-06-02", "line_no": 1}},
+        )
+    ]
+    history_path = storage_root / "groups" / "law" / "users" / "u1" / "indexes" / "memory" / "registries" / "history" / "build_registry.jsonl"
+
+    manager.ensure_built(group_id="law", user_id="u1", memory_entries=entries)
+    rows_after_first = [json.loads(line) for line in history_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+    manager.ensure_built(group_id="law", user_id="u1", memory_entries=entries)
+    rows_after_second = [json.loads(line) for line in history_path.read_text(encoding="utf-8").splitlines() if line.strip()]
+
+    assert [row["status"] for row in rows_after_first] == ["running", "validated", "activated"]
+    assert rows_after_second == rows_after_first
 
 
 def test_local_cross_encoder_reranker_falls_back_to_heuristic_when_no_model() -> None:
