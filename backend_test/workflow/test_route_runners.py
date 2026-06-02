@@ -8,8 +8,10 @@ from memory_system.memory_anchor import MemoryAnchorBuilder
 from memory_system.session_working_memory.models import SessionWorkingMemory, WorkingMemoryEntry, WorkingMemoryHead
 from intent.schema.intent_types import ControlTrace, IntentModifiers
 from workflow.runners.base import RouteExecutionRequest
+from workflow.runners.chat_runner import ChatRouteRunner
 from workflow.runners.orchestrated_runner import OrchestratedRouteRunner
 from workflow.runners.qa_runner import QaRouteRunner
+from workflow.runners.reject_runner import RejectRouteRunner
 from workflow.types import ChallengeResult, EvidenceAssessmentResult, EvidenceBundle, EvidenceItem, EvidenceRefCandidate, ReviewEvaluationResult, WorkflowPlan, WorkflowPolicyFlags
 
 
@@ -118,6 +120,9 @@ def _make_plan(
     use_planner: bool = False,
     decompose_query: bool = False,
     use_context: bool = False,
+    action: str = "agent",
+    should_ask_clarification_first: bool = False,
+    missing_context_types: tuple[str, ...] = (),
 ) -> WorkflowPlan:
     trace = ControlTrace(
         main_intent="qa",
@@ -127,7 +132,7 @@ def _make_plan(
         task_topology="parallel_queries" if decompose_query else "single",
         context_dependency="previous_answer" if use_context else "none",
         ambiguity_states=("history_dependent",) if use_context else (),
-        missing_context_types=(),
+        missing_context_types=missing_context_types,
         decision_strength="high",
         decision_source="rule",
         decision_reason="test",
@@ -135,13 +140,13 @@ def _make_plan(
     return WorkflowPlan(
         route=route,
         handling_mode=handling_mode,
-        action="agent",
+        action=action,
         use_context=use_context,
         cite_sources=True,
         use_planner=use_planner,
         decompose_query=decompose_query,
         rewrite_query=use_context,
-        should_ask_clarification_first=False,
+        should_ask_clarification_first=should_ask_clarification_first,
         trace=trace,
         enabled_powers=enabled_powers,  # type: ignore[arg-type]
         knowledge_scope_status="resolved",
@@ -149,6 +154,7 @@ def _make_plan(
             need_planner=use_planner,
             need_query_decomposition=decompose_query,
             need_context_binding=use_context,
+            ask_clarification_first=should_ask_clarification_first,
         ),
         notes=("test",),
     )
@@ -817,3 +823,152 @@ def test_execution_payload_keeps_string_route_and_handling_mode_contract() -> No
     assert isinstance(payload["route"], str)
     assert payload["handling_mode"] == "challenge"
     assert isinstance(payload["handling_mode"], str)
+
+
+def test_reject_runner_sets_policy_reject_summary_and_constraints() -> None:
+    runner = RejectRouteRunner()
+    plan = _make_plan(
+        route="reject",
+        handling_mode="unsupported",
+        action="reject",
+    )
+    request = RouteExecutionRequest(
+        message="帮我执行不支持的操作",
+        messages=[{"role": "user", "content": "帮我执行不支持的操作"}],
+        context={},
+    )
+
+    payload = runner.run(plan, request)
+
+    assert payload.status == "rejected"
+    assert payload.context_bundle["reject_summary"]["reason_code"] == "policy_reject"
+    assert payload.answer_constraints["allow_substantive_answer"] is False
+    assert payload.answer_constraints["must_explain_boundary"] is True
+    assert payload.answer_constraints["must_offer_safe_alternative"] is True
+    assert payload.key_events == ("policy_reject",)
+    assert payload.enabled_powers == ()
+
+
+def test_reject_runner_sets_capability_reject_summary() -> None:
+    runner = RejectRouteRunner()
+    plan = _make_plan(
+        route="reject",
+        handling_mode="normal",
+        action="reject",
+    )
+    request = RouteExecutionRequest(
+        message="这个请求超出能力边界",
+        messages=[{"role": "user", "content": "这个请求超出能力边界"}],
+        context={},
+    )
+
+    payload = runner.run(plan, request)
+
+    assert payload.status == "rejected"
+    assert payload.context_bundle["reject_summary"]["reason_code"] == "capability_reject"
+    assert payload.key_events == ("capability_reject",)
+    assert payload.answer_constraints["must_ask_clarification_first"] is False
+
+
+def test_reject_runner_sets_clarification_first_reject_when_requested() -> None:
+    runner = RejectRouteRunner()
+    plan = _make_plan(
+        route="reject",
+        handling_mode="clarify",
+        action="respond",
+        should_ask_clarification_first=True,
+        missing_context_types=("missing_history_target",),
+    )
+    request = RouteExecutionRequest(
+        message="你说的是哪个案例？",
+        messages=[{"role": "user", "content": "你说的是哪个案例？"}],
+        context={},
+    )
+
+    payload = runner.run(plan, request)
+
+    assert payload.status == "needs_clarification"
+    assert payload.context_bundle["reject_summary"]["reason_code"] == "clarification_first_reject"
+    assert payload.answer_constraints["must_ask_clarification_first"] is True
+    assert payload.key_events == ("clarification_required",)
+
+
+def test_chat_runner_executes_optional_context_binding_without_heavy_outputs() -> None:
+    runner = ChatRouteRunner()
+    plan = _make_plan(
+        route="chat",
+        handling_mode="normal",
+        action="respond",
+        enabled_powers=("context_binding_power",),
+        use_context=True,
+    )
+    request = RouteExecutionRequest(
+        message="那上面那个呢",
+        messages=[{"role": "user", "content": "那上面那个呢"}],
+        context={
+            "registry_entries": [
+                {
+                    "object_id": "question_1",
+                    "object_type": "question_object",
+                    "content": "上一个问题是什么？",
+                    "source_power": "workflow",
+                    "refs": [],
+                    "confidence": "high",
+                }
+            ],
+        },
+    )
+
+    payload = runner.run(plan, request)
+
+    assert payload.status == "ready"
+    assert payload.context_bundle["binding"] is not None
+    assert payload.context_bundle["binding_summary"] != "not_applicable"
+    assert payload.context_bundle["candidate_count"] == 1
+    assert payload.key_events == ("binding_applied",)
+    assert payload.review_bundle["status"] == "not_applicable"
+    assert payload.plan_bundle["planning_mode"] == "not_applicable"
+    assert payload.evidence_bundle is None
+
+
+def test_chat_runner_returns_needs_clarification_for_ambiguous_binding() -> None:
+    runner = ChatRouteRunner()
+    plan = _make_plan(
+        route="chat",
+        handling_mode="normal",
+        action="respond",
+        enabled_powers=("context_binding_power",),
+        use_context=True,
+    )
+    request = RouteExecutionRequest(
+        message="那个呢",
+        messages=[{"role": "user", "content": "那个呢"}],
+        context={
+            "registry_entries": [
+                {
+                    "object_id": "question_1",
+                    "object_type": "question_object",
+                    "content": "第一个问题",
+                    "source_power": "workflow",
+                    "refs": [],
+                    "confidence": "high",
+                },
+                {
+                    "object_id": "question_2",
+                    "object_type": "question_object",
+                    "content": "第二个问题",
+                    "source_power": "workflow",
+                    "refs": [],
+                    "confidence": "high",
+                },
+            ],
+        },
+    )
+
+    payload = runner.run(plan, request)
+
+    assert payload.status == "needs_clarification"
+    assert payload.context_bundle["binding"] is not None
+    assert payload.context_bundle["binding"]["needs_clarification"] is True
+    assert "clarification_required" in payload.key_events
+    assert "binding_ambiguous" in payload.key_events

@@ -686,6 +686,8 @@ class ContextBundleSummaryView:
     binding_fallback_type: str = ""
     binding_reason: str = ""
     global_binding_scope: str = "none"
+    reject_reason_code: str = ""
+    reject_reason: str = ""
 
 
 @dataclass(frozen=True)
@@ -826,6 +828,7 @@ class ContextBundle:
     memory_anchor_count: int = 0
     hydrated_memory_entry_count: int = 0
     memory_hydrated: bool = False
+    reject_summary: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return {
@@ -838,6 +841,7 @@ class ContextBundle:
             "memory_anchor_count": self.memory_anchor_count,
             "hydrated_memory_entry_count": self.hydrated_memory_entry_count,
             "memory_hydrated": self.memory_hydrated,
+            "reject_summary": dict(self.reject_summary),
         }
 
     def binding_obj(self) -> ContextBindingResult:
@@ -875,6 +879,8 @@ class ContextBundle:
                 if self.global_binding_frame is not None
                 else "none"
             ),
+            reject_reason_code=str(self.reject_summary.get("reason_code", "") or ""),
+            reject_reason=str(self.reject_summary.get("reason", "") or ""),
         )
 
     @classmethod
@@ -909,6 +915,7 @@ class ContextBundle:
             memory_anchor_count=int(data.get("memory_anchor_count", 0) or 0),
             hydrated_memory_entry_count=int(data.get("hydrated_memory_entry_count", 0) or 0),
             memory_hydrated=bool(data.get("memory_hydrated", False)),
+            reject_summary=dict(data.get("reject_summary", {}) or {}),
         )
 
 

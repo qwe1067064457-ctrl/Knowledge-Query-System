@@ -9,6 +9,8 @@ from graph.prompt_builders.answer_prompt_assembler import (
 from graph.prompt_builders.workflow_prompt_projector import (
     build_answer_behavior_rules_from_workflow,
     build_answer_result_projection_rules_from_workflow,
+    filter_answer_behavior_signals_from_workflow,
+    filter_answer_result_signals_from_workflow,
 )
 from workflow.adapters.workflow_registry_consumer import (
     binding_candidates,
@@ -201,6 +203,74 @@ def test_workflow_prompt_projector_skips_not_applicable_result_rules() -> None:
     result_rules = build_answer_result_projection_rules_from_workflow(payload)
 
     assert result_rules == []
+
+
+def test_workflow_prompt_projector_exposes_answer_signal_filters_without_raw_noise() -> None:
+    plan = _make_plan(route="reject", handling_mode="unsupported", action="reject", use_context=True)
+    payload = ExecutionPayload(
+        route="reject",
+        handling_mode="unsupported",
+        action="reject",
+        status="rejected",
+        notes=("debug_only",),
+        key_events=("policy_reject", "debug_only"),
+        answer_constraints={
+            "allow_substantive_answer": False,
+            "must_explain_boundary": True,
+        },
+        context_bundle={
+            "trace": {"main_intent": "unsupported"},
+            "binding_summary": "not_applicable",
+            "candidate_count": 3,
+            "reject_summary": {
+                "reason_code": "policy_reject",
+                "reason": "当前请求命中不支持边界",
+            },
+        },
+        plan_bundle={
+            "planning_mode": "compare",
+            "ordered_steps": [{"title": "should stay hidden", "sequence": 1}],
+            "execution_checkpoints": [{"name": "should stay hidden"}],
+        },
+    )
+
+    behavior_signals = filter_answer_behavior_signals_from_workflow(plan)
+    result_signals = filter_answer_result_signals_from_workflow(payload)
+
+    assert behavior_signals["route"] == "reject"
+    assert behavior_signals["use_context"] is True
+    assert result_signals["reject_reason_code"] == "policy_reject"
+    assert result_signals["visible_key_events"] == ("policy_reject",)
+    assert "notes" not in result_signals
+    assert "trace" not in result_signals
+    assert "candidate_count" not in result_signals
+
+
+def test_workflow_prompt_projector_renders_reject_summary_without_exposing_raw_payload() -> None:
+    payload = ExecutionPayload(
+        route="reject",
+        handling_mode="unsupported",
+        action="reject",
+        status="rejected",
+        key_events=("policy_reject",),
+        answer_constraints={
+            "allow_substantive_answer": False,
+            "must_explain_boundary": True,
+            "must_offer_safe_alternative": True,
+        },
+        context_bundle={
+            "reject_summary": {
+                "reason_code": "policy_reject",
+                "reason": "当前请求命中不支持边界",
+            }
+        },
+    )
+
+    result_rules = build_answer_result_projection_rules_from_workflow(payload)
+
+    assert any("Current reject summary" in item for item in result_rules)
+    assert any("Explain the boundary briefly" in item for item in result_rules)
+    assert any("offer a safer alternative" in item for item in result_rules)
 
 
 def test_workflow_registry_projection_uses_evidence_ref_and_keeps_summary_layers() -> None:

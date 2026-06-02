@@ -68,6 +68,21 @@ QA Runner V2 继续采用：
 
 `need_retrieval gate -> retrieval -> retrieval_quality -> ChallengePower(仅 challenge mode) -> WorkflowPayload -> light answer projection -> shared final render`
 
+## Chat / Reject 轻链路
+
+`chat` 与 `reject` 继续收敛为轻路由，不是缩小版 `orchestrated`。
+
+- `chat`
+  - 主链：`route -> optional context binding -> WorkflowPayload -> answer signal filter -> prompt render -> shared final render`
+  - 第一版只补 `context binding`
+  - 不进入 retrieval / challenge / planner / execution
+- `reject`
+  - 主链：`route -> route-local reject decision -> WorkflowPayload -> answer signal filter -> prompt render -> shared final render`
+  - 只产轻量 `reject_summary / answer_constraints / key_events`
+  - 不新增 reject 专属 answer layer
+
+这里的 `answer signal filter` 不是新的 answer layer，只是在 shared final render 之前筛出主回答模型真正需要看到的高层信号。
+
 约束：
 
 - `context binding`

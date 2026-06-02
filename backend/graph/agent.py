@@ -653,30 +653,4 @@ class AgentManager:
         except Exception:
             return (first_user_message.strip() or "新会话")[:10]
 
-    async def summarize_history(self, messages: list[dict[str, Any]]) -> str:
-        prompt = (
-            "请将以下对话压缩成中文摘要，控制在 500 字以内。"
-            "重点保留用户目标、已完成步骤、重要结论和未解决事项。"
-        )
-        lines: list[str] = []
-        for item in messages:
-            role = item.get("role", "assistant")
-            content = str(item.get("content", "") or "")
-            if content:
-                lines.append(f"{role}: {content}")
-        transcript = "\n".join(lines)
-
-        try:
-            response = await build_chat_model().ainvoke(
-                [
-                    {"role": "system", "content": prompt},
-                    {"role": "user", "content": transcript},
-                ]
-            )
-            summary = _stringify_content(getattr(response, "content", "")).strip()
-            return summary[:500]
-        except Exception:
-            return transcript[:500]
-
-
 agent_manager = AgentManager()

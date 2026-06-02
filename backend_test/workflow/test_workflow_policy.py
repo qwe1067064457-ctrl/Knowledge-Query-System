@@ -119,6 +119,28 @@ def test_chat_plan_keeps_only_light_power() -> None:
     assert plan.knowledge_scope_status == "resolved"
 
 
+def test_reject_plan_does_not_enable_any_power() -> None:
+    analysis = _make_analysis(
+        query="执行这个不支持的操作",
+        route="reject",
+        handling_mode="unsupported",
+        capabilities=("use_context", "cite_sources"),
+        main_intent="unsupported",
+        context_dependency="history_reference",
+        ambiguity_states=("history_dependent",),
+    )
+
+    plan = build_workflow_plan(
+        analysis,
+        is_knowledge_query=False,
+        active_group_id="general",
+        allowed_group_ids=("general",),
+    )
+
+    assert plan.route == "reject"
+    assert plan.enabled_powers == ()
+
+
 def test_scope_switch_without_explicit_group_requires_clarification() -> None:
     analysis = _make_analysis(
         query="查我另一个组里的制度",
