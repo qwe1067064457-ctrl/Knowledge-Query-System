@@ -27,6 +27,17 @@ from llm.model_factory import build_chat_model
 from llm.output_sanitizer import StreamingReasoningFilter, sanitize_model_text
 from memory_system.memory_service import MemorySystem
 from memory_system.session_working_memory import SessionWorkingMemoryWriter
+from observability.emitters.answer_emitter import AnswerEmitter
+from observability.emitters.context_emitter import ContextEmitter
+from observability.emitters.retrieval_emitter import RetrievalEmitter
+from observability.langsmith.client import LangSmithClient
+from observability.langsmith.serializers import (
+    summarize_evidence_bundle,
+    summarize_execution_payload,
+    summarize_messages,
+)
+from observability.runtime.run_factory import create_trace_context
+from observability.runtime.trace_context_store import activate_trace_context
 from tools import get_all_tools
 from workflow import WorkflowDispatcher, WorkflowPlan, build_workflow_plan
 from workflow.adapters.workflow_registry_projection import (
@@ -58,6 +69,10 @@ class AgentManager:
         self.retrieval_power = RetrievalPower()
         self.tools = []
         self.working_memory_writer = SessionWorkingMemoryWriter()
+        self.langsmith_client = LangSmithClient()
+        self.answer_emitter = AnswerEmitter(self.langsmith_client)
+        self.retrieval_emitter = RetrievalEmitter(self.langsmith_client)
+        self.context_emitter = ContextEmitter(self.langsmith_client)
 
     def initialize(self, base_dir: Path) -> None:
         self.base_dir = base_dir
@@ -67,6 +82,7 @@ class AgentManager:
         self.memory_system.set_extractor_llm_call(self._llm_text_call_sync)
         self.context_manager = ContextManager(self.raw_session_manager, self.memory_system)
         self.context_manager.set_llm_call(self._llm_text_call)
+        self.context_manager.set_observability_emitter(self.context_emitter)
 
         self.tools = get_all_tools(base_dir)
         knowledge_orchestrator.configure(base_dir, build_chat_model)
@@ -438,6 +454,70 @@ class AgentManager:
             answer_text=answer_text,
         )
 
+    def _create_request_trace_context(self, session_id: str | None) -> Any:
+        session = None
+        if session_id is not None and self.raw_session_manager is not None:
+            session = self.raw_session_manager.get_session(session_id, DEFAULT_GROUP, DEFAULT_AGENT)
+        return create_trace_context(
+            session_id=session_id or "ad_hoc",
+            group_id=str(session.group_id if session is not None else DEFAULT_GROUP),
+            user_id=str(session.user_id if session is not None else DEFAULT_USER),
+        )
+
+    def _emit_retrieval_event(
+        self,
+        *,
+        started_at: datetime,
+        query: str,
+        output_summary: dict[str, Any],
+        metadata: dict[str, Any],
+        status: str = "success",
+    ) -> None:
+        self.retrieval_emitter.emit_retrieval_run(
+            started_at=started_at,
+            input_summary={"query": query[:200]},
+            output_summary=output_summary,
+            metadata=metadata,
+            status=status,
+        )
+
+    def _emit_answer_event(
+        self,
+        *,
+        started_at: datetime,
+        messages: list[dict[str, str]],
+        workflow_plan: WorkflowPlan,
+        execution_payload,
+        query: str,
+        answer_text: str,
+        answer_mode: str,
+    ) -> None:
+        self.answer_emitter.emit_answer_model_run(
+            started_at=started_at,
+            messages_summary=summarize_messages(messages),
+            output_summary={
+                "answer_mode": answer_mode,
+                "answer_length": len(answer_text),
+                "payload_summary": summarize_execution_payload(execution_payload),
+            },
+            metadata={
+                "workflow_name": workflow_plan.route,
+                "handling_mode": workflow_plan.handling_mode,
+                "system_prompt_version": (
+                    self.context_manager.config.system_prompt_path
+                    if self.context_manager is not None
+                    else "prompts/system/answer_system_prompt.md"
+                ),
+                "final_user_query": query[:200],
+                "memory_block_types": summarize_messages(messages).get("system_blocks", []),
+                "retrieval_block_types": [
+                    block
+                    for block in summarize_messages(messages).get("system_blocks", [])
+                    if "Memory" in block or "retrieval" in block or "Knowledge" in block
+                ],
+            },
+        )
+
     def _load_recent_registry_entries(
         self,
         *,
@@ -467,106 +547,253 @@ class AgentManager:
     ):
         if self.base_dir is None:
             raise RuntimeError("AgentManager is not initialized")
-
-        rag_mode = runtime_config.get_rag_mode()
-        messages = await self._prepare_messages_for_request(session_id, message, history)
-        active_group_id, allowed_group_ids = self._load_session_scope(session_id)
-        intent_assets = load_group_intent_rule_assets(self.base_dir / "storage", active_group_id)
-        intent_analysis = classify_intent(message, history, rule_assets=intent_assets)
-        registry_entries = self._load_recent_registry_entries(
-            session_id=session_id,
-            group_id=active_group_id,
-        )
-        working_memory = None
-        if session_id is not None and self.raw_session_manager is not None:
-            working_memory = self.raw_session_manager.get_working_memory(
-                session_id,
-                active_group_id,
-                DEFAULT_AGENT,
+        trace_context = self._create_request_trace_context(session_id)
+        with activate_trace_context(trace_context):
+            rag_mode = runtime_config.get_rag_mode()
+            messages = await self._prepare_messages_for_request(session_id, message, history)
+            active_group_id, allowed_group_ids = self._load_session_scope(session_id)
+            trace_context.group_id = active_group_id
+            intent_assets = load_group_intent_rule_assets(self.base_dir / "storage", active_group_id)
+            intent_analysis = classify_intent(message, history, rule_assets=intent_assets)
+            registry_entries = self._load_recent_registry_entries(
+                session_id=session_id,
+                group_id=active_group_id,
             )
-        workflow_plan = build_workflow_plan(
-            intent_analysis,
-            is_knowledge_query=is_knowledge_query(message),
-            active_group_id=active_group_id,
-            allowed_group_ids=allowed_group_ids,
-        )
-        execution_payload = self.workflow_dispatcher.dispatch(workflow_plan).run(
-            workflow_plan,
-            RouteExecutionRequest(
-                message=message,
-                messages=messages,
-                is_knowledge_query=is_knowledge_query(message),
-                context={
-                    "session_id": session_id,
-                    "active_group_id": active_group_id,
-                    "allowed_group_ids": allowed_group_ids,
-                    "registry_entries": registry_entries,
-                    "recent_power": registry_entries[-1].get("source_power") if registry_entries else None,
-                    "recent_object_type": registry_entries[-1].get("object_type") if registry_entries else None,
-                    "working_memory": working_memory,
-                    "recent_messages": messages[-6:],
-                    "bound_query_llm_call": self._llm_text_call_sync,
-                    "base_dir": self.base_dir,
-                },
-            ),
-        )
-
-        if rag_mode and self.memory_system is not None:
-            retrievals = [
-                {
-                    "text": item.content,
-                    "score": item.score,
-                    "source": item.source,
-                }
-                for item in self.memory_system.search_memories(
-                    group_id=active_group_id,
-                    agent_id=DEFAULT_AGENT,
-                    query=message,
-                    top_k=3,
-                    user_id=DEFAULT_USER,
+            working_memory = None
+            if session_id is not None and self.raw_session_manager is not None:
+                working_memory = self.raw_session_manager.get_working_memory(
+                    session_id,
+                    active_group_id,
+                    DEFAULT_AGENT,
                 )
-            ]
-            if retrievals:
-                yield {"type": "retrieval", **self._format_memory_retrieval_step(retrievals)}
-            if retrievals:
-                messages = self._insert_before_latest_user(
-                    messages,
-                    {
-                        "role": "assistant",
-                        "content": self._format_retrieval_context(retrievals),
+            workflow_plan = build_workflow_plan(
+                intent_analysis,
+                is_knowledge_query=is_knowledge_query(message),
+                active_group_id=active_group_id,
+                allowed_group_ids=allowed_group_ids,
+            )
+            execution_payload = self.workflow_dispatcher.dispatch(workflow_plan).run(
+                workflow_plan,
+                RouteExecutionRequest(
+                    message=message,
+                    messages=messages,
+                    is_knowledge_query=is_knowledge_query(message),
+                    context={
+                        "session_id": session_id,
+                        "active_group_id": active_group_id,
+                        "allowed_group_ids": allowed_group_ids,
+                        "registry_entries": registry_entries,
+                        "recent_power": registry_entries[-1].get("source_power") if registry_entries else None,
+                        "recent_object_type": registry_entries[-1].get("object_type") if registry_entries else None,
+                        "working_memory": working_memory,
+                        "recent_messages": messages[-6:],
+                        "bound_query_llm_call": self._llm_text_call_sync,
+                        "base_dir": self.base_dir,
+                    },
+                ),
+            )
+
+            if execution_payload.evidence_bundle is not None:
+                self._emit_retrieval_event(
+                    started_at=datetime.now(),
+                    query=message,
+                    output_summary=summarize_evidence_bundle(execution_payload.evidence_bundle),
+                    metadata={
+                        "retrieval_source": "workflow_payload",
+                        "workflow_name": workflow_plan.route,
                     },
                 )
 
-        workflow_instructions = list(execution_payload.instructions) or build_answer_behavior_rules_from_workflow(workflow_plan)
-        workflow_instructions.extend(build_answer_result_projection_rules_from_workflow(execution_payload))
+            if rag_mode and self.memory_system is not None:
+                retrieval_started_at = datetime.now()
+                retrievals = [
+                    {
+                        "text": item.content,
+                        "score": item.score,
+                        "source": item.source,
+                    }
+                    for item in self.memory_system.search_memories(
+                        group_id=active_group_id,
+                        agent_id=DEFAULT_AGENT,
+                        query=message,
+                        top_k=3,
+                        user_id=DEFAULT_USER,
+                    )
+                ]
+                if retrievals:
+                    yield {"type": "retrieval", **self._format_memory_retrieval_step(retrievals)}
+                    self._emit_retrieval_event(
+                        started_at=retrieval_started_at,
+                        query=message,
+                        output_summary={
+                            "knowledge_hit_count": 0,
+                            "memory_hit_count": len(retrievals),
+                            "evidence_ids": [str(item.get("source") or "memory") for item in retrievals],
+                            "retrieval_quality_status": "available",
+                        },
+                        metadata={
+                            "retrieval_source": "memory_rag",
+                            "workflow_name": workflow_plan.route,
+                        },
+                    )
+                if retrievals:
+                    messages = self._insert_before_latest_user(
+                        messages,
+                        {
+                            "role": "assistant",
+                            "content": self._format_retrieval_context(retrievals),
+                        },
+                    )
 
-        if execution_payload.action == "reject":
-            final_answer = ""
-            async for event in self._astream_model_answer(
-                messages,
-                extra_instructions=workflow_instructions + [self._build_reject_response(workflow_plan)],
-            ):
-                if event.get("type") == "done":
-                    final_answer = str(event.get("content") or "")
-                yield event
-            self._persist_execution_outputs(
-                payload=execution_payload,
-                session_id=session_id,
-                group_id=active_group_id,
-                message=message,
-                answer_text=final_answer,
-            )
-            return
+            workflow_instructions = list(execution_payload.instructions) or build_answer_behavior_rules_from_workflow(workflow_plan)
+            workflow_instructions.extend(build_answer_result_projection_rules_from_workflow(execution_payload))
 
-        if execution_payload.action == "respond":
+            if execution_payload.action == "reject":
+                answer_started_at = datetime.now()
+                final_answer = ""
+                async for event in self._astream_model_answer(
+                    messages,
+                    extra_instructions=workflow_instructions + [self._build_reject_response(workflow_plan)],
+                ):
+                    if event.get("type") == "done":
+                        final_answer = str(event.get("content") or "")
+                    yield event
+                self._emit_answer_event(
+                    started_at=answer_started_at,
+                    messages=messages,
+                    workflow_plan=workflow_plan,
+                    execution_payload=execution_payload,
+                    query=message,
+                    answer_text=final_answer,
+                    answer_mode="model",
+                )
+                self._persist_execution_outputs(
+                    payload=execution_payload,
+                    session_id=session_id,
+                    group_id=active_group_id,
+                    message=message,
+                    answer_text=final_answer,
+                )
+                return
+
+            if execution_payload.action == "respond":
+                answer_started_at = datetime.now()
+                final_answer = ""
+                async for event in self._astream_model_answer(
+                    messages,
+                    extra_instructions=workflow_instructions,
+                ):
+                    if event.get("type") == "done":
+                        final_answer = str(event.get("content") or "")
+                    yield event
+                self._emit_answer_event(
+                    started_at=answer_started_at,
+                    messages=messages,
+                    workflow_plan=workflow_plan,
+                    execution_payload=execution_payload,
+                    query=message,
+                    answer_text=final_answer,
+                    answer_mode="model",
+                )
+                self._persist_execution_outputs(
+                    payload=execution_payload,
+                    session_id=session_id,
+                    group_id=active_group_id,
+                    message=message,
+                    answer_text=final_answer,
+                )
+                return
+
+            if execution_payload.action == "knowledge_orchestrator":
+                # Legacy knowledge-prep path kept for compatibility while retrieval
+                # ownership is being consolidated back into workflow.
+                knowledge_result = None
+                async for event in knowledge_orchestrator.astream(message):
+                    if event.get("type") == "orchestrated_result":
+                        knowledge_result = event["result"]
+                        continue
+                    yield event
+
+                if knowledge_result is not None:
+                    for step in knowledge_result.steps:
+                        yield {"type": "retrieval", **step.to_dict()}
+                    self._emit_retrieval_event(
+                        started_at=datetime.now(),
+                        query=message,
+                        output_summary={
+                            "knowledge_hit_count": len(knowledge_result.evidences),
+                            "memory_hit_count": 0,
+                            "evidence_ids": [item.evidence_id for item in knowledge_result.evidences],
+                            "retrieval_quality_status": knowledge_result.status,
+                        },
+                        metadata={
+                            "retrieval_source": "knowledge_orchestrator",
+                            "workflow_name": workflow_plan.route,
+                        },
+                    )
+                    messages = self._insert_before_latest_user(
+                        messages,
+                        {
+                            "role": "assistant",
+                            "content": self._format_knowledge_context(knowledge_result),
+                        },
+                    )
+                    execution_payload = replace(
+                        execution_payload,
+                        evidence_bundle=self.retrieval_power.build_bundle_from_orchestrated_result(
+                            knowledge_result,
+                            query=message,
+                        ),
+                    )
+
+                answer_started_at = datetime.now()
+                final_answer = ""
+                async for event in self._astream_model_answer(
+                    messages,
+                    extra_instructions=workflow_instructions
+                    + (self._knowledge_answer_instructions(knowledge_result) if knowledge_result else []),
+                ):
+                    if event.get("type") == "done":
+                        final_answer = str(event.get("content") or "")
+                    yield event
+                self._emit_answer_event(
+                    started_at=answer_started_at,
+                    messages=messages,
+                    workflow_plan=workflow_plan,
+                    execution_payload=execution_payload,
+                    query=message,
+                    answer_text=final_answer,
+                    answer_mode="model",
+                )
+                self._persist_execution_outputs(
+                    payload=execution_payload,
+                    session_id=session_id,
+                    group_id=active_group_id,
+                    message=message,
+                    answer_text=final_answer,
+                )
+                return
+
+            # Agent path is a compatibility fallback for legacy tool-agent cases.
+            # It is no longer the default main answer path for qa/orchestrated.
+            answer_started_at = datetime.now()
             final_answer = ""
-            async for event in self._astream_model_answer(
+            async for event in self._astream_agent_answer(
                 messages,
                 extra_instructions=workflow_instructions,
             ):
                 if event.get("type") == "done":
                     final_answer = str(event.get("content") or "")
                 yield event
+            self._emit_answer_event(
+                started_at=answer_started_at,
+                messages=messages,
+                workflow_plan=workflow_plan,
+                execution_payload=execution_payload,
+                query=message,
+                answer_text=final_answer,
+                answer_mode="agent",
+            )
             self._persist_execution_outputs(
                 payload=execution_payload,
                 session_id=session_id,
@@ -574,71 +801,6 @@ class AgentManager:
                 message=message,
                 answer_text=final_answer,
             )
-            return
-
-        if execution_payload.action == "knowledge_orchestrator":
-            # Legacy knowledge-prep path kept for compatibility while retrieval
-            # ownership is being consolidated back into workflow.
-            knowledge_result = None
-            async for event in knowledge_orchestrator.astream(message):
-                if event.get("type") == "orchestrated_result":
-                    knowledge_result = event["result"]
-                    continue
-                yield event
-
-            if knowledge_result is not None:
-                for step in knowledge_result.steps:
-                    yield {"type": "retrieval", **step.to_dict()}
-                messages = self._insert_before_latest_user(
-                    messages,
-                    {
-                        "role": "assistant",
-                        "content": self._format_knowledge_context(knowledge_result),
-                    },
-                )
-                execution_payload = replace(
-                    execution_payload,
-                    evidence_bundle=self.retrieval_power.build_bundle_from_orchestrated_result(
-                        knowledge_result,
-                        query=message,
-                    ),
-                )
-
-            final_answer = ""
-            async for event in self._astream_model_answer(
-                messages,
-                extra_instructions=workflow_instructions
-                + (self._knowledge_answer_instructions(knowledge_result) if knowledge_result else []),
-            ):
-                if event.get("type") == "done":
-                    final_answer = str(event.get("content") or "")
-                yield event
-            self._persist_execution_outputs(
-                payload=execution_payload,
-                session_id=session_id,
-                group_id=active_group_id,
-                message=message,
-                answer_text=final_answer,
-            )
-            return
-
-        # Agent path is a compatibility fallback for legacy tool-agent cases.
-        # It is no longer the default main answer path for qa/orchestrated.
-        final_answer = ""
-        async for event in self._astream_agent_answer(
-            messages,
-            extra_instructions=workflow_instructions,
-        ):
-            if event.get("type") == "done":
-                final_answer = str(event.get("content") or "")
-            yield event
-        self._persist_execution_outputs(
-            payload=execution_payload,
-            session_id=session_id,
-            group_id=active_group_id,
-            message=message,
-            answer_text=final_answer,
-        )
 
     async def generate_title(self, first_user_message: str) -> str:
         prompt = (

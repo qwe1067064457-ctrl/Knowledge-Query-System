@@ -23,6 +23,7 @@ from context.registry.registry import ContextRegistryManager
 from context.registry.registry_types import ContextRegistry, ContextRegistryEntry
 from context.session.session_manager import SessionManager
 from memory_system.memory_service import MemorySystem
+from observability.langsmith.serializers import summarize_compaction_slice, summarize_messages
 
 _PRE_COMPACTION_EXTRACTOR_VERSION = "pre_compaction_v1"
 _PRE_COMPACTION_STATE_KEY = "_pre_compaction_extractions"
@@ -110,6 +111,7 @@ class ContextManager:
         )
         self.config = ContextConfig.from_policy(self.policy_loader.load_policy())
         self.llm_call: Optional[Callable[..., Any]] = None
+        self.observability_emitter: Any | None = None
 
         if _HAS_TIKTOKEN:
             self.tokenizer = tiktoken.get_encoding("cl100k_base")
@@ -121,6 +123,9 @@ class ContextManager:
 
     def set_llm_call(self, llm_call: Callable[..., Any]) -> None:
         self.llm_call = llm_call
+
+    def set_observability_emitter(self, emitter: Any) -> None:
+        self.observability_emitter = emitter
 
     async def _call_llm_text(self, prompt: str) -> str:
         if self.llm_call is None:
@@ -627,10 +632,25 @@ class ContextManager:
         entries: List[TranscriptEntry],
         user_id: str,
     ) -> Dict[str, Any]:
+        started_at = datetime.now()
         original_messages = self._entries_to_messages(entries)
         original_tokens = self._count_messages_tokens(original_messages)
         slice_messages, slice_start_entry_id, slice_end_entry_id = self._compute_pre_compaction_slice(entries)
+        slice_summary = summarize_compaction_slice(
+            slice_start_entry_id=slice_start_entry_id,
+            slice_end_entry_id=slice_end_entry_id,
+            slice_messages=slice_messages,
+        )
         if not slice_messages or not slice_start_entry_id or not slice_end_entry_id:
+            self._emit_compaction_event(
+                started_at=started_at,
+                status="skipped",
+                input_summary={
+                    "original_tokens": original_tokens,
+                    **slice_summary,
+                },
+                output_summary={"reason": "no messages to summarize"},
+            )
             return {
                 "success": False,
                 "reason": "no messages to summarize",
@@ -656,6 +676,7 @@ class ContextManager:
         memory_flushed = False
 
         if self.config.memory_flush_enabled and not extraction_processed:
+            extraction_started_at = datetime.now()
             try:
                 flush_result = await self.memory_sys.flush_from_context(
                     group_id,
@@ -683,7 +704,33 @@ class ContextManager:
                     status="success",
                 )
                 extraction_processed = True
+                self._emit_pre_compaction_extraction_event(
+                    started_at=extraction_started_at,
+                    status="success",
+                    input_summary=slice_summary,
+                    output_summary={
+                        "extraction_key": extraction_key,
+                        "memory_flushed": memory_flushed,
+                    },
+                )
             except Exception as exc:  # pragma: no cover
+                self._emit_pre_compaction_extraction_event(
+                    started_at=extraction_started_at,
+                    status="failed",
+                    input_summary=slice_summary,
+                    output_summary={"extraction_key": extraction_key},
+                    error_summary=str(exc),
+                )
+                self._emit_compaction_event(
+                    started_at=started_at,
+                    status="failed",
+                    input_summary={
+                        "original_tokens": original_tokens,
+                        **slice_summary,
+                    },
+                    output_summary={"memory_flushed": False},
+                    error_summary=f"memory flush failed: {exc}",
+                )
                 return {
                     "success": False,
                     "reason": f"memory flush failed: {exc}",
@@ -691,6 +738,16 @@ class ContextManager:
                     "compressed_tokens": original_tokens,
                     "memory_flushed": False,
                 }
+        elif extraction_processed:
+            self._emit_pre_compaction_extraction_event(
+                started_at=started_at,
+                status="skipped",
+                input_summary=slice_summary,
+                output_summary={
+                    "extraction_key": extraction_key,
+                    "reason": "already_processed",
+                },
+            )
 
         active_entries = self._active_entries_after_latest_compaction(entries)
         keep_tokens = self._count_messages_tokens(
@@ -727,6 +784,19 @@ class ContextManager:
                 self.session_mgr.append_entry(group_id, agent_id, compaction_entry)
 
         compressed_tokens = self._count_messages_tokens([{"content": summary}]) + keep_tokens
+        self._emit_compaction_event(
+            started_at=started_at,
+            status="success",
+            input_summary={
+                "original_tokens": original_tokens,
+                **slice_summary,
+            },
+            output_summary={
+                "compressed_tokens": compressed_tokens,
+                "summary_generated": bool(summary),
+                "memory_flushed": memory_flushed or extraction_processed,
+            },
+        )
         return {
             "success": True,
             "summary": summary,
@@ -755,6 +825,7 @@ class ContextManager:
         _compaction_attempt: int = 0,
         **kwargs: Any,
     ) -> Dict[str, Any]:
+        started_at = datetime.now()
         self.reload_policy()
         self._apply_runtime_overrides(kwargs)
 
@@ -790,13 +861,23 @@ class ContextManager:
                     **kwargs,
                 )
 
-        return {
+        result = {
             "messages": messages,
             "total_tokens": self._count_messages_tokens(messages),
             "needs_compaction": needs_compaction,
             "compaction": compaction_result,
             "budget": budget_info,
         }
+        self._emit_context_assembly_event(
+            started_at=started_at,
+            group_id=group_id,
+            agent_id=agent_id,
+            messages=messages,
+            needs_compaction=needs_compaction,
+            budget_info=budget_info,
+            query=active_query,
+        )
+        return result
 
     async def prepare_messages(
         self,
@@ -806,6 +887,7 @@ class ContextManager:
         query: Optional[str] = None,
         **kwargs: Any,
     ) -> Dict[str, Any]:
+        started_at = datetime.now()
         self.reload_policy()
         user_id = str(kwargs.pop("user_id", "default"))
         self._apply_runtime_overrides(kwargs)
@@ -820,12 +902,97 @@ class ContextManager:
         if active_query:
             prepared = self._inject_memories(group_id, agent_id, active_query, prepared, user_id=user_id)
         prepared, needs_compaction, budget_info = self._assemble_context(prepared)
-        return {
+        result = {
             "messages": prepared,
             "total_tokens": self._count_messages_tokens(prepared),
             "needs_compaction": needs_compaction,
             "budget": budget_info,
         }
+        self._emit_context_assembly_event(
+            started_at=started_at,
+            group_id=group_id,
+            agent_id=agent_id,
+            messages=prepared,
+            needs_compaction=needs_compaction,
+            budget_info=budget_info,
+            query=active_query,
+        )
+        return result
+
+    def _emit_context_assembly_event(
+        self,
+        *,
+        started_at: datetime,
+        group_id: str,
+        agent_id: str,
+        messages: List[Dict[str, Any]],
+        needs_compaction: bool,
+        budget_info: Dict[str, Any],
+        query: str,
+    ) -> None:
+        if self.observability_emitter is None:
+            return
+        message_summary = summarize_messages(messages)
+        block_names = [
+            self._normalize_block_name(message)
+            for message in messages
+            if message.get("role") == "system"
+        ]
+        self.observability_emitter.emit_context_assembly_run(
+            started_at=started_at,
+            input_summary={"query": query[:200] if query else ""},
+            output_summary={
+                "messages_summary": message_summary,
+                "core_block_present": "core" in block_names,
+                "retrieved_memories_present": "retrieved_memories" in block_names,
+                "needs_compaction": needs_compaction,
+                "budget": dict(budget_info),
+            },
+            metadata={
+                "group_id": group_id,
+                "agent_id": agent_id,
+            },
+        )
+
+    def _emit_pre_compaction_extraction_event(
+        self,
+        *,
+        started_at: datetime,
+        status: str,
+        input_summary: Dict[str, Any],
+        output_summary: Dict[str, Any],
+        error_summary: str | None = None,
+    ) -> None:
+        if self.observability_emitter is None:
+            return
+        self.observability_emitter.emit_pre_compaction_extraction_run(
+            started_at=started_at,
+            status=status,
+            input_summary=input_summary,
+            output_summary=output_summary,
+            metadata={},
+            error_summary=error_summary,
+        )
+
+    def _emit_compaction_event(
+        self,
+        *,
+        started_at: datetime,
+        status: str,
+        input_summary: Dict[str, Any],
+        output_summary: Dict[str, Any],
+        error_summary: str | None = None,
+    ) -> None:
+        if self.observability_emitter is None:
+            return
+        self.observability_emitter.emit_compaction_run(
+            started_at=started_at,
+            status=status,
+            input_summary=input_summary,
+            output_summary=output_summary,
+            metadata={},
+            error_summary=error_summary,
+        )
 
     async def compact_session(
         self,

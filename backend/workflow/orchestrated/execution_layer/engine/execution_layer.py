@@ -1,7 +1,10 @@
 from __future__ import annotations
 
+from datetime import datetime
 from typing import Any
 
+from observability.emitters.workflow_emitter import WorkflowEmitter
+from observability.langsmith.serializers import summarize_evidence_bundle
 from workflow.contracts.graph import ExecutionGraph, GlobalBindingFrame, UnitResult
 from workflow.orchestrated.execution_layer.contracts.execution_layer_result import ExecutionRunResult
 from workflow.orchestrated.execution_layer.contracts.unit_execution_outcome import (
@@ -27,6 +30,7 @@ class ExecutionLayer:
     ) -> None:
         self.executor_registry = executor_registry or ExecutorRegistry()
         self.runtime = runtime or LangGraphExecutionRuntime()
+        self.workflow_emitter = WorkflowEmitter()
 
     def execute(
         self,
@@ -46,6 +50,7 @@ class ExecutionLayer:
         recent_power: str | None = None,
         recent_object_type: str | None = None,
     ) -> ExecutionRunResult:
+        started_at = datetime.now()
         worker_registry = worker_registry or self._compat_worker_registry(
             context_binding_power=context_binding_power,
             retrieval_power=retrieval_power,
@@ -116,10 +121,29 @@ class ExecutionLayer:
 
             return _node
 
-        return self.runtime.run(
+        result = self.runtime.run(
             execution_graph=execution_graph,
             build_node=build_node,
         )
+        self.workflow_emitter.emit_workflow_run(
+            started_at=started_at,
+            input_summary={
+                "message": str(getattr(request, "message", "") or "")[:200],
+                "graph_summary": execution_graph.summary_dict(),
+            },
+            output_summary={
+                "unit_results": [item.to_dict() for item in result.unit_results],
+                "key_events": list(result.key_events),
+                "evidence_summary": summarize_evidence_bundle(result.evidence_bundle),
+            },
+            metadata={
+                "workflow_name": "execution_layer",
+                "unit_names": [unit.unit_id for unit in execution_graph.unit_objs()],
+                "allow_retrieval": allow_retrieval,
+                "binding_enabled": binding_enable_flag,
+            },
+        )
+        return result
 
     def _compat_worker_registry(
         self,
