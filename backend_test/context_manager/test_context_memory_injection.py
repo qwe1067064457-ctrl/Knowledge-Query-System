@@ -55,6 +55,7 @@ def test_prepare_injects_relevant_daily_log_and_domain_case(workspace) -> None:
         )
         memory.write_domain_case(
             group_id="law",
+            user_id="u1",
             title="Breach case",
             content="A breach case connects liability with foreseeability and damages.",
         )

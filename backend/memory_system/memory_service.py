@@ -487,6 +487,9 @@ class MemorySystem:
         messages: List[Dict[str, Any]],
         summary: str,
         source_session_id: Optional[str] = None,
+        slice_start_entry_id: Optional[str] = None,
+        slice_end_entry_id: Optional[str] = None,
+        extractor_version: Optional[str] = None,
     ) -> Dict[str, Any]:
         policy = self._load_policy(group_id)
         summary = summary.strip()
@@ -508,12 +511,30 @@ class MemorySystem:
                     recent_entries=recent_logs,
                 )
                 if validated_daily_log:
+                    metadata = dict(validated_daily_log.get("metadata") or {})
+                    if slice_start_entry_id:
+                        metadata["slice_start_entry_id"] = slice_start_entry_id
+                    if slice_end_entry_id:
+                        metadata["slice_end_entry_id"] = slice_end_entry_id
+                    if extractor_version:
+                        metadata["extractor_version"] = extractor_version
+                    if metadata:
+                        validated_daily_log["metadata"] = metadata
                     self.write_queue.enqueue(validated_daily_log)
                     daily_log_written = True
 
         for candidate in self._extract_core_candidates(messages, policy):
             validated_core = self.validator.validate_core(candidate)
             if validated_core:
+                metadata = dict(validated_core.get("metadata") or {})
+                if slice_start_entry_id:
+                    metadata["slice_start_entry_id"] = slice_start_entry_id
+                if slice_end_entry_id:
+                    metadata["slice_end_entry_id"] = slice_end_entry_id
+                if extractor_version:
+                    metadata["extractor_version"] = extractor_version
+                if metadata:
+                    validated_core["metadata"] = metadata
                 self.write_queue.enqueue(validated_core)
                 core_written += 1
 
@@ -530,6 +551,15 @@ class MemorySystem:
                 recent_entries=existing_cases,
             )
             if validated_case:
+                metadata = dict(validated_case.get("metadata") or {})
+                if slice_start_entry_id:
+                    metadata["slice_start_entry_id"] = slice_start_entry_id
+                if slice_end_entry_id:
+                    metadata["slice_end_entry_id"] = slice_end_entry_id
+                if extractor_version:
+                    metadata["extractor_version"] = extractor_version
+                if metadata:
+                    validated_case["metadata"] = metadata
                 self.write_queue.enqueue(validated_case)
                 case_written += 1
 
@@ -946,6 +976,9 @@ class MemorySystem:
         user_id: str = "default",
         source_session_id: Optional[str] = None,
         messages: Optional[List[Dict[str, Any]]] = None,
+        slice_start_entry_id: Optional[str] = None,
+        slice_end_entry_id: Optional[str] = None,
+        extractor_version: Optional[str] = None,
     ) -> Dict[str, Any]:
         content = context_summary.strip()
         checkpoint = self.capture_checkpoint(
@@ -955,6 +988,9 @@ class MemorySystem:
             messages=messages or [],
             summary=content,
             source_session_id=source_session_id,
+            slice_start_entry_id=slice_start_entry_id,
+            slice_end_entry_id=slice_end_entry_id,
+            extractor_version=extractor_version,
         )
         await self.write_worker.drain(
             lambda payload: self._persist_memory_payload(payload, group_id=group_id, agent_id=agent_id, user_id=user_id)

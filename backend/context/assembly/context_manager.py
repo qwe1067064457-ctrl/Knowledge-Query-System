@@ -24,6 +24,9 @@ from context.registry.registry_types import ContextRegistry, ContextRegistryEntr
 from context.session.session_manager import SessionManager
 from memory_system.memory_service import MemorySystem
 
+_PRE_COMPACTION_EXTRACTOR_VERSION = "pre_compaction_v1"
+_PRE_COMPACTION_STATE_KEY = "_pre_compaction_extractions"
+
 
 @dataclass
 class ContextConfig:
@@ -181,6 +184,7 @@ class ContextManager:
 
     def _entry_to_message(self, entry: TranscriptEntry) -> Dict[str, Any]:
         message: Dict[str, Any] = {
+            "id": entry.id,
             "role": entry.role,
             "content": entry.content,
         }
@@ -369,22 +373,69 @@ class ContextManager:
     ) -> List[Dict[str, Any]]:
         if not self.config.memory_search_enabled:
             return messages
+        injected: List[Dict[str, Any]] = []
+        core_message = self._build_core_memory_message(group_id=group_id, user_id=user_id)
+        if core_message:
+            injected.append(core_message)
+        retrieved_message = self._build_retrieved_memory_message(
+            group_id=group_id,
+            agent_id=agent_id,
+            query=query,
+            user_id=user_id,
+        )
+        if retrieved_message:
+            injected.append(retrieved_message)
+        if not injected:
+            return messages
+        return [*injected, *messages]
 
+    def _build_core_memory_message(
+        self,
+        *,
+        group_id: str,
+        user_id: str,
+    ) -> Optional[Dict[str, Any]]:
+        memories = self.memory_sys.get_core_memories(user_id=user_id, group_id=group_id)
+        if not memories:
+            return None
+        lines = ["[Core memory]"]
+        for index, memory in enumerate(memories, start=1):
+            title = f"{memory.title}\n" if memory.title else ""
+            lines.append(f"{index}. {memory.scope}\n{title}{memory.content}".strip())
+        return {
+            "role": "system",
+            "content": self._trim_text_to_tokens(
+                "\n\n".join(lines),
+                self.config.core_max_tokens,
+            ),
+            "_context_block": "core",
+        }
+
+    def _build_retrieved_memory_message(
+        self,
+        *,
+        group_id: str,
+        agent_id: str,
+        query: str,
+        user_id: str,
+    ) -> Optional[Dict[str, Any]]:
         memories = self.memory_sys.search_memories(
             group_id=group_id,
             agent_id=agent_id,
             query=query,
             top_k=self.config.memory_top_k,
             user_id=user_id,
+            include_core=False,
+            include_daily_logs=True,
+            include_domain_cases=True,
         )
         if not memories:
-            return messages
-
+            return None
         lines = ["[Memory context]"]
         for index, memory in enumerate(memories, start=1):
             title = f"{memory.title}\n" if memory.title else ""
             lines.append(f"{index}. {memory.source}\n{title}{memory.content}".strip())
-        memory_message = {
+        return {
             "role": "system",
             "content": self._trim_text_to_tokens(
                 "\n\n".join(lines),
@@ -392,7 +443,6 @@ class ContextManager:
             ),
             "_context_block": "retrieved_memories",
         }
-        return [memory_message, *messages]
 
     def _assemble_context(
         self,
@@ -471,18 +521,141 @@ class ContextManager:
                 lines.append(f"{role}: {content}")
         return self._trim_text_to_tokens("\n".join(lines), 500)
 
+    def _compute_pre_compaction_slice(
+        self,
+        entries: List[TranscriptEntry],
+    ) -> Tuple[List[Dict[str, Any]], Optional[str], Optional[str]]:
+        active_entries = self._active_entries_after_latest_compaction(entries)
+        if len(active_entries) <= 1:
+            return [], None, None
+
+        keep_from_index = 0
+        keep_tokens = 0
+        for index in range(len(active_entries) - 1, -1, -1):
+            entry = active_entries[index]
+            message = self._entry_to_message(entry)
+            msg_tokens = self._count_messages_tokens([message])
+            if keep_tokens + msg_tokens > self.config.keep_recent_tokens:
+                keep_from_index = index + 1
+                break
+            keep_tokens += msg_tokens
+
+        slice_entries = active_entries[:keep_from_index]
+        if not slice_entries and len(active_entries) > 1:
+            slice_entries = active_entries[:-1]
+        if not slice_entries:
+            return [], None, None
+        slice_messages = [self._entry_to_message(entry) for entry in slice_entries]
+        return slice_messages, slice_entries[0].id, slice_entries[-1].id
+
+    def _active_entries_after_latest_compaction(
+        self,
+        entries: List[TranscriptEntry],
+    ) -> List[TranscriptEntry]:
+        latest_compaction_index: Optional[int] = None
+        for index, entry in enumerate(entries):
+            if entry.entry_type == "compaction":
+                latest_compaction_index = index
+
+        return [
+            entry
+            for entry in entries[(latest_compaction_index + 1) if latest_compaction_index is not None else 0 :]
+            if entry.entry_type != "compaction"
+        ]
+
+    def _build_extraction_key(
+        self,
+        *,
+        session_id: str,
+        slice_start_entry_id: str,
+        slice_end_entry_id: str,
+    ) -> str:
+        return ":".join(
+            (
+                session_id,
+                slice_start_entry_id,
+                slice_end_entry_id,
+                _PRE_COMPACTION_EXTRACTOR_VERSION,
+            )
+        )
+
+    def _load_pre_compaction_state(
+        self,
+        *,
+        session_id: str,
+        group_id: str,
+        agent_id: str,
+    ) -> Dict[str, Any]:
+        session = self.session_mgr.get_session(session_id, group_id, agent_id)
+        if not session:
+            return {}
+        metadata = dict(session.metadata or {})
+        payload = metadata.get(_PRE_COMPACTION_STATE_KEY)
+        return dict(payload) if isinstance(payload, dict) else {}
+
+    def _persist_pre_compaction_state(
+        self,
+        *,
+        session_id: str,
+        group_id: str,
+        agent_id: str,
+        extraction_key: str,
+        slice_start_entry_id: str,
+        slice_end_entry_id: str,
+        status: str,
+    ) -> None:
+        session = self.session_mgr.get_session(session_id, group_id, agent_id)
+        if not session:
+            return
+        metadata = dict(session.metadata or {})
+        state = dict(metadata.get(_PRE_COMPACTION_STATE_KEY) or {})
+        state[extraction_key] = {
+            "slice_start_entry_id": slice_start_entry_id,
+            "slice_end_entry_id": slice_end_entry_id,
+            "extractor_version": _PRE_COMPACTION_EXTRACTOR_VERSION,
+            "status": status,
+            "processed_at": datetime.now().isoformat(),
+        }
+        metadata[_PRE_COMPACTION_STATE_KEY] = state
+        self.session_mgr.update_session_metadata(session_id, group_id, agent_id, metadata)
+
     async def _trigger_compaction(
         self,
         group_id: str,
         agent_id: str,
         session_id: str,
-        messages: List[Dict[str, Any]],
+        entries: List[TranscriptEntry],
         user_id: str,
     ) -> Dict[str, Any]:
-        original_tokens = self._count_messages_tokens(messages)
+        original_messages = self._entries_to_messages(entries)
+        original_tokens = self._count_messages_tokens(original_messages)
+        slice_messages, slice_start_entry_id, slice_end_entry_id = self._compute_pre_compaction_slice(entries)
+        if not slice_messages or not slice_start_entry_id or not slice_end_entry_id:
+            return {
+                "success": False,
+                "reason": "no messages to summarize",
+                "original_tokens": original_tokens,
+                "compressed_tokens": original_tokens,
+                "memory_flushed": False,
+            }
+
+        extraction_key = self._build_extraction_key(
+            session_id=session_id,
+            slice_start_entry_id=slice_start_entry_id,
+            slice_end_entry_id=slice_end_entry_id,
+        )
+        extraction_state = self._load_pre_compaction_state(
+            session_id=session_id,
+            group_id=group_id,
+            agent_id=agent_id,
+        )
+        extraction_processed = bool(
+            isinstance(extraction_state.get(extraction_key), dict)
+            and extraction_state[extraction_key].get("status") == "success"
+        )
         memory_flushed = False
 
-        if self.config.memory_flush_enabled:
+        if self.config.memory_flush_enabled and not extraction_processed:
             try:
                 flush_result = await self.memory_sys.flush_from_context(
                     group_id,
@@ -490,52 +663,53 @@ class ContextManager:
                     "",
                     user_id=user_id,
                     source_session_id=session_id,
-                    messages=messages,
+                    messages=slice_messages,
+                    slice_start_entry_id=slice_start_entry_id,
+                    slice_end_entry_id=slice_end_entry_id,
+                    extractor_version=_PRE_COMPACTION_EXTRACTOR_VERSION,
                 )
                 memory_flushed = bool(
                     flush_result.get("flushed")
                     or flush_result.get("core_written")
                     or flush_result.get("domain_case_written")
                 )
+                self._persist_pre_compaction_state(
+                    session_id=session_id,
+                    group_id=group_id,
+                    agent_id=agent_id,
+                    extraction_key=extraction_key,
+                    slice_start_entry_id=slice_start_entry_id,
+                    slice_end_entry_id=slice_end_entry_id,
+                    status="success",
+                )
+                extraction_processed = True
             except Exception as exc:  # pragma: no cover
-                print(f"Memory flush failed: {exc}")
+                return {
+                    "success": False,
+                    "reason": f"memory flush failed: {exc}",
+                    "original_tokens": original_tokens,
+                    "compressed_tokens": original_tokens,
+                    "memory_flushed": False,
+                }
 
-        keep_from_index = 0
-        keep_tokens = 0
-        for index in range(len(messages) - 1, -1, -1):
-            msg_tokens = self._count_messages_tokens([messages[index]])
-            if keep_tokens + msg_tokens > self.config.keep_recent_tokens:
-                keep_from_index = index + 1
-                break
-            keep_tokens += msg_tokens
-
-        to_summarize = messages[:keep_from_index]
-        if not to_summarize and len(messages) > 1:
-            to_summarize = messages[:-1]
-            keep_tokens = self._count_messages_tokens(messages[-1:])
-
-        if not to_summarize:
-            return {
-                "success": False,
-                "reason": "no messages to summarize",
-                "original_tokens": original_tokens,
-                "compressed_tokens": original_tokens,
-                "memory_flushed": memory_flushed,
-            }
+        active_entries = self._active_entries_after_latest_compaction(entries)
+        keep_tokens = self._count_messages_tokens(
+            [self._entry_to_message(entry) for entry in active_entries]
+        ) - self._count_messages_tokens(slice_messages)
 
         summary = ""
         try:
             summarize_prompt = (
                 "请将以下对话总结为一段简洁摘要，保留用户目标、关键事实、已确认决策、"
                 "未完成事项和必要约束。控制在 500 字以内。\n\n"
-                f"{json.dumps(to_summarize, ensure_ascii=False)}\n\n摘要："
+                f"{json.dumps(slice_messages, ensure_ascii=False)}\n\n摘要："
             )
             summary = await self._call_llm_text(summarize_prompt)
         except Exception as exc:  # pragma: no cover
             print(f"Compaction failed: {exc}")
 
         if not summary:
-            summary = self._fallback_summary(to_summarize)
+            summary = self._fallback_summary(slice_messages)
 
         if summary:
             session = self.session_mgr.get_session(session_id, group_id, agent_id)
@@ -558,7 +732,7 @@ class ContextManager:
             "summary": summary,
             "original_tokens": original_tokens,
             "compressed_tokens": compressed_tokens,
-            "memory_flushed": memory_flushed,
+            "memory_flushed": memory_flushed or extraction_processed,
         }
 
     def _get_model_window_size(self) -> int:
@@ -603,7 +777,7 @@ class ContextManager:
 
         compaction_result: Optional[Dict[str, Any]] = None
         if allow_compaction and needs_compaction and self.config.compaction_enabled and _compaction_attempt < 1:
-            compaction_result = await self._trigger_compaction(group_id, agent_id, session_id, messages, user_id)
+            compaction_result = await self._trigger_compaction(group_id, agent_id, session_id, entries, user_id)
             if compaction_result.get("success"):
                 return await self.prepare(
                     group_id,
@@ -660,10 +834,9 @@ class ContextManager:
         session_id: str,
     ) -> Dict[str, Any]:
         entries = self.session_mgr.get_transcript(group_id, agent_id, session_id, include_compacted=True)
-        messages = self._entries_to_messages(entries)
         session = self.session_mgr.get_session(session_id, group_id, agent_id)
         user_id = session.user_id if session else "default"
-        return await self._trigger_compaction(group_id, agent_id, session_id, messages, user_id)
+        return await self._trigger_compaction(group_id, agent_id, session_id, entries, user_id)
 
     def get_status(self, group_id: str, agent_id: str, session_id: str) -> Dict[str, Any]:
         self.reload_policy()
