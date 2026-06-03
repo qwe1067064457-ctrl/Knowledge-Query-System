@@ -19,6 +19,7 @@ _SCOPE_SWITCH_PATTERNS = (
     re.compile(r"换(一个|别的)?(组|库)"),
     re.compile(r"不是这个(组|库)"),
 )
+_LEGACY_AGENT_FALLBACK_CAPABILITY = "legacy_agent_fallback"
 
 
 def build_workflow_plan(
@@ -49,6 +50,7 @@ def build_workflow_plan(
         route=route,
         handling_mode=handling_mode,
         is_knowledge_query=is_knowledge_query,
+        capabilities=capabilities,
     )
     enabled_powers = _resolve_enabled_powers(
         route=route,
@@ -113,6 +115,7 @@ def _resolve_action(
     route: WorkflowRoute,
     handling_mode: WorkflowHandlingMode,
     is_knowledge_query: bool,
+    capabilities: set[str],
 ) -> WorkflowAction:
     if route == "reject" or handling_mode == "unsupported":
         return "reject"
@@ -122,7 +125,9 @@ def _resolve_action(
         return "respond"
     if is_knowledge_query:
         return "knowledge_orchestrator"
-    return "agent" if route in {"qa", "orchestrated"} else "respond"
+    if _LEGACY_AGENT_FALLBACK_CAPABILITY in capabilities and route in {"qa", "orchestrated"}:
+        return "agent"
+    return "respond"
 
 
 def _should_use_planner(*, route: WorkflowRoute, trace: ControlTrace) -> bool:

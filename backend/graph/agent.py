@@ -577,6 +577,8 @@ class AgentManager:
             return
 
         if execution_payload.action == "knowledge_orchestrator":
+            # Legacy knowledge-prep path kept for compatibility while retrieval
+            # ownership is being consolidated back into workflow.
             knowledge_result = None
             async for event in knowledge_orchestrator.astream(message):
                 if event.get("type") == "orchestrated_result":
@@ -620,6 +622,8 @@ class AgentManager:
             )
             return
 
+        # Agent path is a compatibility fallback for legacy tool-agent cases.
+        # It is no longer the default main answer path for qa/orchestrated.
         final_answer = ""
         async for event in self._astream_agent_answer(
             messages,

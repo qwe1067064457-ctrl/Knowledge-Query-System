@@ -83,6 +83,16 @@ QA Runner V2 继续采用：
 
 这里的 `answer signal filter` 不是新的 answer layer，只是在 shared final render 之前筛出主回答模型真正需要看到的高层信号。
 
+当前主回答路径继续收口为：
+
+- 默认主路径：`workflow -> answer signal filter -> prompt render -> _astream_model_answer`
+- 兼容 fallback：`_astream_agent_answer`
+  - 只作为 legacy tool-agent 的显式兼容入口
+  - 不再作为 `qa/orchestrated` 的默认主路径
+- legacy 知识路径：`knowledge_orchestrator`
+  - 继续可执行
+  - 但不再作为 workflow 未来默认扩展入口
+
 约束：
 
 - `context binding`
