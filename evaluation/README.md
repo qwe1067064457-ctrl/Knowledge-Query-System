@@ -4,12 +4,21 @@
 
 当前以 `intent/` 为主，是 intent 规则评估、小模型训练准备和基线实验的工作区。
 
+现在新增 `workflow_answer/` 主题，用于第一阶段：
+
+- `Knowledge retrieval` 质量评测
+- `final answer` 质量评测
+- 统一 case / result schema
+- 离线回放与线上抽样后的异步评测
+
 ## 阅读顺序
 
 1. `evaluation/intent/README.md`
-2. `evaluation/intent/query_inputs/README.md`
-3. `evaluation/intent/reports/README.md`
-4. `evaluation/intent/exports/README.md`
+2. `evaluation/workflow_answer/README.md`
+3. `evaluation/intent/query_inputs/README.md`
+4. `evaluation/workflow_answer/query_inputs/README.md`
+5. `evaluation/intent/reports/README.md`
+6. `evaluation/intent/exports/README.md`
 
 ## 放置原则
 
@@ -21,5 +30,7 @@
 
 ## 当前状态
 
-- 现在 `evaluation/` 还比较轻，不单独拆更多层级
-- 如果后续出现 retrieval、memory 等独立评估主题，再按 `evaluation/<topic>/` 继续展开
+- 现在 `evaluation/` 继续按主题拆分
+- `intent/` 负责 intent 方向
+- `workflow_answer/` 负责 Workflow + Retrieval + Answer 方向
+- 如果后续出现 compaction、memory preservation 等独立专题，再按 `evaluation/<topic>/` 继续展开
