@@ -27,9 +27,11 @@
 
 ## 当前实现形态
 
-- 主题目录：`evaluation/workflow_answer/`
+- 主题目录：`backend/evaluation/workflow_answer/`
 - 主脚本：`backend/evaluation/workflow_answer/evaluate_workflow_answer.py`
-- 规则层：`rule_layer/`
-- 模型层：`model_layer/`
-- finalize 层：`finalize_layer/`
+- 执行骨架：`backend/evaluation/core/runner.py`
+- topic config：`backend/evaluation/workflow_answer/topic_config.py`
+- 规则入口：`backend/evaluation/workflow_answer/rule_impl.py`
+- 模型入口：`backend/evaluation/workflow_answer/model_impl.py`
+- finalize 入口：`backend/evaluation/workflow_answer/finalize_impl.py`
 - 输出：`results.jsonl`、`summary.json`、`report.md`

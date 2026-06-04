@@ -1,36 +1,41 @@
 # Evaluation
 
-`evaluation/` 存放评估相关的脚本、输入集、导出数据和结果报告。
+`backend/evaluation/` 现在按“`core` 通用执行框架 + topic 专题目录”两层组织。
 
-当前以 `intent/` 为主，是 intent 规则评估、小模型训练准备和基线实验的工作区。
+## 顶层结构
 
-现在新增 `workflow_answer/` 主题，用于第一阶段：
-
-- `Knowledge retrieval` 质量评测
-- `final answer` 质量评测
-- 统一 case / result schema
-- 离线回放与线上抽样后的异步评测
+- `core/`
+  - 统一执行骨架：`load cases -> rule layer -> model layer -> finalize layer -> report`
+- `workflow_answer/`
+  - 第一阶段已落地的 Retrieval + Answer 评测专题
+- `long_term_memory/`
+  - 第二阶段长期记忆存储质量模板专题
+- `working_memory/`
+  - 第二阶段工作记忆连续性质量模板专题
+- `compaction/`
+  - 第二阶段压缩保真质量模板专题
 
 ## 阅读顺序
 
-1. `evaluation/intent/README.md`
-2. `evaluation/workflow_answer/README.md`
-3. `evaluation/intent/query_inputs/README.md`
-4. `evaluation/workflow_answer/query_inputs/README.md`
-5. `evaluation/intent/reports/README.md`
-6. `evaluation/intent/exports/README.md`
+1. `backend/evaluation/core/runner.py`
+2. `backend/evaluation/workflow_answer/README.md`
+3. `backend/evaluation/workflow_answer/query_inputs/README.md`
+4. `backend/evaluation/workflow_answer/rubrics/`
+5. `backend/evaluation/long_term_memory/README.md`
+6. `backend/evaluation/working_memory/README.md`
+7. `backend/evaluation/compaction/README.md`
 
 ## 放置原则
 
-- 评估脚本：放在对应主题目录下，例如 `evaluation/intent/*.py`
-- 评估输入：放在 `query_inputs/`
-- 评估结果报告：放在 `reports/`
-- 导出训练集或 baseline 数据：放在 `exports/`
-- 人工审核材料：保留在主题目录根部，便于和评估脚本一起维护
+- 通用接口与执行框架：放在 `backend/evaluation/core/`
+- 评估脚本：放在对应专题目录下，例如 `backend/evaluation/workflow_answer/evaluate_workflow_answer.py`
+- 评估输入：放在专题内的 `query_inputs/`
+- 评估结果报告：放在专题内的 `reports/`
+- 导出训练集或 benchmark 冻结物：放在专题内的 `exports/`
+- rubric、reason tags、case schema：保留在各自专题目录内，不上提到 `core/`
 
 ## 当前状态
 
-- 现在 `evaluation/` 继续按主题拆分
-- `intent/` 负责 intent 方向
-- `workflow_answer/` 负责 Workflow + Retrieval + Answer 方向
-- 如果后续出现 compaction、memory preservation 等独立专题，再按 `evaluation/<topic>/` 继续展开
+- `workflow_answer/` 已接入 `core.runner`
+- 后续 `long_term_memory / working_memory / compaction` 继续沿用同一模板
+- `core/` 只统一执行接口，不统一各专题维度定义

@@ -92,3 +92,24 @@ def summarize_compaction_slice(
         "slice_message_count": len(slice_messages),
         "slice_message_roles": [str(item.get("role") or "") for item in slice_messages],
     }
+
+
+def summarize_intent_analysis(intent_analysis) -> dict[str, Any]:
+    control = getattr(intent_analysis, "control", None)
+    trace = getattr(control, "trace", None)
+    intent_input = getattr(intent_analysis, "input", None)
+    context_state = getattr(intent_input, "context_state", None)
+    context_signals = getattr(getattr(intent_analysis, "evidence", None), "context_signals", None)
+    return {
+        "route": str(getattr(control, "route", "")),
+        "handling_mode": str(getattr(control, "handling_mode", "")),
+        "capabilities": list(getattr(control, "capabilities", ()) or ()),
+        "main_intent": str(getattr(intent_analysis, "main_intent", "")),
+        "task_complexity": str(getattr(trace, "task_complexity", "")),
+        "task_shape": str(getattr(trace, "task_shape", "")),
+        "task_topology": str(getattr(trace, "task_topology", "")),
+        "context_dependency": str(getattr(trace, "context_dependency", "")),
+        "has_history": bool(getattr(context_state, "has_history", False)),
+        "ambiguity_states": list(getattr(context_signals, "ambiguity_states", ()) or ()),
+        "missing_context_types": list(getattr(context_signals, "missing_context_types", ()) or ()),
+    }

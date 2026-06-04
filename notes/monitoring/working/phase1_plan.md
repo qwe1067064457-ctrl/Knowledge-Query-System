@@ -23,14 +23,14 @@
 第一阶段应完成：
 
 1. 能按 `trace_id / session_id / query_id` 回看一次请求
-2. 能串起 `workflow -> context -> retrieval -> answer` 最小事实链
+2. 能串起 `request -> intent -> context -> workflow -> action -> answer` 最小事实链
 3. 能看出关键步骤是否发生、是否成功、是否明显变慢
 4. 能按 `route / action / status` 做最小聚合
 5. LangSmith 未开启时不影响主业务
 
 一句话定义：
 
-> 一期要解决的不是“回答质量好不好”，而是“这条主链是否正常、稳定、可回看、可定位问题”。
+> 一期要解决的不是“回答质量好不好”，而是“这条分层主链是否正常、稳定、可回看、可定位问题”。
 
 ---
 
@@ -52,7 +52,8 @@
 
 最小验收标准：
 
-- 能在一个统一视图中看到 `workflow_run`、`context_assembly_run`、`retrieval_run`、`answer_model_run`
+- 能在一个统一视图中看到 `intent_classification_run`、`context_assembly_run`、`workflow_run`、`answer_model_run`
+- retrieval 作为可选分支出现，不再假设每条链固定包含 `retrieval_run`
 - 若触发了 compaction，也能看到 `compaction_run` 与 `pre_compaction_extraction_run`
 
 ### 2.2 分类二：主回答链健康观察

@@ -30,6 +30,32 @@ _PRE_COMPACTION_STATE_KEY = "_pre_compaction_extractions"
 
 
 @dataclass
+class MemoryRetrievalResult:
+    performed: bool = False
+    owner: str = "context"
+    source: str = "memory"
+    query: str = ""
+    core_memory_count: int = 0
+    retrieved_memory_count: int = 0
+    core_block_present: bool = False
+    retrieved_memories_present: bool = False
+    results: list[dict[str, Any]] | None = None
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "performed": self.performed,
+            "owner": self.owner,
+            "source": self.source,
+            "query": self.query,
+            "core_memory_count": self.core_memory_count,
+            "retrieved_memory_count": self.retrieved_memory_count,
+            "core_block_present": self.core_block_present,
+            "retrieved_memories_present": self.retrieved_memories_present,
+            "results": list(self.results or []),
+        }
+
+
+@dataclass
 class ContextConfig:
     max_turns: int = 8
     total_tokens: int = 6000
@@ -375,32 +401,53 @@ class ContextManager:
         messages: List[Dict[str, Any]],
         *,
         user_id: str,
-    ) -> List[Dict[str, Any]]:
+    ) -> tuple[List[Dict[str, Any]], MemoryRetrievalResult]:
         if not self.config.memory_search_enabled:
-            return messages
+            return messages, MemoryRetrievalResult(query=query)
         injected: List[Dict[str, Any]] = []
-        core_message = self._build_core_memory_message(group_id=group_id, user_id=user_id)
+        core_memories = self.memory_sys.get_core_memories(user_id=user_id, group_id=group_id)
+        core_message = self._build_core_memory_message(memories=core_memories)
         if core_message:
             injected.append(core_message)
-        retrieved_message = self._build_retrieved_memory_message(
+        retrieved_memories = self.memory_sys.search_memories(
             group_id=group_id,
             agent_id=agent_id,
             query=query,
+            top_k=self.config.memory_top_k,
             user_id=user_id,
+            include_core=False,
+            include_daily_logs=True,
+            include_domain_cases=True,
         )
+        retrieved_message = self._build_retrieved_memory_message(memories=retrieved_memories)
         if retrieved_message:
             injected.append(retrieved_message)
+        summary = MemoryRetrievalResult(
+            performed=bool(core_memories or retrieved_memories),
+            query=query,
+            core_memory_count=len(core_memories),
+            retrieved_memory_count=len(retrieved_memories),
+            core_block_present=core_message is not None,
+            retrieved_memories_present=retrieved_message is not None,
+            results=[
+                {
+                    "text": str(memory.content or ""),
+                    "score": float(memory.score or 0.0),
+                    "source": str(memory.source or "memory"),
+                    "title": str(memory.title or ""),
+                }
+                for memory in retrieved_memories
+            ],
+        )
         if not injected:
-            return messages
-        return [*injected, *messages]
+            return messages, summary
+        return [*injected, *messages], summary
 
     def _build_core_memory_message(
         self,
         *,
-        group_id: str,
-        user_id: str,
+        memories: List[Any],
     ) -> Optional[Dict[str, Any]]:
-        memories = self.memory_sys.get_core_memories(user_id=user_id, group_id=group_id)
         if not memories:
             return None
         lines = ["[Core memory]"]
@@ -419,21 +466,8 @@ class ContextManager:
     def _build_retrieved_memory_message(
         self,
         *,
-        group_id: str,
-        agent_id: str,
-        query: str,
-        user_id: str,
+        memories: List[Any],
     ) -> Optional[Dict[str, Any]]:
-        memories = self.memory_sys.search_memories(
-            group_id=group_id,
-            agent_id=agent_id,
-            query=query,
-            top_k=self.config.memory_top_k,
-            user_id=user_id,
-            include_core=False,
-            include_daily_logs=True,
-            include_domain_cases=True,
-        )
         if not memories:
             return None
         lines = ["[Memory context]"]
@@ -841,8 +875,15 @@ class ContextManager:
         messages = self._limit_history_turns(messages)
 
         active_query = query or self._extract_query_from_messages(messages)
+        memory_retrieval = MemoryRetrievalResult(query=active_query or "")
         if active_query:
-            messages = self._inject_memories(group_id, agent_id, active_query, messages, user_id=user_id)
+            messages, memory_retrieval = self._inject_memories(
+                group_id,
+                agent_id,
+                active_query,
+                messages,
+                user_id=user_id,
+            )
 
         messages, needs_compaction, budget_info = self._assemble_context(messages)
 
@@ -867,6 +908,7 @@ class ContextManager:
             "needs_compaction": needs_compaction,
             "compaction": compaction_result,
             "budget": budget_info,
+            "memory_retrieval": memory_retrieval.to_dict(),
         }
         self._emit_context_assembly_event(
             started_at=started_at,
@@ -876,6 +918,7 @@ class ContextManager:
             needs_compaction=needs_compaction,
             budget_info=budget_info,
             query=active_query,
+            memory_retrieval=memory_retrieval,
         )
         return result
 
@@ -899,14 +942,22 @@ class ContextManager:
         prepared = self._normalize_transcript(prepared)
         prepared = self._limit_history_turns(prepared)
         active_query = query or self._extract_query_from_messages(prepared)
+        memory_retrieval = MemoryRetrievalResult(query=active_query or "")
         if active_query:
-            prepared = self._inject_memories(group_id, agent_id, active_query, prepared, user_id=user_id)
+            prepared, memory_retrieval = self._inject_memories(
+                group_id,
+                agent_id,
+                active_query,
+                prepared,
+                user_id=user_id,
+            )
         prepared, needs_compaction, budget_info = self._assemble_context(prepared)
         result = {
             "messages": prepared,
             "total_tokens": self._count_messages_tokens(prepared),
             "needs_compaction": needs_compaction,
             "budget": budget_info,
+            "memory_retrieval": memory_retrieval.to_dict(),
         }
         self._emit_context_assembly_event(
             started_at=started_at,
@@ -916,6 +967,7 @@ class ContextManager:
             needs_compaction=needs_compaction,
             budget_info=budget_info,
             query=active_query,
+            memory_retrieval=memory_retrieval,
         )
         return result
 
@@ -929,6 +981,7 @@ class ContextManager:
         needs_compaction: bool,
         budget_info: Dict[str, Any],
         query: str,
+        memory_retrieval: MemoryRetrievalResult,
     ) -> None:
         if self.observability_emitter is None:
             return
@@ -947,6 +1000,7 @@ class ContextManager:
                 "retrieved_memories_present": "retrieved_memories" in block_names,
                 "needs_compaction": needs_compaction,
                 "budget": dict(budget_info),
+                "memory_retrieval": memory_retrieval.to_dict(),
             },
             metadata={
                 "group_id": group_id,

@@ -30,9 +30,11 @@ from memory_system.memory_service import MemorySystem
 from memory_system.session_working_memory import SessionWorkingMemoryWriter
 from observability.emitters.answer_emitter import AnswerEmitter
 from observability.emitters.context_emitter import ContextEmitter
+from observability.emitters.intent_emitter import IntentEmitter
 from observability.emitters.retrieval_emitter import RetrievalEmitter
 from observability.langsmith.client import LangSmithClient
 from observability.langsmith.serializers import (
+    summarize_intent_analysis,
     summarize_evidence_bundle,
     summarize_execution_payload,
     summarize_messages,
@@ -60,6 +62,7 @@ class AgentManager:
         self.answer_emitter = AnswerEmitter(self.langsmith_client)
         self.retrieval_emitter = RetrievalEmitter(self.langsmith_client)
         self.context_emitter = ContextEmitter(self.langsmith_client)
+        self.intent_emitter = IntentEmitter(self.langsmith_client)
 
     def initialize(self, base_dir: Path) -> None:
         self.base_dir = base_dir
@@ -131,12 +134,25 @@ class AgentManager:
         session_id: str | None,
         message: str,
         history: list[dict[str, Any]],
-    ) -> list[dict[str, str]]:
+    ) -> dict[str, Any]:
         current_user = {"role": "user", "content": message}
         if self.context_manager is None:
             messages = self._build_messages(history)
             messages.append(current_user)
-            return messages
+            return {
+                "messages": messages,
+                "memory_retrieval": {
+                    "performed": False,
+                    "owner": "context",
+                    "source": "memory",
+                    "query": message,
+                    "core_memory_count": 0,
+                    "retrieved_memory_count": 0,
+                    "core_block_present": False,
+                    "retrieved_memories_present": False,
+                    "results": [],
+                },
+            }
 
         has_new_transcript = False
         if session_id and self.raw_session_manager is not None:
@@ -168,7 +184,10 @@ class AgentManager:
                 query=message,
             )
 
-        return self._build_messages(prepared["messages"])
+        return {
+            "messages": self._build_messages(prepared["messages"]),
+            "memory_retrieval": dict(prepared.get("memory_retrieval", {})),
+        }
 
     def _format_retrieval_context(self, results: list[dict[str, Any]]) -> str:
         lines = ["[RAG retrieved memory context]"]
@@ -505,6 +524,20 @@ class AgentManager:
             },
         )
 
+    def _emit_intent_event(
+        self,
+        *,
+        started_at: datetime,
+        query: str,
+        intent_analysis,
+    ) -> None:
+        self.intent_emitter.emit_intent_classification_run(
+            started_at=started_at,
+            input_summary={"query": query[:200]},
+            output_summary=summarize_intent_analysis(intent_analysis),
+            metadata={"main_intent": str(intent_analysis.main_intent)},
+        )
+
     def _load_recent_registry_entries(
         self,
         *,
@@ -537,11 +570,19 @@ class AgentManager:
         trace_context = self._create_request_trace_context(session_id)
         with activate_trace_context(trace_context):
             rag_mode = runtime_config.get_rag_mode()
-            messages = await self._prepare_messages_for_request(session_id, message, history)
+            prepared_request = await self._prepare_messages_for_request(session_id, message, history)
+            messages = list(prepared_request["messages"])
+            memory_retrieval = dict(prepared_request.get("memory_retrieval", {}))
             active_group_id, allowed_group_ids = self._load_session_scope(session_id)
             trace_context.group_id = active_group_id
             intent_assets = load_group_intent_rule_assets(self.base_dir / "storage", active_group_id)
+            intent_started_at = datetime.now()
             intent_analysis = classify_intent(message, history, rule_assets=intent_assets)
+            self._emit_intent_event(
+                started_at=intent_started_at,
+                query=message,
+                intent_analysis=intent_analysis,
+            )
             registry_entries = self._load_recent_registry_entries(
                 session_id=session_id,
                 group_id=active_group_id,
@@ -576,6 +617,7 @@ class AgentManager:
                         "recent_messages": messages[-6:],
                         "bound_query_llm_call": self._llm_text_call_sync,
                         "base_dir": self.base_dir,
+                        "memory_retrieval": memory_retrieval,
                     },
                 ),
             )
@@ -591,46 +633,25 @@ class AgentManager:
                     },
                 )
 
-            if rag_mode and self.memory_system is not None:
+            retrievals = list(memory_retrieval.get("results", []) or [])
+            if rag_mode and retrievals:
                 retrieval_started_at = datetime.now()
-                retrievals = [
-                    {
-                        "text": item.content,
-                        "score": item.score,
-                        "source": item.source,
-                    }
-                    for item in self.memory_system.search_memories(
-                        group_id=active_group_id,
-                        agent_id=DEFAULT_AGENT,
-                        query=message,
-                        top_k=3,
-                        user_id=DEFAULT_USER,
-                    )
-                ]
-                if retrievals:
-                    yield {"type": "retrieval", **self._format_memory_retrieval_step(retrievals)}
-                    self._emit_retrieval_event(
-                        started_at=retrieval_started_at,
-                        query=message,
-                        output_summary={
-                            "knowledge_hit_count": 0,
-                            "memory_hit_count": len(retrievals),
-                            "evidence_ids": [str(item.get("source") or "memory") for item in retrievals],
-                            "retrieval_quality_status": "available",
-                        },
-                        metadata={
-                            "retrieval_source": "memory_rag",
-                            "workflow_name": workflow_plan.route,
-                        },
-                    )
-                if retrievals:
-                    messages = self._insert_before_latest_user(
-                        messages,
-                        {
-                            "role": "assistant",
-                            "content": self._format_retrieval_context(retrievals),
-                        },
-                    )
+                yield {"type": "retrieval", **self._format_memory_retrieval_step(retrievals)}
+                self._emit_retrieval_event(
+                    started_at=retrieval_started_at,
+                    query=message,
+                    output_summary={
+                        "knowledge_hit_count": 0,
+                        "memory_hit_count": len(retrievals),
+                        "evidence_ids": [str(item.get("source") or "memory") for item in retrievals],
+                        "retrieval_quality_status": "available",
+                    },
+                    metadata={
+                        "retrieval_source": "context_memory",
+                        "retrieval_owner": str(memory_retrieval.get("owner") or "context"),
+                        "workflow_name": workflow_plan.route,
+                    },
+                )
 
             workflow_instructions = list(execution_payload.instructions) or build_answer_behavior_rules_from_workflow(workflow_plan)
             workflow_instructions.extend(build_answer_result_projection_rules_from_workflow(execution_payload))

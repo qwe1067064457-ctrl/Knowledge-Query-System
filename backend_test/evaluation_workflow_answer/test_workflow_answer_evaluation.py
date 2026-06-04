@@ -145,6 +145,8 @@ def test_evaluate_case_keeps_feedback_out_of_score_but_flags_review() -> None:
     assert result["needs_human_review"] is True
     assert "dislike_high_score" in result["human_review_reasons"]
     assert result["grader_metadata"]["finalize_meta"]["policy"]["mode"] == "parallel_merge"
+    assert result["topic"] == "workflow_answer"
+    assert result["dimension_labels"] == {"retrieval": "good", "answer": "good"}
 
 
 def test_evaluate_cases_accepts_offline_and_online_sources() -> None:
@@ -198,12 +200,13 @@ def test_summarize_results_and_write_report_support_empty_and_non_empty(workspac
 
 def test_evaluate_cases_with_llm_falls_back_to_rules_when_runtime_errors(monkeypatch: pytest.MonkeyPatch) -> None:
     from evaluation.workflow_answer import evaluate_workflow_answer as module
+    from evaluation.workflow_answer import model_impl
 
     class BrokenRuntime:
         def grade_case(self, case):
             raise RuntimeError("llm down")
 
-    monkeypatch.setattr(module, "WorkflowAnswerLLMRuntime", BrokenRuntime)
+    monkeypatch.setattr(model_impl, "WorkflowAnswerLLMRuntime", BrokenRuntime)
 
     results = module.evaluate_cases([_case(case_id="runtime_error_case")], use_llm=True)
 

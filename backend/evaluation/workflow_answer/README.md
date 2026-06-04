@@ -19,12 +19,20 @@
   - 手工种子 case、抽样 trace case
 - `rubrics/`
   - retrieval / answer 的维度定义与打分说明
+- `topic_config.py`
+  - 把本专题装配成 `core.runner` 可消费的 config
+- `rule_impl.py`
+  - 本专题的规则层组合入口
+- `model_impl.py`
+  - 本专题的模型层组合入口
+- `finalize_impl.py`
+  - 本专题的 finalize 入口，负责兜底、聚合、人工复核标记
 - `rule_layer/`
-  - 规则层，只产出规则结果
+  - retrieval / answer 的底层规则实现
 - `model_layer/`
-  - 模型层，只产出模型结果
+  - retrieval / answer 的底层模型实现与 runtime
 - `finalize_layer/`
-  - 聚合、回退、人工复核标记
+  - 本专题底层聚合与人工复核逻辑
 - `schemas/`
   - case/result 的最小字段约束
 - `reports/`
@@ -40,10 +48,11 @@
 2. `schemas/result_schema.md`
 3. `rubrics/retrieval_rubric.md`
 4. `rubrics/answer_rubric.md`
-5. `rule_layer/`
-6. `model_layer/`
-7. `finalize_layer/`
-8. `query_inputs/README.md`
+5. `topic_config.py`
+6. `rule_impl.py`
+7. `model_impl.py`
+8. `finalize_impl.py`
+9. `query_inputs/README.md`
 
 ## 运行方式
 
@@ -62,6 +71,7 @@ python backend/evaluation/workflow_answer/evaluate_workflow_answer.py backend/ev
 - retrieval 只评 `Knowledge` 证据，不纳入长期记忆检索
 - `core` 不作为 retrieval 证据来源竞争项，只在 answer 评测里参与上下文判断
 - `like/dislike` 是辅助信号，不是真值标签
+- `workflow_answer/` 只保留 topic-specific 配置与实现
 - 规则层与 LLM 层并行产出维度结果
-- 模型失败回退发生在 `finalize_layer/`
-- 最终权重计算、hard cap 和综合分统一由 `finalize_layer/` 负责
+- 模型失败回退发生在 `finalize_impl.py -> finalize_layer/`
+- 最终权重计算、hard cap 和综合分统一由 finalize 侧负责

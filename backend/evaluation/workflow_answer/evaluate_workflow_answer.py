@@ -3,7 +3,6 @@ from __future__ import annotations
 import argparse
 import json
 import sys
-from collections import Counter
 from pathlib import Path
 from typing import Any, Iterable
 
@@ -12,15 +11,9 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from evaluation.workflow_answer.finalize_layer.adjudication_router import (  # noqa: E402
-    route_human_review,
-)
-from evaluation.workflow_answer.finalize_layer.aggregation import finalize_case_result  # noqa: E402
-from evaluation.workflow_answer.model_layer.llm_runtime import WorkflowAnswerLLMRuntime  # noqa: E402
-from evaluation.workflow_answer.rule_layer.answer_rules import grade_answer_case  # noqa: E402
-from evaluation.workflow_answer.rule_layer.retrieval_rules import (  # noqa: E402
-    grade_retrieval_case,
-)
+from evaluation.core.case_loader import load_jsonl_cases  # noqa: E402
+from evaluation.core.runner import evaluate_topic_cases, run_topic_evaluation  # noqa: E402
+from evaluation.workflow_answer.topic_config import build_topic_config, summarize_results  # noqa: E402
 
 
 ALLOWED_SOURCES = {"offline_seed", "offline_replay", "online_sample"}
@@ -28,22 +21,7 @@ ALLOWED_FEEDBACK = {"like", "dislike", None}
 
 
 def load_cases(path: str | Path) -> list[dict[str, Any]]:
-    root = Path(path)
-    if root.is_dir():
-        paths = sorted(root.glob("*.jsonl"))
-    else:
-        paths = [root]
-
-    rows: list[dict[str, Any]] = []
-    for case_path in paths:
-        for line_no, line in enumerate(case_path.read_text(encoding="utf-8").splitlines(), start=1):
-            if not line.strip():
-                continue
-            payload = json.loads(line)
-            if not isinstance(payload, dict):
-                raise ValueError(f"Case line must be an object: {case_path}:{line_no}")
-            rows.append(payload)
-    return rows
+    return load_jsonl_cases(path)
 
 
 def save_results_jsonl(path: str | Path, rows: Iterable[dict[str, Any]]) -> None:
@@ -172,57 +150,19 @@ def evaluate_case(
     answer_llm_metadata: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     validate_case(case)
-    retrieval_rule = grade_retrieval_case(case)
-    answer_rule = grade_answer_case(case)
-    retrieval, answer, finalize_meta = finalize_case_result(
-        case=case,
-        retrieval_rule=retrieval_rule,
-        answer_rule=answer_rule,
-        retrieval_model_labels=retrieval_semantic_labels,
-        answer_model_labels=answer_semantic_labels,
+    config = build_topic_config(
+        use_llm=False,
+        retrieval_label_overrides={case["case_id"]: retrieval_semantic_labels or {}},
+        answer_label_overrides={case["case_id"]: answer_semantic_labels or {}},
+        retrieval_llm_metadata={case["case_id"]: retrieval_llm_metadata or {}},
+        answer_llm_metadata={case["case_id"]: answer_llm_metadata or {}},
     )
-
-    grader_metadata = {
-        "rule_result_meta": {
-            "retrieval": retrieval_rule["metadata"],
-            "answer": answer_rule["metadata"],
-        },
-        "model_result_meta": {
-            "retrieval": retrieval_llm_metadata or {},
-            "answer": answer_llm_metadata or {},
-        },
-        "finalize_meta": {
-            **finalize_meta,
-            "policy": {
-                "mode": "parallel_merge",
-                "llm_failure_fallback": "rule_labels",
-            },
-            "retrieval_final_meta": retrieval.pop("metadata"),
-            "answer_final_meta": answer.pop("metadata"),
-        },
-    }
-
-    result = {
-        "case_id": case["case_id"],
-        "trace_id": case["trace_id"],
-        "source": case["source"],
-        "user_feedback": case["user_feedback"],
-        "retrieval": retrieval,
-        "answer": answer,
-        "grader_metadata": grader_metadata,
-    }
-    adjudication = route_human_review(case=case, result=result)
-    result["needs_human_review"] = adjudication["needs_human_review"]
-    result["human_review_reasons"] = adjudication["reasons"]
-    result["review_priority"] = adjudication["priority"]
-    return result
+    return evaluate_topic_cases([case], config=config)[0]
 
 
 def run_rule_layer(case: dict[str, Any]) -> dict[str, Any]:
-    return {
-        "retrieval": grade_retrieval_case(case),
-        "answer": grade_answer_case(case),
-    }
+    validate_case(case)
+    return build_topic_config(use_llm=False).rule_evaluator.evaluate(case)
 
 
 def run_model_layer(
@@ -235,32 +175,14 @@ def run_model_layer(
     retrieval_llm_metadata: dict[str, dict[str, Any]] | None,
     answer_llm_metadata: dict[str, dict[str, Any]] | None,
 ) -> dict[str, Any]:
-    if llm_runtime is None:
-        return {
-            "retrieval_labels": (retrieval_label_overrides or {}).get(case_id),
-            "answer_labels": (answer_label_overrides or {}).get(case_id),
-            "retrieval_meta": (retrieval_llm_metadata or {}).get(case_id, {}),
-            "answer_meta": (answer_llm_metadata or {}).get(case_id, {}),
-        }
-
-    try:
-        runtime_labels = llm_runtime.grade_case(case)
-    except Exception as exc:
-        runtime_labels = {
-            "retrieval": {"labels": {}, "responses": {}, "error": str(exc)},
-            "answer": {"labels": {}, "responses": {}, "error": str(exc)},
-        }
-
-    return {
-        "retrieval_labels": (retrieval_label_overrides or {}).get(case_id)
-        or runtime_labels.get("retrieval", {}).get("labels"),
-        "answer_labels": (answer_label_overrides or {}).get(case_id)
-        or runtime_labels.get("answer", {}).get("labels"),
-        "retrieval_meta": (retrieval_llm_metadata or {}).get(case_id)
-        or runtime_labels.get("retrieval", {}),
-        "answer_meta": (answer_llm_metadata or {}).get(case_id)
-        or runtime_labels.get("answer", {}),
-    }
+    config = build_topic_config(
+        use_llm=llm_runtime is not None,
+        retrieval_label_overrides=retrieval_label_overrides,
+        answer_label_overrides=answer_label_overrides,
+        retrieval_llm_metadata=retrieval_llm_metadata,
+        answer_llm_metadata=answer_llm_metadata,
+    )
+    return config.model_evaluator.evaluate(case) if config.model_evaluator is not None else {}
 
 
 def finalize_result(
@@ -269,12 +191,11 @@ def finalize_result(
     rule_result: dict[str, Any],
     model_result: dict[str, Any],
 ) -> dict[str, Any]:
-    return evaluate_case(
+    config = build_topic_config(use_llm=False)
+    return config.finalizer.finalize(
         case,
-        retrieval_semantic_labels=model_result.get("retrieval_labels"),
-        answer_semantic_labels=model_result.get("answer_labels"),
-        retrieval_llm_metadata=model_result.get("retrieval_meta"),
-        answer_llm_metadata=model_result.get("answer_meta"),
+        rule_result=rule_result,
+        model_result=model_result,
     )
 
 
@@ -287,123 +208,25 @@ def evaluate_cases(
     retrieval_llm_metadata: dict[str, dict[str, Any]] | None = None,
     answer_llm_metadata: dict[str, dict[str, Any]] | None = None,
 ) -> list[dict[str, Any]]:
-    llm_runtime = WorkflowAnswerLLMRuntime() if use_llm else None
-    results: list[dict[str, Any]] = []
-    for case in cases:
-        case_id = str(case.get("case_id") or "")
-        rule_result = run_rule_layer(case)
-        model_result = run_model_layer(
-            case,
-            llm_runtime=llm_runtime,
-            case_id=case_id,
-            retrieval_label_overrides=retrieval_label_overrides,
-            answer_label_overrides=answer_label_overrides,
-            retrieval_llm_metadata=retrieval_llm_metadata,
-            answer_llm_metadata=answer_llm_metadata,
-        )
-        results.append(finalize_result(case, rule_result=rule_result, model_result=model_result))
-    return results
-
-
-def summarize_results(results: Iterable[dict[str, Any]]) -> dict[str, Any]:
-    rows = list(results)
-    if not rows:
-        return {
-            "samples": 0,
-            "needs_human_review": 0,
-            "retrieval": {"labels": {}, "dimension_labels": {}, "reasons": {}, "average_score": 0.0},
-            "answer": {"labels": {}, "dimension_labels": {}, "reasons": {}, "average_score": 0.0},
-            "source_distribution": {},
-            "user_feedback_distribution": {},
-        }
-
-    retrieval_labels = Counter()
-    answer_labels = Counter()
-    source_distribution = Counter()
-    feedback_distribution = Counter()
-    retrieval_reason_counts = Counter()
-    answer_reason_counts = Counter()
-    retrieval_dimension_counts: dict[str, Counter[str]] = {}
-    answer_dimension_counts: dict[str, Counter[str]] = {}
-    needs_human_review = 0
-    retrieval_scores = 0.0
-    answer_scores = 0.0
-
-    for row in rows:
-        retrieval = row["retrieval"]
-        answer = row["answer"]
-        retrieval_labels.update([retrieval["label"]])
-        answer_labels.update([answer["label"]])
-        source_distribution.update([row["source"]])
-        feedback_distribution.update([str(row.get("user_feedback"))])
-        retrieval_reason_counts.update(retrieval.get("reasons", []))
-        answer_reason_counts.update(answer.get("reasons", []))
-        retrieval_scores += float(retrieval.get("score", 0.0) or 0.0)
-        answer_scores += float(answer.get("score", 0.0) or 0.0)
-        if row.get("needs_human_review"):
-            needs_human_review += 1
-
-        for key, label in retrieval.get("dimension_labels", {}).items():
-            retrieval_dimension_counts.setdefault(key, Counter()).update([label])
-        for key, label in answer.get("dimension_labels", {}).items():
-            answer_dimension_counts.setdefault(key, Counter()).update([label])
-
-    sample_count = len(rows)
-    return {
-        "samples": sample_count,
-        "needs_human_review": needs_human_review,
-        "retrieval": {
-            "labels": dict(retrieval_labels),
-            "dimension_labels": {key: dict(counter) for key, counter in sorted(retrieval_dimension_counts.items())},
-            "reasons": dict(retrieval_reason_counts),
-            "average_score": round(retrieval_scores / sample_count, 4),
-        },
-        "answer": {
-            "labels": dict(answer_labels),
-            "dimension_labels": {key: dict(counter) for key, counter in sorted(answer_dimension_counts.items())},
-            "reasons": dict(answer_reason_counts),
-            "average_score": round(answer_scores / sample_count, 4),
-        },
-        "source_distribution": dict(source_distribution),
-        "user_feedback_distribution": dict(feedback_distribution),
-    }
+    rows = list(cases)
+    config = build_topic_config(
+        use_llm=use_llm,
+        retrieval_label_overrides=retrieval_label_overrides,
+        answer_label_overrides=answer_label_overrides,
+        retrieval_llm_metadata=retrieval_llm_metadata,
+        answer_llm_metadata=answer_llm_metadata,
+    )
+    for case in rows:
+        validate_case(case)
+    return [dict(item) for item in evaluate_topic_cases(rows, config=config)]
 
 
 def write_report(report_dir: str | Path, *, results: Iterable[dict[str, Any]], summary: dict[str, Any]) -> None:
-    target_dir = Path(report_dir)
-    target_dir.mkdir(parents=True, exist_ok=True)
+    config = build_topic_config(use_llm=False)
     rows = list(results)
-    save_results_jsonl(target_dir / "results.jsonl", rows)
-    (target_dir / "summary.json").write_text(
-        json.dumps(summary, ensure_ascii=False, indent=2),
-        encoding="utf-8",
-    )
-    (target_dir / "report.md").write_text(_build_markdown_report(summary), encoding="utf-8")
-
-
-def _build_markdown_report(summary: dict[str, Any]) -> str:
-    lines = [
-        "# Workflow + Answer Evaluation Report",
-        "",
-        f"- samples: {summary['samples']}",
-        f"- needs_human_review: {summary['needs_human_review']}",
-        "",
-        "## Retrieval",
-        f"- average_score: {summary['retrieval']['average_score']}",
-        f"- labels: {json.dumps(summary['retrieval']['labels'], ensure_ascii=False)}",
-        f"- reasons: {json.dumps(summary['retrieval']['reasons'], ensure_ascii=False)}",
-        "",
-        "## Answer",
-        f"- average_score: {summary['answer']['average_score']}",
-        f"- labels: {json.dumps(summary['answer']['labels'], ensure_ascii=False)}",
-        f"- reasons: {json.dumps(summary['answer']['reasons'], ensure_ascii=False)}",
-        "",
-        "## Traffic",
-        f"- source_distribution: {json.dumps(summary['source_distribution'], ensure_ascii=False)}",
-        f"- user_feedback_distribution: {json.dumps(summary['user_feedback_distribution'], ensure_ascii=False)}",
-        "",
-    ]
-    return "\n".join(lines)
+    actual_summary = config.report_writer.write(rows, report_dir)
+    if actual_summary != summary:
+        raise ValueError("Provided summary does not match report writer output")
 
 
 def _event_to_dict(item: dict[str, Any] | Any) -> dict[str, Any]:
@@ -433,11 +256,8 @@ def main() -> int:
     )
     args = parser.parse_args()
 
-    cases = load_cases(args.cases)
-    results = evaluate_cases(cases, use_llm=args.use_llm)
-    summary = summarize_results(results)
-    if args.report_dir:
-        write_report(args.report_dir, results=results, summary=summary)
+    config = build_topic_config(use_llm=args.use_llm)
+    results, summary = run_topic_evaluation(args.cases, config=config, report_dir=args.report_dir)
     print(json.dumps(summary, ensure_ascii=False, indent=2))
     return 0
 

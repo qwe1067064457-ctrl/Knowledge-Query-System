@@ -23,20 +23,20 @@
 - 交接文档：
   - [handoff/README.md](C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/monitoring/handoff/README.md)
 - 一期规划：
-  - [phase1_plan.md](C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/monitoring/phase1_plan.md)
+  - [phase1_plan.md](C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/monitoring/working/phase1_plan.md)
 
 ## 当前共识
 
 - `observability` 负责事实采集，不做高层健康判断
 - `monitoring` 消费共享证据，做运行态健康、性能、稳定性观察
 - `monitoring` 与 `evaluation` 不混做
-- 第一阶段先围绕 `Workflow + 主回答模型 + retrieval/context/compaction`
-- 暂不扩到 intent 层
+- 第一阶段先围绕 `intent + context + Workflow + 主回答模型`
+- 先接入 intent 事实事件，不在这轮扩 intent 质量判断
 
 ## 建议阅读顺序
 
 1. 先读 [handoff/README.md](C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/monitoring/handoff/README.md)
-2. 再读 [phase1_plan.md](C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/monitoring/phase1_plan.md)
+2. 再读 [phase1_plan.md](C:/Users/HUAWEI/PycharmProjects/Skill-First-Hybrid-RAG/notes/monitoring/working/phase1_plan.md)
 3. 如需落代码，再回看：
    - `backend/graph/agent.py`
    - `backend/workflow/orchestrated/execution_layer/engine/execution_layer.py`

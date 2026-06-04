@@ -8,6 +8,7 @@ EVENT_RETRIEVAL_RUN = "retrieval_run"
 EVENT_CONTEXT_ASSEMBLY_RUN = "context_assembly_run"
 EVENT_COMPACTION_RUN = "compaction_run"
 EVENT_PRE_COMPACTION_EXTRACTION_RUN = "pre_compaction_extraction_run"
+EVENT_INTENT_CLASSIFICATION_RUN = "intent_classification_run"
 
 EventType = Literal[
     "workflow_run",
@@ -16,6 +17,7 @@ EventType = Literal[
     "context_assembly_run",
     "compaction_run",
     "pre_compaction_extraction_run",
+    "intent_classification_run",
 ]
 
 RUN_NAME_BY_EVENT_TYPE: dict[EventType, str] = {
@@ -25,4 +27,5 @@ RUN_NAME_BY_EVENT_TYPE: dict[EventType, str] = {
     EVENT_CONTEXT_ASSEMBLY_RUN: "context.assembly",
     EVENT_COMPACTION_RUN: "context.compaction",
     EVENT_PRE_COMPACTION_EXTRACTION_RUN: "memory.pre_compaction_extraction",
+    EVENT_INTENT_CLASSIFICATION_RUN: "intent.classification",
 }

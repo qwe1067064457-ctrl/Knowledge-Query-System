@@ -5,6 +5,12 @@
 - `case_id`
 - `trace_id`
 - `source`
+- `topic`
+- `dimension_labels`
+- `dimension_scores`
+- `score`
+- `label`
+- `reasons`
 - `user_feedback`
 - `retrieval.dimension_labels`
 - `retrieval.dimension_scores`
@@ -23,6 +29,7 @@
 
 ## 说明
 
+- 顶层 `dimension_labels / dimension_scores / score / label / reasons` 是 `workflow_answer` 作为一个专题的统一壳子
 - `dimension_labels` 保留维度级别的 `good | weak | bad`
 - `score` 是综合分
 - `reasons` 是 bad case 原因标签
