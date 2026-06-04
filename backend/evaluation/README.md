@@ -11,7 +11,7 @@
 - `long_term_memory/`
   - 第二阶段长期记忆存储质量专题
 - `working_memory/`
-  - 第二阶段工作记忆连续性质量模板专题
+  - 第二阶段工作记忆连续性质量专题
 - `compaction/`
   - 第二阶段压缩保真质量专题
 
@@ -38,5 +38,5 @@
 
 - `workflow_answer/` 已接入 `core.runner`
 - `long_term_memory / compaction` 已接入同一模板并可跑最小闭环
-- `working_memory` 已完成目录模板统一，业务实现待后续接入
+- `working_memory` 已接入同一模板并可跑最小闭环
 - `core/` 只统一执行接口，不统一各专题维度定义

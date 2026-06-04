@@ -1,3 +1,5 @@
 # Query Inputs
 
-这里用于存放工作记忆连续性质量评测输入。
+- `seed_cases.jsonl`
+  - 第一版工作记忆连续性质量种子集
+- 后续可继续补线上抽样与 trace 回放 case
