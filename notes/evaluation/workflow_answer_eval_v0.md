@@ -34,4 +34,5 @@
 - 规则入口：`backend/evaluation/workflow_answer/rule_impl.py`
 - 模型入口：`backend/evaluation/workflow_answer/model_impl.py`
 - finalize 入口：`backend/evaluation/workflow_answer/finalize_impl.py`
+- graders：`backend/evaluation/workflow_answer/graders/`
 - 输出：`results.jsonl`、`summary.json`、`report.md`

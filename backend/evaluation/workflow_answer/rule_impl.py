@@ -4,8 +4,8 @@ from typing import Any
 
 from evaluation.core.types import EvalCase, RuleEvalResult
 
-from evaluation.workflow_answer.rule_layer.answer_rules import grade_answer_case
-from evaluation.workflow_answer.rule_layer.retrieval_rules import grade_retrieval_case
+from evaluation.workflow_answer.graders.rule_layer.answer_rules import grade_answer_case
+from evaluation.workflow_answer.graders.rule_layer.retrieval_rules import grade_retrieval_case
 
 
 class WorkflowAnswerRuleEvaluator:

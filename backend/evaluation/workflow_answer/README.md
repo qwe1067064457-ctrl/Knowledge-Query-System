@@ -27,12 +27,10 @@
   - 本专题的模型层组合入口
 - `finalize_impl.py`
   - 本专题的 finalize 入口，负责兜底、聚合、人工复核标记
-- `rule_layer/`
-  - retrieval / answer 的底层规则实现
-- `model_layer/`
-  - retrieval / answer 的底层模型实现与 runtime
-- `finalize_layer/`
-  - 本专题底层聚合与人工复核逻辑
+- `graders/`
+  - `rule_layer/`：retrieval / answer 的底层规则实现
+  - `model_layer/`：retrieval / answer 的底层模型实现与 runtime
+  - `finalize_layer/`：底层聚合与人工复核逻辑
 - `schemas/`
   - case/result 的最小字段约束
 - `reports/`
@@ -73,5 +71,5 @@ python backend/evaluation/workflow_answer/evaluate_workflow_answer.py backend/ev
 - `like/dislike` 是辅助信号，不是真值标签
 - `workflow_answer/` 只保留 topic-specific 配置与实现
 - 规则层与 LLM 层并行产出维度结果
-- 模型失败回退发生在 `finalize_impl.py -> finalize_layer/`
+- 模型失败回退发生在 `finalize_impl.py -> graders/finalize_layer/`
 - 最终权重计算、hard cap 和综合分统一由 finalize 侧负责

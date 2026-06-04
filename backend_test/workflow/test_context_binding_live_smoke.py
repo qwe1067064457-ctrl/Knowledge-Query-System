@@ -11,7 +11,7 @@ from memory_system.session_working_memory.writer import SessionWorkingMemoryWrit
 from workflow.powers.context_binding_power import ContextBindingPower
 
 
-def _stringify_content(content):
+def stringify_content(content):
     if isinstance(content, str):
         return content
     if isinstance(content, list):
@@ -30,7 +30,7 @@ def _has_live_llm_key() -> bool:
 
 def _live_llm_call(prompt: str) -> str:
     response = build_chat_model().invoke([{"role": "user", "content": prompt}])
-    return _stringify_content(getattr(response, "content", "")).strip()
+    return stringify_content(getattr(response, "content", "")).strip()
 
 
 def _backend_dir() -> Path:

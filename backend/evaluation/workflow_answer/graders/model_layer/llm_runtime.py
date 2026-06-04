@@ -1,14 +1,13 @@
 from __future__ import annotations
 
 import json
-from typing import Any
 
 from llm.model_factory import build_chat_model
 from llm.output_sanitizer import sanitize_model_text
 from llm.response_utils import stringify_content
 
-from evaluation.workflow_answer.model_layer.answer_llm_grader import AnswerLLMGrader
-from evaluation.workflow_answer.model_layer.retrieval_llm_grader import RetrievalLLMGrader
+from evaluation.workflow_answer.graders.model_layer.answer_llm_grader import AnswerLLMGrader
+from evaluation.workflow_answer.graders.model_layer.retrieval_llm_grader import RetrievalLLMGrader
 
 
 class WorkflowAnswerLLMRuntime:
@@ -16,7 +15,7 @@ class WorkflowAnswerLLMRuntime:
         self.retrieval_grader = RetrievalLLMGrader()
         self.answer_grader = AnswerLLMGrader()
 
-    def grade_case(self, case: dict[str, Any]) -> dict[str, Any]:
+    def grade_case(self, case: dict[str, object]) -> dict[str, object]:
         retrieval = self.retrieval_grader.grade(case, invoke=self._invoke_dimension_prompt)
         answer = self.answer_grader.grade(case, invoke=self._invoke_dimension_prompt)
         return {
@@ -24,13 +23,13 @@ class WorkflowAnswerLLMRuntime:
             "answer": answer,
         }
 
-    def _invoke_dimension_prompt(self, dimension: str, prompt: str) -> dict[str, Any]:
+    def _invoke_dimension_prompt(self, dimension: str, prompt: str) -> dict[str, object]:
         model = build_chat_model()
         response = model.invoke([{"role": "user", "content": prompt}])
         text = sanitize_model_text(stringify_content(getattr(response, "content", ""))).strip()
         return self._extract_json_payload(text, dimension=dimension)
 
-    def _extract_json_payload(self, text: str, *, dimension: str) -> dict[str, Any]:
+    def _extract_json_payload(self, text: str, *, dimension: str) -> dict[str, object]:
         if not text:
             raise ValueError(f"Empty LLM grader response for {dimension}")
         fenced = None

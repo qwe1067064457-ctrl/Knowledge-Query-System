@@ -4,7 +4,7 @@ from typing import Any
 
 from evaluation.core.types import EvalCase, ModelEvalResult
 
-from evaluation.workflow_answer.model_layer.llm_runtime import WorkflowAnswerLLMRuntime
+from evaluation.workflow_answer.graders.model_layer.llm_runtime import WorkflowAnswerLLMRuntime
 
 
 class WorkflowAnswerModelEvaluator:

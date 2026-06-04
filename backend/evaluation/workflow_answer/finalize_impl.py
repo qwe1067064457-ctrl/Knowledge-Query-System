@@ -4,8 +4,8 @@ from typing import Any
 
 from evaluation.core.types import EvalCase, FinalEvalResult, ModelEvalResult, RuleEvalResult
 
-from evaluation.workflow_answer.finalize_layer.adjudication_router import route_human_review
-from evaluation.workflow_answer.finalize_layer.aggregation import finalize_case_result
+from evaluation.workflow_answer.graders.finalize_layer.adjudication_router import route_human_review
+from evaluation.workflow_answer.graders.finalize_layer.aggregation import finalize_case_result
 
 
 class WorkflowAnswerFinalizer:

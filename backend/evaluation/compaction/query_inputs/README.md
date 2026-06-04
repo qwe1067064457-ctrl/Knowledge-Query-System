@@ -1,3 +1,5 @@
 # Query Inputs
 
-这里用于存放 compaction 质量评测输入。
+- `seed_cases.jsonl`
+  - 第一版 compaction 保真质量种子集
+- 后续可继续补线上抽样与 trace 回放 case

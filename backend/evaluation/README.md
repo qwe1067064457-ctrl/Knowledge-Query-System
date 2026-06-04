@@ -9,11 +9,11 @@
 - `workflow_answer/`
   - 第一阶段已落地的 Retrieval + Answer 评测专题
 - `long_term_memory/`
-  - 第二阶段长期记忆存储质量模板专题
+  - 第二阶段长期记忆存储质量专题
 - `working_memory/`
   - 第二阶段工作记忆连续性质量模板专题
 - `compaction/`
-  - 第二阶段压缩保真质量模板专题
+  - 第二阶段压缩保真质量专题
 
 ## 阅读顺序
 
@@ -37,5 +37,6 @@
 ## 当前状态
 
 - `workflow_answer/` 已接入 `core.runner`
-- 后续 `long_term_memory / working_memory / compaction` 继续沿用同一模板
+- `long_term_memory / compaction` 已接入同一模板并可跑最小闭环
+- `working_memory` 已完成目录模板统一，业务实现待后续接入
 - `core/` 只统一执行接口，不统一各专题维度定义

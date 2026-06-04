@@ -1,0 +1,43 @@
+{
+  "samples": 2,
+  "needs_human_review": 1,
+  "labels": {
+    "good": 1,
+    "bad": 1
+  },
+  "dimension_labels": {
+    "anchor_preservation": {
+      "good": 1,
+      "weak": 1
+    },
+    "scope_correctness": {
+      "good": 1,
+      "bad": 1
+    },
+    "should_not_write": {
+      "weak": 1,
+      "bad": 1
+    },
+    "should_write": {
+      "good": 1,
+      "weak": 1
+    },
+    "type_correctness": {
+      "good": 1,
+      "bad": 1
+    }
+  },
+  "reasons": {
+    "unexpected_write": 1,
+    "wrong_type": 1,
+    "wrong_scope": 1
+  },
+  "average_score": 0.55,
+  "source_distribution": {
+    "offline_seed": 2
+  },
+  "user_feedback_distribution": {
+    "None": 1,
+    "dislike": 1
+  }
+}

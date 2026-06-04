@@ -20,7 +20,7 @@ from workflow.runners.qa_runner import QaRouteRunner
 from workflow.types import WorkflowPlan, WorkflowPolicyFlags
 
 
-def _stringify_content(content) -> str:
+def stringify_content(content) -> str:
     if isinstance(content, str):
         return content
     if isinstance(content, list):
@@ -43,7 +43,7 @@ def _backend_dir() -> Path:
 def _invoke_live_prompt_or_skip(messages: list[dict[str, str]]) -> str:
     def _invoke() -> str:
         response = build_chat_model().invoke(messages)
-        return sanitize_model_text(_stringify_content(getattr(response, "content", "")))
+        return sanitize_model_text(stringify_content(getattr(response, "content", "")))
 
     try:
         with ThreadPoolExecutor(max_workers=1) as executor:
