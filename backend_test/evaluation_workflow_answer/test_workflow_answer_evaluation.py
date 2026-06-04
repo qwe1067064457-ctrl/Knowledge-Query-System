@@ -2,9 +2,14 @@ from __future__ import annotations
 
 import json
 from pathlib import Path
+import sys
 from uuid import uuid4
 
 import pytest
+
+BACKEND_DIR = Path(__file__).resolve().parents[2] / "backend"
+if str(BACKEND_DIR) not in sys.path:
+    sys.path.insert(0, str(BACKEND_DIR))
 
 from evaluation.workflow_answer.evaluate_workflow_answer import (
     build_case_from_trace_events,
@@ -139,6 +144,7 @@ def test_evaluate_case_keeps_feedback_out_of_score_but_flags_review() -> None:
     assert result["answer"]["score"] >= 0.8
     assert result["needs_human_review"] is True
     assert "dislike_high_score" in result["human_review_reasons"]
+    assert result["grader_metadata"]["finalize_meta"]["policy"]["mode"] == "parallel_merge"
 
 
 def test_evaluate_cases_accepts_offline_and_online_sources() -> None:
@@ -188,3 +194,19 @@ def test_summarize_results_and_write_report_support_empty_and_non_empty(workspac
     assert (report_dir / "results.jsonl").exists()
     assert (report_dir / "summary.json").exists()
     assert (report_dir / "report.md").exists()
+
+
+def test_evaluate_cases_with_llm_falls_back_to_rules_when_runtime_errors(monkeypatch: pytest.MonkeyPatch) -> None:
+    from evaluation.workflow_answer import evaluate_workflow_answer as module
+
+    class BrokenRuntime:
+        def grade_case(self, case):
+            raise RuntimeError("llm down")
+
+    monkeypatch.setattr(module, "WorkflowAnswerLLMRuntime", BrokenRuntime)
+
+    results = module.evaluate_cases([_case(case_id="runtime_error_case")], use_llm=True)
+
+    assert results[0]["retrieval"]["label"] in {"good", "weak", "bad"}
+    assert results[0]["grader_metadata"]["model_result_meta"]["retrieval"]["error"] == "llm down"
+    assert results[0]["grader_metadata"]["finalize_meta"]["policy"]["llm_failure_fallback"] == "rule_labels"

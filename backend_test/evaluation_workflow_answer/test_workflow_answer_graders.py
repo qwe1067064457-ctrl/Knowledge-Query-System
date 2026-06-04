@@ -1,11 +1,18 @@
 from __future__ import annotations
 
+from pathlib import Path
+import sys
+
 import pytest
 
-from evaluation.workflow_answer.graders.answer_llm_grader import AnswerLLMGrader
-from evaluation.workflow_answer.graders.answer_rules import grade_answer_case
-from evaluation.workflow_answer.graders.retrieval_llm_grader import RetrievalLLMGrader
-from evaluation.workflow_answer.graders.retrieval_rules import grade_retrieval_case
+BACKEND_DIR = Path(__file__).resolve().parents[2] / "backend"
+if str(BACKEND_DIR) not in sys.path:
+    sys.path.insert(0, str(BACKEND_DIR))
+
+from evaluation.workflow_answer.model_layer.answer_llm_grader import AnswerLLMGrader
+from evaluation.workflow_answer.model_layer.retrieval_llm_grader import RetrievalLLMGrader
+from evaluation.workflow_answer.rule_layer.answer_rules import grade_answer_case
+from evaluation.workflow_answer.rule_layer.retrieval_rules import grade_retrieval_case
 
 
 def _case(**overrides):

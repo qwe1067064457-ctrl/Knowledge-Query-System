@@ -9,9 +9,10 @@ def route_human_review(*, case: dict[str, Any], result: dict[str, Any]) -> dict[
     answer = result["answer"]
     feedback = case.get("user_feedback")
     grader_metadata = result.get("grader_metadata", {})
+    model_result_meta = grader_metadata.get("model_result_meta", {})
 
-    retrieval_conf = _lowest_confidence(grader_metadata.get("retrieval_llm", {}))
-    answer_conf = _lowest_confidence(grader_metadata.get("answer_llm", {}))
+    retrieval_conf = _lowest_confidence(model_result_meta.get("retrieval", {}))
+    answer_conf = _lowest_confidence(model_result_meta.get("answer", {}))
     if retrieval_conf is not None and retrieval_conf < 0.35:
         reasons.append("retrieval_llm_low_confidence")
     if answer_conf is not None and answer_conf < 0.35:

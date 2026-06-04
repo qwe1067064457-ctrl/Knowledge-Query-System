@@ -25,3 +25,4 @@
 - 第一阶段只做 `retrieval + answer`
 - 不把 `compaction / memory extraction` 纳入首轮实现
 - 不与 `monitoring` 混模块
+- 当前评测链路固定为：`规则层 -> 模型层 -> finalize 层 -> 报告层`

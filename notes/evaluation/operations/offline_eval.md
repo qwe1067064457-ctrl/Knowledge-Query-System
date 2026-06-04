@@ -15,6 +15,6 @@
 ## 最小流程
 
 1. 整理为统一 case jsonl
-2. 跑 `evaluate_workflow_answer.py`
+2. 跑 `backend/evaluation/workflow_answer/evaluate_workflow_answer.py`
 3. 查看 `summary.json`
 4. 优先复盘 `bad` 和 `needs_human_review`

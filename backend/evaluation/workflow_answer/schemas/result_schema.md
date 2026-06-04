@@ -26,4 +26,6 @@
 - `dimension_labels` 保留维度级别的 `good | weak | bad`
 - `score` 是综合分
 - `reasons` 是 bad case 原因标签
-- `grader_metadata` 记录规则与 LLM grader 的辅助信息，便于复盘
+- `grader_metadata.rule_result_meta` 记录规则层结果元信息
+- `grader_metadata.model_result_meta` 记录模型层结果元信息
+- `grader_metadata.finalize_meta` 记录聚合、回退、hard cap 与最终分的元信息

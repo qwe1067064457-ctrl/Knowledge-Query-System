@@ -25,6 +25,7 @@ from intent.rules.knowledge_query_rules import is_knowledge_query
 from knowledge_retrieval import knowledge_orchestrator
 from llm.model_factory import build_chat_model
 from llm.output_sanitizer import StreamingReasoningFilter, sanitize_model_text
+from llm.response_utils import stringify_content
 from memory_system.memory_service import MemorySystem
 from memory_system.session_working_memory import SessionWorkingMemoryWriter
 from observability.emitters.answer_emitter import AnswerEmitter
@@ -45,20 +46,6 @@ from workflow.adapters.workflow_registry_projection import (
 )
 from workflow.powers.retrieval_power import RetrievalPower
 from workflow.runners.base import RouteExecutionRequest
-
-
-def _stringify_content(content: Any) -> str:
-    if isinstance(content, str):
-        return content
-    if isinstance(content, list):
-        parts: list[str] = []
-        for block in content:
-            if isinstance(block, dict) and block.get("type") == "text":
-                parts.append(str(block.get("text", "")))
-        return "".join(parts)
-    return str(content or "")
-
-
 class AgentManager:
     def __init__(self) -> None:
         self.base_dir: Path | None = None
@@ -91,13 +78,13 @@ class AgentManager:
         response = await build_chat_model().ainvoke(
             [{"role": "user", "content": prompt}]
         )
-        return sanitize_model_text(_stringify_content(getattr(response, "content", "")))
+        return sanitize_model_text(stringify_content(getattr(response, "content", "")))
 
     def _llm_text_call_sync(self, prompt: str) -> str:
         response = build_chat_model().invoke(
             [{"role": "user", "content": prompt}]
         )
-        return sanitize_model_text(_stringify_content(getattr(response, "content", "")))
+        return sanitize_model_text(stringify_content(getattr(response, "content", "")))
 
     def _build_agent(
         self,
@@ -260,7 +247,7 @@ class AgentManager:
         final_content_parts: list[str] = []
         reasoning_filter = StreamingReasoningFilter()
         async for chunk in build_chat_model().astream(model_messages):
-            text = _stringify_content(getattr(chunk, "content", ""))
+            text = stringify_content(getattr(chunk, "content", ""))
             visible_text = reasoning_filter.feed(text)
             if visible_text:
                 final_content_parts.append(visible_text)
@@ -293,7 +280,7 @@ class AgentManager:
                 chunk, metadata = payload
                 if metadata.get("langgraph_node") != "model":
                     continue
-                text = _stringify_content(getattr(chunk, "content", ""))
+                text = stringify_content(getattr(chunk, "content", ""))
                 if text:
                     final_content_parts.append(text)
                     yield {"type": "token", "content": text}
@@ -308,7 +295,7 @@ class AgentManager:
                     tool_calls = getattr(agent_message, "tool_calls", []) or []
 
                     if message_type == "ai" and not tool_calls:
-                        candidate = _stringify_content(getattr(agent_message, "content", ""))
+                        candidate = stringify_content(getattr(agent_message, "content", ""))
                         if candidate:
                             last_ai_message = candidate
 
@@ -335,7 +322,7 @@ class AgentManager:
                             tool_call_id,
                             {"tool": getattr(agent_message, "name", "tool"), "input": ""},
                         )
-                        output = _stringify_content(getattr(agent_message, "content", ""))
+                        output = stringify_content(getattr(agent_message, "content", ""))
                         yield {
                             "type": "tool_end",
                             "tool": pending["tool"],
@@ -814,7 +801,7 @@ class AgentManager:
                     {"role": "user", "content": first_user_message},
                 ]
             )
-            title = _stringify_content(getattr(response, "content", "")).strip()
+            title = stringify_content(getattr(response, "content", "")).strip()
             return title[:10] or "新会话"
         except Exception:
             return (first_user_message.strip() or "新会话")[:10]

@@ -12,11 +12,13 @@ ROOT = Path(__file__).resolve().parents[2]
 if str(ROOT) not in sys.path:
     sys.path.insert(0, str(ROOT))
 
-from evaluation.workflow_answer.graders.adjudication_router import (  # noqa: E402
+from evaluation.workflow_answer.finalize_layer.adjudication_router import (  # noqa: E402
     route_human_review,
 )
-from evaluation.workflow_answer.graders.answer_rules import grade_answer_case  # noqa: E402
-from evaluation.workflow_answer.graders.retrieval_rules import (  # noqa: E402
+from evaluation.workflow_answer.finalize_layer.aggregation import finalize_case_result  # noqa: E402
+from evaluation.workflow_answer.model_layer.llm_runtime import WorkflowAnswerLLMRuntime  # noqa: E402
+from evaluation.workflow_answer.rule_layer.answer_rules import grade_answer_case  # noqa: E402
+from evaluation.workflow_answer.rule_layer.retrieval_rules import (  # noqa: E402
     grade_retrieval_case,
 )
 
@@ -170,16 +172,34 @@ def evaluate_case(
     answer_llm_metadata: dict[str, Any] | None = None,
 ) -> dict[str, Any]:
     validate_case(case)
-
-    retrieval = grade_retrieval_case(case, semantic_labels=retrieval_semantic_labels)
-    answer = grade_answer_case(case, semantic_labels=answer_semantic_labels)
+    retrieval_rule = grade_retrieval_case(case)
+    answer_rule = grade_answer_case(case)
+    retrieval, answer, finalize_meta = finalize_case_result(
+        case=case,
+        retrieval_rule=retrieval_rule,
+        answer_rule=answer_rule,
+        retrieval_model_labels=retrieval_semantic_labels,
+        answer_model_labels=answer_semantic_labels,
+    )
 
     grader_metadata = {
-        "case_source": case["source"],
-        "retrieval_rule": retrieval.pop("metadata"),
-        "answer_rule": answer.pop("metadata"),
-        "retrieval_llm": retrieval_llm_metadata or {},
-        "answer_llm": answer_llm_metadata or {},
+        "rule_result_meta": {
+            "retrieval": retrieval_rule["metadata"],
+            "answer": answer_rule["metadata"],
+        },
+        "model_result_meta": {
+            "retrieval": retrieval_llm_metadata or {},
+            "answer": answer_llm_metadata or {},
+        },
+        "finalize_meta": {
+            **finalize_meta,
+            "policy": {
+                "mode": "parallel_merge",
+                "llm_failure_fallback": "rule_labels",
+            },
+            "retrieval_final_meta": retrieval.pop("metadata"),
+            "answer_final_meta": answer.pop("metadata"),
+        },
     }
 
     result = {
@@ -198,26 +218,90 @@ def evaluate_case(
     return result
 
 
+def run_rule_layer(case: dict[str, Any]) -> dict[str, Any]:
+    return {
+        "retrieval": grade_retrieval_case(case),
+        "answer": grade_answer_case(case),
+    }
+
+
+def run_model_layer(
+    case: dict[str, Any],
+    *,
+    llm_runtime: WorkflowAnswerLLMRuntime | None,
+    case_id: str,
+    retrieval_label_overrides: dict[str, dict[str, str]] | None,
+    answer_label_overrides: dict[str, dict[str, str]] | None,
+    retrieval_llm_metadata: dict[str, dict[str, Any]] | None,
+    answer_llm_metadata: dict[str, dict[str, Any]] | None,
+) -> dict[str, Any]:
+    if llm_runtime is None:
+        return {
+            "retrieval_labels": (retrieval_label_overrides or {}).get(case_id),
+            "answer_labels": (answer_label_overrides or {}).get(case_id),
+            "retrieval_meta": (retrieval_llm_metadata or {}).get(case_id, {}),
+            "answer_meta": (answer_llm_metadata or {}).get(case_id, {}),
+        }
+
+    try:
+        runtime_labels = llm_runtime.grade_case(case)
+    except Exception as exc:
+        runtime_labels = {
+            "retrieval": {"labels": {}, "responses": {}, "error": str(exc)},
+            "answer": {"labels": {}, "responses": {}, "error": str(exc)},
+        }
+
+    return {
+        "retrieval_labels": (retrieval_label_overrides or {}).get(case_id)
+        or runtime_labels.get("retrieval", {}).get("labels"),
+        "answer_labels": (answer_label_overrides or {}).get(case_id)
+        or runtime_labels.get("answer", {}).get("labels"),
+        "retrieval_meta": (retrieval_llm_metadata or {}).get(case_id)
+        or runtime_labels.get("retrieval", {}),
+        "answer_meta": (answer_llm_metadata or {}).get(case_id)
+        or runtime_labels.get("answer", {}),
+    }
+
+
+def finalize_result(
+    case: dict[str, Any],
+    *,
+    rule_result: dict[str, Any],
+    model_result: dict[str, Any],
+) -> dict[str, Any]:
+    return evaluate_case(
+        case,
+        retrieval_semantic_labels=model_result.get("retrieval_labels"),
+        answer_semantic_labels=model_result.get("answer_labels"),
+        retrieval_llm_metadata=model_result.get("retrieval_meta"),
+        answer_llm_metadata=model_result.get("answer_meta"),
+    )
+
+
 def evaluate_cases(
     cases: Iterable[dict[str, Any]],
     *,
+    use_llm: bool = False,
     retrieval_label_overrides: dict[str, dict[str, str]] | None = None,
     answer_label_overrides: dict[str, dict[str, str]] | None = None,
     retrieval_llm_metadata: dict[str, dict[str, Any]] | None = None,
     answer_llm_metadata: dict[str, dict[str, Any]] | None = None,
 ) -> list[dict[str, Any]]:
+    llm_runtime = WorkflowAnswerLLMRuntime() if use_llm else None
     results: list[dict[str, Any]] = []
     for case in cases:
         case_id = str(case.get("case_id") or "")
-        results.append(
-            evaluate_case(
-                case,
-                retrieval_semantic_labels=(retrieval_label_overrides or {}).get(case_id),
-                answer_semantic_labels=(answer_label_overrides or {}).get(case_id),
-                retrieval_llm_metadata=(retrieval_llm_metadata or {}).get(case_id),
-                answer_llm_metadata=(answer_llm_metadata or {}).get(case_id),
-            )
+        rule_result = run_rule_layer(case)
+        model_result = run_model_layer(
+            case,
+            llm_runtime=llm_runtime,
+            case_id=case_id,
+            retrieval_label_overrides=retrieval_label_overrides,
+            answer_label_overrides=answer_label_overrides,
+            retrieval_llm_metadata=retrieval_llm_metadata,
+            answer_llm_metadata=answer_llm_metadata,
         )
+        results.append(finalize_result(case, rule_result=rule_result, model_result=model_result))
     return results
 
 
@@ -342,10 +426,15 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Evaluate workflow retrieval + answer cases.")
     parser.add_argument("cases", type=Path, help="JSONL file or directory that contains case rows.")
     parser.add_argument("--report-dir", type=Path, default=None, help="Optional directory for summary outputs.")
+    parser.add_argument(
+        "--use-llm",
+        action="store_true",
+        help="Use the existing backend LLM infrastructure to score semantic dimensions in parallel with rules.",
+    )
     args = parser.parse_args()
 
     cases = load_cases(args.cases)
-    results = evaluate_cases(cases)
+    results = evaluate_cases(cases, use_llm=args.use_llm)
     summary = summarize_results(results)
     if args.report_dir:
         write_report(args.report_dir, results=results, summary=summary)

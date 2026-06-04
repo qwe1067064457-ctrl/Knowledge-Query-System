@@ -4,34 +4,33 @@ import json
 from typing import Any, Callable, Mapping
 
 
-AnswerInvoke = Callable[[str, str], Mapping[str, Any] | str]
+RetrievalInvoke = Callable[[str, str], Mapping[str, Any] | str]
 ALLOWED_LABELS = {"good", "weak", "bad"}
-DIMENSIONS = (
-    "answered",
-    "grounded",
-    "consistency_with_evidence",
-    "constraint_coverage",
-    "no_hallucination",
-)
+DIMENSIONS = ("relevance", "sufficiency", "usability")
 
 
-class AnswerLLMGrader:
+class RetrievalLLMGrader:
     def build_prompt(self, case: dict[str, Any], *, dimension: str) -> str:
         if dimension not in DIMENSIONS:
-            raise ValueError(f"Unsupported answer dimension: {dimension}")
+            raise ValueError(f"Unsupported retrieval dimension: {dimension}")
+        dimension_definition = {
+            "relevance": "证据是否围绕当前 query，是否明显偏题。",
+            "sufficiency": "证据数量和覆盖面是否足够支撑回答。",
+            "usability": "这些证据是否真正能被最终回答使用，而不只是表面相关。",
+        }[dimension]
         return (
-            "你是 Answer 质量评测员。"
+            "你是 Retrieval 质量评测员。"
             f"请只评估维度 `{dimension}`，输出 JSON："
             '{"label":"good|weak|bad","confidence":0.0,"rationale":"..."}。\n'
+            f"维度定义: {dimension_definition}\n"
             f"user_query: {case['user_query']}\n"
             f"knowledge_evidence_summary: {json.dumps(case['knowledge_evidence_summary'], ensure_ascii=False)}\n"
-            f"workflow_summary: {json.dumps(case['workflow_summary'], ensure_ascii=False)}\n"
-            f"core_summary_present: {json.dumps(case['core_summary_present'], ensure_ascii=False)}\n"
+            f"retrieval_summary: {json.dumps(case['retrieval_summary'], ensure_ascii=False)}\n"
             f"answer_text: {case['answer_text']}\n"
-            "不要评估其它维度。"
+            "只返回 JSON，不要输出解释性前后缀。不要评估其它维度。"
         )
 
-    def grade(self, case: dict[str, Any], *, invoke: AnswerInvoke) -> dict[str, Any]:
+    def grade(self, case: dict[str, Any], *, invoke: RetrievalInvoke) -> dict[str, Any]:
         labels: dict[str, str] = {}
         responses: dict[str, Any] = {}
         for dimension in DIMENSIONS:
@@ -49,7 +48,7 @@ class AnswerLLMGrader:
             payload = dict(response)
         label = str(payload.get("label") or "").strip().lower()
         if label not in ALLOWED_LABELS:
-            raise ValueError(f"Invalid answer LLM label for {dimension}: {label}")
+            raise ValueError(f"Invalid retrieval LLM label for {dimension}: {label}")
         confidence = float(payload.get("confidence", 0.0) or 0.0)
         return {
             "label": label,

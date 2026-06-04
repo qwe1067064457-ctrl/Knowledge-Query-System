@@ -28,6 +28,8 @@
 ## 当前实现形态
 
 - 主题目录：`evaluation/workflow_answer/`
-- 主脚本：`evaluation/workflow_answer/evaluate_workflow_answer.py`
-- grader：规则 + 可插拔 LLM grader + 人工复核路由
+- 主脚本：`backend/evaluation/workflow_answer/evaluate_workflow_answer.py`
+- 规则层：`rule_layer/`
+- 模型层：`model_layer/`
+- finalize 层：`finalize_layer/`
 - 输出：`results.jsonl`、`summary.json`、`report.md`
