@@ -13,6 +13,8 @@
 
 - `modules/`
   - 普通模块型笔记，如 `context / memory / session / group`
+- `workflow/`
+  - workflow 执行主链的主题入口与阶段性收口材料
 - `intent/`
   - intent 专题的稳定主入口
 - `knowledge_construct/`
@@ -32,6 +34,7 @@
 
 建议入口：
 
+- workflow：`workflow/README.md`
 - intent：`intent/README.md`
 - knowledge construct：`knowledge_construct/README.md`
 - context / memory / session / group：`modules/README.md`

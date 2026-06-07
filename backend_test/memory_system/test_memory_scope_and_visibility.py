@@ -116,21 +116,32 @@ class MemoryScopeVisibilityTests(unittest.TestCase):
             self.assertNotIn("law/u2 timeline", contents)
             self.assertNotIn("medical/u1 timeline", contents)
 
-    def test_domain_case_is_shared_within_group_only(self) -> None:
+    def test_domain_case_is_isolated_by_user_within_group(self) -> None:
         with temp_workspace() as workspace:
             memory = make_memory_system(workspace)
             memory.write_domain_case(
                 group_id="law",
+                user_id="u1",
                 title="Breach liability case",
                 content="A law-group shared case.",
             )
             memory.write_domain_case(
                 group_id="medical",
+                user_id="u1",
                 title="Chest pain case",
                 content="A medical-group shared case.",
             )
 
             same_group = memory.search(
+                "law",
+                "default",
+                "breach liability",
+                user_id="u1",
+                include_core=False,
+                include_daily_logs=False,
+                min_score=0.01,
+            )
+            other_user = memory.search(
                 "law",
                 "default",
                 "breach liability",
@@ -143,13 +154,14 @@ class MemoryScopeVisibilityTests(unittest.TestCase):
                 "medical",
                 "default",
                 "breach liability",
-                user_id="u2",
+                user_id="u1",
                 include_core=False,
                 include_daily_logs=False,
                 min_score=0.01,
             )
             self.assertTrue(same_group)
-            self.assertEqual(same_group[0].scope, "group_shared")
+            self.assertEqual(same_group[0].scope, "user_group")
+            self.assertFalse(other_user)
             self.assertFalse(other_group)
 
 

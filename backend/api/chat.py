@@ -7,6 +7,12 @@ from fastapi import APIRouter, HTTPException
 from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
+from api.session_views import (
+    append_message_entry,
+    build_history_for_agent,
+    build_session_record,
+    update_session_title,
+)
 from graph.agent import agent_manager
 
 router = APIRouter()
@@ -28,12 +34,12 @@ def _new_segment() -> dict[str, Any]:
 
 @router.post("/chat")
 async def chat(payload: ChatRequest):
-    session_manager = agent_manager.session_manager
+    session_manager = agent_manager.raw_session_manager
     if session_manager is None:
         raise HTTPException(status_code=503, detail="Agent manager is not initialized")
 
-    history_record = session_manager.load_session_record(payload.session_id)
-    history = session_manager.load_session_for_agent(payload.session_id)
+    history_record = build_session_record(session_manager, payload.session_id)
+    history = build_history_for_agent(session_manager, payload.session_id)
     is_first_user_message = not any(
         message.get("role") == "user"
         for message in history_record.get("messages", [])
@@ -65,12 +71,18 @@ async def chat(payload: ChatRequest):
                 segments.append(current_segment)
                 current_segment = _new_segment()
 
-            session_manager.save_message(payload.session_id, "user", payload.message)
+            append_message_entry(
+                session_manager,
+                payload.session_id,
+                role="user",
+                content=payload.message,
+            )
             for segment in segments:
-                session_manager.save_message(
+                append_message_entry(
+                    session_manager,
                     payload.session_id,
-                    "assistant",
-                    segment["content"],
+                    role="assistant",
+                    content=segment["content"],
                     tool_calls=segment["tool_calls"] or None,
                     retrieval_steps=segment["retrieval_steps"] or None,
                 )
@@ -126,7 +138,7 @@ async def chat(payload: ChatRequest):
 
                 if event_type == "done" and is_first_user_message:
                     title = await agent_manager.generate_title(payload.message)
-                    session_manager.set_title(payload.session_id, title)
+                    update_session_title(session_manager, payload.session_id, title)
                     yield _sse(
                         "title",
                         {"session_id": payload.session_id, "title": title},

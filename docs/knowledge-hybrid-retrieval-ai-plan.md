@@ -15,7 +15,7 @@
 
 ## 2. 边界
 
-- 不改 `memory/MEMORY.md` 现有 RAG 逻辑。
+- 不改 `memory_system` 现有三层记忆逻辑（`core / daily_log / domain_case`）。
 - 不保留“主回答 agent 自己边读 skill 边检索边回答”的旧链路。
 - `skill` 分支仍然使用大模型通过 `SKILL.md` 和工具执行检索，不改成规则检索器。
 - `vector + bm25` 不是第一入口，只在 `skill` 证据不足时启动。
@@ -375,7 +375,7 @@ backend/knowledge_retrieval/
 - `backend/graph/agent.py`
   - 删除主 agent 的知识库 skill 注入逻辑
   - 将知识库检索改为调用 orchestrator
-- `backend/graph/prompt_builder.py`
+- `backend/graph/prompt_builders/answer_prompt_assembler.py`
   - 删除“知识库问题先读 skill 再检索”的运行时 override
   - 改成“优先依据已提供 evidence 回答”
 

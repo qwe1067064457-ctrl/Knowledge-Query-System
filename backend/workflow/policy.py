@@ -3,7 +3,14 @@ from __future__ import annotations
 import re
 
 from intent.schema.intent_types import ControlTrace, IntentAnalysis
-from workflow.types import PowerName, WorkflowAction, WorkflowPlan, WorkflowPolicyFlags
+from workflow.types import (
+    PowerName,
+    WorkflowAction,
+    WorkflowHandlingMode,
+    WorkflowPlan,
+    WorkflowPolicyFlags,
+    WorkflowRoute,
+)
 
 _SCOPE_SWITCH_PATTERNS = (
     re.compile(r"另一个组"),
@@ -12,6 +19,7 @@ _SCOPE_SWITCH_PATTERNS = (
     re.compile(r"换(一个|别的)?(组|库)"),
     re.compile(r"不是这个(组|库)"),
 )
+_LEGACY_AGENT_FALLBACK_CAPABILITY = "legacy_agent_fallback"
 
 
 def build_workflow_plan(
@@ -25,7 +33,11 @@ def build_workflow_plan(
     trace = control.trace
     capabilities = set(control.capabilities)
     handling_mode = control.handling_mode
-    route = control.route
+    route = _apply_admission_control(
+        route=control.route,
+        query=analysis.input.user_query,
+        trace=trace,
+    )
 
     use_context = "use_context" in capabilities
     cite_sources = "cite_sources" in capabilities
@@ -38,6 +50,7 @@ def build_workflow_plan(
         route=route,
         handling_mode=handling_mode,
         is_knowledge_query=is_knowledge_query,
+        capabilities=capabilities,
     )
     enabled_powers = _resolve_enabled_powers(
         route=route,
@@ -99,9 +112,10 @@ def build_workflow_plan(
 
 def _resolve_action(
     *,
-    route: str,
-    handling_mode: str,
+    route: WorkflowRoute,
+    handling_mode: WorkflowHandlingMode,
     is_knowledge_query: bool,
+    capabilities: set[str],
 ) -> WorkflowAction:
     if route == "reject" or handling_mode == "unsupported":
         return "reject"
@@ -111,10 +125,12 @@ def _resolve_action(
         return "respond"
     if is_knowledge_query:
         return "knowledge_orchestrator"
-    return "agent" if route in {"qa", "orchestrated"} else "respond"
+    if _LEGACY_AGENT_FALLBACK_CAPABILITY in capabilities and route in {"qa", "orchestrated"}:
+        return "agent"
+    return "respond"
 
 
-def _should_use_planner(*, route: str, trace: ControlTrace) -> bool:
+def _should_use_planner(*, route: WorkflowRoute, trace: ControlTrace) -> bool:
     if route != "orchestrated":
         return False
     if trace.task_topology == "staged":
@@ -122,10 +138,40 @@ def _should_use_planner(*, route: str, trace: ControlTrace) -> bool:
     return trace.task_complexity == "complex" and trace.task_shape in {"compare", "mixed"}
 
 
-def _should_decompose_query(*, route: str, trace: ControlTrace) -> bool:
+def _should_decompose_query(*, route: WorkflowRoute, trace: ControlTrace) -> bool:
     if route != "orchestrated":
         return False
     return trace.task_topology == "parallel_queries"
+
+
+def _apply_admission_control(
+    *,
+    route: WorkflowRoute,
+    query: str,
+    trace: ControlTrace,
+) -> WorkflowRoute:
+    if route != "orchestrated":
+        return route
+    if _requires_orchestrated(query=query, trace=trace):
+        return route
+    return "qa"
+
+
+def _requires_orchestrated(*, query: str, trace: ControlTrace) -> bool:
+    if trace.task_topology == "staged":
+        return True
+    if _has_explicit_parallel_markers(query):
+        return True
+    return trace.task_complexity == "complex" and trace.task_shape in {"compare", "mixed"}
+
+
+def _has_explicit_parallel_markers(query: str) -> bool:
+    normalized = str(query or "").strip()
+    if not normalized:
+        return False
+    if len([part for part in re.split(r"[？?]\s*|\n+", normalized) if part.strip()]) > 1:
+        return True
+    return any(marker in normalized for marker in ("并且", "同时", "分别", "顺便", "另外", "再"))
 
 
 def _should_bind_context(*, use_context: bool, trace: ControlTrace) -> bool:
@@ -136,8 +182,8 @@ def _should_bind_context(*, use_context: bool, trace: ControlTrace) -> bool:
 
 def _resolve_enabled_powers(
     *,
-    route: str,
-    handling_mode: str,
+    route: WorkflowRoute,
+    handling_mode: WorkflowHandlingMode,
     use_planner: bool,
     decompose_query: bool,
     is_knowledge_query: bool,

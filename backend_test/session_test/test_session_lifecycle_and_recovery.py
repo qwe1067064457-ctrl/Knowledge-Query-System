@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from context.session_manager import SessionManager
+from context.models import SessionDialogueState
+from context.session.session_manager import SessionManager
 
 
 def test_create_and_archive_session_updates_lifecycle_state(session_manager) -> None:
@@ -69,12 +70,13 @@ def test_delete_session_removes_metadata_and_transcript(session_manager, make_en
     transcript_path = (
         session_manager.groups_path
         / "law"
-        / "agents"
-        / "agent_a"
+        / "users"
+        / "u"
         / "sessions"
+        / "transcripts"
         / f"{session.id}.jsonl"
     )
-    meta_path = transcript_path.with_suffix(".meta.json")
+    meta_path = transcript_path.parent.parent / f"{session.id}.meta.json"
 
     session_manager.delete_session(session.id, "law", "agent_a")
 
@@ -145,3 +147,76 @@ def test_recovery_with_wrong_coordinates_or_user_returns_nothing(
     assert recovered.get_transcript("medical", "agent_a", session.id) == []
     assert recovered.get_transcript("law", "agent_b", session.id) == []
     assert recovered.list_user_sessions("law", "agent_a", "someone-else") == []
+
+
+def test_dialogue_state_can_be_persisted_and_recovered(tmp_storage_root: Path) -> None:
+    storage_path = tmp_storage_root / "storage"
+    manager = SessionManager(storage_path)
+    session = manager.create_session("law", "agent_a", "u")
+
+    manager.update_dialogue_state(
+        session.id,
+        "law",
+        "agent_a",
+        SessionDialogueState(
+            focus_question_object_id="question_1",
+            focus_question_object_text="试用期依据是什么？",
+            focus_predicate="依据",
+            recent_question_objects=(
+                {"object_id": "question_1", "content": "试用期依据是什么？"},
+            ),
+            recent_evidence_topics=("劳动合同法第19条",),
+            resolution_confidence="high",
+            last_update_reason="test",
+        ),
+    )
+
+    recovered = SessionManager(storage_path)
+    state = recovered.get_dialogue_state(session.id, "law", "agent_a")
+
+    assert state is not None
+    assert state.focus_question_object_id == "question_1"
+    assert state.focus_predicate == "依据"
+    assert state.recent_evidence_topics == ["劳动合同法第19条"]
+
+
+def test_missing_dialogue_state_returns_none(tmp_storage_root: Path) -> None:
+    storage_path = tmp_storage_root / "storage"
+    manager = SessionManager(storage_path)
+    session = manager.create_session("law", "agent_a", "u")
+
+    assert manager.get_dialogue_state(session.id, "law", "agent_a") is None
+
+
+def test_dialogue_state_is_normalized_before_persistence(tmp_storage_root: Path) -> None:
+    storage_path = tmp_storage_root / "storage"
+    manager = SessionManager(storage_path)
+    session = manager.create_session("law", "agent_a", "u")
+
+    manager.update_dialogue_state(
+        session.id,
+        "law",
+        "agent_a",
+        {
+            "focus_question_object_id": "question_1",
+            "focus_question_object_text": "试用期依据是什么？",
+            "focus_predicate": "依据",
+            "recent_question_objects": [
+                {"object_id": "question_1", "content": "试用期依据是什么？"},
+                {"object_id": "question_1", "content": "重复项"},
+                {"object_id": "", "content": "坏项"},
+            ],
+            "recent_evidence_topics": ["劳动合同法第19条", "劳动合同法第19条", ""],
+            "resolution_confidence": "invalid",
+            "last_update_reason": "test",
+        },
+    )
+
+    state = manager.get_dialogue_state(session.id, "law", "agent_a")
+
+    assert state is not None
+    assert state.recent_question_objects == [
+        {"object_id": "question_1", "content": "试用期依据是什么？"}
+    ]
+    assert state.recent_evidence_topics == ["劳动合同法第19条"]
+    assert state.resolution_confidence == "low"

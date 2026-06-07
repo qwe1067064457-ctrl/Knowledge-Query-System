@@ -9,6 +9,12 @@ from knowledge_retrieval.types import Evidence, OrchestratedRetrievalResult, Ret
 
 
 class KnowledgeOrchestrator:
+    """Legacy knowledge-prep path kept for compatibility.
+
+    This orchestrator remains executable, but it is no longer the target
+    default expansion path for workflow-owned knowledge answering.
+    """
+
     def __init__(self) -> None:
         self.base_dir = None
 

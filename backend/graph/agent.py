@@ -1,112 +1,93 @@
 from __future__ import annotations
 
 import json
-import re
+from dataclasses import replace
+from datetime import datetime
 from pathlib import Path
 from typing import Any
 
 from langchain.agents import create_agent
-from langchain_openai import ChatOpenAI
 
-try:
-    from langchain_deepseek import ChatDeepSeek
-except ImportError:  # pragma: no cover - optional dependency at runtime
-    ChatDeepSeek = None
-
-from config import get_settings, runtime_config
-from graph.memory_indexer import memory_indexer
-from graph.prompt_builder import build_system_prompt
+from config import runtime_config
+from context.assembly.context_manager import ContextManager
+from context.session.session_manager import DEFAULT_AGENT, DEFAULT_GROUP, DEFAULT_USER, SessionManager
+from graph.prompt_builders.answer_prompt_assembler import (
+    assemble_answer_messages,
+    build_answer_system_prompt,
+)
+from graph.prompt_builders.workflow_prompt_projector import (
+    build_answer_behavior_rules_from_workflow,
+    build_answer_result_projection_rules_from_workflow,
+)
 from intent import classify_intent
 from intent.loaders import load_group_intent_rule_assets
+from intent.rules.knowledge_query_rules import is_knowledge_query
 from knowledge_retrieval import knowledge_orchestrator
-from memory_system import MemorySystem
+from llm.model_factory import build_chat_model
+from llm.output_sanitizer import StreamingReasoningFilter, sanitize_model_text
+from llm.response_utils import stringify_content
+from memory_system.memory_service import MemorySystem
+from memory_system.session_working_memory import SessionWorkingMemoryWriter
+from observability.emitters.answer_emitter import AnswerEmitter
+from observability.emitters.context_emitter import ContextEmitter
+from observability.emitters.intent_emitter import IntentEmitter
+from observability.emitters.retrieval_emitter import RetrievalEmitter
+from observability.langsmith.client import LangSmithClient
+from observability.langsmith.serializers import (
+    summarize_intent_analysis,
+    summarize_evidence_bundle,
+    summarize_execution_payload,
+    summarize_messages,
+)
+from observability.runtime.run_factory import create_trace_context
+from observability.runtime.trace_context_store import activate_trace_context
 from tools import get_all_tools
 from workflow import WorkflowDispatcher, WorkflowPlan, build_workflow_plan
-from workflow.runners.base import RouteExecutionRequest
-
-# 导入新的 context 模块
-from context.session_manager import SessionManager
-from context.context_manager import ContextManager
-from context.legacy_adapter import DEFAULT_AGENT, DEFAULT_GROUP, LegacySessionManagerAdapter
-
-KNOWLEDGE_SKILL_PATTERNS = (
-    re.compile(r"知识库"),
-    re.compile(r"\bknowledge\b", re.IGNORECASE),
-    re.compile(r"根据.+?(知识库|文档|资料)"),
-    re.compile(r"(查|检索).+?(文档|资料|报告|白皮书)"),
-    re.compile(r"\.(pdf|xlsx|xls|json)\b", re.IGNORECASE),
+from workflow.adapters.workflow_registry_projection import (
+    build_registry_entries_from_execution_payload,
 )
-
-
-def _stringify_content(content: Any) -> str:
-    if isinstance(content, str):
-        return content
-    if isinstance(content, list):
-        parts: list[str] = []
-        for block in content:
-            if isinstance(block, dict) and block.get("type") == "text":
-                parts.append(str(block.get("text", "")))
-        return "".join(parts)
-    return str(content or "")
-
-
+from workflow.powers.retrieval_power import RetrievalPower
+from workflow.runners.base import RouteExecutionRequest
 class AgentManager:
     def __init__(self) -> None:
         self.base_dir: Path | None = None
         self.raw_session_manager: SessionManager | None = None
-        self.session_manager: LegacySessionManagerAdapter | None = None
         self.memory_system: MemorySystem | None = None
         self.context_manager: ContextManager | None = None
         self.workflow_dispatcher = WorkflowDispatcher()
+        self.retrieval_power = RetrievalPower()
         self.tools = []
+        self.working_memory_writer = SessionWorkingMemoryWriter()
+        self.langsmith_client = LangSmithClient()
+        self.answer_emitter = AnswerEmitter(self.langsmith_client)
+        self.retrieval_emitter = RetrievalEmitter(self.langsmith_client)
+        self.context_emitter = ContextEmitter(self.langsmith_client)
+        self.intent_emitter = IntentEmitter(self.langsmith_client)
 
     def initialize(self, base_dir: Path) -> None:
         self.base_dir = base_dir
 
-        # 初始化新的 context 模块
         self.raw_session_manager = SessionManager(base_dir / "storage")
         self.memory_system = MemorySystem(base_dir / "storage")
+        self.memory_system.set_extractor_llm_call(self._llm_text_call_sync)
         self.context_manager = ContextManager(self.raw_session_manager, self.memory_system)
-        # 设置 LLM 调用用于 compaction
         self.context_manager.set_llm_call(self._llm_text_call)
-
-        # 初始化 legacy 适配器（保持向后兼容）
-        self.session_manager = LegacySessionManagerAdapter(self.raw_session_manager)
-        self.session_manager.configure_legacy_paths(base_dir)
+        self.context_manager.set_observability_emitter(self.context_emitter)
 
         self.tools = get_all_tools(base_dir)
-        knowledge_orchestrator.configure(base_dir, self._build_chat_model)
-
-    def _build_chat_model(self):
-        settings = get_settings()
-
-        if settings.llm_provider == "deepseek":
-            if ChatDeepSeek is None:
-                raise RuntimeError("langchain-deepseek is not installed")
-            if not settings.llm_api_key:
-                raise RuntimeError("Missing API key for provider deepseek")
-            return ChatDeepSeek(
-                model=settings.llm_model,
-                api_key=settings.llm_api_key,
-                base_url=settings.llm_base_url,
-                temperature=0,
-            )
-
-        if not settings.llm_api_key:
-            raise RuntimeError(f"Missing API key for provider {settings.llm_provider}")
-
-        return ChatOpenAI(
-            model=settings.llm_model,
-            api_key=settings.llm_api_key,
-            base_url=settings.llm_base_url,
-            temperature=0,
-        )
+        knowledge_orchestrator.configure(base_dir, build_chat_model)
 
     async def _llm_text_call(self, prompt: str) -> str:
-        response = await self._build_chat_model().ainvoke(
+        response = await build_chat_model().ainvoke(
             [{"role": "user", "content": prompt}]
         )
-        return _stringify_content(getattr(response, "content", "")).strip()
+        return sanitize_model_text(stringify_content(getattr(response, "content", "")))
+
+    def _llm_text_call_sync(self, prompt: str) -> str:
+        response = build_chat_model().invoke(
+            [{"role": "user", "content": prompt}]
+        )
+        return sanitize_model_text(stringify_content(getattr(response, "content", "")))
 
     def _build_agent(
         self,
@@ -116,17 +97,16 @@ class AgentManager:
         if self.base_dir is None:
             raise RuntimeError("AgentManager is not initialized")
 
-        system_prompt = build_system_prompt(self.base_dir, runtime_config.get_rag_mode())
-        if extra_instructions:
-            system_prompt = f"{system_prompt}\n\n" + "\n\n".join(extra_instructions)
+        system_prompt = build_answer_system_prompt(
+            self.base_dir,
+            runtime_config.get_rag_mode(),
+            extra_instructions=extra_instructions,
+        )
         return create_agent(
-            model=self._build_chat_model(),
+            model=build_chat_model(),
             tools=self.tools if tools_override is None else tools_override,
             system_prompt=system_prompt,
         )
-
-    def _is_knowledge_query(self, message: str) -> bool:
-        return any(pattern.search(message) for pattern in KNOWLEDGE_SKILL_PATTERNS)
 
     def _build_messages(self, history: list[dict[str, Any]]) -> list[dict[str, str]]:
         messages: list[dict[str, str]] = []
@@ -154,12 +134,25 @@ class AgentManager:
         session_id: str | None,
         message: str,
         history: list[dict[str, Any]],
-    ) -> list[dict[str, str]]:
+    ) -> dict[str, Any]:
         current_user = {"role": "user", "content": message}
         if self.context_manager is None:
             messages = self._build_messages(history)
             messages.append(current_user)
-            return messages
+            return {
+                "messages": messages,
+                "memory_retrieval": {
+                    "performed": False,
+                    "owner": "context",
+                    "source": "memory",
+                    "query": message,
+                    "core_memory_count": 0,
+                    "retrieved_memory_count": 0,
+                    "core_block_present": False,
+                    "retrieved_memories_present": False,
+                    "results": [],
+                },
+            }
 
         has_new_transcript = False
         if session_id and self.raw_session_manager is not None:
@@ -191,13 +184,16 @@ class AgentManager:
                 query=message,
             )
 
-        return self._build_messages(prepared["messages"])
+        return {
+            "messages": self._build_messages(prepared["messages"]),
+            "memory_retrieval": dict(prepared.get("memory_retrieval", {})),
+        }
 
     def _format_retrieval_context(self, results: list[dict[str, Any]]) -> str:
         lines = ["[RAG retrieved memory context]"]
         for idx, item in enumerate(results, start=1):
             text = str(item.get("text", "")).strip()
-            source = str(item.get("source", "memory/MEMORY.md"))
+            source = str(item.get("source", "memory"))
             lines.append(f"{idx}. Source: {source}\n{text}")
         return "\n\n".join(lines)
 
@@ -209,7 +205,7 @@ class AgentManager:
             "message": "已将 Memory 召回结果注入当前请求上下文。",
             "results": [
                 {
-                    "source_path": str(item.get("source", "memory/MEMORY.md")),
+                    "source_path": str(item.get("source", "memory")),
                     "source_type": "memory",
                     "locator": "memory",
                     "snippet": str(item.get("text", "")).strip(),
@@ -260,19 +256,26 @@ class AgentManager:
         if self.base_dir is None:
             raise RuntimeError("AgentManager is not initialized")
 
-        system_prompt = build_system_prompt(self.base_dir, runtime_config.get_rag_mode())
-        if extra_instructions:
-            system_prompt = f"{system_prompt}\n\n" + "\n\n".join(extra_instructions)
-
-        model_messages: list[dict[str, str]] = [{"role": "system", "content": system_prompt}]
-        model_messages.extend(messages)
+        model_messages = assemble_answer_messages(
+            self.base_dir,
+            messages,
+            rag_mode=runtime_config.get_rag_mode(),
+            extra_instructions=extra_instructions,
+        )
 
         final_content_parts: list[str] = []
-        async for chunk in self._build_chat_model().astream(model_messages):
-            text = _stringify_content(getattr(chunk, "content", ""))
-            if text:
-                final_content_parts.append(text)
-                yield {"type": "token", "content": text}
+        reasoning_filter = StreamingReasoningFilter()
+        async for chunk in build_chat_model().astream(model_messages):
+            text = stringify_content(getattr(chunk, "content", ""))
+            visible_text = reasoning_filter.feed(text)
+            if visible_text:
+                final_content_parts.append(visible_text)
+                yield {"type": "token", "content": visible_text}
+
+        trailing = reasoning_filter.flush()
+        if trailing:
+            final_content_parts.append(trailing)
+            yield {"type": "token", "content": trailing}
 
         yield {"type": "done", "content": "".join(final_content_parts).strip()}
 
@@ -296,7 +299,7 @@ class AgentManager:
                 chunk, metadata = payload
                 if metadata.get("langgraph_node") != "model":
                     continue
-                text = _stringify_content(getattr(chunk, "content", ""))
+                text = stringify_content(getattr(chunk, "content", ""))
                 if text:
                     final_content_parts.append(text)
                     yield {"type": "token", "content": text}
@@ -311,7 +314,7 @@ class AgentManager:
                     tool_calls = getattr(agent_message, "tool_calls", []) or []
 
                     if message_type == "ai" and not tool_calls:
-                        candidate = _stringify_content(getattr(agent_message, "content", ""))
+                        candidate = stringify_content(getattr(agent_message, "content", ""))
                         if candidate:
                             last_ai_message = candidate
 
@@ -338,7 +341,7 @@ class AgentManager:
                             tool_call_id,
                             {"tool": getattr(agent_message, "name", "tool"), "input": ""},
                         )
-                        output = _stringify_content(getattr(agent_message, "content", ""))
+                        output = stringify_content(getattr(agent_message, "content", ""))
                         yield {
                             "type": "tool_end",
                             "tool": pending["tool"],
@@ -348,61 +351,6 @@ class AgentManager:
 
         final_content = "".join(final_content_parts).strip() or last_ai_message.strip()
         yield {"type": "done", "content": final_content}
-
-    def _build_workflow_instructions(self, plan: WorkflowPlan) -> list[str]:
-        instructions: list[str] = []
-
-        if plan.should_ask_clarification_first:
-            instructions.append(
-                "The current request is not ready for full execution yet. Ask a concise clarification question first and do not continue into a substantive answer."
-            )
-            if plan.trace.missing_context_types:
-                missing = ", ".join(plan.trace.missing_context_types)
-                instructions.append(f"Focus the clarification on these missing context types: {missing}.")
-
-        if plan.handling_mode == "challenge":
-            instructions.append(
-                "Treat this as a challenge/correction turn. Re-evaluate the disputed point carefully, explain the basis, and avoid defending the previous answer blindly."
-            )
-        elif plan.handling_mode == "scope_info":
-            instructions.append(
-                "Treat this as a scope/capability question. Answer about what the system can or cannot do instead of executing the underlying task."
-            )
-        elif plan.handling_mode == "unsupported":
-            instructions.append(
-                "Treat this as an unsupported request. Refuse the operation briefly and, when possible, suggest a safer alternative."
-            )
-
-        if plan.route == "orchestrated":
-            instructions.append(
-                "This request requires explicit execution organization. Make the stages or subtask order visible before giving the final answer."
-            )
-        elif plan.route == "qa":
-            instructions.append(
-                "This request should stay within a single-turn answer flow. Keep the execution lightweight and avoid unnecessary planning narration."
-            )
-        elif plan.route == "chat":
-            instructions.append(
-                "This is a chat turn. Respond naturally and do not over-structure the answer."
-            )
-
-        if plan.use_planner:
-            instructions.append(
-                "Use an internal lightweight plan before answering so the reasoning order is stable."
-            )
-        if plan.decompose_query:
-            instructions.append(
-                "Cover each sub-question or subtask explicitly so no requested branch is skipped."
-            )
-        if plan.cite_sources:
-            instructions.append(
-                "Provide supporting basis or citations when available, and make the grounding visible instead of answering from bare assertion."
-            )
-        if plan.use_context:
-            instructions.append(
-                "Use the current conversation context and do not treat this as a standalone fresh request."
-            )
-        return instructions
 
     def _build_reject_response(self, plan: WorkflowPlan) -> str:
         if plan.handling_mode == "unsupported":
@@ -425,6 +373,192 @@ class AgentManager:
             allowed_group_ids = (active_group_id,)
         return active_group_id, allowed_group_ids
 
+    def _persist_execution_payload(
+        self,
+        *,
+        payload,
+        session_id: str | None,
+        group_id: str,
+        message: str,
+    ) -> None:
+        if session_id is None or self.context_manager is None or self.raw_session_manager is None:
+            return
+
+        session = self.raw_session_manager.get_session(session_id, DEFAULT_GROUP, DEFAULT_AGENT)
+        tenant_id = session.user_id if session is not None else "default"
+        entries = build_registry_entries_from_execution_payload(
+            payload=payload,
+            session_id=session_id,
+            tenant_id=tenant_id,
+            group_id=group_id,
+            message=message,
+        )
+        if not entries:
+            return
+
+        self.context_manager.append_registry_entries(
+            tenant_id=tenant_id,
+            group_id=group_id,
+            agent_id=DEFAULT_AGENT,
+            session_id=session_id,
+            entries=entries,
+        )
+
+    def _persist_working_memory(
+        self,
+        *,
+        payload,
+        session_id: str | None,
+        group_id: str,
+        message: str,
+        answer_text: str,
+    ) -> None:
+        if session_id is None or self.raw_session_manager is None:
+            return
+        binding = payload.context_bundle_obj().binding_obj()
+        review_bundle = payload.review_bundle_obj().to_dict()
+        entries = self.working_memory_writer.build_entries_from_turn(
+            turn_id=f"{session_id}:{payload.route}:{datetime.now().strftime('%Y%m%d%H%M%S%f')}",
+            user_query=message,
+            answer_text=answer_text,
+            current_goal=payload.plan_bundle.get("goal") if isinstance(payload.plan_bundle, dict) else None,
+            binding_result=binding.to_dict(),
+            review_result={
+                "status": review_bundle.get("status"),
+                "summary": review_bundle.get("summary_text") or review_bundle.get("status"),
+            },
+        )
+        if not entries:
+            return
+        self.raw_session_manager.working_memory_store.append_entries(
+            session_id=session_id,
+            group_id=group_id,
+            agent_id=DEFAULT_AGENT,
+            entries=entries,
+        )
+
+    def _persist_execution_outputs(
+        self,
+        *,
+        payload,
+        session_id: str | None,
+        group_id: str,
+        message: str,
+        answer_text: str,
+    ) -> None:
+        self._persist_execution_payload(
+            payload=payload,
+            session_id=session_id,
+            group_id=group_id,
+            message=message,
+        )
+        self._persist_working_memory(
+            payload=payload,
+            session_id=session_id,
+            group_id=group_id,
+            message=message,
+            answer_text=answer_text,
+        )
+
+    def _create_request_trace_context(self, session_id: str | None) -> Any:
+        session = None
+        if session_id is not None and self.raw_session_manager is not None:
+            session = self.raw_session_manager.get_session(session_id, DEFAULT_GROUP, DEFAULT_AGENT)
+        return create_trace_context(
+            session_id=session_id or "ad_hoc",
+            group_id=str(session.group_id if session is not None else DEFAULT_GROUP),
+            user_id=str(session.user_id if session is not None else DEFAULT_USER),
+        )
+
+    def _emit_retrieval_event(
+        self,
+        *,
+        started_at: datetime,
+        query: str,
+        output_summary: dict[str, Any],
+        metadata: dict[str, Any],
+        status: str = "success",
+    ) -> None:
+        self.retrieval_emitter.emit_retrieval_run(
+            started_at=started_at,
+            input_summary={"query": query[:200]},
+            output_summary=output_summary,
+            metadata=metadata,
+            status=status,
+        )
+
+    def _emit_answer_event(
+        self,
+        *,
+        started_at: datetime,
+        messages: list[dict[str, str]],
+        workflow_plan: WorkflowPlan,
+        execution_payload,
+        query: str,
+        answer_text: str,
+        answer_mode: str,
+    ) -> None:
+        self.answer_emitter.emit_answer_model_run(
+            started_at=started_at,
+            messages_summary=summarize_messages(messages),
+            output_summary={
+                "answer_mode": answer_mode,
+                "answer_length": len(answer_text),
+                "payload_summary": summarize_execution_payload(execution_payload),
+            },
+            metadata={
+                "workflow_name": workflow_plan.route,
+                "handling_mode": workflow_plan.handling_mode,
+                "system_prompt_version": (
+                    self.context_manager.config.system_prompt_path
+                    if self.context_manager is not None
+                    else "prompts/system/answer_system_prompt.md"
+                ),
+                "final_user_query": query[:200],
+                "memory_block_types": summarize_messages(messages).get("system_blocks", []),
+                "retrieval_block_types": [
+                    block
+                    for block in summarize_messages(messages).get("system_blocks", [])
+                    if "Memory" in block or "retrieval" in block or "Knowledge" in block
+                ],
+            },
+        )
+
+    def _emit_intent_event(
+        self,
+        *,
+        started_at: datetime,
+        query: str,
+        intent_analysis,
+    ) -> None:
+        self.intent_emitter.emit_intent_classification_run(
+            started_at=started_at,
+            input_summary={"query": query[:200]},
+            output_summary=summarize_intent_analysis(intent_analysis),
+            metadata={"main_intent": str(intent_analysis.main_intent)},
+        )
+
+    def _load_recent_registry_entries(
+        self,
+        *,
+        session_id: str | None,
+        group_id: str,
+        limit: int = 20,
+    ) -> list[dict[str, Any]]:
+        if session_id is None or self.context_manager is None or self.raw_session_manager is None:
+            return []
+
+        session = self.raw_session_manager.get_session(session_id, DEFAULT_GROUP, DEFAULT_AGENT)
+        tenant_id = session.user_id if session is not None else "default"
+        entries = self.context_manager.list_recent_registry_entries(
+            tenant_id=tenant_id,
+            group_id=group_id,
+            agent_id=DEFAULT_AGENT,
+            session_id=session_id,
+            limit=limit,
+        )
+        return [entry.to_dict() for entry in entries]
+
     async def astream(
         self,
         message: str,
@@ -433,91 +567,248 @@ class AgentManager:
     ):
         if self.base_dir is None:
             raise RuntimeError("AgentManager is not initialized")
+        trace_context = self._create_request_trace_context(session_id)
+        with activate_trace_context(trace_context):
+            rag_mode = runtime_config.get_rag_mode()
+            prepared_request = await self._prepare_messages_for_request(session_id, message, history)
+            messages = list(prepared_request["messages"])
+            memory_retrieval = dict(prepared_request.get("memory_retrieval", {}))
+            active_group_id, allowed_group_ids = self._load_session_scope(session_id)
+            trace_context.group_id = active_group_id
+            intent_assets = load_group_intent_rule_assets(self.base_dir / "storage", active_group_id)
+            intent_started_at = datetime.now()
+            intent_analysis = classify_intent(message, history, rule_assets=intent_assets)
+            self._emit_intent_event(
+                started_at=intent_started_at,
+                query=message,
+                intent_analysis=intent_analysis,
+            )
+            registry_entries = self._load_recent_registry_entries(
+                session_id=session_id,
+                group_id=active_group_id,
+            )
+            working_memory = None
+            if session_id is not None and self.raw_session_manager is not None:
+                working_memory = self.raw_session_manager.get_working_memory(
+                    session_id,
+                    active_group_id,
+                    DEFAULT_AGENT,
+                )
+            workflow_plan = build_workflow_plan(
+                intent_analysis,
+                is_knowledge_query=is_knowledge_query(message),
+                active_group_id=active_group_id,
+                allowed_group_ids=allowed_group_ids,
+            )
+            execution_payload = self.workflow_dispatcher.dispatch(workflow_plan).run(
+                workflow_plan,
+                RouteExecutionRequest(
+                    message=message,
+                    messages=messages,
+                    is_knowledge_query=is_knowledge_query(message),
+                    context={
+                        "session_id": session_id,
+                        "active_group_id": active_group_id,
+                        "allowed_group_ids": allowed_group_ids,
+                        "registry_entries": registry_entries,
+                        "recent_power": registry_entries[-1].get("source_power") if registry_entries else None,
+                        "recent_object_type": registry_entries[-1].get("object_type") if registry_entries else None,
+                        "working_memory": working_memory,
+                        "recent_messages": messages[-6:],
+                        "bound_query_llm_call": self._llm_text_call_sync,
+                        "base_dir": self.base_dir,
+                        "memory_retrieval": memory_retrieval,
+                    },
+                ),
+            )
 
-        rag_mode = runtime_config.get_rag_mode()
-        messages = await self._prepare_messages_for_request(session_id, message, history)
-        active_group_id, allowed_group_ids = self._load_session_scope(session_id)
-        intent_assets = load_group_intent_rule_assets(self.base_dir / "storage", active_group_id)
-        intent_analysis = classify_intent(message, history, rule_assets=intent_assets)
-        workflow_plan = build_workflow_plan(
-            intent_analysis,
-            is_knowledge_query=self._is_knowledge_query(message),
-            active_group_id=active_group_id,
-            allowed_group_ids=allowed_group_ids,
-        )
-        execution_payload = self.workflow_dispatcher.dispatch(workflow_plan).run(
-            workflow_plan,
-            RouteExecutionRequest(
-                message=message,
-                messages=messages,
-                is_knowledge_query=self._is_knowledge_query(message),
-                context={"session_id": session_id},
-            ),
-        )
-
-        if rag_mode:
-            retrievals = memory_indexer.retrieve(message, top_k=3)
-            if retrievals:
-                yield {"type": "retrieval", **self._format_memory_retrieval_step(retrievals)}
-            if retrievals:
-                messages = self._insert_before_latest_user(
-                    messages,
-                    {
-                        "role": "assistant",
-                        "content": self._format_retrieval_context(retrievals),
+            if execution_payload.evidence_bundle is not None:
+                self._emit_retrieval_event(
+                    started_at=datetime.now(),
+                    query=message,
+                    output_summary=summarize_evidence_bundle(execution_payload.evidence_bundle),
+                    metadata={
+                        "retrieval_source": "workflow_payload",
+                        "workflow_name": workflow_plan.route,
                     },
                 )
 
-        workflow_instructions = list(execution_payload.instructions) or self._build_workflow_instructions(workflow_plan)
+            retrievals = list(memory_retrieval.get("results", []) or [])
+            if rag_mode and retrievals:
+                retrieval_started_at = datetime.now()
+                yield {"type": "retrieval", **self._format_memory_retrieval_step(retrievals)}
+                self._emit_retrieval_event(
+                    started_at=retrieval_started_at,
+                    query=message,
+                    output_summary={
+                        "knowledge_hit_count": 0,
+                        "memory_hit_count": len(retrievals),
+                        "evidence_ids": [str(item.get("source") or "memory") for item in retrievals],
+                        "retrieval_quality_status": "available",
+                    },
+                    metadata={
+                        "retrieval_source": "context_memory",
+                        "retrieval_owner": str(memory_retrieval.get("owner") or "context"),
+                        "workflow_name": workflow_plan.route,
+                    },
+                )
 
-        if execution_payload.action == "reject":
-            async for event in self._astream_model_answer(
-                messages,
-                extra_instructions=workflow_instructions + [self._build_reject_response(workflow_plan)],
-            ):
-                yield event
-            return
+            workflow_instructions = list(execution_payload.instructions) or build_answer_behavior_rules_from_workflow(workflow_plan)
+            workflow_instructions.extend(build_answer_result_projection_rules_from_workflow(execution_payload))
 
-        if execution_payload.action == "respond":
-            async for event in self._astream_model_answer(
+            if execution_payload.action == "reject":
+                answer_started_at = datetime.now()
+                final_answer = ""
+                async for event in self._astream_model_answer(
+                    messages,
+                    extra_instructions=workflow_instructions + [self._build_reject_response(workflow_plan)],
+                ):
+                    if event.get("type") == "done":
+                        final_answer = str(event.get("content") or "")
+                    yield event
+                self._emit_answer_event(
+                    started_at=answer_started_at,
+                    messages=messages,
+                    workflow_plan=workflow_plan,
+                    execution_payload=execution_payload,
+                    query=message,
+                    answer_text=final_answer,
+                    answer_mode="model",
+                )
+                self._persist_execution_outputs(
+                    payload=execution_payload,
+                    session_id=session_id,
+                    group_id=active_group_id,
+                    message=message,
+                    answer_text=final_answer,
+                )
+                return
+
+            if execution_payload.action == "respond":
+                answer_started_at = datetime.now()
+                final_answer = ""
+                async for event in self._astream_model_answer(
+                    messages,
+                    extra_instructions=workflow_instructions,
+                ):
+                    if event.get("type") == "done":
+                        final_answer = str(event.get("content") or "")
+                    yield event
+                self._emit_answer_event(
+                    started_at=answer_started_at,
+                    messages=messages,
+                    workflow_plan=workflow_plan,
+                    execution_payload=execution_payload,
+                    query=message,
+                    answer_text=final_answer,
+                    answer_mode="model",
+                )
+                self._persist_execution_outputs(
+                    payload=execution_payload,
+                    session_id=session_id,
+                    group_id=active_group_id,
+                    message=message,
+                    answer_text=final_answer,
+                )
+                return
+
+            if execution_payload.action == "knowledge_orchestrator":
+                # Legacy knowledge-prep path kept for compatibility while retrieval
+                # ownership is being consolidated back into workflow.
+                knowledge_result = None
+                async for event in knowledge_orchestrator.astream(message):
+                    if event.get("type") == "orchestrated_result":
+                        knowledge_result = event["result"]
+                        continue
+                    yield event
+
+                if knowledge_result is not None:
+                    for step in knowledge_result.steps:
+                        yield {"type": "retrieval", **step.to_dict()}
+                    self._emit_retrieval_event(
+                        started_at=datetime.now(),
+                        query=message,
+                        output_summary={
+                            "knowledge_hit_count": len(knowledge_result.evidences),
+                            "memory_hit_count": 0,
+                            "evidence_ids": [item.evidence_id for item in knowledge_result.evidences],
+                            "retrieval_quality_status": knowledge_result.status,
+                        },
+                        metadata={
+                            "retrieval_source": "knowledge_orchestrator",
+                            "workflow_name": workflow_plan.route,
+                        },
+                    )
+                    messages = self._insert_before_latest_user(
+                        messages,
+                        {
+                            "role": "assistant",
+                            "content": self._format_knowledge_context(knowledge_result),
+                        },
+                    )
+                    execution_payload = replace(
+                        execution_payload,
+                        evidence_bundle=self.retrieval_power.build_bundle_from_orchestrated_result(
+                            knowledge_result,
+                            query=message,
+                        ),
+                    )
+
+                answer_started_at = datetime.now()
+                final_answer = ""
+                async for event in self._astream_model_answer(
+                    messages,
+                    extra_instructions=workflow_instructions
+                    + (self._knowledge_answer_instructions(knowledge_result) if knowledge_result else []),
+                ):
+                    if event.get("type") == "done":
+                        final_answer = str(event.get("content") or "")
+                    yield event
+                self._emit_answer_event(
+                    started_at=answer_started_at,
+                    messages=messages,
+                    workflow_plan=workflow_plan,
+                    execution_payload=execution_payload,
+                    query=message,
+                    answer_text=final_answer,
+                    answer_mode="model",
+                )
+                self._persist_execution_outputs(
+                    payload=execution_payload,
+                    session_id=session_id,
+                    group_id=active_group_id,
+                    message=message,
+                    answer_text=final_answer,
+                )
+                return
+
+            # Agent path is a compatibility fallback for legacy tool-agent cases.
+            # It is no longer the default main answer path for qa/orchestrated.
+            answer_started_at = datetime.now()
+            final_answer = ""
+            async for event in self._astream_agent_answer(
                 messages,
                 extra_instructions=workflow_instructions,
             ):
+                if event.get("type") == "done":
+                    final_answer = str(event.get("content") or "")
                 yield event
-            return
-
-        if execution_payload.action == "knowledge_orchestrator":
-            knowledge_result = None
-            async for event in knowledge_orchestrator.astream(message):
-                if event.get("type") == "orchestrated_result":
-                    knowledge_result = event["result"]
-                    continue
-                yield event
-
-            if knowledge_result is not None:
-                for step in knowledge_result.steps:
-                    yield {"type": "retrieval", **step.to_dict()}
-                messages = self._insert_before_latest_user(
-                    messages,
-                    {
-                        "role": "assistant",
-                        "content": self._format_knowledge_context(knowledge_result),
-                    },
-                )
-
-            async for event in self._astream_model_answer(
-                messages,
-                extra_instructions=workflow_instructions
-                + (self._knowledge_answer_instructions(knowledge_result) if knowledge_result else []),
-            ):
-                yield event
-            return
-
-        async for event in self._astream_agent_answer(
-            messages,
-            extra_instructions=workflow_instructions,
-        ):
-            yield event
+            self._emit_answer_event(
+                started_at=answer_started_at,
+                messages=messages,
+                workflow_plan=workflow_plan,
+                execution_payload=execution_payload,
+                query=message,
+                answer_text=final_answer,
+                answer_mode="agent",
+            )
+            self._persist_execution_outputs(
+                payload=execution_payload,
+                session_id=session_id,
+                group_id=active_group_id,
+                message=message,
+                answer_text=final_answer,
+            )
 
     async def generate_title(self, first_user_message: str) -> str:
         prompt = (
@@ -525,41 +816,15 @@ class AgentManager:
             "要求不超过 10 个汉字，不要带引号，不要解释。"
         )
         try:
-            response = await self._build_chat_model().ainvoke(
+            response = await build_chat_model().ainvoke(
                 [
                     {"role": "system", "content": prompt},
                     {"role": "user", "content": first_user_message},
                 ]
             )
-            title = _stringify_content(getattr(response, "content", "")).strip()
+            title = stringify_content(getattr(response, "content", "")).strip()
             return title[:10] or "新会话"
         except Exception:
             return (first_user_message.strip() or "新会话")[:10]
-
-    async def summarize_history(self, messages: list[dict[str, Any]]) -> str:
-        prompt = (
-            "请将以下对话压缩成中文摘要，控制在 500 字以内。"
-            "重点保留用户目标、已完成步骤、重要结论和未解决事项。"
-        )
-        lines: list[str] = []
-        for item in messages:
-            role = item.get("role", "assistant")
-            content = str(item.get("content", "") or "")
-            if content:
-                lines.append(f"{role}: {content}")
-        transcript = "\n".join(lines)
-
-        try:
-            response = await self._build_chat_model().ainvoke(
-                [
-                    {"role": "system", "content": prompt},
-                    {"role": "user", "content": transcript},
-                ]
-            )
-            summary = _stringify_content(getattr(response, "content", "")).strip()
-            return summary[:500]
-        except Exception:
-            return transcript[:500]
-
 
 agent_manager = AgentManager()

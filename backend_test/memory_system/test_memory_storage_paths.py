@@ -28,7 +28,7 @@ class MemoryStoragePathTests(unittest.TestCase):
                 tags=["style"],
             )
 
-            path = workspace / "storage" / "users" / "u1" / "global" / "core.json"
+            path = workspace / "storage" / "users" / "u1" / "memory" / "core" / "global.json"
             self.assertTrue(path.exists())
             payload = json.loads(path.read_text(encoding="utf-8"))
             self.assertEqual(payload["items"][0]["scope"], "user_global")
@@ -47,7 +47,7 @@ class MemoryStoragePathTests(unittest.TestCase):
                 title="Law-group preference",
             )
 
-            path = workspace / "storage" / "users" / "u1" / "groups" / "law" / "core.json"
+            path = workspace / "storage" / "groups" / "law" / "users" / "u1" / "memory" / "core" / "group.json"
             self.assertTrue(path.exists())
             payload = json.loads(path.read_text(encoding="utf-8"))
             self.assertEqual(payload["items"][0]["scope"], "user_group")
@@ -69,11 +69,12 @@ class MemoryStoragePathTests(unittest.TestCase):
             path = (
                 workspace
                 / "storage"
-                / "users"
-                / "u1"
                 / "groups"
                 / "law"
-                / "daily_logs"
+                / "users"
+                / "u1"
+                / "memory"
+                / "daily_log"
                 / "2026-05-08.jsonl"
             )
             self.assertTrue(path.exists())
@@ -104,32 +105,34 @@ class MemoryStoragePathTests(unittest.TestCase):
             path = (
                 workspace
                 / "storage"
-                / "users"
-                / "u1"
                 / "groups"
                 / "law"
-                / "daily_logs"
+                / "users"
+                / "u1"
+                / "memory"
+                / "daily_log"
                 / "2026-05-08.jsonl"
             )
             rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
             self.assertEqual(len(rows), 2)
             self.assertEqual([row["content"] for row in rows], ["First log row", "Second log row"])
 
-    def test_write_domain_case_persists_to_group_shared_path(self) -> None:
+    def test_write_domain_case_persists_to_user_group_path(self) -> None:
         with temp_workspace() as workspace:
             memory = make_memory_system(workspace)
 
             memory.write_domain_case(
                 group_id="law",
+                user_id="u1",
                 title="Breach liability case",
                 content="The case ties breach liability to loss allocation and foreseeability.",
                 tags=["contract"],
             )
 
-            path = workspace / "storage" / "groups" / "law" / "shared" / "domain_cases.jsonl"
+            path = workspace / "storage" / "groups" / "law" / "users" / "u1" / "memory" / "domain_case" / "domain_cases.jsonl"
             self.assertTrue(path.exists())
             rows = [json.loads(line) for line in path.read_text(encoding="utf-8").splitlines() if line.strip()]
-            self.assertEqual(rows[0]["scope"], "group_shared")
+            self.assertEqual(rows[0]["scope"], "user_group")
             self.assertEqual(rows[0]["memory_type"], "domain_case")
             self.assertEqual(rows[0]["title"], "Breach liability case")
 

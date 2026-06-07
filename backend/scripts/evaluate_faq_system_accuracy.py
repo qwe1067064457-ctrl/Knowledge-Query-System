@@ -164,14 +164,11 @@ def initialize_backend(backend_dir: Path):
         sys.path.insert(0, str(backend_dir))
 
     from graph.agent import agent_manager
-    from graph.memory_indexer import memory_indexer
     from knowledge_retrieval import knowledge_indexer
     from tools.skills_scanner import refresh_snapshot
 
     refresh_snapshot(backend_dir)
     agent_manager.initialize(backend_dir)
-    memory_indexer.configure(backend_dir)
-    memory_indexer.rebuild_index()
     knowledge_indexer.configure(backend_dir)
     knowledge_indexer.rebuild_index()
     return agent_manager

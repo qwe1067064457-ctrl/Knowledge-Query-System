@@ -476,13 +476,19 @@ async def run_single_question(
     backend_dir: Path,
 ) -> EvalResult:
     from graph.agent import agent_manager
+    from context.session.session_manager import DEFAULT_AGENT, DEFAULT_GROUP, DEFAULT_USER
 
-    session_manager = agent_manager.session_manager
+    session_manager = agent_manager.raw_session_manager
     if session_manager is None:
         raise RuntimeError("Agent manager session manager is not initialized.")
 
-    session = session_manager.create_session(title=f"eval-{index}")
-    session_id = session["id"]
+    session = session_manager.create_session(
+        DEFAULT_GROUP,
+        DEFAULT_AGENT,
+        DEFAULT_USER,
+        metadata={"title": f"eval-{index}"},
+    )
+    session_id = session.id
     prompt = f"{prefix}{entry.question}"
     tool_calls: list[dict[str, str]] = []
     final_answer = ""
@@ -507,7 +513,7 @@ async def run_single_question(
     except Exception as exc:  # pragma: no cover - runtime/API dependent
         error = str(exc)
     finally:
-        session_manager.delete_session(session_id)
+        session_manager.delete_session(session_id, DEFAULT_GROUP, DEFAULT_AGENT)
 
     cleaned_answer = clean_answer_for_eval(final_answer)
     faq_file_routed = detect_faq_route(tool_calls, final_answer)

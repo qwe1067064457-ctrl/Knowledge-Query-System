@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-from context.context_manager import ContextManager
-from context.context_policy import ContextPolicyLoader
-from graph.prompt_builder import build_system_prompt
+from context.assembly.context_manager import ContextManager
+from context.assembly.context_policy import ContextPolicyLoader
+from graph.prompt_builders.answer_prompt_assembler import build_answer_system_prompt
 
 from helpers import (
     make_context_manager,
@@ -14,13 +14,13 @@ from helpers import (
 
 
 def test_context_policy_loader_falls_back_to_default_values(workspace) -> None:
-    loader = ContextPolicyLoader(workspace / "context" / "context_policy.json")
+    loader = ContextPolicyLoader(workspace / "context" / "assembly" / "context_policy.json")
     policy = loader.load_policy()
 
     assert policy["history"]["max_recent_turns"] == 8
     assert policy["budget"]["total_tokens"] == 6000
     assert policy["compaction"]["enabled"] is True
-    assert policy["prompt"]["system_prompt_path"] == "prompts/system_prompt.md"
+    assert policy["prompt"]["system_prompt_path"] == "prompts/system/answer_system_prompt.md"
 
 
 def test_context_policy_loader_applies_local_overrides(workspace) -> None:
@@ -32,7 +32,7 @@ def test_context_policy_loader_applies_local_overrides(workspace) -> None:
             "prompt": {"system_prompt_path": "prompts/custom.md"},
         },
     )
-    loader = ContextPolicyLoader(workspace / "context" / "context_policy.json")
+    loader = ContextPolicyLoader(workspace / "context" / "assembly" / "context_policy.json")
     policy = loader.load_policy()
 
     assert policy["history"]["max_recent_turns"] == 3
@@ -71,8 +71,9 @@ def test_build_system_prompt_reads_configured_prompt_file(workspace) -> None:
         },
     )
     write_system_prompt(workspace, "Custom system prompt body.", "prompts/custom_system.md")
+    write_system_prompt(workspace, "Runtime Override", "prompts/system/runtime_override.md")
 
-    prompt = build_system_prompt(workspace, rag_mode=False)
+    prompt = build_answer_system_prompt(workspace, rag_mode=False)
 
     assert "Custom system prompt body." in prompt
     assert "Runtime Override" in prompt
@@ -86,7 +87,7 @@ def test_build_system_prompt_falls_back_when_prompt_missing(workspace) -> None:
         },
     )
 
-    prompt = build_system_prompt(workspace, rag_mode=False)
+    prompt = build_answer_system_prompt(workspace, rag_mode=False)
 
     assert "核心问答助手" in prompt
     assert "不要编造事实" in prompt

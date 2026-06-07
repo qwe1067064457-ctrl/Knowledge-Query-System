@@ -33,22 +33,24 @@
 主实现：
 
 ```text
-backend/context/context_manager.py
+backend/context/assembly/context_manager.py
 ```
 
 配置加载：
 
 ```text
-backend/context/context_policy.py
-backend/context/context_policy.json
+backend/context/assembly/context_policy.py
+backend/context/assembly/context_policy.json
 ```
 
 Prompt 管理：
 
 ```text
-backend/prompts/system_prompt.md
+backend/prompts/system/answer_system_prompt.md
+backend/prompts/system/runtime_override.md
 backend/prompts/README.md
-backend/graph/prompt_builder.py
+backend/graph/prompt_builders/answer_prompt_assembler.py
+backend/graph/prompt_builders/workflow_prompt_projector.py
 ```
 
 测试目录：
@@ -101,7 +103,7 @@ transcript
 实现位置：
 
 ```python
-backend/context/context_manager.py
+backend/context/assembly/context_manager.py
 ```
 
 核心配置：
@@ -133,7 +135,7 @@ class ContextConfig:
     memory_flush_enabled = True
     memory_flush_threshold = 5400
 
-    system_prompt_path = "prompts/system_prompt.md"
+    system_prompt_path = "prompts/system/answer_system_prompt.md"
 ```
 
 保留了一些 legacy 兼容字段：
@@ -150,7 +152,7 @@ image_max_dimension_px
 配置文件：
 
 ```text
-backend/context/context_policy.json
+backend/context/assembly/context_policy.json
 ```
 
 当前结构：
@@ -195,7 +197,7 @@ backend/context/context_policy.json
     "flush_threshold": 5400
   },
   "prompt": {
-    "system_prompt_path": "prompts/system_prompt.md"
+    "system_prompt_path": "prompts/system/answer_system_prompt.md"
   }
 }
 ```
@@ -211,7 +213,7 @@ backend/context/context_policy.json
 实现位置：
 
 ```text
-backend/context/context_policy.py
+backend/context/assembly/context_policy.py
 ```
 
 职责：
@@ -240,15 +242,17 @@ soft_threshold_tokens = total_tokens * compaction.trigger_ratio
 相关文件：
 
 ```text
-backend/prompts/system_prompt.md
+backend/prompts/system/answer_system_prompt.md
+backend/prompts/system/runtime_override.md
 backend/prompts/README.md
-backend/graph/prompt_builder.py
+backend/graph/prompt_builders/answer_prompt_assembler.py
+backend/graph/prompt_builders/workflow_prompt_projector.py
 ```
 
 当前行为：
 
-- `prompt_builder.py` 读取 context policy 中的 `prompt.system_prompt_path`。
-- 默认加载 `backend/prompts/system_prompt.md`。
+- `answer_prompt_assembler.py` 读取 context policy 中的 `prompt.system_prompt_path`。
+- 默认加载 `backend/prompts/system/answer_system_prompt.md`。
 - 运行时可以叠加 runtime override。
 
 关键决策：
@@ -259,7 +263,7 @@ backend/graph/prompt_builder.py
 
 旧链路变化：
 
-- `prompt_builder.py` 不再把 `memory/MEMORY.md` 当作 Long-term Memory 注入来源。
+- 主回答 prompt 装配层不再把旧 Markdown 记忆镜像文件当作 Long-term Memory 注入来源。
 - memory 注入由 `ContextManager + MemorySystem` 完成。
 
 ## 8. prepare 流程

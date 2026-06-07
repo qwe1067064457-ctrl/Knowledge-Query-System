@@ -1,0 +1,40 @@
+{
+  "samples": 2,
+  "needs_human_review": 1,
+  "labels": {
+    "good": 1,
+    "bad": 1
+  },
+  "dimension_labels": {
+    "anchor_recoverability": {
+      "good": 1,
+      "bad": 1
+    },
+    "key_info_preserved": {
+      "good": 1,
+      "bad": 1
+    },
+    "post_compaction_sufficiency": {
+      "good": 1,
+      "bad": 1
+    },
+    "pre_compaction_extraction_coverage": {
+      "good": 1,
+      "bad": 1
+    }
+  },
+  "reasons": {
+    "lost_key_info": 1,
+    "lost_anchor": 1,
+    "insufficient_post_context": 1,
+    "extraction_missed": 1
+  },
+  "average_score": 0.5,
+  "source_distribution": {
+    "offline_seed": 2
+  },
+  "user_feedback_distribution": {
+    "None": 1,
+    "dislike": 1
+  }
+}
