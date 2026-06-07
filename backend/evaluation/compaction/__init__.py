@@ -1,0 +1,1 @@
+"""Compaction evaluation topic template."""

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from intent import build_control_signal
-from intent.types import AmbiguityState, DecisionTrace, IntentModifiers, ResolvedIntent, ResolvedTask
+from intent.schema.intent_types import AmbiguityState, DecisionTrace, IntentModifiers, ResolvedIntent, ResolvedTask
 
 
 def _resolved(

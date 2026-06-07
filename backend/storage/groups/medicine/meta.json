@@ -1,0 +1,18 @@
+{
+  "id": "medicine",
+  "name": "Medicine Knowledge Base",
+  "description": "Medical knowledge group for open access papers, clinical references, and structured medical corpora.",
+  "status": "active",
+  "default_agent_id": "default",
+  "knowledge": {
+    "storage_root": "storage/groups/medicine/knowledge",
+    "raw": "storage/groups/medicine/knowledge/raw",
+    "indexes": "storage/groups/medicine/knowledge/indexes"
+  },
+  "memory_policy": {},
+  "metadata": {
+    "created_by": "codex_retrieval_migration"
+  },
+  "created_at": "2026-05-30T00:00:00+00:00",
+  "updated_at": "2026-05-30T00:00:00+00:00"
+}

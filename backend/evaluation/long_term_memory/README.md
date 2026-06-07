@@ -1,0 +1,36 @@
+# Long-Term Memory Evaluation
+
+`backend/evaluation/long_term_memory/` 用于评估长期记忆写入质量。
+
+## 目录说明
+
+- `topic_config.py`
+  - 将本专题 graders 装配成 `core.runner` 可执行配置
+- `graders/`
+  - `rule_layer/`：结构性与硬约束判断
+  - `model_layer/`：语义维度 LLM grader 与 runtime
+  - `finalize_layer/`：fallback、聚合、人工复核标记
+- `query_inputs/`
+  - 手工 seed case 与后续 trace 抽样输入
+- `rubrics/`
+  - 维度定义、原因标签与边界说明
+- `schemas/`
+  - case/result 最小字段
+- `reports/`
+  - 评测输出
+- `exports/`
+  - benchmark 冻结集与中间导出物
+
+## 当前第一版范围
+
+- `should_write`
+- `should_not_write`
+- `type_correctness`
+- `scope_correctness`
+- `anchor_preservation`
+
+## 运行方式
+
+```bash
+python backend/evaluation/long_term_memory/evaluate_long_term_memory.py backend/evaluation/long_term_memory/query_inputs/seed_cases.jsonl --report-dir backend/evaluation/long_term_memory/reports/manual_run
+```

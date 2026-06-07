@@ -18,7 +18,6 @@ from api.tokens import router as tokens_router
 from api.users import router as users_router
 from config import get_settings
 from graph.agent import agent_manager
-from graph.memory_indexer import memory_indexer
 from knowledge_retrieval import knowledge_indexer
 from tools.skills_scanner import refresh_snapshot
 

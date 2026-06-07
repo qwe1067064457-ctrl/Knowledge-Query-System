@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from intent.resolver import resolve_intent
-from intent.types import IntentEvidence, SignalBuckets, TaskCandidate
+from intent.pipeline.resolver import resolve_intent
+from intent.schema.intent_types import IntentEvidence, SignalBuckets, TaskCandidate
 
 
 def _evidence(*task_candidates: TaskCandidate) -> IntentEvidence:

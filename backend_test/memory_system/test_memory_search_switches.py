@@ -34,6 +34,7 @@ class MemorySearchSwitchTests(unittest.TestCase):
         )
         memory.write_domain_case(
             group_id="law",
+            user_id="u1",
             title="Breach liability case",
             content="The case emphasizes foreseeability in breach liability.",
         )
@@ -105,7 +106,6 @@ class MemorySearchSwitchTests(unittest.TestCase):
                         "enabled_memory_types": ["daily_log", "domain_case"],
                         "core": {
                             "explicit_markers": ["ALWAYS"],
-                            "group_scope_keywords": ["LAW"],
                             "min_candidate_length": 1,
                             "max_candidate_length": 120,
                         },
@@ -142,7 +142,6 @@ class MemorySearchSwitchTests(unittest.TestCase):
                         "enabled_memory_types": ["core", "daily_log"],
                         "core": {
                             "explicit_markers": ["ALWAYS"],
-                            "group_scope_keywords": ["LAW"],
                             "min_candidate_length": 1,
                             "max_candidate_length": 120,
                         },

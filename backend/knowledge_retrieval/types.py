@@ -17,6 +17,7 @@ class Evidence:
     channel: RetrievalChannel
     score: float | None = None
     parent_id: str | None = None
+    metadata: dict[str, Any] = field(default_factory=dict)
 
     def to_dict(self) -> dict[str, Any]:
         return asdict(self)
@@ -66,6 +67,9 @@ class SkillRetrievalResult:
 class HybridRetrievalResult:
     vector_evidences: list[Evidence] = field(default_factory=list)
     bm25_evidences: list[Evidence] = field(default_factory=list)
+    text_hits: list[Evidence] = field(default_factory=list)
+    table_hits: list[Evidence] = field(default_factory=list)
+    merged_hits: list[Evidence] = field(default_factory=list)
 
 
 @dataclass

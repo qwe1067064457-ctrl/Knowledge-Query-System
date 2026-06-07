@@ -34,14 +34,13 @@ def test_prepare_triggers_compaction_and_flush_before_summary_writeback(workspac
         context = make_context_manager(workspace, sessions=sessions, memory=memory)
 
         def fake_llm(prompt: str) -> str:
-            if "提取对你主人重要的信息" in prompt:
-                return "- Record: archived sessions still accept writes."
             return "Compaction summary"
 
         context.set_llm_call(fake_llm)
         session = sessions.create_session("law", "default", "u1")
         for index in range(6):
             role = "user" if index % 2 == 0 else "assistant"
+            content = ("archived sessions still accept writes. " if index == 0 else "") + ("Very long context body " * 40)
             sessions.append_entry(
                 "law",
                 "default",
@@ -49,7 +48,7 @@ def test_prepare_triggers_compaction_and_flush_before_summary_writeback(workspac
                     session.id,
                     "law",
                     role,
-                    "Very long context body " * 40,
+                    content,
                     token_count=120,
                 ),
             )

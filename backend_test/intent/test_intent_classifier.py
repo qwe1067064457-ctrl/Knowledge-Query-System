@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from intent import classify_intent
+from intent.loaders import load_intent_rule_assets
 
 
 LAW_HISTORY = [
@@ -559,3 +560,20 @@ def test_explicit_staged_task_is_marked_as_staged_complex() -> None:
     assert result.resolved.task.complexity == "complex"
     assert result.resolved.task.topology == "staged"
     assert result.control.route == "orchestrated"
+
+
+def test_isolated_asset_group_avoids_domain_bootstrap_match() -> None:
+    isolated_assets = load_intent_rule_assets("general")
+
+    result = classify_intent("劳动合同法中试用期最长多久？", rule_assets=isolated_assets)
+
+    assert "intent.qa.domain" not in {match.rule_id for match in result.evidence.matched_rules}
+    assert result.resolved.main_intent == "qa"
+
+
+def test_default_asset_group_keeps_domain_bootstrap_match() -> None:
+    bootstrap_assets = load_intent_rule_assets()
+
+    result = classify_intent("劳动合同法中试用期最长多久？", rule_assets=bootstrap_assets)
+
+    assert "intent.qa.domain" in {match.rule_id for match in result.evidence.matched_rules}

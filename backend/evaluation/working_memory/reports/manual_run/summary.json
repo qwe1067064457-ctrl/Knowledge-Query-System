@@ -1,0 +1,44 @@
+{
+  "samples": 2,
+  "needs_human_review": 1,
+  "labels": {
+    "good": 1,
+    "bad": 1
+  },
+  "dimension_labels": {
+    "continuity_support": {
+      "good": 1,
+      "bad": 1
+    },
+    "freshness": {
+      "good": 1,
+      "weak": 1
+    },
+    "handoff_utility": {
+      "good": 1,
+      "bad": 1
+    },
+    "key_state_capture": {
+      "good": 1,
+      "bad": 1
+    },
+    "noise_control": {
+      "good": 1,
+      "bad": 1
+    }
+  },
+  "reasons": {
+    "missing_focus_task": 1,
+    "missing_resolved_query": 1,
+    "too_noisy": 1,
+    "handoff_not_ready": 1
+  },
+  "average_score": 0.525,
+  "source_distribution": {
+    "offline_seed": 2
+  },
+  "user_feedback_distribution": {
+    "None": 1,
+    "dislike": 1
+  }
+}

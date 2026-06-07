@@ -15,7 +15,7 @@ if str(BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(BACKEND_DIR))
 
 from evaluation.intent.signal_taxonomy import EXPECTED_BUCKETS, flatten_signal_buckets, normalize_signal_buckets
-from intent.task_compat import infer_topology_from_legacy_task
+from intent.pipeline.task_compat import infer_topology_from_legacy_task
 
 COMPARE_FIELDS = (
     "resolved.main_intent",

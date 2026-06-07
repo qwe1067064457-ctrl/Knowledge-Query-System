@@ -1,0 +1,72 @@
+{
+  "samples": 2,
+  "needs_human_review": 1,
+  "retrieval": {
+    "labels": {
+      "good": 1,
+      "bad": 1
+    },
+    "dimension_labels": {
+      "presence": {
+        "good": 1,
+        "bad": 1
+      },
+      "relevance": {
+        "good": 1,
+        "bad": 1
+      },
+      "sufficiency": {
+        "good": 1,
+        "bad": 1
+      },
+      "usability": {
+        "weak": 1,
+        "bad": 1
+      }
+    },
+    "reasons": {
+      "no_evidence": 1,
+      "off_topic": 1,
+      "insufficient_evidence": 1,
+      "evidence_unused": 1
+    },
+    "average_score": 0.45
+  },
+  "answer": {
+    "labels": {
+      "good": 1,
+      "bad": 1
+    },
+    "dimension_labels": {
+      "answered": {
+        "weak": 2
+      },
+      "consistency_with_evidence": {
+        "good": 1,
+        "weak": 1
+      },
+      "constraint_coverage": {
+        "weak": 2
+      },
+      "grounded": {
+        "good": 1,
+        "bad": 1
+      },
+      "no_hallucination": {
+        "good": 1,
+        "weak": 1
+      }
+    },
+    "reasons": {
+      "ungrounded": 1
+    },
+    "average_score": 0.575
+  },
+  "source_distribution": {
+    "offline_seed": 2
+  },
+  "user_feedback_distribution": {
+    "None": 1,
+    "dislike": 1
+  }
+}

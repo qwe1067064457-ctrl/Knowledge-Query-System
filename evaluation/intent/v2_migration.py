@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import Any
 
-from intent.task_compat import infer_topology_from_legacy_task
+from intent.pipeline.task_compat import infer_topology_from_legacy_task
 
 
 def infer_context_signals_from_dependency(dependency_signals: dict[str, Any]) -> dict[str, Any]:

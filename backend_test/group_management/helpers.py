@@ -27,7 +27,6 @@ DEFAULT_MEMORY_POLICY = {
         "enabled_memory_types": ["core", "daily_log", "domain_case"],
         "core": {
             "explicit_markers": ["always", "default"],
-            "group_scope_keywords": ["law", "contract"],
             "min_candidate_length": 3,
             "max_candidate_length": 120,
         },

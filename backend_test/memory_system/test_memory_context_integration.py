@@ -73,6 +73,7 @@ class MemoryContextIntegrationTests(unittest.TestCase):
                 )
                 memory.write_domain_case(
                     group_id="law",
+                    user_id="u1",
                     title="Breach liability case",
                     content="The case relates breach liability to foreseeability.",
                 )
@@ -159,7 +160,6 @@ class MemoryContextIntegrationTests(unittest.TestCase):
                         "enabled_memory_types": ["core", "daily_log", "domain_case"],
                         "core": {
                             "explicit_markers": ["ALWAYS"],
-                            "group_scope_keywords": ["LAW"],
                             "min_candidate_length": 1,
                             "max_candidate_length": 120,
                         },
@@ -196,7 +196,6 @@ class MemoryContextIntegrationTests(unittest.TestCase):
                         "enabled_memory_types": ["core", "daily_log", "domain_case"],
                         "core": {
                             "explicit_markers": ["ALWAYS", "DEFAULT"],
-                            "group_scope_keywords": ["LAW", "STATUTE"],
                             "min_candidate_length": 1,
                             "max_candidate_length": 120,
                         },
@@ -218,7 +217,7 @@ class MemoryContextIntegrationTests(unittest.TestCase):
                     source_session_id="s1",
                     messages=[
                         {"role": "user", "content": "ALWAYS answer in Chinese."},
-                        {"role": "user", "content": "DEFAULT in this LAW workspace, cite STATUTE text first."},
+                        {"role": "user", "content": "DEFAULT in this LAW workspace, cite STATUTE text first.", "memory_scope": "user_group"},
                     ],
                 )
 
@@ -239,7 +238,6 @@ class MemoryContextIntegrationTests(unittest.TestCase):
                         "enabled_memory_types": ["core", "daily_log", "domain_case"],
                         "core": {
                             "explicit_markers": ["ALWAYS"],
-                            "group_scope_keywords": ["LAW"],
                             "min_candidate_length": 1,
                             "max_candidate_length": 120,
                         },
@@ -272,14 +270,14 @@ class MemoryContextIntegrationTests(unittest.TestCase):
                     "law",
                     "default",
                     "breach liability CASE",
-                    user_id="u2",
+                    user_id="u1",
                     include_core=False,
                     include_daily_logs=False,
                     min_score=0.01,
                 )
                 self.assertTrue(results)
                 self.assertEqual(results[0].memory_type, "domain_case")
-                self.assertEqual(results[0].scope, "group_shared")
+                self.assertEqual(results[0].scope, "user_group")
 
         asyncio.run(run())
 
@@ -293,7 +291,6 @@ class MemoryContextIntegrationTests(unittest.TestCase):
                         "enabled_memory_types": ["core", "daily_log", "domain_case"],
                         "core": {
                             "explicit_markers": ["ALWAYS"],
-                            "group_scope_keywords": ["LAW"],
                             "min_candidate_length": 1,
                             "max_candidate_length": 120,
                         },
@@ -338,8 +335,6 @@ class MemoryContextIntegrationTests(unittest.TestCase):
                 context = make_context_manager(workspace)
 
                 def fake_llm(prompt: str) -> str:
-                    if "提取对你主人重要的信息" in prompt:
-                        return "- Record: the user confirmed archived sessions still accept writes."
                     return "Compaction summary"
 
                 context.config.memory_flush_enabled = True
@@ -348,6 +343,9 @@ class MemoryContextIntegrationTests(unittest.TestCase):
                 session = sessions.create_session("law", "default", "u1")
                 for index in range(6):
                     role = "user" if index % 2 == 0 else "assistant"
+                    content = (
+                        "the user confirmed archived sessions still accept writes. " if index == 0 else ""
+                    ) + ("Very long context body " * 40)
                     sessions.append_entry(
                         "law",
                         "default",
@@ -355,7 +353,7 @@ class MemoryContextIntegrationTests(unittest.TestCase):
                             session.id,
                             "law",
                             role,
-                            "Very long context body " * 40,
+                            content,
                             token_count=120,
                         ),
                     )

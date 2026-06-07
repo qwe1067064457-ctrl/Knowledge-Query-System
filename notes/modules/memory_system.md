@@ -36,16 +36,10 @@ backend/memory_system/policy.default.json
 backend/memory_system/RULES.md
 ```
 
-兼容桥：
-
-```text
-backend/context/memory_system.py
-```
-
 注意：
 
-- 新的唯一主模块是 `backend/memory_system/`。
-- `backend/context/memory_system.py` 只应作为兼容桥，不应继续承载新逻辑。
+- 唯一正式主模块是 `backend/memory_system/`。
+- 不再保留 `backend/context/memory_system.py` 这类兼容桥。
 
 ## 3. 为什么从 context 拆出来
 
@@ -69,16 +63,15 @@ daily_log
 domain_case
 ```
 
-不再使用旧的：
+不再使用旧的 Markdown 镜像命名：
 
 ```text
-memory/MEMORY.md
-memory/cases.md
-按 agent 镜像的 MEMORY.md
-按 agent 镜像的 cases.md
+memory 目录下的 MEMORY 镜像文件
+memory 目录下的 cases 镜像文件
+按 agent 维度镜像的 MEMORY/cases 文件
 ```
 
-旧文件可以作为历史资料存在，但不再作为新 memory system 的主语义来源。
+这些旧命名仅用于迁移说明，不再属于正式设计，也不应再作为运行链路、模块说明或新实现的语义来源。
 
 ## 5. 记忆作用域
 
@@ -719,12 +712,12 @@ core -> extended core -> daily -> cases
 旧链路：
 
 - `graph.memory_indexer`
-- `memory/MEMORY.md`
+- 旧 Markdown 记忆镜像检索链
 - RAG retrieval card
 
 新链路：
 
-- `MemorySystem.search(...)`
+- `MemorySystem.search(...) / search_memories(...)`
 - `ContextManager._inject_memories(...)`
 - 注入到 system context
 
@@ -755,7 +748,7 @@ test_memory_policy_loader.py
 
 测试框架：
 
-- unittest
+- pytest
 
 注意：
 
@@ -815,7 +808,7 @@ OK (skipped=2)
 
 8. 不保留 default 用户兜底语义。
 
-9. 不再测试旧 `MEMORY.md / cases.md` 镜像文件。
+9. 不再测试旧 Markdown 记忆镜像文件。
 
 10. 写入时机要 policy 驱动，不在代码里硬编码 law、medical 等词。
 

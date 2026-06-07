@@ -50,9 +50,27 @@ def write_text(path: Path, content: str) -> None:
 
 def ensure_law_storage_structure(backend_dir: Path, group_id: str = "law") -> Path:
     storage_root = backend_dir / "storage" / "groups" / group_id
-    shared_root = storage_root / "shared" / "domain_cases"
-    cases_root = shared_root / "cases"
-    cases_root.mkdir(parents=True, exist_ok=True)
+    users_root = storage_root / "users"
+    knowledge_root = storage_root / "knowledge"
+    for path in (
+        users_root,
+        knowledge_root / "raw",
+        knowledge_root / "parsed",
+        knowledge_root / "normalized",
+        knowledge_root / "chunked",
+        knowledge_root / "meta",
+        knowledge_root / "indexes" / "current" / "text_pool" / "lexical",
+        knowledge_root / "indexes" / "current" / "text_pool" / "vector",
+        knowledge_root / "indexes" / "current" / "table_pool" / "lexical",
+        knowledge_root / "indexes" / "current" / "table_pool" / "vector",
+        knowledge_root / "indexes" / "builds" / "running",
+        knowledge_root / "indexes" / "builds" / "latest",
+        knowledge_root / "indexes" / "snapshots",
+        storage_root / "registries",
+        storage_root / "registries" / "history",
+        storage_root / "registries" / "recovery",
+    ):
+        path.mkdir(parents=True, exist_ok=True)
 
     meta_path = storage_root / "meta.json"
     if not meta_path.exists():
@@ -65,9 +83,9 @@ def ensure_law_storage_structure(backend_dir: Path, group_id: str = "law") -> Pa
                 "status": "active",
                 "default_agent_id": "default",
                 "knowledge": {
-                    "root": f"knowledge/groups/{group_id}",
-                    "documents": f"knowledge/groups/{group_id}/documents",
-                    "uploads": f"knowledge/groups/{group_id}/uploads",
+                    "storage_root": f"storage/groups/{group_id}/knowledge",
+                    "raw": f"storage/groups/{group_id}/knowledge/raw",
+                    "indexes": f"storage/groups/{group_id}/knowledge/indexes",
                 },
                 "memory_policy": {},
                 "metadata": {"created_by": "codex_law_kb_builder"},
@@ -76,9 +94,27 @@ def ensure_law_storage_structure(backend_dir: Path, group_id: str = "law") -> Pa
             },
         )
 
-    index_path = shared_root / "index.json"
-    if not index_path.exists():
-        write_json(index_path, {"items": []})
+    for path in (
+        storage_root / "registries" / "history" / "source_registry.jsonl",
+        storage_root / "registries" / "history" / "build_registry.jsonl",
+        storage_root / "registries" / "history" / "build_history.jsonl",
+        storage_root / "registries" / "history" / "validation_history.jsonl",
+        storage_root / "registries" / "index_manifest.json",
+        knowledge_root / "meta" / "source_catalog.jsonl",
+        knowledge_root / "meta" / "source_layout.json",
+    ):
+        if not path.exists():
+            path.write_text("[]\n" if path.name.endswith(".jsonl") else "{}\n", encoding="utf-8")
+    for sqlite_path in (
+        storage_root / "registries" / "work_queue.sqlite",
+        storage_root / "registries" / "recovery" / "scan_checkpoints.sqlite",
+        storage_root / "registries" / "recovery" / "document_checkpoints.sqlite",
+        storage_root / "registries" / "recovery" / "index_checkpoints.sqlite",
+        storage_root / "registries" / "recovery" / "activation_checkpoints.sqlite",
+    ):
+        sqlite_path.parent.mkdir(parents=True, exist_ok=True)
+        if not sqlite_path.exists():
+            sqlite_path.touch()
 
     return storage_root
 
@@ -133,24 +169,20 @@ def build_manifest(
 def render_law_readme() -> str:
     return """# Law 知识库
 
-本目录是 `law` 组的知识库根目录，用于存放法律法规、司法解释、判例、案例资料等原始文献。
+本目录是 `law` 组在 `storage/groups/law/knowledge/raw/` 下的原始知识资料。
 
 ## 目录边界
 
-- `documents/`：原始法律文献、法规条文、判例、指导案例等资料。
+- `us/`：原始法律文献、法规条文等资料。
+- `cn/`：中文法律资料预留区。
 - `uploads/`：后续人工上传的临时资料或待整理资料。
-- `storage/groups/law/shared/domain_cases/`：组共享的可复用案例卡片和分析结论，不存放大批量原始文档。
-
-## 当前资料
-
-- `documents/us/ecfr/`：美国 eCFR 联邦法规条文，已按主题分类为本地 Markdown 文件。
-- `documents/cn/`：中国法律资料预留区，后续优先整理官方来源。
+- `storage/groups/law/users/{user_id}/memory/domain_case/`：用户个人案例卡片和分析结论，不存放大批量原始文档。
 """
 
 
 def render_documents_index(category_counts: dict[str, int]) -> str:
     category_lines = "\n".join(f"- `{category}`：{count} 篇" for category, count in sorted(category_counts.items()))
-    return f"""# Law Documents 索引
+    return f"""# Law Raw 索引
 
 本索引用于帮助 agent 和人工先判断资料位置，再进入具体目录读取原文。
 
@@ -158,7 +190,7 @@ def render_documents_index(category_counts: dict[str, int]) -> str:
 
 ### 美国 / eCFR 联邦法规
 
-路径：`documents/us/ecfr/`
+路径：`knowledge/raw/us/ecfr/`
 
 类型：法规条文
 
@@ -178,7 +210,7 @@ def render_documents_index(category_counts: dict[str, int]) -> str:
 
 ## 和 domain_case 的区别
 
-- `documents/` 保存原始文献。
+- `knowledge/raw/` 保存原始文献。
 - `domain_case` 保存从任务中沉淀出的可复用案例卡片、分析框架和结论。
 - 不把大批量原始法规或判决全文写入 `domain_case`。
 """
@@ -234,11 +266,12 @@ def build_law_knowledge_base(
 
     ensure_law_storage_structure(backend_dir, group_id=group_id)
 
-    law_root = backend_dir / "knowledge" / "groups" / group_id
-    documents_root = law_root / "documents"
-    ecfr_root = documents_root / "us" / "ecfr"
-    cn_root = documents_root / "cn"
-    uploads_root = law_root / "uploads"
+    law_root = backend_dir / "storage" / "groups" / group_id / "knowledge"
+    raw_root = law_root / "raw"
+    documents_root = raw_root
+    ecfr_root = raw_root / "us" / "ecfr"
+    cn_root = raw_root / "cn"
+    uploads_root = raw_root / "uploads"
 
     ecfr_root.mkdir(parents=True, exist_ok=True)
     cn_root.mkdir(parents=True, exist_ok=True)
