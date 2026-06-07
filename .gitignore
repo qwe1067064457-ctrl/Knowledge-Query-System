@@ -29,3 +29,8 @@ backend/temp_*.txt
 .DS_Store
 Thumbs.db
 backend/demo/
+.venv-v2sft
+backend/models
+backend_test/intent
+docker/
+evaluation/intent/v2_sft
