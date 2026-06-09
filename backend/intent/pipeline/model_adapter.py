@@ -4,7 +4,7 @@ import os
 from dataclasses import replace
 from typing import Any, Iterable, Protocol
 
-from intent.schema.intent_types import IntentEvidence, IntentInput, IntentModifiers, ModelResult, TaskCandidate
+from intent.schema.intent_types import CandidateIntent, IntentEvidence, IntentInput, ModelResult, TaskCandidate
 
 
 INTENT_MODEL_EVIDENCE_ENV = "INTENT_MODEL_EVIDENCE_ENABLED"
@@ -37,8 +37,10 @@ def merge_model_evidence(
         return evidence
 
     merged_task_candidates = _merge_task_candidates(evidence.task_candidates, sanitized.task_candidates)
+    merged_candidate_intents = _merge_candidate_intents(evidence.candidate_intents, sanitized.candidate_intents)
     return replace(
         evidence,
+        candidate_intents=merged_candidate_intents,
         task_candidates=merged_task_candidates,
         model_result=sanitized,
     )
@@ -51,20 +53,39 @@ def _should_skip_model_merge(evidence: IntentEvidence) -> bool:
 
 
 def _sanitize_model_result(model_result: ModelResult) -> ModelResult | None:
-    allowed_modifiers = IntentModifiers(soft_doubt=model_result.modifiers.soft_doubt)
-    allowed_tasks = tuple(model_result.task_candidates)
-    if not allowed_modifiers.soft_doubt and not allowed_tasks:
+    if not model_result.valid:
         return None
-
-    return ModelResult(
-        valid=True,
-        candidate_intents=(),
-        modifiers=allowed_modifiers,
-        task_candidates=allowed_tasks,
-        context_dependency="none",
-        confidence=model_result.confidence,
-        reason=model_result.reason,
+    has_soft_payload = any(
+        [
+            model_result.candidate_intents,
+            model_result.task_candidates,
+            model_result.main_intent_probs,
+            model_result.task_complexity_probs,
+            model_result.task_shape_probs,
+            model_result.task_topology_probs,
+            model_result.context_dependency_probs,
+            model_result.handling_mode_probs,
+            model_result.modifier_scores,
+            model_result.context_scores,
+            model_result.safety_scores,
+            model_result.ambiguity_scores,
+        ]
     )
+    if not has_soft_payload and not any(model_result.modifiers.to_dict().values()):
+        return None
+    return model_result
+
+
+def _merge_candidate_intents(
+    rule_candidates: tuple[CandidateIntent, ...],
+    model_candidates: tuple[CandidateIntent, ...],
+) -> tuple[CandidateIntent, ...]:
+    merged: dict[str, CandidateIntent] = {candidate.intent: candidate for candidate in rule_candidates}
+    for candidate in model_candidates:
+        current = merged.get(candidate.intent)
+        if current is None or candidate.score > current.score:
+            merged[candidate.intent] = candidate
+    return tuple(sorted(merged.values(), key=lambda item: item.score, reverse=True))
 
 
 def _merge_task_candidates(
@@ -72,10 +93,10 @@ def _merge_task_candidates(
     model_candidates: tuple[TaskCandidate, ...],
 ) -> tuple[TaskCandidate, ...]:
     merged: dict[tuple[str, str], TaskCandidate] = {
-        (candidate.complexity, candidate.shape): candidate for candidate in rule_candidates
+        (candidate.complexity, candidate.shape, candidate.topology): candidate for candidate in rule_candidates
     }
     for candidate in model_candidates:
-        key = (candidate.complexity, candidate.shape)
+        key = (candidate.complexity, candidate.shape, candidate.topology)
         current = merged.get(key)
         if current is None or candidate.score > current.score:
             merged[key] = candidate

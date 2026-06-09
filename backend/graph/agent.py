@@ -20,6 +20,7 @@ from graph.prompt_builders.workflow_prompt_projector import (
     build_answer_result_projection_rules_from_workflow,
 )
 from intent import classify_intent
+from intent.model_runtime import build_default_llm_fallback_adapter, build_default_small_model_adapter
 from intent.loaders import load_group_intent_rule_assets
 from intent.rules.knowledge_query_rules import is_knowledge_query
 from knowledge_retrieval import knowledge_orchestrator
@@ -63,6 +64,8 @@ class AgentManager:
         self.retrieval_emitter = RetrievalEmitter(self.langsmith_client)
         self.context_emitter = ContextEmitter(self.langsmith_client)
         self.intent_emitter = IntentEmitter(self.langsmith_client)
+        self.intent_model_adapter = None
+        self.intent_llm_fallback_adapter = None
 
     def initialize(self, base_dir: Path) -> None:
         self.base_dir = base_dir
@@ -76,6 +79,24 @@ class AgentManager:
 
         self.tools = get_all_tools(base_dir)
         knowledge_orchestrator.configure(base_dir, build_chat_model)
+        self.intent_model_adapter = self._build_intent_model_adapter()
+        self.intent_llm_fallback_adapter = self._build_intent_llm_fallback_adapter()
+
+    def _build_intent_model_adapter(self):
+        if self.base_dir is None:
+            return None
+        try:
+            return build_default_small_model_adapter(project_root=self.base_dir.parent)
+        except Exception:
+            return None
+
+    def _build_intent_llm_fallback_adapter(self):
+        if self.base_dir is None:
+            return None
+        try:
+            return build_default_llm_fallback_adapter(project_root=self.base_dir.parent)
+        except Exception:
+            return None
 
     async def _llm_text_call(self, prompt: str) -> str:
         response = await build_chat_model().ainvoke(
@@ -577,7 +598,13 @@ class AgentManager:
             trace_context.group_id = active_group_id
             intent_assets = load_group_intent_rule_assets(self.base_dir / "storage", active_group_id)
             intent_started_at = datetime.now()
-            intent_analysis = classify_intent(message, history, rule_assets=intent_assets)
+            intent_analysis = classify_intent(
+                message,
+                history,
+                rule_assets=intent_assets,
+                model_adapter=self.intent_model_adapter,
+                llm_fallback_adapter=self.intent_llm_fallback_adapter,
+            )
             self._emit_intent_event(
                 started_at=intent_started_at,
                 query=message,

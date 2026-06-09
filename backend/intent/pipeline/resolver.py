@@ -31,20 +31,43 @@ def resolve_intent(evidence: IntentEvidence) -> ResolvedIntent:
 
 def _resolve_modifiers(evidence: IntentEvidence) -> IntentModifiers:
     model_modifiers = evidence.model_result.modifiers if evidence.model_result else IntentModifiers()
+    model_scores = evidence.model_result.modifier_scores if evidence.model_result else {}
+    handling_mode_probs = evidence.model_result.handling_mode_probs if evidence.model_result else {}
+    safety_scores = evidence.model_result.safety_scores if evidence.model_result else {}
     intent_signals = set(evidence.signal_buckets.intent)
     safety_signals = set(evidence.signal_buckets.safety)
     return IntentModifiers(
-        follow_up=("follow_up" in intent_signals) or model_modifiers.follow_up,
-        challenge=("challenge" in intent_signals) or model_modifiers.challenge,
-        soft_doubt=("soft_doubt" in intent_signals) or model_modifiers.soft_doubt,
-        ask_source=("ask_source" in intent_signals) or model_modifiers.ask_source,
-        ask_capability=("ask_capability" in intent_signals) or model_modifiers.ask_capability,
-        out_of_scope=("out_of_scope" in safety_signals) or model_modifiers.out_of_scope,
+        follow_up=("follow_up" in intent_signals) or model_modifiers.follow_up or float(model_scores.get("follow_up", 0.0)) >= 0.5,
+        challenge=(
+            ("challenge" in intent_signals)
+            or model_modifiers.challenge
+            or float(model_scores.get("challenge", 0.0)) >= 0.35
+            or float(handling_mode_probs.get("challenge", 0.0)) >= 0.6
+        ),
+        soft_doubt=("soft_doubt" in intent_signals) or model_modifiers.soft_doubt or float(model_scores.get("soft_doubt", 0.0)) >= 0.3,
+        ask_source=("ask_source" in intent_signals) or model_modifiers.ask_source or float(model_scores.get("ask_source", 0.0)) >= 0.2,
+        ask_capability=(
+            ("ask_capability" in intent_signals)
+            or model_modifiers.ask_capability
+            or float(model_scores.get("ask_capability", 0.0)) >= 0.45
+            or float(handling_mode_probs.get("scope_info", 0.0)) >= 0.55
+        ),
+        out_of_scope=(
+            ("out_of_scope" in safety_signals)
+            or model_modifiers.out_of_scope
+            or float(model_scores.get("out_of_scope", 0.0)) >= 0.4
+            or float(safety_scores.get("out_of_scope", 0.0)) >= 0.4
+        ),
     )
 
 
 def _resolve_main_intent(evidence: IntentEvidence, modifiers: IntentModifiers) -> str:
-    if modifiers.out_of_scope or any(evidence.unsupported_signals.values()):
+    model_result = evidence.model_result
+    if (
+        modifiers.out_of_scope
+        or any(evidence.unsupported_signals.values())
+        or (model_result and float(model_result.safety_scores.get("unsupported", 0.0)) >= 0.35)
+    ):
         return "unsupported"
     if modifiers.ask_capability:
         return "system"
@@ -74,6 +97,9 @@ def _resolve_task(
         return ResolvedTask(complexity="simple", shape="none", topology="single")
 
     candidates = list(evidence.task_candidates)
+    model_candidates = _build_model_task_candidates(evidence)
+    if model_candidates:
+        candidates.extend(model_candidates)
     if modifiers.challenge:
         return ResolvedTask(
             complexity="simple",
@@ -99,6 +125,45 @@ def _resolve_task(
         shape=shape,
         topology=topology,
     )
+
+
+def _build_model_task_candidates(evidence: IntentEvidence) -> list[TaskCandidate]:
+    model_result = evidence.model_result
+    if model_result is None:
+        return []
+    if not model_result.task_shape_probs:
+        return []
+    complexity = _top_label(model_result.task_complexity_probs, default="simple")
+    topology = _top_label(model_result.task_topology_probs, default="single")
+    shape_candidates = [
+        (label, score)
+        for label, score in sorted(model_result.task_shape_probs.items(), key=lambda item: item[1], reverse=True)
+        if label != "none" and score >= 0.12
+    ]
+    candidates: list[TaskCandidate] = []
+    for shape, score in shape_candidates[:2]:
+        normalized_topology = topology
+        if normalized_topology == "single" and shape == "multi_question":
+            normalized_topology = "parallel_queries"
+        candidates.append(
+            TaskCandidate(
+                complexity=complexity,
+                shape=shape,
+                topology=normalized_topology,
+                score=float(score),
+            )
+        )
+    if topology == "staged" and shape_candidates:
+        top_shape, top_score = shape_candidates[0]
+        candidates.append(
+            TaskCandidate(
+                complexity="complex",
+                shape=top_shape,
+                topology="staged",
+                score=float(max(top_score, model_result.task_topology_probs.get("staged", 0.0))),
+            )
+        )
+    return candidates
 
 
 def _resolve_complexity(candidates: list[TaskCandidate]) -> str:
@@ -132,7 +197,9 @@ def _resolve_topology(candidates: list[TaskCandidate], complexity: str) -> str:
     if complexity == "compound":
         if any(item.topology == "parallel_subtasks" for item in candidates):
             return "parallel_subtasks"
-        return "parallel_queries"
+        if any(item.topology == "parallel_queries" for item in candidates):
+            return "parallel_queries"
+        return "single"
     return "single"
 
 
@@ -166,9 +233,22 @@ def _resolve_shape(candidates: list[TaskCandidate], complexity: str, topology: s
     if complexity == "compound":
         if topology in {"parallel_queries", "parallel_subtasks"}:
             return "multi_question"
+        non_multi = [
+            item
+            for item in candidates
+            if item.complexity == "compound" and item.shape != "multi_question"
+        ]
+        if non_multi:
+            return max(non_multi, key=lambda item: item.score).shape
 
     best = max(candidates, key=lambda item: item.score)
     return best.shape
+
+
+def _top_label(scores: dict[str, float], *, default: str) -> str:
+    if not scores:
+        return default
+    return max(scores.items(), key=lambda item: item[1])[0]
 
 
 def _fallback_topology(task_signals: set[str]) -> str:
@@ -186,11 +266,16 @@ def _resolve_context_dependency(
     modifiers: IntentModifiers,
 ) -> ContextDependency:
     context = evidence.context_signals
+    model_result = evidence.model_result
+    context_dependency_probs = model_result.context_dependency_probs if model_result else {}
+    context_scores = model_result.context_scores if model_result else {}
     if modifiers.challenge:
         if context.needs_previous_answer:
             return "previous_answer"
         if context.ambiguous:
             return "ambiguous"
+        if float(context_dependency_probs.get("global", 0.0)) >= 0.4:
+            return "previous_answer"
         return "previous_answer"
     if modifiers.follow_up:
         if context.previous_retrieval:
@@ -207,6 +292,12 @@ def _resolve_context_dependency(
         return "previous_answer"
     if context.history_reference:
         return "history_reference"
+    if float(context_scores.get("previous_retrieval", 0.0)) >= 0.5:
+        return "previous_retrieval"
+    if float(context_scores.get("needs_previous_answer", 0.0)) >= 0.25 or float(context_dependency_probs.get("global", 0.0)) >= 0.45:
+        return "previous_answer"
+    if float(context_scores.get("history_reference", 0.0)) >= 0.2 or float(context_dependency_probs.get("partial", 0.0)) >= 0.45:
+        return "history_reference"
     if context.ambiguous or context.has_implicit_history:
         return "ambiguous"
     return "none"
@@ -214,10 +305,22 @@ def _resolve_context_dependency(
 
 def _resolve_ambiguity_state(evidence: IntentEvidence) -> AmbiguityState:
     context = evidence.context_signals
+    model_result = evidence.model_result
+    ambiguity_scores = model_result.ambiguity_scores if model_result else {}
+    context_scores = model_result.context_scores if model_result else {}
+    ambiguity_states = list(context.ambiguity_states)
+    if float(ambiguity_scores.get("referent_ambiguity", 0.0)) >= 0.25 and "referent_ambiguity" not in ambiguity_states:
+        ambiguity_states.append("referent_ambiguity")
+    if float(ambiguity_scores.get("target_ambiguity", 0.0)) >= 0.2 and "target_ambiguity" not in ambiguity_states:
+        ambiguity_states.append("target_ambiguity")
+    if float(ambiguity_scores.get("scope_ambiguity", 0.0)) >= 0.2 and "scope_ambiguity" not in ambiguity_states:
+        ambiguity_states.append("scope_ambiguity")
+    if float(ambiguity_scores.get("missing_context", 0.0)) >= 0.35 and "missing_context" not in ambiguity_states:
+        ambiguity_states.append("missing_context")
     return AmbiguityState(
-        clarify_hint=context.clarify_hint,
-        needs_previous_answer=context.needs_previous_answer,
-        ambiguity_states=context.ambiguity_states,
+        clarify_hint=context.clarify_hint or float(context_scores.get("clarify_hint", 0.0)) >= 0.45,
+        needs_previous_answer=context.needs_previous_answer or float(context_scores.get("needs_previous_answer", 0.0)) >= 0.25,
+        ambiguity_states=tuple(ambiguity_states),
         missing_context_types=context.missing_context_types,
     )
 

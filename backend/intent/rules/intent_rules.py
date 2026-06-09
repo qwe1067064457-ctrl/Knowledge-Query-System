@@ -11,7 +11,9 @@ def _compile_patterns(patterns: tuple[str, ...]) -> tuple[Pattern[str], ...]:
 ASK_SOURCE_PATTERNS = _compile_patterns(
     (
         r"依据是什么",
-        r"来源|出处|引用|根据哪条|哪一条",
+        r"(来源|出处|引用).{0,8}(是什么|在哪|来自哪里|给我|发我|贴出来|列出来|说明一下)",
+        r"(给出|提供|说明|列出).{0,8}(来源|出处|引用)",
+        r"(根据哪条|哪一条)",
         r"\b(source|citation|reference)\b",
     )
 )
