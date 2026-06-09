@@ -127,6 +127,19 @@ class ModelResult:
     modifiers: IntentModifiers = field(default_factory=IntentModifiers)
     task_candidates: tuple[TaskCandidate, ...] = ()
     context_dependency: ContextDependency = "none"
+    main_intent_probs: dict[str, float] = field(default_factory=dict)
+    task_complexity_probs: dict[str, float] = field(default_factory=dict)
+    task_shape_probs: dict[str, float] = field(default_factory=dict)
+    task_topology_probs: dict[str, float] = field(default_factory=dict)
+    context_dependency_probs: dict[str, float] = field(default_factory=dict)
+    handling_mode_probs: dict[str, float] = field(default_factory=dict)
+    modifier_scores: dict[str, float] = field(default_factory=dict)
+    context_scores: dict[str, float] = field(default_factory=dict)
+    safety_scores: dict[str, float] = field(default_factory=dict)
+    ambiguity_scores: dict[str, float] = field(default_factory=dict)
+    top_k: dict[str, tuple[tuple[str, float], ...]] = field(default_factory=dict)
+    margins: dict[str, float] = field(default_factory=dict)
+    low_confidence: bool = False
     confidence: Strength = "low"
     reason: str = ""
 
@@ -137,6 +150,22 @@ class ModelResult:
             "modifiers": self.modifiers.to_dict(),
             "task_candidates": [item.to_dict() for item in self.task_candidates],
             "context_dependency": self.context_dependency,
+            "main_intent_probs": dict(self.main_intent_probs),
+            "task_complexity_probs": dict(self.task_complexity_probs),
+            "task_shape_probs": dict(self.task_shape_probs),
+            "task_topology_probs": dict(self.task_topology_probs),
+            "context_dependency_probs": dict(self.context_dependency_probs),
+            "handling_mode_probs": dict(self.handling_mode_probs),
+            "modifier_scores": dict(self.modifier_scores),
+            "context_scores": dict(self.context_scores),
+            "safety_scores": dict(self.safety_scores),
+            "ambiguity_scores": dict(self.ambiguity_scores),
+            "top_k": {
+                name: [{"label": label, "score": score} for label, score in items]
+                for name, items in self.top_k.items()
+            },
+            "margins": dict(self.margins),
+            "low_confidence": self.low_confidence,
             "confidence": self.confidence,
             "reason": self.reason,
         }

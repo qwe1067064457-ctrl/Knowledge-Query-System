@@ -40,9 +40,19 @@ def build_chat_model():
     if not settings.llm_api_key:
         raise RuntimeError(f"Missing API key for provider {settings.llm_provider}")
 
+    # Only enable reasoning_split for MiniMax when configured
+    extra_body = None
+    if settings.llm_provider == "minimax":
+        extra_body = {"reasoning_split": True}
+
     return ChatOpenAI(
         model=settings.llm_model,
         api_key=settings.llm_api_key,
         base_url=settings.llm_base_url,
         temperature=0,
+        extra_body=extra_body,
     )
+
+
+def build_intent_fallback_model():
+    return build_chat_model()
