@@ -10,6 +10,7 @@ from intent.schema.intent_types import (
     ResolvedTask,
     TaskCandidate,
 )
+from intent.schema.evidence_types import TypedEvidence
 
 
 def resolve_intent(evidence: IntentEvidence) -> ResolvedIntent:
@@ -30,6 +31,9 @@ def resolve_intent(evidence: IntentEvidence) -> ResolvedIntent:
 
 
 def _resolve_modifiers(evidence: IntentEvidence) -> IntentModifiers:
+    if evidence.quality_report is not None:
+        return _resolve_modifiers_from_quality(evidence)
+
     model_modifiers = evidence.model_result.modifiers if evidence.model_result else IntentModifiers()
     model_scores = evidence.model_result.modifier_scores if evidence.model_result else {}
     handling_mode_probs = evidence.model_result.handling_mode_probs if evidence.model_result else {}
@@ -61,20 +65,52 @@ def _resolve_modifiers(evidence: IntentEvidence) -> IntentModifiers:
     )
 
 
+def _resolve_modifiers_from_quality(evidence: IntentEvidence) -> IntentModifiers:
+    """Resolve modifiers from the final gated evidence set."""
+
+    signals = _trusted_truthy_signals(evidence)
+    handling_modes = _trusted_values(evidence, "handling_mode")
+    blocked_by_missing = (
+        evidence.quality_report.case_level == "blocked_by_missing_prerequisite"
+        if evidence.quality_report
+        else False
+    )
+    missing_challenge = blocked_by_missing and any(
+        match.rule_id.startswith("challenge.") for match in evidence.matched_rules
+    )
+    return IntentModifiers(
+        follow_up="follow_up" in signals,
+        challenge="challenge" in signals or "challenge" in handling_modes or missing_challenge,
+        soft_doubt="soft_doubt" in signals,
+        ask_source="ask_source" in signals,
+        ask_capability="ask_capability" in signals or "scope_info" in handling_modes,
+        out_of_scope=bool({"unsupported", "out_of_scope"} & signals),
+    )
+
+
 def _resolve_main_intent(evidence: IntentEvidence, modifiers: IntentModifiers) -> str:
+    if evidence.quality_report and evidence.quality_report.case_level == "guard_required":
+        return "unsupported"
     model_result = evidence.model_result
-    if (
-        modifiers.out_of_scope
-        or any(evidence.unsupported_signals.values())
-        or (model_result and float(model_result.safety_scores.get("unsupported", 0.0)) >= 0.35)
-    ):
+    if evidence.quality_report is None:
+        if (
+            modifiers.out_of_scope
+            or any(evidence.unsupported_signals.values())
+            or (model_result and float(model_result.safety_scores.get("unsupported", 0.0)) >= 0.35)
+        ):
+            return "unsupported"
+    elif modifiers.out_of_scope:
         return "unsupported"
     if modifiers.ask_capability:
         return "system"
     if modifiers.challenge or modifiers.soft_doubt or modifiers.ask_source:
         return "qa"
 
-    if evidence.candidate_intents:
+    quality_intent = _resolve_main_intent_from_quality(evidence)
+    if quality_intent:
+        return quality_intent
+
+    if evidence.quality_report is None and evidence.candidate_intents:
         return max(evidence.candidate_intents, key=lambda item: item.score).intent
 
     intent_signals = set(evidence.signal_buckets.intent)
@@ -96,10 +132,12 @@ def _resolve_task(
     if main_intent in {"chat", "system", "unsupported"}:
         return ResolvedTask(complexity="simple", shape="none", topology="single")
 
-    candidates = list(evidence.task_candidates)
-    model_candidates = _build_model_task_candidates(evidence)
-    if model_candidates:
-        candidates.extend(model_candidates)
+    candidates = _build_quality_task_candidates(evidence)
+    if not candidates and evidence.quality_report is None:
+        candidates = list(evidence.task_candidates)
+        model_candidates = _build_model_task_candidates(evidence)
+        if model_candidates:
+            candidates.extend(model_candidates)
     if modifiers.challenge:
         return ResolvedTask(
             complexity="simple",
@@ -125,6 +163,119 @@ def _resolve_task(
         shape=shape,
         topology=topology,
     )
+
+
+def _resolve_main_intent_from_quality(evidence: IntentEvidence) -> str | None:
+    """Resolve route from gated evidence instead of raw legacy candidates."""
+
+    ranked: list[tuple[int, float, str]] = []
+    for item, trust_rank in _trusted_quality_evidence(evidence):
+        value = _route_value_from_evidence(item)
+        if not value:
+            continue
+        ranked.append((trust_rank, float(item.score or 0.0), value))
+    if not ranked:
+        return None
+    return max(ranked, key=lambda item: (item[0], item[1]))[2]
+
+
+def _route_value_from_evidence(item: TypedEvidence) -> str | None:
+    if item.signal == "main_intent" and item.value in {"qa", "chat", "system", "unsupported"}:
+        return str(item.value)
+    if item.signal in {"qa", "chat", "system", "unsupported"} and item.value is True:
+        return item.signal
+    if item.signal == "out_of_scope" and item.value is True:
+        return "unsupported"
+    if item.signal == "handling_mode" and item.value == "scope_info":
+        return "system"
+    return None
+
+
+def _build_quality_task_candidates(evidence: IntentEvidence) -> list[TaskCandidate]:
+    """Build task candidates only from evidence that passed the quality gate."""
+
+    candidates: list[TaskCandidate] = []
+    head_values: dict[str, tuple[object, float]] = {}
+    for item, trust_rank in _trusted_quality_evidence(evidence):
+        score = float(item.score or 0.0) + trust_rank
+        if item.signal == "task_candidate" and isinstance(item.value, dict):
+            candidates.append(_task_candidate_from_value(item.value, float(item.score or 0.0)))
+        elif item.signal in {"task_complexity", "task_shape", "task_topology"}:
+            current = head_values.get(item.signal)
+            if current is None or score > current[1]:
+                head_values[item.signal] = (item.value, score)
+        elif item.signal in {"multi_question", "parallel_subtasks", "staged", "complex"} and item.value is True:
+            candidates.append(_task_candidate_from_signal(item.signal, float(item.score or 0.0)))
+
+    if "task_shape" in head_values:
+        shape = str(head_values["task_shape"][0])
+        if shape != "none":
+            complexity = str(head_values.get("task_complexity", ("simple", 0.0))[0])
+            topology = str(head_values.get("task_topology", ("single", 0.0))[0])
+            if topology == "single" and shape == "multi_question":
+                topology = "parallel_queries"
+            score_values = [value_score for _, value_score in head_values.values()]
+            candidates.append(
+                TaskCandidate(
+                    complexity=complexity,
+                    shape=shape,
+                    topology=topology,
+                    score=round(sum(score_values) / len(score_values), 6),
+                )
+            )
+    return _dedupe_task_candidates(candidates)
+
+
+def _trusted_quality_evidence(evidence: IntentEvidence) -> tuple[tuple[TypedEvidence, int], ...]:
+    if evidence.quality_report is None:
+        return ()
+    trusted: list[tuple[TypedEvidence, int]] = []
+    trusted.extend((item, 2) for item in evidence.quality_report.accepted_evidence)
+    trusted.extend(
+        (item, 1)
+        for item in evidence.quality_report.downgraded_evidence
+        if _can_use_downgraded_evidence(evidence, item)
+    )
+    return tuple(trusted)
+
+
+def _can_use_downgraded_evidence(evidence: IntentEvidence, item: TypedEvidence) -> bool:
+    if evidence.adjudication_result is not None:
+        return True
+    if not evidence.quality_report or evidence.quality_report.case_level != "requires_adjudication":
+        return True
+    return not (item.source == "small_model" and item.criticality in {"route", "task_shape", "context_dependency", "safety"})
+
+
+def _task_candidate_from_value(value: dict[str, object], score: float) -> TaskCandidate:
+    return TaskCandidate(
+        complexity=str(value.get("complexity", "simple")),
+        shape=str(value.get("shape", "single_question")),
+        topology=str(value.get("topology", "single")),
+        score=score or float(value.get("score", 0.0) or 0.0),
+    )
+
+
+def _task_candidate_from_signal(signal: str, score: float) -> TaskCandidate:
+    if signal == "multi_question":
+        return TaskCandidate(complexity="compound", shape="multi_question", topology="parallel_queries", score=score)
+    if signal == "parallel_subtasks":
+        return TaskCandidate(complexity="compound", shape="multi_question", topology="parallel_subtasks", score=score)
+    if signal == "staged":
+        return TaskCandidate(complexity="complex", shape="single_question", topology="staged", score=score)
+    if signal == "complex":
+        return TaskCandidate(complexity="complex", shape="single_question", topology="single", score=score)
+    return TaskCandidate(complexity="simple", shape="single_question", topology="single", score=score)
+
+
+def _dedupe_task_candidates(candidates: list[TaskCandidate]) -> list[TaskCandidate]:
+    deduped: dict[tuple[str, str, str], TaskCandidate] = {}
+    for candidate in candidates:
+        key = (candidate.complexity, candidate.shape, candidate.topology)
+        current = deduped.get(key)
+        if current is None or candidate.score > current.score:
+            deduped[key] = candidate
+    return list(deduped.values())
 
 
 def _build_model_task_candidates(evidence: IntentEvidence) -> list[TaskCandidate]:
@@ -265,6 +416,9 @@ def _resolve_context_dependency(
     evidence: IntentEvidence,
     modifiers: IntentModifiers,
 ) -> ContextDependency:
+    if evidence.quality_report is not None:
+        return _resolve_context_dependency_from_quality(evidence, modifiers)
+
     context = evidence.context_signals
     model_result = evidence.model_result
     context_dependency_probs = model_result.context_dependency_probs if model_result else {}
@@ -303,12 +457,57 @@ def _resolve_context_dependency(
     return "none"
 
 
+def _resolve_context_dependency_from_quality(
+    evidence: IntentEvidence,
+    modifiers: IntentModifiers,
+) -> ContextDependency:
+    """Resolve context dependency from gated context evidence only."""
+
+    signals = _trusted_truthy_signals(evidence)
+    dependency_values = _trusted_values(evidence, "context_dependency")
+    if modifiers.challenge:
+        return "previous_answer"
+    if modifiers.follow_up:
+        if "previous_retrieval" in signals:
+            return "previous_retrieval"
+        if "needs_previous_answer" in signals or "global" in dependency_values:
+            return "previous_answer"
+        return "history_reference"
+    if "previous_retrieval" in signals:
+        return "previous_retrieval"
+    if "needs_previous_answer" in signals or "global" in dependency_values:
+        return "previous_answer"
+    if "history_reference" in signals or "partial" in dependency_values:
+        return "history_reference"
+    if "clarify_hint" in signals:
+        return "ambiguous"
+    return "none"
+
+
 def _resolve_ambiguity_state(evidence: IntentEvidence) -> AmbiguityState:
     context = evidence.context_signals
     model_result = evidence.model_result
     ambiguity_scores = model_result.ambiguity_scores if model_result else {}
     context_scores = model_result.context_scores if model_result else {}
     ambiguity_states = list(context.ambiguity_states)
+    if evidence.quality_report and evidence.quality_report.case_level == "blocked_by_missing_prerequisite":
+        if context.clarify_hint:
+            return AmbiguityState(
+                clarify_hint=context.clarify_hint,
+                needs_previous_answer=context.needs_previous_answer,
+                ambiguity_states=context.ambiguity_states,
+                missing_context_types=context.missing_context_types,
+            )
+        missing_context_types = context.missing_context_types
+        for missing in evidence.quality_report.missing_prerequisites:
+            missing_context_types = _append_unique_tuple(missing_context_types, f"missing_{missing}")
+        ambiguity_states = list(_append_unique_tuple(tuple(ambiguity_states), "evidence_prerequisite_missing"))
+        return AmbiguityState(
+            clarify_hint=True,
+            needs_previous_answer=context.needs_previous_answer or "previous_answer" in evidence.quality_report.missing_prerequisites,
+            ambiguity_states=tuple(ambiguity_states),
+            missing_context_types=missing_context_types,
+        )
     if float(ambiguity_scores.get("referent_ambiguity", 0.0)) >= 0.25 and "referent_ambiguity" not in ambiguity_states:
         ambiguity_states.append("referent_ambiguity")
     if float(ambiguity_scores.get("target_ambiguity", 0.0)) >= 0.2 and "target_ambiguity" not in ambiguity_states:
@@ -363,6 +562,10 @@ def _resolve_decision(
         reason_parts.append(
             f"rule_confidence={evidence.rule_confidence.final_signal}/{evidence.rule_confidence.final_level}"
         )
+    if evidence.quality_report:
+        reason_parts.append(f"quality_gate={evidence.quality_report.case_level}")
+    if evidence.adjudication_result:
+        reason_parts.append("adjudication=" + evidence.adjudication_result.fallback_recommendation)
     if source in {"model", "hybrid"} and evidence.model_result and evidence.model_result.reason:
         reason_parts.append("model=" + evidence.model_result.reason)
     return DecisionTrace(
@@ -375,3 +578,25 @@ def _resolve_decision(
 def _max_strength(strengths: list[str]) -> str:
     order = {"low": 0, "medium": 1, "high": 2}
     return max(strengths, key=lambda item: order[item])
+
+
+def _append_unique_tuple(values: tuple[str, ...], value: str) -> tuple[str, ...]:
+    if value in values:
+        return values
+    return (*values, value)
+
+
+def _trusted_truthy_signals(evidence: IntentEvidence) -> set[str]:
+    return {
+        item.signal
+        for item, _ in _trusted_quality_evidence(evidence)
+        if item.value is True
+    }
+
+
+def _trusted_values(evidence: IntentEvidence, signal: str) -> set[str]:
+    return {
+        str(item.value)
+        for item, _ in _trusted_quality_evidence(evidence)
+        if item.signal == signal and item.value
+    }

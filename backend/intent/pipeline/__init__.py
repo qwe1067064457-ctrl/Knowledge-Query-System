@@ -1,5 +1,8 @@
 from intent.pipeline.classifier import classify_intent
 from intent.pipeline.control_signal import build_control_signal
+from intent.pipeline.adjudication import IntentAdjudicator, apply_adjudication_result, run_adjudication
+from intent.pipeline.evidence_builder import build_typed_evidence
+from intent.pipeline.evidence_quality_gate import evaluate_evidence_quality
 from intent.pipeline.model_adapter import (
     INTENT_MODEL_EVIDENCE_ENV,
     IntentModelAdapter,
@@ -12,14 +15,19 @@ from intent.pipeline.task_compat import ResolvedTaskCompatibility, build_task_co
 
 __all__ = [
     "INTENT_MODEL_EVIDENCE_ENV",
+    "IntentAdjudicator",
     "IntentModelAdapter",
     "ResolvedTaskCompatibility",
+    "apply_adjudication_result",
     "build_control_signal",
+    "build_typed_evidence",
     "build_task_compat",
     "calculate_rule_confidence",
     "classify_intent",
+    "evaluate_evidence_quality",
     "infer_topology_from_legacy_task",
     "is_model_evidence_enabled",
     "merge_model_evidence",
     "resolve_intent",
+    "run_adjudication",
 ]

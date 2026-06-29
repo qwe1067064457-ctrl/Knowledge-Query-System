@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import re
+from dataclasses import replace
 from typing import Any, Iterable, Pattern
 
 from intent.loaders.asset_loader import DEFAULT_ASSET_GROUP, load_intent_rule_assets
-from intent.model_runtime.evidence_patch import apply_evidence_patch
-from intent.model_runtime.fallback_policy import is_llm_fallback_enabled, should_trigger_llm_fallback
 from intent.model_runtime.llm_fallback_adapter import IntentLLMFallbackAdapter
+from intent.pipeline.adjudication import IntentAdjudicator, apply_adjudication_result, run_adjudication
 from intent.pipeline.control_signal import build_control_signal
+from intent.pipeline.evidence_builder import build_typed_evidence
+from intent.pipeline.evidence_quality_gate import evaluate_evidence_quality
 from intent.pipeline.model_adapter import IntentModelAdapter, is_model_evidence_enabled, merge_model_evidence
 from intent.pipeline.resolver import resolve_intent
 from intent.pipeline.rule_confidence import calculate_rule_confidence
@@ -52,6 +54,7 @@ def classify_intent(
     *,
     rule_assets: IntentRuleAssets | None = None,
     model_adapter: IntentModelAdapter | None = None,
+    adjudicator: IntentAdjudicator | None = None,
     enable_model_evidence: bool | None = None,
     llm_fallback_adapter: IntentLLMFallbackAdapter | None = None,
     enable_llm_fallback: bool | None = None,
@@ -72,17 +75,15 @@ def classify_intent(
         model_adapter=model_adapter,
         enable_model_evidence=enable_model_evidence,
     )
-    resolved = resolve_intent(evidence)
-    control = build_control_signal(resolved)
-    evidence, resolved, control = _apply_llm_fallback_if_needed(
+    evidence = _attach_quality_report(evidence, intent_input)
+    evidence = _attach_adjudication(
         evidence,
         intent_input=intent_input,
         history_items=history_items,
-        resolved=resolved,
-        control=control,
-        llm_fallback_adapter=llm_fallback_adapter,
-        enable_llm_fallback=enable_llm_fallback,
+        adjudicator=adjudicator,
     )
+    resolved = resolve_intent(evidence)
+    control = build_control_signal(resolved)
     return IntentAnalysis(input=intent_input, evidence=evidence, resolved=resolved, control=control)
 
 
@@ -106,39 +107,35 @@ def _attach_model_evidence(
     return merge_model_evidence(evidence, model_result)
 
 
-def _apply_llm_fallback_if_needed(
+def _attach_quality_report(evidence: IntentEvidence, intent_input: IntentInput) -> IntentEvidence:
+    typed_evidence = build_typed_evidence(evidence, intent_input)
+    quality_report = evaluate_evidence_quality(typed_evidence)
+    return replace(evidence, typed_evidence=typed_evidence, quality_report=quality_report)
+
+
+def _attach_adjudication(
     evidence: IntentEvidence,
     *,
     intent_input: IntentInput,
     history_items: list[dict[str, Any]],
-    resolved,
-    control,
-    llm_fallback_adapter: IntentLLMFallbackAdapter | None,
-    enable_llm_fallback: bool | None,
-):
-    if llm_fallback_adapter is None:
-        return evidence, resolved, control
-    enabled = is_llm_fallback_enabled() if enable_llm_fallback is None else enable_llm_fallback
-    if not enabled:
-        return evidence, resolved, control
-    if not should_trigger_llm_fallback(evidence, resolved=resolved, control=control):
-        return evidence, resolved, control
+    adjudicator: IntentAdjudicator | None,
+) -> IntentEvidence:
+    if adjudicator is None or evidence.quality_report is None:
+        return evidence
+    if evidence.quality_report.case_level != "requires_adjudication":
+        return evidence
     try:
-        patch = llm_fallback_adapter.adjudicate(
+        result = run_adjudication(
+            adjudicator=adjudicator,
             intent_input=intent_input,
-            history=history_items,
             evidence=evidence,
-            resolved=resolved,
-            control=control,
+            history=history_items,
         )
     except Exception:
-        return evidence, resolved, control
-    patched_evidence = apply_evidence_patch(evidence, patch)
-    if patched_evidence is evidence:
-        return evidence, resolved, control
-    rerun_resolved = resolve_intent(patched_evidence)
-    rerun_control = build_control_signal(rerun_resolved)
-    return patched_evidence, rerun_resolved, rerun_control
+        return evidence
+    if result is None:
+        return evidence
+    return _attach_quality_report(apply_adjudication_result(evidence, result), intent_input)
 
 
 def _build_context_state(history: list[dict[str, Any]], rule_assets: IntentRuleAssets) -> ContextState:

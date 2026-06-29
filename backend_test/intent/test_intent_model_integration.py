@@ -65,6 +65,7 @@ def test_model_evidence_can_add_soft_doubt_and_task_candidate() -> None:
     assert result.evidence.model_result is not None
     assert result.evidence.model_result.main_intent_probs == {}
     assert result.evidence.model_result.candidate_intents[0].intent == "chat"
+    assert result.evidence.model_result.candidate_intents == (CandidateIntent(intent="chat", score=0.99),)
 
 
 def test_disabled_model_evidence_keeps_rule_only_result() -> None:
@@ -159,7 +160,7 @@ def test_challenge_request_uses_rule_plus_model_and_keeps_model_evidence() -> No
     assert result.control.mode == "challenge"
 
 
-def test_llm_fallback_can_patch_low_confidence_model_result() -> None:
+def test_legacy_llm_fallback_is_not_used_after_quality_gate_refactor() -> None:
     adapter = StubIntentModelAdapter(
         result=ModelResult(
             valid=True,
@@ -192,14 +193,12 @@ def test_llm_fallback_can_patch_low_confidence_model_result() -> None:
         enable_llm_fallback=True,
     )
 
-    assert fallback.calls == 1
-    assert result.resolved.task.complexity == "complex"
-    assert result.resolved.task.shape == "compare"
-    assert result.resolved.task.topology == "staged"
-    assert result.control.route == "orchestrated"
+    assert fallback.calls == 0
+    assert result.resolved.task.shape == "single_question"
+    assert result.control.route == "qa"
     assert result.evidence.model_result is not None
-    assert result.evidence.model_result.low_confidence is False
-    assert "llm-promoted-compare-staged" in result.evidence.model_result.reason
+    assert result.evidence.model_result.low_confidence is True
+    assert result.evidence.model_result.reason == "low-margin"
 
 
 def test_llm_fallback_skips_high_confidence_regular_case() -> None:
@@ -257,7 +256,9 @@ def test_llm_fallback_failure_keeps_small_model_plus_rule_result() -> None:
         enable_llm_fallback=True,
     )
 
-    assert fallback.calls == 1
+    assert fallback.calls == 0
     assert result.evidence.model_result is not None
     assert result.evidence.model_result.reason == "low-confidence-small-model"
-    assert result.resolved.task.shape == "mixed"
+    assert result.evidence.quality_report is not None
+    assert result.evidence.quality_report.case_level == "requires_adjudication"
+    assert result.resolved.task.shape == "single_question"

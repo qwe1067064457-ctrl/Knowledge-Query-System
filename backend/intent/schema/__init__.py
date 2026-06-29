@@ -1,4 +1,13 @@
 from intent.schema.asset_types import IntentRuleAssets
+from intent.schema.evidence_types import (
+    AdjudicationResult,
+    CaseLevelOutcome,
+    EvidenceQualityReport,
+    EvidenceSignalStatus,
+    EvidenceSource,
+    SignalCriticality,
+    TypedEvidence,
+)
 from intent.schema.intent_types import (
     AmbiguityState,
     CandidateIntent,
@@ -27,13 +36,18 @@ from intent.schema.intent_types import (
 
 __all__ = [
     "AmbiguityState",
+    "AdjudicationResult",
     "CandidateIntent",
+    "CaseLevelOutcome",
     "ClassifierMode",
     "ContextSignals",
     "ContextState",
     "ControlSignal",
     "ControlTrace",
     "DecisionTrace",
+    "EvidenceQualityReport",
+    "EvidenceSignalStatus",
+    "EvidenceSource",
     "IntentAnalysis",
     "IntentEvidence",
     "IntentInput",
@@ -48,6 +62,8 @@ __all__ = [
     "RuleMatch",
     "SignalBuckets",
     "SignalConfidence",
+    "SignalCriticality",
     "TaskCandidate",
     "TaskTopology",
+    "TypedEvidence",
 ]

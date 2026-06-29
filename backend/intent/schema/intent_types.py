@@ -3,6 +3,8 @@ from __future__ import annotations
 from dataclasses import asdict, dataclass, field
 from typing import Any, Literal
 
+from intent.schema.evidence_types import AdjudicationResult, EvidenceQualityReport, TypedEvidence
+
 
 MainIntent = Literal["qa", "chat", "system", "unsupported"]
 TaskComplexity = Literal["simple", "compound", "complex"]
@@ -371,6 +373,9 @@ class IntentEvidence:
     task_candidates: tuple[TaskCandidate, ...] = ()
     model_result: ModelResult | None = None
     rule_confidence: RuleConfidence | None = None
+    typed_evidence: tuple[TypedEvidence, ...] = ()
+    quality_report: EvidenceQualityReport | None = None
+    adjudication_result: AdjudicationResult | None = None
 
     @property
     def meta(self) -> EvidenceMeta:
@@ -420,6 +425,9 @@ class IntentEvidence:
             "task_candidates": [item.to_dict() for item in self.task_candidates],
             "model_result": self.model_result.to_dict() if self.model_result else None,
             "rule_confidence": self.rule_confidence.to_dict() if self.rule_confidence else None,
+            "typed_evidence": [item.to_dict() for item in self.typed_evidence],
+            "quality_report": self.quality_report.to_dict() if self.quality_report else None,
+            "adjudication_result": self.adjudication_result.to_dict() if self.adjudication_result else None,
         }
 
     def to_v2_dict(self) -> dict[str, Any]:
@@ -433,6 +441,9 @@ class IntentEvidence:
             "task_candidates": [item.to_dict() for item in self.task_candidates],
             "model_result": self.model_result.to_dict() if self.model_result else None,
             "rule_confidence": self.rule_confidence.to_dict() if self.rule_confidence else None,
+            "typed_evidence": [item.to_dict() for item in self.typed_evidence],
+            "quality_report": self.quality_report.to_dict() if self.quality_report else None,
+            "adjudication_result": self.adjudication_result.to_dict() if self.adjudication_result else None,
         }
 
     def to_grouped_dict(self) -> dict[str, Any]:
@@ -442,6 +453,8 @@ class IntentEvidence:
             "task": self.task_evidence.to_dict(),
             "context": self.context_evidence.to_dict(),
             "safety": self.safety_evidence.to_dict(),
+            "quality": self.quality_report.to_dict() if self.quality_report else None,
+            "adjudication": self.adjudication_result.to_dict() if self.adjudication_result else None,
         }
 
 

@@ -35,6 +35,11 @@ backend_test/legal_crawler/.test_tmp
 backend/models
 .venv-v2sft
 backend/models
-backend_test/intent
+!backend_test/intent/
+backend_test/intent/*
+!backend_test/intent/test_evidence_builder.py
+!backend_test/intent/test_evidence_quality_gate.py
+!backend_test/intent/test_intent_classifier_quality_flow.py
+!backend_test/intent/test_intent_llm_adjudication.py
 docker/
 evaluation/intent/v2_sft

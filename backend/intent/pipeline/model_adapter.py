@@ -4,7 +4,7 @@ import os
 from dataclasses import replace
 from typing import Any, Iterable, Protocol
 
-from intent.schema.intent_types import CandidateIntent, IntentEvidence, IntentInput, ModelResult, TaskCandidate
+from intent.schema.intent_types import IntentEvidence, IntentInput, ModelResult, TaskCandidate
 
 
 INTENT_MODEL_EVIDENCE_ENV = "INTENT_MODEL_EVIDENCE_ENABLED"
@@ -27,6 +27,8 @@ def merge_model_evidence(
     evidence: IntentEvidence,
     model_result: ModelResult | None,
 ) -> IntentEvidence:
+    """Attach model payload while keeping route choice behind the quality gate."""
+
     if model_result is None or not model_result.valid:
         return evidence
     if _should_skip_model_merge(evidence):
@@ -37,10 +39,8 @@ def merge_model_evidence(
         return evidence
 
     merged_task_candidates = _merge_task_candidates(evidence.task_candidates, sanitized.task_candidates)
-    merged_candidate_intents = _merge_candidate_intents(evidence.candidate_intents, sanitized.candidate_intents)
     return replace(
         evidence,
-        candidate_intents=merged_candidate_intents,
         task_candidates=merged_task_candidates,
         model_result=sanitized,
     )
@@ -76,23 +76,11 @@ def _sanitize_model_result(model_result: ModelResult) -> ModelResult | None:
     return model_result
 
 
-def _merge_candidate_intents(
-    rule_candidates: tuple[CandidateIntent, ...],
-    model_candidates: tuple[CandidateIntent, ...],
-) -> tuple[CandidateIntent, ...]:
-    merged: dict[str, CandidateIntent] = {candidate.intent: candidate for candidate in rule_candidates}
-    for candidate in model_candidates:
-        current = merged.get(candidate.intent)
-        if current is None or candidate.score > current.score:
-            merged[candidate.intent] = candidate
-    return tuple(sorted(merged.values(), key=lambda item: item.score, reverse=True))
-
-
 def _merge_task_candidates(
     rule_candidates: tuple[TaskCandidate, ...],
     model_candidates: tuple[TaskCandidate, ...],
 ) -> tuple[TaskCandidate, ...]:
-    merged: dict[tuple[str, str], TaskCandidate] = {
+    merged: dict[tuple[str, str, str], TaskCandidate] = {
         (candidate.complexity, candidate.shape, candidate.topology): candidate for candidate in rule_candidates
     }
     for candidate in model_candidates:
@@ -101,3 +89,4 @@ def _merge_task_candidates(
         if current is None or candidate.score > current.score:
             merged[key] = candidate
     return tuple(merged.values())
+
