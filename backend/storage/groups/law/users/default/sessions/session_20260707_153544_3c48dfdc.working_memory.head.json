@@ -1,0 +1,16 @@
+{
+  "active_entry_ids": [
+    "session_20260707_153544_3c48dfdc:orchestrated:20260707153944410186:focus_task",
+    "session_20260707_153544_3c48dfdc:orchestrated:20260707153944410186:review_outcome",
+    "session_20260707_153544_3c48dfdc:orchestrated:20260707153944410186:answer_unit:1",
+    "session_20260707_153544_3c48dfdc:orchestrated:20260707153944410186:answer_unit:2",
+    "session_20260707_153544_3c48dfdc:orchestrated:20260707153944410186:answer_unit:3",
+    "session_20260707_153544_3c48dfdc:orchestrated:20260707153944410186:answer_unit:4"
+  ],
+  "current_focus_task_ids": [
+    "session_20260707_153544_3c48dfdc:orchestrated:20260707153944410186:focus_task"
+  ],
+  "latest_resolved_query_id": null,
+  "latest_review_outcome_id": "session_20260707_153544_3c48dfdc:orchestrated:20260707153944410186:review_outcome",
+  "updated_at": "2026-07-07T15:39:44+08:00"
+}

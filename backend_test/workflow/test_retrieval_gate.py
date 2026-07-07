@@ -17,7 +17,7 @@ def _make_plan(
     return WorkflowPlan(
         route=route,
         handling_mode=handling_mode,
-        action="agent",
+        action="respond",
         use_context=use_context,
         cite_sources=True,
         use_planner=False,

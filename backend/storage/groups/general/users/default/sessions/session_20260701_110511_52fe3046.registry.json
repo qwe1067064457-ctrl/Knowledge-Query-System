@@ -1,0 +1,497 @@
+{
+  "tenant_id": "default",
+  "group_id": "general",
+  "session_id": "session_20260701_110511_52fe3046",
+  "entries": [
+    {
+      "object_id": "turn_1782875175029:question",
+      "object_type": "question_object",
+      "tenant_id": "default",
+      "group_id": "general",
+      "session_id": "session_20260701_110511_52fe3046",
+      "source_turn_id": "turn_1782875175029",
+      "content": "记住我喜欢输出中文",
+      "refs": [],
+      "salience_score": 1.0,
+      "source_power": "workflow",
+      "metadata": {
+        "handling_mode": "normal",
+        "route": "chat",
+        "knowledge_scope_status": "resolved",
+        "binding_summary": "not_applicable",
+        "context_summary": {
+          "candidate_count": 0,
+          "query_unit_count": 0,
+          "memory_anchor_count": 0,
+          "hydrated_memory_entry_count": 0,
+          "memory_hydrated": false,
+          "binding_matched_by": "",
+          "binding_fallback_type": "",
+          "binding_reason": ""
+        },
+        "plan_summary": {
+          "planning_mode": "not_applicable",
+          "step_count": 0,
+          "checkpoint_count": 0,
+          "comparison_unit_count": 0,
+          "bound_target_ref_count": 0,
+          "refined": false,
+          "fallback_used": false,
+          "fallback_reason": []
+        },
+        "review_summary": {
+          "target_count": 0,
+          "matched_target_count": 0,
+          "matched_target_refs": [],
+          "unsupported_target_refs": [],
+          "needs_more_evidence_targets": [],
+          "status_summary": "not_applicable",
+          "review_mode": "not_applicable",
+          "review_confidence": "not_applicable",
+          "review_scope": "not_applicable",
+          "follow_up_retrieval_attempted": false,
+          "follow_up_retrieval_improved": false,
+          "follow_up_retrieval_sources": [],
+          "follow_up_retrieval_retrieved_evidence_count": 0
+        },
+        "evidence_summary": {},
+        "workflow_summary": {
+          "knowledge_scope_status": "resolved",
+          "binding_summary": "not_applicable",
+          "context_summary": {
+            "candidate_count": 0,
+            "query_unit_count": 0,
+            "memory_anchor_count": 0,
+            "hydrated_memory_entry_count": 0,
+            "memory_hydrated": false,
+            "binding_matched_by": "",
+            "binding_fallback_type": "",
+            "binding_reason": ""
+          },
+          "plan_summary": {
+            "planning_mode": "not_applicable",
+            "step_count": 0,
+            "checkpoint_count": 0,
+            "comparison_unit_count": 0,
+            "bound_target_ref_count": 0,
+            "refined": false,
+            "fallback_used": false,
+            "fallback_reason": []
+          },
+          "review_summary": {
+            "target_count": 0,
+            "matched_target_count": 0,
+            "matched_target_refs": [],
+            "unsupported_target_refs": [],
+            "needs_more_evidence_targets": [],
+            "status_summary": "not_applicable",
+            "review_mode": "not_applicable",
+            "review_confidence": "not_applicable",
+            "review_scope": "not_applicable",
+            "follow_up_retrieval_attempted": false,
+            "follow_up_retrieval_improved": false,
+            "follow_up_retrieval_sources": [],
+            "follow_up_retrieval_retrieved_evidence_count": 0
+          },
+          "evidence_summary": {}
+        },
+        "registry_convenience": {
+          "handling_mode": "normal",
+          "route": "chat"
+        }
+      }
+    },
+    {
+      "object_id": "turn_1782886382920:question",
+      "object_type": "question_object",
+      "tenant_id": "default",
+      "group_id": "general",
+      "session_id": "session_20260701_110511_52fe3046",
+      "source_turn_id": "turn_1782886382920",
+      "content": "最近ai的发展趋势是怎么样的",
+      "refs": [],
+      "salience_score": 1.0,
+      "source_power": "workflow",
+      "metadata": {
+        "route": "qa",
+        "handling_mode": "normal",
+        "knowledge_scope_status": "resolved",
+        "binding_summary": "not_applicable",
+        "context_summary": {
+          "candidate_count": 0,
+          "query_unit_count": 0,
+          "memory_anchor_count": 0,
+          "hydrated_memory_entry_count": 0,
+          "memory_hydrated": false,
+          "binding_matched_by": "",
+          "binding_fallback_type": "",
+          "binding_reason": ""
+        },
+        "plan_summary": {
+          "planning_mode": "not_applicable",
+          "step_count": 0,
+          "checkpoint_count": 0,
+          "comparison_unit_count": 0,
+          "bound_target_ref_count": 0,
+          "refined": false,
+          "fallback_used": false,
+          "fallback_reason": []
+        },
+        "review_summary": {
+          "target_count": 0,
+          "matched_target_count": 0,
+          "matched_target_refs": [],
+          "unsupported_target_refs": [],
+          "needs_more_evidence_targets": [],
+          "status_summary": "not_applicable",
+          "review_mode": "not_applicable",
+          "review_confidence": "not_applicable",
+          "review_scope": "not_applicable",
+          "follow_up_retrieval_attempted": false,
+          "follow_up_retrieval_improved": false,
+          "follow_up_retrieval_sources": [],
+          "follow_up_retrieval_retrieved_evidence_count": 0
+        },
+        "evidence_summary": {},
+        "workflow_summary": {
+          "knowledge_scope_status": "resolved",
+          "binding_summary": "not_applicable",
+          "context_summary": {
+            "candidate_count": 0,
+            "query_unit_count": 0,
+            "memory_anchor_count": 0,
+            "hydrated_memory_entry_count": 0,
+            "memory_hydrated": false,
+            "binding_matched_by": "",
+            "binding_fallback_type": "",
+            "binding_reason": ""
+          },
+          "plan_summary": {
+            "planning_mode": "not_applicable",
+            "step_count": 0,
+            "checkpoint_count": 0,
+            "comparison_unit_count": 0,
+            "bound_target_ref_count": 0,
+            "refined": false,
+            "fallback_used": false,
+            "fallback_reason": []
+          },
+          "review_summary": {
+            "target_count": 0,
+            "matched_target_count": 0,
+            "matched_target_refs": [],
+            "unsupported_target_refs": [],
+            "needs_more_evidence_targets": [],
+            "status_summary": "not_applicable",
+            "review_mode": "not_applicable",
+            "review_confidence": "not_applicable",
+            "review_scope": "not_applicable",
+            "follow_up_retrieval_attempted": false,
+            "follow_up_retrieval_improved": false,
+            "follow_up_retrieval_sources": [],
+            "follow_up_retrieval_retrieved_evidence_count": 0
+          },
+          "evidence_summary": {}
+        },
+        "registry_convenience": {
+          "route": "qa",
+          "handling_mode": "normal"
+        }
+      }
+    },
+    {
+      "object_id": "turn_1782887762709:question",
+      "object_type": "question_object",
+      "tenant_id": "default",
+      "group_id": "general",
+      "session_id": "session_20260701_110511_52fe3046",
+      "source_turn_id": "turn_1782887762709",
+      "content": "最近ai发展趋势",
+      "refs": [],
+      "salience_score": 1.0,
+      "source_power": "workflow",
+      "metadata": {
+        "route": "chat",
+        "handling_mode": "normal",
+        "knowledge_scope_status": "resolved",
+        "binding_summary": "not_applicable",
+        "context_summary": {
+          "candidate_count": 0,
+          "query_unit_count": 0,
+          "memory_anchor_count": 0,
+          "hydrated_memory_entry_count": 0,
+          "memory_hydrated": false,
+          "binding_matched_by": "",
+          "binding_fallback_type": "",
+          "binding_reason": ""
+        },
+        "plan_summary": {
+          "planning_mode": "not_applicable",
+          "step_count": 0,
+          "checkpoint_count": 0,
+          "comparison_unit_count": 0,
+          "bound_target_ref_count": 0,
+          "refined": false,
+          "fallback_used": false,
+          "fallback_reason": []
+        },
+        "review_summary": {
+          "target_count": 0,
+          "matched_target_count": 0,
+          "matched_target_refs": [],
+          "unsupported_target_refs": [],
+          "needs_more_evidence_targets": [],
+          "status_summary": "not_applicable",
+          "review_mode": "not_applicable",
+          "review_confidence": "not_applicable",
+          "review_scope": "not_applicable",
+          "follow_up_retrieval_attempted": false,
+          "follow_up_retrieval_improved": false,
+          "follow_up_retrieval_sources": [],
+          "follow_up_retrieval_retrieved_evidence_count": 0
+        },
+        "evidence_summary": {},
+        "workflow_summary": {
+          "knowledge_scope_status": "resolved",
+          "binding_summary": "not_applicable",
+          "context_summary": {
+            "candidate_count": 0,
+            "query_unit_count": 0,
+            "memory_anchor_count": 0,
+            "hydrated_memory_entry_count": 0,
+            "memory_hydrated": false,
+            "binding_matched_by": "",
+            "binding_fallback_type": "",
+            "binding_reason": ""
+          },
+          "plan_summary": {
+            "planning_mode": "not_applicable",
+            "step_count": 0,
+            "checkpoint_count": 0,
+            "comparison_unit_count": 0,
+            "bound_target_ref_count": 0,
+            "refined": false,
+            "fallback_used": false,
+            "fallback_reason": []
+          },
+          "review_summary": {
+            "target_count": 0,
+            "matched_target_count": 0,
+            "matched_target_refs": [],
+            "unsupported_target_refs": [],
+            "needs_more_evidence_targets": [],
+            "status_summary": "not_applicable",
+            "review_mode": "not_applicable",
+            "review_confidence": "not_applicable",
+            "review_scope": "not_applicable",
+            "follow_up_retrieval_attempted": false,
+            "follow_up_retrieval_improved": false,
+            "follow_up_retrieval_sources": [],
+            "follow_up_retrieval_retrieved_evidence_count": 0
+          },
+          "evidence_summary": {}
+        },
+        "registry_convenience": {
+          "route": "chat",
+          "handling_mode": "normal"
+        }
+      }
+    },
+    {
+      "object_id": "turn_1782888598625:question",
+      "object_type": "question_object",
+      "tenant_id": "default",
+      "group_id": "general",
+      "session_id": "session_20260701_110511_52fe3046",
+      "source_turn_id": "turn_1782888598625",
+      "content": "最近ai发展趋势",
+      "refs": [],
+      "salience_score": 1.0,
+      "source_power": "workflow",
+      "metadata": {
+        "route": "chat",
+        "handling_mode": "normal",
+        "knowledge_scope_status": "resolved",
+        "binding_summary": "not_applicable",
+        "context_summary": {
+          "candidate_count": 0,
+          "query_unit_count": 0,
+          "memory_anchor_count": 0,
+          "hydrated_memory_entry_count": 0,
+          "memory_hydrated": false,
+          "binding_matched_by": "",
+          "binding_fallback_type": "",
+          "binding_reason": ""
+        },
+        "plan_summary": {
+          "planning_mode": "not_applicable",
+          "step_count": 0,
+          "checkpoint_count": 0,
+          "comparison_unit_count": 0,
+          "bound_target_ref_count": 0,
+          "refined": false,
+          "fallback_used": false,
+          "fallback_reason": []
+        },
+        "review_summary": {
+          "target_count": 0,
+          "matched_target_count": 0,
+          "matched_target_refs": [],
+          "unsupported_target_refs": [],
+          "needs_more_evidence_targets": [],
+          "status_summary": "not_applicable",
+          "review_mode": "not_applicable",
+          "review_confidence": "not_applicable",
+          "review_scope": "not_applicable",
+          "follow_up_retrieval_attempted": false,
+          "follow_up_retrieval_improved": false,
+          "follow_up_retrieval_sources": [],
+          "follow_up_retrieval_retrieved_evidence_count": 0
+        },
+        "evidence_summary": {},
+        "workflow_summary": {
+          "knowledge_scope_status": "resolved",
+          "binding_summary": "not_applicable",
+          "context_summary": {
+            "candidate_count": 0,
+            "query_unit_count": 0,
+            "memory_anchor_count": 0,
+            "hydrated_memory_entry_count": 0,
+            "memory_hydrated": false,
+            "binding_matched_by": "",
+            "binding_fallback_type": "",
+            "binding_reason": ""
+          },
+          "plan_summary": {
+            "planning_mode": "not_applicable",
+            "step_count": 0,
+            "checkpoint_count": 0,
+            "comparison_unit_count": 0,
+            "bound_target_ref_count": 0,
+            "refined": false,
+            "fallback_used": false,
+            "fallback_reason": []
+          },
+          "review_summary": {
+            "target_count": 0,
+            "matched_target_count": 0,
+            "matched_target_refs": [],
+            "unsupported_target_refs": [],
+            "needs_more_evidence_targets": [],
+            "status_summary": "not_applicable",
+            "review_mode": "not_applicable",
+            "review_confidence": "not_applicable",
+            "review_scope": "not_applicable",
+            "follow_up_retrieval_attempted": false,
+            "follow_up_retrieval_improved": false,
+            "follow_up_retrieval_sources": [],
+            "follow_up_retrieval_retrieved_evidence_count": 0
+          },
+          "evidence_summary": {}
+        },
+        "registry_convenience": {
+          "route": "chat",
+          "handling_mode": "normal"
+        }
+      }
+    },
+    {
+      "object_id": "turn_1782889457538:question",
+      "object_type": "question_object",
+      "tenant_id": "default",
+      "group_id": "general",
+      "session_id": "session_20260701_110511_52fe3046",
+      "source_turn_id": "turn_1782889457538",
+      "content": "最近金融趋势",
+      "refs": [],
+      "salience_score": 1.0,
+      "source_power": "workflow",
+      "metadata": {
+        "handling_mode": "normal",
+        "route": "chat",
+        "knowledge_scope_status": "resolved",
+        "binding_summary": "not_applicable",
+        "context_summary": {
+          "candidate_count": 0,
+          "query_unit_count": 0,
+          "memory_anchor_count": 0,
+          "hydrated_memory_entry_count": 0,
+          "memory_hydrated": false,
+          "binding_matched_by": "",
+          "binding_fallback_type": "",
+          "binding_reason": ""
+        },
+        "plan_summary": {
+          "planning_mode": "not_applicable",
+          "step_count": 0,
+          "checkpoint_count": 0,
+          "comparison_unit_count": 0,
+          "bound_target_ref_count": 0,
+          "refined": false,
+          "fallback_used": false,
+          "fallback_reason": []
+        },
+        "review_summary": {
+          "target_count": 0,
+          "matched_target_count": 0,
+          "matched_target_refs": [],
+          "unsupported_target_refs": [],
+          "needs_more_evidence_targets": [],
+          "status_summary": "not_applicable",
+          "review_mode": "not_applicable",
+          "review_confidence": "not_applicable",
+          "review_scope": "not_applicable",
+          "follow_up_retrieval_attempted": false,
+          "follow_up_retrieval_improved": false,
+          "follow_up_retrieval_sources": [],
+          "follow_up_retrieval_retrieved_evidence_count": 0
+        },
+        "evidence_summary": {},
+        "workflow_summary": {
+          "knowledge_scope_status": "resolved",
+          "binding_summary": "not_applicable",
+          "context_summary": {
+            "candidate_count": 0,
+            "query_unit_count": 0,
+            "memory_anchor_count": 0,
+            "hydrated_memory_entry_count": 0,
+            "memory_hydrated": false,
+            "binding_matched_by": "",
+            "binding_fallback_type": "",
+            "binding_reason": ""
+          },
+          "plan_summary": {
+            "planning_mode": "not_applicable",
+            "step_count": 0,
+            "checkpoint_count": 0,
+            "comparison_unit_count": 0,
+            "bound_target_ref_count": 0,
+            "refined": false,
+            "fallback_used": false,
+            "fallback_reason": []
+          },
+          "review_summary": {
+            "target_count": 0,
+            "matched_target_count": 0,
+            "matched_target_refs": [],
+            "unsupported_target_refs": [],
+            "needs_more_evidence_targets": [],
+            "status_summary": "not_applicable",
+            "review_mode": "not_applicable",
+            "review_confidence": "not_applicable",
+            "review_scope": "not_applicable",
+            "follow_up_retrieval_attempted": false,
+            "follow_up_retrieval_improved": false,
+            "follow_up_retrieval_sources": [],
+            "follow_up_retrieval_retrieved_evidence_count": 0
+          },
+          "evidence_summary": {}
+        },
+        "registry_convenience": {
+          "handling_mode": "normal",
+          "route": "chat"
+        }
+      }
+    }
+  ]
+}

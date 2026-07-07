@@ -1,0 +1,1591 @@
+{
+  "tenant_id": "default",
+  "group_id": "general",
+  "session_id": "session_20260704_100812_fc7cdd92",
+  "entries": [
+    {
+      "object_id": "turn_1783131078923:question",
+      "object_type": "question_object",
+      "tenant_id": "default",
+      "group_id": "general",
+      "session_id": "session_20260704_100812_fc7cdd92",
+      "source_turn_id": "turn_1783131078923",
+      "content": "你好",
+      "refs": [],
+      "salience_score": 1.0,
+      "source_power": "workflow",
+      "metadata": {
+        "handling_mode": "normal",
+        "route": "chat",
+        "knowledge_scope_status": "resolved",
+        "binding_summary": "not_applicable",
+        "context_summary": {
+          "candidate_count": 0,
+          "query_unit_count": 0,
+          "memory_anchor_count": 0,
+          "hydrated_memory_entry_count": 0,
+          "memory_hydrated": false,
+          "binding_matched_by": "",
+          "binding_fallback_type": "",
+          "binding_reason": ""
+        },
+        "plan_summary": {
+          "planning_mode": "not_applicable",
+          "step_count": 0,
+          "checkpoint_count": 0,
+          "comparison_unit_count": 0,
+          "bound_target_ref_count": 0,
+          "refined": false,
+          "fallback_used": false,
+          "fallback_reason": []
+        },
+        "review_summary": {
+          "target_count": 0,
+          "matched_target_count": 0,
+          "matched_target_refs": [],
+          "unsupported_target_refs": [],
+          "needs_more_evidence_targets": [],
+          "status_summary": "not_applicable",
+          "review_mode": "not_applicable",
+          "review_confidence": "not_applicable",
+          "review_scope": "not_applicable",
+          "follow_up_retrieval_attempted": false,
+          "follow_up_retrieval_improved": false,
+          "follow_up_retrieval_sources": [],
+          "follow_up_retrieval_retrieved_evidence_count": 0
+        },
+        "evidence_summary": {},
+        "workflow_summary": {
+          "knowledge_scope_status": "resolved",
+          "binding_summary": "not_applicable",
+          "context_summary": {
+            "candidate_count": 0,
+            "query_unit_count": 0,
+            "memory_anchor_count": 0,
+            "hydrated_memory_entry_count": 0,
+            "memory_hydrated": false,
+            "binding_matched_by": "",
+            "binding_fallback_type": "",
+            "binding_reason": ""
+          },
+          "plan_summary": {
+            "planning_mode": "not_applicable",
+            "step_count": 0,
+            "checkpoint_count": 0,
+            "comparison_unit_count": 0,
+            "bound_target_ref_count": 0,
+            "refined": false,
+            "fallback_used": false,
+            "fallback_reason": []
+          },
+          "review_summary": {
+            "target_count": 0,
+            "matched_target_count": 0,
+            "matched_target_refs": [],
+            "unsupported_target_refs": [],
+            "needs_more_evidence_targets": [],
+            "status_summary": "not_applicable",
+            "review_mode": "not_applicable",
+            "review_confidence": "not_applicable",
+            "review_scope": "not_applicable",
+            "follow_up_retrieval_attempted": false,
+            "follow_up_retrieval_improved": false,
+            "follow_up_retrieval_sources": [],
+            "follow_up_retrieval_retrieved_evidence_count": 0
+          },
+          "evidence_summary": {}
+        },
+        "registry_convenience": {
+          "handling_mode": "normal",
+          "route": "chat"
+        }
+      }
+    },
+    {
+      "object_id": "turn_1783134387517:question",
+      "object_type": "question_object",
+      "tenant_id": "default",
+      "group_id": "general",
+      "session_id": "session_20260704_100812_fc7cdd92",
+      "source_turn_id": "turn_1783134387517",
+      "content": "查知识库, ai发展趋势",
+      "refs": [],
+      "salience_score": 1.0,
+      "source_power": "workflow",
+      "metadata": {
+        "handling_mode": "scope_info",
+        "route": "qa",
+        "knowledge_scope_status": "resolved",
+        "binding_summary": "not_applicable",
+        "context_summary": {
+          "candidate_count": 0,
+          "query_unit_count": 0,
+          "memory_anchor_count": 0,
+          "hydrated_memory_entry_count": 0,
+          "memory_hydrated": false,
+          "binding_matched_by": "",
+          "binding_fallback_type": "",
+          "binding_reason": ""
+        },
+        "plan_summary": {
+          "planning_mode": "not_applicable",
+          "step_count": 0,
+          "checkpoint_count": 0,
+          "comparison_unit_count": 0,
+          "bound_target_ref_count": 0,
+          "refined": false,
+          "fallback_used": false,
+          "fallback_reason": []
+        },
+        "review_summary": {
+          "target_count": 0,
+          "matched_target_count": 0,
+          "matched_target_refs": [],
+          "unsupported_target_refs": [],
+          "needs_more_evidence_targets": [],
+          "status_summary": "not_applicable",
+          "review_mode": "not_applicable",
+          "review_confidence": "not_applicable",
+          "review_scope": "not_applicable",
+          "follow_up_retrieval_attempted": false,
+          "follow_up_retrieval_improved": false,
+          "follow_up_retrieval_sources": [],
+          "follow_up_retrieval_retrieved_evidence_count": 0
+        },
+        "evidence_summary": {},
+        "workflow_summary": {
+          "knowledge_scope_status": "resolved",
+          "binding_summary": "not_applicable",
+          "context_summary": {
+            "candidate_count": 0,
+            "query_unit_count": 0,
+            "memory_anchor_count": 0,
+            "hydrated_memory_entry_count": 0,
+            "memory_hydrated": false,
+            "binding_matched_by": "",
+            "binding_fallback_type": "",
+            "binding_reason": ""
+          },
+          "plan_summary": {
+            "planning_mode": "not_applicable",
+            "step_count": 0,
+            "checkpoint_count": 0,
+            "comparison_unit_count": 0,
+            "bound_target_ref_count": 0,
+            "refined": false,
+            "fallback_used": false,
+            "fallback_reason": []
+          },
+          "review_summary": {
+            "target_count": 0,
+            "matched_target_count": 0,
+            "matched_target_refs": [],
+            "unsupported_target_refs": [],
+            "needs_more_evidence_targets": [],
+            "status_summary": "not_applicable",
+            "review_mode": "not_applicable",
+            "review_confidence": "not_applicable",
+            "review_scope": "not_applicable",
+            "follow_up_retrieval_attempted": false,
+            "follow_up_retrieval_improved": false,
+            "follow_up_retrieval_sources": [],
+            "follow_up_retrieval_retrieved_evidence_count": 0
+          },
+          "evidence_summary": {}
+        },
+        "registry_convenience": {
+          "handling_mode": "scope_info",
+          "route": "qa"
+        }
+      }
+    },
+    {
+      "object_id": "turn_1783308118279:question",
+      "object_type": "question_object",
+      "tenant_id": "default",
+      "group_id": "general",
+      "session_id": "session_20260704_100812_fc7cdd92",
+      "source_turn_id": "turn_1783308118279",
+      "content": "查知识库, ai发展趋势",
+      "refs": [],
+      "salience_score": 1.0,
+      "source_power": "workflow",
+      "metadata": {
+        "route": "qa",
+        "handling_mode": "normal",
+        "knowledge_scope_status": "resolved",
+        "binding_summary": "not_applicable",
+        "context_summary": {
+          "candidate_count": 0,
+          "query_unit_count": 0,
+          "memory_anchor_count": 0,
+          "hydrated_memory_entry_count": 0,
+          "memory_hydrated": false,
+          "binding_matched_by": "",
+          "binding_fallback_type": "",
+          "binding_reason": ""
+        },
+        "plan_summary": {
+          "planning_mode": "not_applicable",
+          "step_count": 0,
+          "checkpoint_count": 0,
+          "comparison_unit_count": 0,
+          "bound_target_ref_count": 0,
+          "refined": false,
+          "fallback_used": false,
+          "fallback_reason": []
+        },
+        "review_summary": {
+          "target_count": 0,
+          "matched_target_count": 0,
+          "matched_target_refs": [],
+          "unsupported_target_refs": [],
+          "needs_more_evidence_targets": [],
+          "status_summary": "not_applicable",
+          "review_mode": "not_applicable",
+          "review_confidence": "not_applicable",
+          "review_scope": "not_applicable",
+          "follow_up_retrieval_attempted": false,
+          "follow_up_retrieval_improved": false,
+          "follow_up_retrieval_sources": [],
+          "follow_up_retrieval_retrieved_evidence_count": 0
+        },
+        "evidence_summary": {
+          "retrieval_quality_status": "good",
+          "query_unit_count": 1,
+          "merged_evidence_count": 5,
+          "source_ref_count": 3,
+          "repairable_units": 0,
+          "repaired_units": 0,
+          "missing_evidence": false,
+          "coverage_query_units": 1,
+          "coverage_sources": 3
+        },
+        "workflow_summary": {
+          "knowledge_scope_status": "resolved",
+          "binding_summary": "not_applicable",
+          "context_summary": {
+            "candidate_count": 0,
+            "query_unit_count": 0,
+            "memory_anchor_count": 0,
+            "hydrated_memory_entry_count": 0,
+            "memory_hydrated": false,
+            "binding_matched_by": "",
+            "binding_fallback_type": "",
+            "binding_reason": ""
+          },
+          "plan_summary": {
+            "planning_mode": "not_applicable",
+            "step_count": 0,
+            "checkpoint_count": 0,
+            "comparison_unit_count": 0,
+            "bound_target_ref_count": 0,
+            "refined": false,
+            "fallback_used": false,
+            "fallback_reason": []
+          },
+          "review_summary": {
+            "target_count": 0,
+            "matched_target_count": 0,
+            "matched_target_refs": [],
+            "unsupported_target_refs": [],
+            "needs_more_evidence_targets": [],
+            "status_summary": "not_applicable",
+            "review_mode": "not_applicable",
+            "review_confidence": "not_applicable",
+            "review_scope": "not_applicable",
+            "follow_up_retrieval_attempted": false,
+            "follow_up_retrieval_improved": false,
+            "follow_up_retrieval_sources": [],
+            "follow_up_retrieval_retrieved_evidence_count": 0
+          },
+          "evidence_summary": {
+            "retrieval_quality_status": "good",
+            "query_unit_count": 1,
+            "merged_evidence_count": 5,
+            "source_ref_count": 3,
+            "repairable_units": 0,
+            "repaired_units": 0,
+            "missing_evidence": false,
+            "coverage_query_units": 1,
+            "coverage_sources": 3
+          }
+        },
+        "registry_convenience": {
+          "route": "qa",
+          "handling_mode": "normal"
+        }
+      }
+    },
+    {
+      "object_id": "turn_1783308118279:evidence:1",
+      "object_type": "evidence_ref",
+      "tenant_id": "default",
+      "group_id": "general",
+      "session_id": "session_20260704_100812_fc7cdd92",
+      "source_turn_id": "turn_1783308118279",
+      "content": "2025年当之无愧地成为了'AI Agent元年'。AI Agent领域的市场规模预计将从2024年的51亿美元攀升至2030年的471亿美元，复合年均增长率高达44.8%。2025年上半年中国AI Agent领域的融资总额已超80亿元人民币，预计全年将突破150亿元。",
+      "refs": [
+        "storage\\groups\\general\\knowledge\\raw\\AI Knowledge\\2026年AI_Agent智能体技术发展报告.md",
+        "引言 / 第一章",
+        "primary"
+      ],
+      "salience_score": 0.01639344262295082,
+      "source_power": "retrieval_power",
+      "metadata": {
+        "channel": "fused",
+        "source_type": "markdown",
+        "query_unit_ids": [
+          "primary"
+        ],
+        "knowledge_scope_status": "resolved",
+        "binding_summary": "not_applicable",
+        "context_summary": {
+          "candidate_count": 0,
+          "query_unit_count": 0,
+          "memory_anchor_count": 0,
+          "hydrated_memory_entry_count": 0,
+          "memory_hydrated": false,
+          "binding_matched_by": "",
+          "binding_fallback_type": "",
+          "binding_reason": ""
+        },
+        "plan_summary": {
+          "planning_mode": "not_applicable",
+          "step_count": 0,
+          "checkpoint_count": 0,
+          "comparison_unit_count": 0,
+          "bound_target_ref_count": 0,
+          "refined": false,
+          "fallback_used": false,
+          "fallback_reason": []
+        },
+        "review_summary": {
+          "target_count": 0,
+          "matched_target_count": 0,
+          "matched_target_refs": [],
+          "unsupported_target_refs": [],
+          "needs_more_evidence_targets": [],
+          "status_summary": "not_applicable",
+          "review_mode": "not_applicable",
+          "review_confidence": "not_applicable",
+          "review_scope": "not_applicable",
+          "follow_up_retrieval_attempted": false,
+          "follow_up_retrieval_improved": false,
+          "follow_up_retrieval_sources": [],
+          "follow_up_retrieval_retrieved_evidence_count": 0
+        },
+        "evidence_summary": {
+          "retrieval_quality_status": "good",
+          "query_unit_count": 1,
+          "merged_evidence_count": 5,
+          "source_ref_count": 3,
+          "repairable_units": 0,
+          "repaired_units": 0,
+          "missing_evidence": false,
+          "coverage_query_units": 1,
+          "coverage_sources": 3
+        },
+        "workflow_summary": {
+          "knowledge_scope_status": "resolved",
+          "binding_summary": "not_applicable",
+          "context_summary": {
+            "candidate_count": 0,
+            "query_unit_count": 0,
+            "memory_anchor_count": 0,
+            "hydrated_memory_entry_count": 0,
+            "memory_hydrated": false,
+            "binding_matched_by": "",
+            "binding_fallback_type": "",
+            "binding_reason": ""
+          },
+          "plan_summary": {
+            "planning_mode": "not_applicable",
+            "step_count": 0,
+            "checkpoint_count": 0,
+            "comparison_unit_count": 0,
+            "bound_target_ref_count": 0,
+            "refined": false,
+            "fallback_used": false,
+            "fallback_reason": []
+          },
+          "review_summary": {
+            "target_count": 0,
+            "matched_target_count": 0,
+            "matched_target_refs": [],
+            "unsupported_target_refs": [],
+            "needs_more_evidence_targets": [],
+            "status_summary": "not_applicable",
+            "review_mode": "not_applicable",
+            "review_confidence": "not_applicable",
+            "review_scope": "not_applicable",
+            "follow_up_retrieval_attempted": false,
+            "follow_up_retrieval_improved": false,
+            "follow_up_retrieval_sources": [],
+            "follow_up_retrieval_retrieved_evidence_count": 0
+          },
+          "evidence_summary": {
+            "retrieval_quality_status": "good",
+            "query_unit_count": 1,
+            "merged_evidence_count": 5,
+            "source_ref_count": 3,
+            "repairable_units": 0,
+            "repaired_units": 0,
+            "missing_evidence": false,
+            "coverage_query_units": 1,
+            "coverage_sources": 3
+          }
+        },
+        "registry_convenience": {
+          "channel": "fused",
+          "source_type": "markdown",
+          "query_unit_ids": [
+            "primary"
+          ]
+        }
+      }
+    },
+    {
+      "object_id": "turn_1783308118279:evidence:2",
+      "object_type": "evidence_ref",
+      "tenant_id": "default",
+      "group_id": "general",
+      "session_id": "session_20260704_100812_fc7cdd92",
+      "source_turn_id": "turn_1783308118279",
+      "content": "未来五大技术趋势：①从文本到语音——对话式AI成为主流入口；②从个体到群体——多智能体系统(MAS)规模化协作(Gartner列为2026年战略技术趋势)；③从通用到专用——领域专用语言模型(DSLM)到2028年超50%企业GenAI模型为DSLM；④从虚拟到物理——实体AI(Embodied AI)破壁融合；⑤从'手搓'到'原生'——AI原生开发平台崛起(2030年80%组织转型为AI增强团队)。",
+      "refs": [
+        "storage\\groups\\general\\knowledge\\raw\\AI Knowledge\\2026年AI_Agent智能体技术发展报告.md",
+        "第六章 6.1 AI Agent的未来技术图景",
+        "primary"
+      ],
+      "salience_score": 0.016129032258064516,
+      "source_power": "retrieval_power",
+      "metadata": {
+        "channel": "fused",
+        "source_type": "markdown",
+        "query_unit_ids": [
+          "primary"
+        ],
+        "knowledge_scope_status": "resolved",
+        "binding_summary": "not_applicable",
+        "context_summary": {
+          "candidate_count": 0,
+          "query_unit_count": 0,
+          "memory_anchor_count": 0,
+          "hydrated_memory_entry_count": 0,
+          "memory_hydrated": false,
+          "binding_matched_by": "",
+          "binding_fallback_type": "",
+          "binding_reason": ""
+        },
+        "plan_summary": {
+          "planning_mode": "not_applicable",
+          "step_count": 0,
+          "checkpoint_count": 0,
+          "comparison_unit_count": 0,
+          "bound_target_ref_count": 0,
+          "refined": false,
+          "fallback_used": false,
+          "fallback_reason": []
+        },
+        "review_summary": {
+          "target_count": 0,
+          "matched_target_count": 0,
+          "matched_target_refs": [],
+          "unsupported_target_refs": [],
+          "needs_more_evidence_targets": [],
+          "status_summary": "not_applicable",
+          "review_mode": "not_applicable",
+          "review_confidence": "not_applicable",
+          "review_scope": "not_applicable",
+          "follow_up_retrieval_attempted": false,
+          "follow_up_retrieval_improved": false,
+          "follow_up_retrieval_sources": [],
+          "follow_up_retrieval_retrieved_evidence_count": 0
+        },
+        "evidence_summary": {
+          "retrieval_quality_status": "good",
+          "query_unit_count": 1,
+          "merged_evidence_count": 5,
+          "source_ref_count": 3,
+          "repairable_units": 0,
+          "repaired_units": 0,
+          "missing_evidence": false,
+          "coverage_query_units": 1,
+          "coverage_sources": 3
+        },
+        "workflow_summary": {
+          "knowledge_scope_status": "resolved",
+          "binding_summary": "not_applicable",
+          "context_summary": {
+            "candidate_count": 0,
+            "query_unit_count": 0,
+            "memory_anchor_count": 0,
+            "hydrated_memory_entry_count": 0,
+            "memory_hydrated": false,
+            "binding_matched_by": "",
+            "binding_fallback_type": "",
+            "binding_reason": ""
+          },
+          "plan_summary": {
+            "planning_mode": "not_applicable",
+            "step_count": 0,
+            "checkpoint_count": 0,
+            "comparison_unit_count": 0,
+            "bound_target_ref_count": 0,
+            "refined": false,
+            "fallback_used": false,
+            "fallback_reason": []
+          },
+          "review_summary": {
+            "target_count": 0,
+            "matched_target_count": 0,
+            "matched_target_refs": [],
+            "unsupported_target_refs": [],
+            "needs_more_evidence_targets": [],
+            "status_summary": "not_applicable",
+            "review_mode": "not_applicable",
+            "review_confidence": "not_applicable",
+            "review_scope": "not_applicable",
+            "follow_up_retrieval_attempted": false,
+            "follow_up_retrieval_improved": false,
+            "follow_up_retrieval_sources": [],
+            "follow_up_retrieval_retrieved_evidence_count": 0
+          },
+          "evidence_summary": {
+            "retrieval_quality_status": "good",
+            "query_unit_count": 1,
+            "merged_evidence_count": 5,
+            "source_ref_count": 3,
+            "repairable_units": 0,
+            "repaired_units": 0,
+            "missing_evidence": false,
+            "coverage_query_units": 1,
+            "coverage_sources": 3
+          }
+        },
+        "registry_convenience": {
+          "channel": "fused",
+          "source_type": "markdown",
+          "query_unit_ids": [
+            "primary"
+          ]
+        }
+      }
+    },
+    {
+      "object_id": "turn_1783308118279:evidence:3",
+      "object_type": "evidence_ref",
+      "tenant_id": "default",
+      "group_id": "general",
+      "session_id": "session_20260704_100812_fc7cdd92",
+      "source_turn_id": "turn_1783308118279",
+      "content": "2025年核心技术突破：①基座大模型持续进化(GPT-5、Gemini 3、DeepSeek R1/V3.1混合推理架构)；②从单体到协同——多智能体系统成为主流；③开放协议与标准建立(MCP协议、A2A协议)；④开发框架与平台成熟(LangChain、LangGraph、AutoGen、CrewAI、Dify、FastGPT、Coze等)。国产大模型DeepSeek R1在2025年1月发布，采用强化学习后训练，性能比肩OpenAI o1，完全开源MIT许可。",
+      "refs": [
+        "storage\\groups\\general\\knowledge\\raw\\AI Knowledge\\2026年AI_Agent智能体技术发展报告.md",
+        "第一章 1.2 技术发展历程与2025年核心突破",
+        "primary"
+      ],
+      "salience_score": 0.015873015873015872,
+      "source_power": "retrieval_power",
+      "metadata": {
+        "channel": "fused",
+        "source_type": "markdown",
+        "query_unit_ids": [
+          "primary"
+        ],
+        "knowledge_scope_status": "resolved",
+        "binding_summary": "not_applicable",
+        "context_summary": {
+          "candidate_count": 0,
+          "query_unit_count": 0,
+          "memory_anchor_count": 0,
+          "hydrated_memory_entry_count": 0,
+          "memory_hydrated": false,
+          "binding_matched_by": "",
+          "binding_fallback_type": "",
+          "binding_reason": ""
+        },
+        "plan_summary": {
+          "planning_mode": "not_applicable",
+          "step_count": 0,
+          "checkpoint_count": 0,
+          "comparison_unit_count": 0,
+          "bound_target_ref_count": 0,
+          "refined": false,
+          "fallback_used": false,
+          "fallback_reason": []
+        },
+        "review_summary": {
+          "target_count": 0,
+          "matched_target_count": 0,
+          "matched_target_refs": [],
+          "unsupported_target_refs": [],
+          "needs_more_evidence_targets": [],
+          "status_summary": "not_applicable",
+          "review_mode": "not_applicable",
+          "review_confidence": "not_applicable",
+          "review_scope": "not_applicable",
+          "follow_up_retrieval_attempted": false,
+          "follow_up_retrieval_improved": false,
+          "follow_up_retrieval_sources": [],
+          "follow_up_retrieval_retrieved_evidence_count": 0
+        },
+        "evidence_summary": {
+          "retrieval_quality_status": "good",
+          "query_unit_count": 1,
+          "merged_evidence_count": 5,
+          "source_ref_count": 3,
+          "repairable_units": 0,
+          "repaired_units": 0,
+          "missing_evidence": false,
+          "coverage_query_units": 1,
+          "coverage_sources": 3
+        },
+        "workflow_summary": {
+          "knowledge_scope_status": "resolved",
+          "binding_summary": "not_applicable",
+          "context_summary": {
+            "candidate_count": 0,
+            "query_unit_count": 0,
+            "memory_anchor_count": 0,
+            "hydrated_memory_entry_count": 0,
+            "memory_hydrated": false,
+            "binding_matched_by": "",
+            "binding_fallback_type": "",
+            "binding_reason": ""
+          },
+          "plan_summary": {
+            "planning_mode": "not_applicable",
+            "step_count": 0,
+            "checkpoint_count": 0,
+            "comparison_unit_count": 0,
+            "bound_target_ref_count": 0,
+            "refined": false,
+            "fallback_used": false,
+            "fallback_reason": []
+          },
+          "review_summary": {
+            "target_count": 0,
+            "matched_target_count": 0,
+            "matched_target_refs": [],
+            "unsupported_target_refs": [],
+            "needs_more_evidence_targets": [],
+            "status_summary": "not_applicable",
+            "review_mode": "not_applicable",
+            "review_confidence": "not_applicable",
+            "review_scope": "not_applicable",
+            "follow_up_retrieval_attempted": false,
+            "follow_up_retrieval_improved": false,
+            "follow_up_retrieval_sources": [],
+            "follow_up_retrieval_retrieved_evidence_count": 0
+          },
+          "evidence_summary": {
+            "retrieval_quality_status": "good",
+            "query_unit_count": 1,
+            "merged_evidence_count": 5,
+            "source_ref_count": 3,
+            "repairable_units": 0,
+            "repaired_units": 0,
+            "missing_evidence": false,
+            "coverage_query_units": 1,
+            "coverage_sources": 3
+          }
+        },
+        "registry_convenience": {
+          "channel": "fused",
+          "source_type": "markdown",
+          "query_unit_ids": [
+            "primary"
+          ]
+        }
+      }
+    },
+    {
+      "object_id": "turn_1783308118279:evidence:4",
+      "object_type": "evidence_ref",
+      "tenant_id": "default",
+      "group_id": "general",
+      "session_id": "session_20260704_100812_fc7cdd92",
+      "source_turn_id": "turn_1783308118279",
+      "content": "2026年AI应用专题：国外大厂(OpenAI推出ChatGPT Health、Anthropic发布Claude for Healthcare、英伟达Vera Rubin AI平台)与国内大厂(阿里蚂蚁阿福升级健康、字节火山引擎成春晚AI云伙伴、Deepseek即将发布V4旗舰模型、智谱/Minimax在港上市股价分别上涨56.45%/212.12%)的AI应用加速落地，垂直场景深耕成为趋势。",
+      "refs": [
+        "storage\\groups\\general\\knowledge\\raw\\AI Knowledge\\investment_opportunity_extracted.txt",
+        "第2页 摘要",
+        "primary"
+      ],
+      "salience_score": 0.015625,
+      "source_power": "retrieval_power",
+      "metadata": {
+        "channel": "fused",
+        "source_type": "txt",
+        "query_unit_ids": [
+          "primary"
+        ],
+        "knowledge_scope_status": "resolved",
+        "binding_summary": "not_applicable",
+        "context_summary": {
+          "candidate_count": 0,
+          "query_unit_count": 0,
+          "memory_anchor_count": 0,
+          "hydrated_memory_entry_count": 0,
+          "memory_hydrated": false,
+          "binding_matched_by": "",
+          "binding_fallback_type": "",
+          "binding_reason": ""
+        },
+        "plan_summary": {
+          "planning_mode": "not_applicable",
+          "step_count": 0,
+          "checkpoint_count": 0,
+          "comparison_unit_count": 0,
+          "bound_target_ref_count": 0,
+          "refined": false,
+          "fallback_used": false,
+          "fallback_reason": []
+        },
+        "review_summary": {
+          "target_count": 0,
+          "matched_target_count": 0,
+          "matched_target_refs": [],
+          "unsupported_target_refs": [],
+          "needs_more_evidence_targets": [],
+          "status_summary": "not_applicable",
+          "review_mode": "not_applicable",
+          "review_confidence": "not_applicable",
+          "review_scope": "not_applicable",
+          "follow_up_retrieval_attempted": false,
+          "follow_up_retrieval_improved": false,
+          "follow_up_retrieval_sources": [],
+          "follow_up_retrieval_retrieved_evidence_count": 0
+        },
+        "evidence_summary": {
+          "retrieval_quality_status": "good",
+          "query_unit_count": 1,
+          "merged_evidence_count": 5,
+          "source_ref_count": 3,
+          "repairable_units": 0,
+          "repaired_units": 0,
+          "missing_evidence": false,
+          "coverage_query_units": 1,
+          "coverage_sources": 3
+        },
+        "workflow_summary": {
+          "knowledge_scope_status": "resolved",
+          "binding_summary": "not_applicable",
+          "context_summary": {
+            "candidate_count": 0,
+            "query_unit_count": 0,
+            "memory_anchor_count": 0,
+            "hydrated_memory_entry_count": 0,
+            "memory_hydrated": false,
+            "binding_matched_by": "",
+            "binding_fallback_type": "",
+            "binding_reason": ""
+          },
+          "plan_summary": {
+            "planning_mode": "not_applicable",
+            "step_count": 0,
+            "checkpoint_count": 0,
+            "comparison_unit_count": 0,
+            "bound_target_ref_count": 0,
+            "refined": false,
+            "fallback_used": false,
+            "fallback_reason": []
+          },
+          "review_summary": {
+            "target_count": 0,
+            "matched_target_count": 0,
+            "matched_target_refs": [],
+            "unsupported_target_refs": [],
+            "needs_more_evidence_targets": [],
+            "status_summary": "not_applicable",
+            "review_mode": "not_applicable",
+            "review_confidence": "not_applicable",
+            "review_scope": "not_applicable",
+            "follow_up_retrieval_attempted": false,
+            "follow_up_retrieval_improved": false,
+            "follow_up_retrieval_sources": [],
+            "follow_up_retrieval_retrieved_evidence_count": 0
+          },
+          "evidence_summary": {
+            "retrieval_quality_status": "good",
+            "query_unit_count": 1,
+            "merged_evidence_count": 5,
+            "source_ref_count": 3,
+            "repairable_units": 0,
+            "repaired_units": 0,
+            "missing_evidence": false,
+            "coverage_query_units": 1,
+            "coverage_sources": 3
+          }
+        },
+        "registry_convenience": {
+          "channel": "fused",
+          "source_type": "txt",
+          "query_unit_ids": [
+            "primary"
+          ]
+        }
+      }
+    },
+    {
+      "object_id": "turn_1783308118279:evidence:5",
+      "object_type": "evidence_ref",
+      "tenant_id": "default",
+      "group_id": "general",
+      "session_id": "session_20260704_100812_fc7cdd92",
+      "source_turn_id": "turn_1783308118279",
+      "content": "AI在职业教育领域的发展趋势：超半数学生将GenAI用于知识拓展(71.5%)和了解行业动态(59.8%)；学生最常用工具为DeepSeek(高职58.4%)、豆包(高职54.5%)、文心一言(50.7%)；超七成学生对GenAI持积极态度；AI通识课程覆盖19个专业类别；'AI+X'跨学科课程体系建设成为发展方向。",
+      "refs": [
+        "storage\\groups\\general\\knowledge\\raw\\AI Knowledge\\清华大学：职业教育人工智能应用发展报告（2024-2025）.md",
+        "第一章至第八章",
+        "primary"
+      ],
+      "salience_score": 0.015384615384615385,
+      "source_power": "retrieval_power",
+      "metadata": {
+        "channel": "fused",
+        "source_type": "markdown",
+        "query_unit_ids": [
+          "primary"
+        ],
+        "knowledge_scope_status": "resolved",
+        "binding_summary": "not_applicable",
+        "context_summary": {
+          "candidate_count": 0,
+          "query_unit_count": 0,
+          "memory_anchor_count": 0,
+          "hydrated_memory_entry_count": 0,
+          "memory_hydrated": false,
+          "binding_matched_by": "",
+          "binding_fallback_type": "",
+          "binding_reason": ""
+        },
+        "plan_summary": {
+          "planning_mode": "not_applicable",
+          "step_count": 0,
+          "checkpoint_count": 0,
+          "comparison_unit_count": 0,
+          "bound_target_ref_count": 0,
+          "refined": false,
+          "fallback_used": false,
+          "fallback_reason": []
+        },
+        "review_summary": {
+          "target_count": 0,
+          "matched_target_count": 0,
+          "matched_target_refs": [],
+          "unsupported_target_refs": [],
+          "needs_more_evidence_targets": [],
+          "status_summary": "not_applicable",
+          "review_mode": "not_applicable",
+          "review_confidence": "not_applicable",
+          "review_scope": "not_applicable",
+          "follow_up_retrieval_attempted": false,
+          "follow_up_retrieval_improved": false,
+          "follow_up_retrieval_sources": [],
+          "follow_up_retrieval_retrieved_evidence_count": 0
+        },
+        "evidence_summary": {
+          "retrieval_quality_status": "good",
+          "query_unit_count": 1,
+          "merged_evidence_count": 5,
+          "source_ref_count": 3,
+          "repairable_units": 0,
+          "repaired_units": 0,
+          "missing_evidence": false,
+          "coverage_query_units": 1,
+          "coverage_sources": 3
+        },
+        "workflow_summary": {
+          "knowledge_scope_status": "resolved",
+          "binding_summary": "not_applicable",
+          "context_summary": {
+            "candidate_count": 0,
+            "query_unit_count": 0,
+            "memory_anchor_count": 0,
+            "hydrated_memory_entry_count": 0,
+            "memory_hydrated": false,
+            "binding_matched_by": "",
+            "binding_fallback_type": "",
+            "binding_reason": ""
+          },
+          "plan_summary": {
+            "planning_mode": "not_applicable",
+            "step_count": 0,
+            "checkpoint_count": 0,
+            "comparison_unit_count": 0,
+            "bound_target_ref_count": 0,
+            "refined": false,
+            "fallback_used": false,
+            "fallback_reason": []
+          },
+          "review_summary": {
+            "target_count": 0,
+            "matched_target_count": 0,
+            "matched_target_refs": [],
+            "unsupported_target_refs": [],
+            "needs_more_evidence_targets": [],
+            "status_summary": "not_applicable",
+            "review_mode": "not_applicable",
+            "review_confidence": "not_applicable",
+            "review_scope": "not_applicable",
+            "follow_up_retrieval_attempted": false,
+            "follow_up_retrieval_improved": false,
+            "follow_up_retrieval_sources": [],
+            "follow_up_retrieval_retrieved_evidence_count": 0
+          },
+          "evidence_summary": {
+            "retrieval_quality_status": "good",
+            "query_unit_count": 1,
+            "merged_evidence_count": 5,
+            "source_ref_count": 3,
+            "repairable_units": 0,
+            "repaired_units": 0,
+            "missing_evidence": false,
+            "coverage_query_units": 1,
+            "coverage_sources": 3
+          }
+        },
+        "registry_convenience": {
+          "channel": "fused",
+          "source_type": "markdown",
+          "query_unit_ids": [
+            "primary"
+          ]
+        }
+      }
+    },
+    {
+      "object_id": "turn_1783318971164:question",
+      "object_type": "question_object",
+      "tenant_id": "default",
+      "group_id": "general",
+      "session_id": "session_20260704_100812_fc7cdd92",
+      "source_turn_id": "turn_1783318971164",
+      "content": "查知识库, ai发展趋势",
+      "refs": [],
+      "salience_score": 1.0,
+      "source_power": "workflow",
+      "metadata": {
+        "route": "qa",
+        "handling_mode": "normal",
+        "knowledge_scope_status": "resolved",
+        "binding_summary": "not_applicable",
+        "context_summary": {
+          "candidate_count": 0,
+          "query_unit_count": 0,
+          "memory_anchor_count": 0,
+          "hydrated_memory_entry_count": 0,
+          "memory_hydrated": false,
+          "binding_matched_by": "",
+          "binding_fallback_type": "",
+          "binding_reason": ""
+        },
+        "plan_summary": {
+          "planning_mode": "not_applicable",
+          "step_count": 0,
+          "checkpoint_count": 0,
+          "comparison_unit_count": 0,
+          "bound_target_ref_count": 0,
+          "refined": false,
+          "fallback_used": false,
+          "fallback_reason": []
+        },
+        "review_summary": {
+          "target_count": 0,
+          "matched_target_count": 0,
+          "matched_target_refs": [],
+          "unsupported_target_refs": [],
+          "needs_more_evidence_targets": [],
+          "status_summary": "not_applicable",
+          "review_mode": "not_applicable",
+          "review_confidence": "not_applicable",
+          "review_scope": "not_applicable",
+          "follow_up_retrieval_attempted": false,
+          "follow_up_retrieval_improved": false,
+          "follow_up_retrieval_sources": [],
+          "follow_up_retrieval_retrieved_evidence_count": 0
+        },
+        "evidence_summary": {
+          "retrieval_quality_status": "good",
+          "query_unit_count": 1,
+          "merged_evidence_count": 4,
+          "source_ref_count": 4,
+          "repairable_units": 0,
+          "repaired_units": 0,
+          "missing_evidence": false,
+          "coverage_query_units": 1,
+          "coverage_sources": 4
+        },
+        "workflow_summary": {
+          "knowledge_scope_status": "resolved",
+          "binding_summary": "not_applicable",
+          "context_summary": {
+            "candidate_count": 0,
+            "query_unit_count": 0,
+            "memory_anchor_count": 0,
+            "hydrated_memory_entry_count": 0,
+            "memory_hydrated": false,
+            "binding_matched_by": "",
+            "binding_fallback_type": "",
+            "binding_reason": ""
+          },
+          "plan_summary": {
+            "planning_mode": "not_applicable",
+            "step_count": 0,
+            "checkpoint_count": 0,
+            "comparison_unit_count": 0,
+            "bound_target_ref_count": 0,
+            "refined": false,
+            "fallback_used": false,
+            "fallback_reason": []
+          },
+          "review_summary": {
+            "target_count": 0,
+            "matched_target_count": 0,
+            "matched_target_refs": [],
+            "unsupported_target_refs": [],
+            "needs_more_evidence_targets": [],
+            "status_summary": "not_applicable",
+            "review_mode": "not_applicable",
+            "review_confidence": "not_applicable",
+            "review_scope": "not_applicable",
+            "follow_up_retrieval_attempted": false,
+            "follow_up_retrieval_improved": false,
+            "follow_up_retrieval_sources": [],
+            "follow_up_retrieval_retrieved_evidence_count": 0
+          },
+          "evidence_summary": {
+            "retrieval_quality_status": "good",
+            "query_unit_count": 1,
+            "merged_evidence_count": 4,
+            "source_ref_count": 4,
+            "repairable_units": 0,
+            "repaired_units": 0,
+            "missing_evidence": false,
+            "coverage_query_units": 1,
+            "coverage_sources": 4
+          }
+        },
+        "registry_convenience": {
+          "route": "qa",
+          "handling_mode": "normal"
+        }
+      }
+    },
+    {
+      "object_id": "turn_1783318971164:evidence:1",
+      "object_type": "evidence_ref",
+      "tenant_id": "default",
+      "group_id": "general",
+      "session_id": "session_20260704_100812_fc7cdd92",
+      "source_turn_id": "turn_1783318971164",
+      "content": "- Safety Knowledge/\n  - 用途：安全相关知识与文档，涵盖常见 Web 安全漏洞及防护方案。\n- Financial Report Data/\n  - 用途：金融与上市公司财报类数据，主要是按公司和季度划分的 PDF 报告。\n- E-commerce Data/\n  - 用途：电商业务相关的数据文件，如员工、客户、库存和订单等结构化数据,以及电商中用户与客服间常见问题问答数据。\n- AI Knowledge/\n  - 用途：人工智能行业与技术相关报告与研究资料，用于检索 AI 技术发展、应用场景及治理趋势。",
+      "refs": [
+        "storage/groups/general/knowledge/raw/data_structure.md",
+        "paragraph:1 chunk:1",
+        "primary"
+      ],
+      "salience_score": 14.135281456373228,
+      "source_power": "retrieval_power",
+      "metadata": {
+        "query_unit_ids": [
+          "primary"
+        ],
+        "source_type": "md",
+        "channel": "fused",
+        "knowledge_scope_status": "resolved",
+        "binding_summary": "not_applicable",
+        "context_summary": {
+          "candidate_count": 0,
+          "query_unit_count": 0,
+          "memory_anchor_count": 0,
+          "hydrated_memory_entry_count": 0,
+          "memory_hydrated": false,
+          "binding_matched_by": "",
+          "binding_fallback_type": "",
+          "binding_reason": ""
+        },
+        "plan_summary": {
+          "planning_mode": "not_applicable",
+          "step_count": 0,
+          "checkpoint_count": 0,
+          "comparison_unit_count": 0,
+          "bound_target_ref_count": 0,
+          "refined": false,
+          "fallback_used": false,
+          "fallback_reason": []
+        },
+        "review_summary": {
+          "target_count": 0,
+          "matched_target_count": 0,
+          "matched_target_refs": [],
+          "unsupported_target_refs": [],
+          "needs_more_evidence_targets": [],
+          "status_summary": "not_applicable",
+          "review_mode": "not_applicable",
+          "review_confidence": "not_applicable",
+          "review_scope": "not_applicable",
+          "follow_up_retrieval_attempted": false,
+          "follow_up_retrieval_improved": false,
+          "follow_up_retrieval_sources": [],
+          "follow_up_retrieval_retrieved_evidence_count": 0
+        },
+        "evidence_summary": {
+          "retrieval_quality_status": "good",
+          "query_unit_count": 1,
+          "merged_evidence_count": 4,
+          "source_ref_count": 4,
+          "repairable_units": 0,
+          "repaired_units": 0,
+          "missing_evidence": false,
+          "coverage_query_units": 1,
+          "coverage_sources": 4
+        },
+        "workflow_summary": {
+          "knowledge_scope_status": "resolved",
+          "binding_summary": "not_applicable",
+          "context_summary": {
+            "candidate_count": 0,
+            "query_unit_count": 0,
+            "memory_anchor_count": 0,
+            "hydrated_memory_entry_count": 0,
+            "memory_hydrated": false,
+            "binding_matched_by": "",
+            "binding_fallback_type": "",
+            "binding_reason": ""
+          },
+          "plan_summary": {
+            "planning_mode": "not_applicable",
+            "step_count": 0,
+            "checkpoint_count": 0,
+            "comparison_unit_count": 0,
+            "bound_target_ref_count": 0,
+            "refined": false,
+            "fallback_used": false,
+            "fallback_reason": []
+          },
+          "review_summary": {
+            "target_count": 0,
+            "matched_target_count": 0,
+            "matched_target_refs": [],
+            "unsupported_target_refs": [],
+            "needs_more_evidence_targets": [],
+            "status_summary": "not_applicable",
+            "review_mode": "not_applicable",
+            "review_confidence": "not_applicable",
+            "review_scope": "not_applicable",
+            "follow_up_retrieval_attempted": false,
+            "follow_up_retrieval_improved": false,
+            "follow_up_retrieval_sources": [],
+            "follow_up_retrieval_retrieved_evidence_count": 0
+          },
+          "evidence_summary": {
+            "retrieval_quality_status": "good",
+            "query_unit_count": 1,
+            "merged_evidence_count": 4,
+            "source_ref_count": 4,
+            "repairable_units": 0,
+            "repaired_units": 0,
+            "missing_evidence": false,
+            "coverage_query_units": 1,
+            "coverage_sources": 4
+          }
+        },
+        "registry_convenience": {
+          "query_unit_ids": [
+            "primary"
+          ],
+          "source_type": "md",
+          "channel": "fused"
+        }
+      }
+    },
+    {
+      "object_id": "turn_1783318971164:evidence:2",
+      "object_type": "evidence_ref",
+      "tenant_id": "default",
+      "group_id": "general",
+      "session_id": "session_20260704_100812_fc7cdd92",
+      "source_turn_id": "turn_1783318971164",
+      "content": "=== Page 46 ===\n \n \nAI Agent智能体技术发展报告 \n38 \n平台截图示例（Dify⼯作流编排界面） \n 优势： 功能全面且均衡：在知识库、⼯作流、Agent能⼒和平台运营⽅面都做得非常出⾊，是⼀个“⽔桶型”选⼿。 开源且社区活跃：代码开放， 迭代迅速， 开发者可以进⾏深度定制， 遇到问题也能在社区快速找到解决⽅案。 支持私有化部署：这是其相对于Coze等云端平台的巨⼤优势，对数据敏感的企业尤其重要。 中⽂支持友好：⽆论是平台界面还是⽂档，都提供了完善的中⽂支持。 劣势： 部署和运维门槛：虽然提供了部署脚本， 但要维护⼀个⽣产级的Dify实例，仍需要⼀定的服务器和数据库运维知识。 ⾼级功能复杂度：虽然提供了可视化界面， 但要用好其⾼级功能 （如自定义代码节点、复杂的Agent编排），仍需要具备⼀定的编程能⼒。 适用场景：Dify⼏乎适用于所有需要构建和运营⽣产级AI应用的场景，尤其适合： 需要私有化部署的企业级应用（如内部知识库、智能客服）。 需要统⼀管理多个不同⼤模型的开发者。 希望通过⼀个平台解决从开发到运营全流程问题的团队。 3.3.2 FastGPT：专注企业知识库的利器",
+      "refs": [
+        "storage/groups/general/knowledge/raw/AI Knowledge/2026年AI Agent智能体技术发展报告.pdf",
+        "page:1 chunk:75",
+        "primary"
+      ],
+      "salience_score": 13.968345752547656,
+      "source_power": "retrieval_power",
+      "metadata": {
+        "query_unit_ids": [
+          "primary"
+        ],
+        "source_type": "pdf",
+        "channel": "fused",
+        "knowledge_scope_status": "resolved",
+        "binding_summary": "not_applicable",
+        "context_summary": {
+          "candidate_count": 0,
+          "query_unit_count": 0,
+          "memory_anchor_count": 0,
+          "hydrated_memory_entry_count": 0,
+          "memory_hydrated": false,
+          "binding_matched_by": "",
+          "binding_fallback_type": "",
+          "binding_reason": ""
+        },
+        "plan_summary": {
+          "planning_mode": "not_applicable",
+          "step_count": 0,
+          "checkpoint_count": 0,
+          "comparison_unit_count": 0,
+          "bound_target_ref_count": 0,
+          "refined": false,
+          "fallback_used": false,
+          "fallback_reason": []
+        },
+        "review_summary": {
+          "target_count": 0,
+          "matched_target_count": 0,
+          "matched_target_refs": [],
+          "unsupported_target_refs": [],
+          "needs_more_evidence_targets": [],
+          "status_summary": "not_applicable",
+          "review_mode": "not_applicable",
+          "review_confidence": "not_applicable",
+          "review_scope": "not_applicable",
+          "follow_up_retrieval_attempted": false,
+          "follow_up_retrieval_improved": false,
+          "follow_up_retrieval_sources": [],
+          "follow_up_retrieval_retrieved_evidence_count": 0
+        },
+        "evidence_summary": {
+          "retrieval_quality_status": "good",
+          "query_unit_count": 1,
+          "merged_evidence_count": 4,
+          "source_ref_count": 4,
+          "repairable_units": 0,
+          "repaired_units": 0,
+          "missing_evidence": false,
+          "coverage_query_units": 1,
+          "coverage_sources": 4
+        },
+        "workflow_summary": {
+          "knowledge_scope_status": "resolved",
+          "binding_summary": "not_applicable",
+          "context_summary": {
+            "candidate_count": 0,
+            "query_unit_count": 0,
+            "memory_anchor_count": 0,
+            "hydrated_memory_entry_count": 0,
+            "memory_hydrated": false,
+            "binding_matched_by": "",
+            "binding_fallback_type": "",
+            "binding_reason": ""
+          },
+          "plan_summary": {
+            "planning_mode": "not_applicable",
+            "step_count": 0,
+            "checkpoint_count": 0,
+            "comparison_unit_count": 0,
+            "bound_target_ref_count": 0,
+            "refined": false,
+            "fallback_used": false,
+            "fallback_reason": []
+          },
+          "review_summary": {
+            "target_count": 0,
+            "matched_target_count": 0,
+            "matched_target_refs": [],
+            "unsupported_target_refs": [],
+            "needs_more_evidence_targets": [],
+            "status_summary": "not_applicable",
+            "review_mode": "not_applicable",
+            "review_confidence": "not_applicable",
+            "review_scope": "not_applicable",
+            "follow_up_retrieval_attempted": false,
+            "follow_up_retrieval_improved": false,
+            "follow_up_retrieval_sources": [],
+            "follow_up_retrieval_retrieved_evidence_count": 0
+          },
+          "evidence_summary": {
+            "retrieval_quality_status": "good",
+            "query_unit_count": 1,
+            "merged_evidence_count": 4,
+            "source_ref_count": 4,
+            "repairable_units": 0,
+            "repaired_units": 0,
+            "missing_evidence": false,
+            "coverage_query_units": 1,
+            "coverage_sources": 4
+          }
+        },
+        "registry_convenience": {
+          "query_unit_ids": [
+            "primary"
+          ],
+          "source_type": "pdf",
+          "channel": "fused"
+        }
+      }
+    },
+    {
+      "object_id": "turn_1783318971164:evidence:3",
+      "object_type": "evidence_ref",
+      "tenant_id": "default",
+      "group_id": "general",
+      "session_id": "session_20260704_100812_fc7cdd92",
+      "source_turn_id": "turn_1783318971164",
+      "content": "=== Page 46 ===\n \n \nAI Agent智能体技术发展报告 \n38 \n平台截图示例（Dify⼯作流编排界面） \n 优势： 功能全面且均衡：在知识库、⼯作流、Agent能⼒和平台运营⽅面都做得非常出⾊，是⼀个“⽔桶型”选⼿。 开源且社区活跃：代码开放， 迭代迅速， 开发者可以进⾏深度定制， 遇到问题也能在社区快速找到解决⽅案。 支持私有化部署：这是其相对于Coze等云端平台的巨⼤优势，对数据敏感的企业尤其重要。 中⽂支持友好：⽆论是平台界面还是⽂档，都提供了完善的中⽂支持。 劣势： 部署和运维门槛：虽然提供了部署脚本， 但要维护⼀个⽣产级的Dify实例，仍需要⼀定的服务器和数据库运维知识。 ⾼级功能复杂度：虽然提供了可视化界面， 但要用好其⾼级功能 （如自定义代码节点、复杂的Agent编排），仍需要具备⼀定的编程能⼒。 适用场景：Dify⼏乎适用于所有需要构建和运营⽣产级AI应用的场景，尤其适合： 需要私有化部署的企业级应用（如内部知识库、智能客服）。 需要统⼀管理多个不同⼤模型的开发者。 希望通过⼀个平台解决从开发到运营全流程问题的团队。 3.3.2 FastGPT：专注企业知识库的利器",
+      "refs": [
+        "storage/groups/general/knowledge/raw/AI Knowledge/2026年AI Agent智能体技术发展报告.txt",
+        "paragraph:45 chunk:75",
+        "primary"
+      ],
+      "salience_score": 13.968345752547656,
+      "source_power": "retrieval_power",
+      "metadata": {
+        "query_unit_ids": [
+          "primary"
+        ],
+        "source_type": "txt",
+        "channel": "fused",
+        "knowledge_scope_status": "resolved",
+        "binding_summary": "not_applicable",
+        "context_summary": {
+          "candidate_count": 0,
+          "query_unit_count": 0,
+          "memory_anchor_count": 0,
+          "hydrated_memory_entry_count": 0,
+          "memory_hydrated": false,
+          "binding_matched_by": "",
+          "binding_fallback_type": "",
+          "binding_reason": ""
+        },
+        "plan_summary": {
+          "planning_mode": "not_applicable",
+          "step_count": 0,
+          "checkpoint_count": 0,
+          "comparison_unit_count": 0,
+          "bound_target_ref_count": 0,
+          "refined": false,
+          "fallback_used": false,
+          "fallback_reason": []
+        },
+        "review_summary": {
+          "target_count": 0,
+          "matched_target_count": 0,
+          "matched_target_refs": [],
+          "unsupported_target_refs": [],
+          "needs_more_evidence_targets": [],
+          "status_summary": "not_applicable",
+          "review_mode": "not_applicable",
+          "review_confidence": "not_applicable",
+          "review_scope": "not_applicable",
+          "follow_up_retrieval_attempted": false,
+          "follow_up_retrieval_improved": false,
+          "follow_up_retrieval_sources": [],
+          "follow_up_retrieval_retrieved_evidence_count": 0
+        },
+        "evidence_summary": {
+          "retrieval_quality_status": "good",
+          "query_unit_count": 1,
+          "merged_evidence_count": 4,
+          "source_ref_count": 4,
+          "repairable_units": 0,
+          "repaired_units": 0,
+          "missing_evidence": false,
+          "coverage_query_units": 1,
+          "coverage_sources": 4
+        },
+        "workflow_summary": {
+          "knowledge_scope_status": "resolved",
+          "binding_summary": "not_applicable",
+          "context_summary": {
+            "candidate_count": 0,
+            "query_unit_count": 0,
+            "memory_anchor_count": 0,
+            "hydrated_memory_entry_count": 0,
+            "memory_hydrated": false,
+            "binding_matched_by": "",
+            "binding_fallback_type": "",
+            "binding_reason": ""
+          },
+          "plan_summary": {
+            "planning_mode": "not_applicable",
+            "step_count": 0,
+            "checkpoint_count": 0,
+            "comparison_unit_count": 0,
+            "bound_target_ref_count": 0,
+            "refined": false,
+            "fallback_used": false,
+            "fallback_reason": []
+          },
+          "review_summary": {
+            "target_count": 0,
+            "matched_target_count": 0,
+            "matched_target_refs": [],
+            "unsupported_target_refs": [],
+            "needs_more_evidence_targets": [],
+            "status_summary": "not_applicable",
+            "review_mode": "not_applicable",
+            "review_confidence": "not_applicable",
+            "review_scope": "not_applicable",
+            "follow_up_retrieval_attempted": false,
+            "follow_up_retrieval_improved": false,
+            "follow_up_retrieval_sources": [],
+            "follow_up_retrieval_retrieved_evidence_count": 0
+          },
+          "evidence_summary": {
+            "retrieval_quality_status": "good",
+            "query_unit_count": 1,
+            "merged_evidence_count": 4,
+            "source_ref_count": 4,
+            "repairable_units": 0,
+            "repaired_units": 0,
+            "missing_evidence": false,
+            "coverage_query_units": 1,
+            "coverage_sources": 4
+          }
+        },
+        "registry_convenience": {
+          "query_unit_ids": [
+            "primary"
+          ],
+          "source_type": "txt",
+          "channel": "fused"
+        }
+      }
+    },
+    {
+      "object_id": "turn_1783318971164:evidence:4",
+      "object_type": "evidence_ref",
+      "tenant_id": "default",
+      "group_id": "general",
+      "session_id": "session_20260704_100812_fc7cdd92",
+      "source_turn_id": "turn_1783318971164",
+      "content": "=== Page 46 ===\n \n \nAI Agent智能体技术发展报告 \n38 \n平台截图示例（Dify⼯作流编排界面） \n 优势： 功能全面且均衡：在知识库、⼯作流、Agent能⼒和平台运营⽅面都做得非常出⾊，是⼀个“⽔桶型”选⼿。 开源且社区活跃：代码开放， 迭代迅速， 开发者可以进⾏深度定制， 遇到问题也能在社区快速找到解决⽅案。 支持私有化部署：这是其相对于Coze等云端平台的巨⼤优势，对数据敏感的企业尤其重要。 中⽂支持友好：⽆论是平台界面还是⽂档，都提供了完善的中⽂支持。 劣势： 部署和运维门槛：虽然提供了部署脚本， 但要维护⼀个⽣产级的Dify实例，仍需要⼀定的服务器和数据库运维知识。 ⾼级功能复杂度：虽然提供了可视化界面， 但要用好其⾼级功能 （如自定义代码节点、复杂的Agent编排），仍需要具备⼀定的编程能⼒。 适用场景：Dify⼏乎适用于所有需要构建和运营⽣产级AI应用的场景，尤其适合： 需要私有化部署的企业级应用（如内部知识库、智能客服）。 需要统⼀管理多个不同⼤模型的开发者。 希望通过⼀个平台解决从开发到运营全流程问题的团队。 3.3.2 FastGPT：专注企业知识库的利器",
+      "refs": [
+        "storage/groups/general/knowledge/raw/AI Knowledge/ai_agent_comprehensive_trends.txt",
+        "paragraph:224 chunk:376",
+        "primary"
+      ],
+      "salience_score": 13.968345752547656,
+      "source_power": "retrieval_power",
+      "metadata": {
+        "query_unit_ids": [
+          "primary"
+        ],
+        "source_type": "txt",
+        "channel": "fused",
+        "knowledge_scope_status": "resolved",
+        "binding_summary": "not_applicable",
+        "context_summary": {
+          "candidate_count": 0,
+          "query_unit_count": 0,
+          "memory_anchor_count": 0,
+          "hydrated_memory_entry_count": 0,
+          "memory_hydrated": false,
+          "binding_matched_by": "",
+          "binding_fallback_type": "",
+          "binding_reason": ""
+        },
+        "plan_summary": {
+          "planning_mode": "not_applicable",
+          "step_count": 0,
+          "checkpoint_count": 0,
+          "comparison_unit_count": 0,
+          "bound_target_ref_count": 0,
+          "refined": false,
+          "fallback_used": false,
+          "fallback_reason": []
+        },
+        "review_summary": {
+          "target_count": 0,
+          "matched_target_count": 0,
+          "matched_target_refs": [],
+          "unsupported_target_refs": [],
+          "needs_more_evidence_targets": [],
+          "status_summary": "not_applicable",
+          "review_mode": "not_applicable",
+          "review_confidence": "not_applicable",
+          "review_scope": "not_applicable",
+          "follow_up_retrieval_attempted": false,
+          "follow_up_retrieval_improved": false,
+          "follow_up_retrieval_sources": [],
+          "follow_up_retrieval_retrieved_evidence_count": 0
+        },
+        "evidence_summary": {
+          "retrieval_quality_status": "good",
+          "query_unit_count": 1,
+          "merged_evidence_count": 4,
+          "source_ref_count": 4,
+          "repairable_units": 0,
+          "repaired_units": 0,
+          "missing_evidence": false,
+          "coverage_query_units": 1,
+          "coverage_sources": 4
+        },
+        "workflow_summary": {
+          "knowledge_scope_status": "resolved",
+          "binding_summary": "not_applicable",
+          "context_summary": {
+            "candidate_count": 0,
+            "query_unit_count": 0,
+            "memory_anchor_count": 0,
+            "hydrated_memory_entry_count": 0,
+            "memory_hydrated": false,
+            "binding_matched_by": "",
+            "binding_fallback_type": "",
+            "binding_reason": ""
+          },
+          "plan_summary": {
+            "planning_mode": "not_applicable",
+            "step_count": 0,
+            "checkpoint_count": 0,
+            "comparison_unit_count": 0,
+            "bound_target_ref_count": 0,
+            "refined": false,
+            "fallback_used": false,
+            "fallback_reason": []
+          },
+          "review_summary": {
+            "target_count": 0,
+            "matched_target_count": 0,
+            "matched_target_refs": [],
+            "unsupported_target_refs": [],
+            "needs_more_evidence_targets": [],
+            "status_summary": "not_applicable",
+            "review_mode": "not_applicable",
+            "review_confidence": "not_applicable",
+            "review_scope": "not_applicable",
+            "follow_up_retrieval_attempted": false,
+            "follow_up_retrieval_improved": false,
+            "follow_up_retrieval_sources": [],
+            "follow_up_retrieval_retrieved_evidence_count": 0
+          },
+          "evidence_summary": {
+            "retrieval_quality_status": "good",
+            "query_unit_count": 1,
+            "merged_evidence_count": 4,
+            "source_ref_count": 4,
+            "repairable_units": 0,
+            "repaired_units": 0,
+            "missing_evidence": false,
+            "coverage_query_units": 1,
+            "coverage_sources": 4
+          }
+        },
+        "registry_convenience": {
+          "query_unit_ids": [
+            "primary"
+          ],
+          "source_type": "txt",
+          "channel": "fused"
+        }
+      }
+    }
+  ]
+}

@@ -5,8 +5,12 @@ import { useEffect, useMemo, useState } from "react";
 
 import type { ToolCall } from "@/lib/api";
 
-function formatBlock(value: string) {
-  const text = value.trim();
+function readText(value: unknown) {
+  return typeof value === "string" ? value : "";
+}
+
+function formatBlock(value: unknown) {
+  const text = readText(value).trim();
   if (!text) {
     return "暂无";
   }
@@ -19,10 +23,25 @@ function formatBlock(value: string) {
 }
 
 export function ThoughtChain({ toolCalls }: { toolCalls: ToolCall[] }) {
-  const activeTool = [...toolCalls].reverse().find((toolCall) => !toolCall.output.trim()) ?? null;
-  const toolNames = useMemo(
-    () => Array.from(new Set(toolCalls.map((toolCall) => toolCall.tool))),
+  const visibleToolCalls = useMemo(
+    () =>
+      toolCalls.filter((toolCall) => {
+        const toolName = readText(toolCall.tool).trim();
+        const inputText = readText(toolCall.input).trim();
+        const outputText = readText(toolCall.output).trim();
+        const hasOnlyPlaceholderTool = toolName === "tool" && !inputText && !outputText;
+        return !hasOnlyPlaceholderTool && Boolean(toolName || inputText || outputText);
+      }),
     [toolCalls]
+  );
+  const activeTool =
+    [...visibleToolCalls].reverse().find((toolCall) => !readText(toolCall.output).trim()) ?? null;
+  const toolNames = useMemo(
+    () =>
+      Array.from(
+        new Set(visibleToolCalls.map((toolCall) => readText(toolCall.tool)).filter(Boolean))
+      ),
+    [visibleToolCalls]
   );
   const [isOpen, setIsOpen] = useState(Boolean(activeTool));
 
@@ -30,9 +49,9 @@ export function ThoughtChain({ toolCalls }: { toolCalls: ToolCall[] }) {
     if (activeTool) {
       setIsOpen(true);
     }
-  }, [activeTool, toolCalls.length]);
+  }, [activeTool, visibleToolCalls.length]);
 
-  if (!toolCalls.length) {
+  if (!visibleToolCalls.length) {
     return null;
   }
 
@@ -46,10 +65,10 @@ export function ThoughtChain({ toolCalls }: { toolCalls: ToolCall[] }) {
         <TerminalSquare className="mt-0.5 shrink-0" size={16} />
         <div className="min-w-0 flex-1">
           <div>
-            {activeTool ? `正在调用 ${activeTool.tool}` : `工具调用 ${toolCalls.length} 次`}
+            {activeTool ? `正在调用 ${readText(activeTool.tool) || "tool"}` : `工具调用 ${visibleToolCalls.length} 次`}
           </div>
           <div className="truncate text-xs font-normal text-[var(--color-ink-soft)]">
-            {toolNames.join(" -> ")}
+            {toolNames.join(" -> ") || "暂无工具名"}
           </div>
         </div>
         <span className="shrink-0 text-xs font-normal text-[var(--color-ink-soft)]">
@@ -58,13 +77,14 @@ export function ThoughtChain({ toolCalls }: { toolCalls: ToolCall[] }) {
       </summary>
 
       <div className="mt-3 space-y-3">
-        {toolCalls.map((toolCall, index) => {
-          const isFinished = Boolean(toolCall.output.trim());
+        {visibleToolCalls.map((toolCall, index) => {
+          const isFinished = Boolean(readText(toolCall.output).trim());
+          const toolName = readText(toolCall.tool) || "tool";
 
           return (
-            <div className="rounded-2xl bg-white/70 p-3" key={`${toolCall.tool}-${index}`}>
+            <div className="rounded-2xl bg-white/70 p-3" key={`${toolName}-${index}`}>
               <div className="mb-2 flex items-center justify-between gap-3 text-sm font-medium">
-                <span>{toolCall.tool}</span>
+                <span>{toolName}</span>
                 <span
                   className={`rounded-full px-2 py-1 text-[11px] font-medium ${
                     isFinished

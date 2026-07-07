@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import math
+import re
 from dataclasses import dataclass
 from typing import Any
 
@@ -12,11 +13,12 @@ from workflow.types import EvidenceBundle, EvidenceItem, QueryUnit, RetrievalQua
 
 _METRIC_SCORE = {"good": 1.0, "weak": 0.5, "bad": 0.0}
 _WEIGHTS = {
-    "target_overlap_score": 0.25,
-    "coverage_score": 0.25,
-    "dedup_hit_score": 0.20,
-    "hit_count_score": 0.15,
-    "non_empty_snippet_score": 0.10,
+    "query_relevance_score": 0.35,
+    "target_overlap_score": 0.20,
+    "coverage_score": 0.15,
+    "dedup_hit_score": 0.15,
+    "hit_count_score": 0.05,
+    "non_empty_snippet_score": 0.05,
     "source_quality_score": 0.05,
 }
 
@@ -68,6 +70,7 @@ class RetrievalPower:
         query_units: tuple[QueryUnit, ...],
         *,
         top_k: int = 4,
+        path_filters: tuple[str, ...] = (),
     ) -> EvidenceBundle:
         unit_results: list[RetrievalUnitResult] = []
         merged: dict[tuple[str, str], EvidenceItem] = {}
@@ -75,7 +78,12 @@ class RetrievalPower:
         quality_scores: list[float] = []
 
         for unit in query_units:
-            initial_run = self._run_single_query(unit=unit, query_text=unit.text, top_k=top_k)
+            initial_run = self._run_single_query(
+                unit=unit,
+                query_text=unit.text,
+                top_k=top_k,
+                path_filters=path_filters,
+            )
             evidence_items = initial_run["evidence_items"]
             quality = initial_run["quality"]
             selected_query = initial_run["query_text"]
@@ -99,6 +107,7 @@ class RetrievalPower:
                     query_text=repaired_query,
                     top_k=int(repair_plan.get("top_k") or top_k),
                     mode=repaired_mode,
+                    path_filters=path_filters,
                 )
                 post_quality = repaired_run["quality"].to_dict()
                 if self._should_use_repaired_run(initial_run=initial_run, repaired_run=repaired_run):
@@ -111,7 +120,7 @@ class RetrievalPower:
             quality_scores.append(quality.weighted_score)
 
             for evidence in evidence_items:
-                dedup_key = (evidence.source_path, evidence.locator)
+                dedup_key = self._evidence_identity_key(evidence)
                 if dedup_key not in merged:
                     merged[dedup_key] = evidence
                 else:
@@ -190,7 +199,11 @@ class RetrievalPower:
             )
             for index, item in enumerate(result.evidences, start=1)
         ]
-        quality = self.assess_retrieval_quality(evidence_items, target_top_k=max(1, len(evidence_items)))
+        quality = self.assess_retrieval_quality(
+            evidence_items,
+            query_text=query,
+            target_top_k=max(1, len(evidence_items)),
+        )
         source_refs = tuple(dict.fromkeys(item.source_path for item in evidence_items))
         repair_plan = self.repair_helper.build_repair_plan(
             query_unit=query_unit,
@@ -242,6 +255,7 @@ class RetrievalPower:
         self,
         evidence_items: list[EvidenceItem],
         *,
+        query_text: str = "",
         target_refs: tuple[str, ...] = (),
         target_top_k: int = 4,
     ) -> RetrievalQualityAssessment:
@@ -255,8 +269,10 @@ class RetrievalPower:
         target_overlap_ratio = self._compute_target_overlap(evidence_items, target_refs)
         coverage_ratio = 1.0 if not target_refs else target_overlap_ratio
         source_quality_ratio = self._compute_source_quality_ratio(evidence_items)
+        query_relevance_ratio = self._compute_query_relevance(evidence_items, query_text)
 
         metrics = {
+            "query_relevance_score": self._generic_bucket(query_relevance_ratio, good_floor=0.45, weak_floor=0.18),
             "hit_count_score": self._ratio_to_bucket(raw_hit_count / max(1, target_top_k), floor_bad=0.3, floor_good=0.6, absolute_bad=0, absolute_weak=1, absolute_value=raw_hit_count),
             "dedup_hit_score": self._ratio_to_bucket(dedup_hit_count / max(1, target_top_k), floor_bad=0.2, floor_good=0.4, absolute_bad=1, absolute_weak=1, absolute_value=dedup_hit_count),
             "target_overlap_score": self._generic_bucket(target_overlap_ratio, good_floor=0.8, weak_floor=0.4),
@@ -270,8 +286,11 @@ class RetrievalPower:
             4,
         )
         status = "good" if weighted_score >= 0.75 else "weak" if weighted_score >= 0.45 else "bad"
+        if metrics["query_relevance_score"] == "bad":
+            status = "bad"
         should_repair = (
-            metrics["target_overlap_score"] == "bad"
+            metrics["query_relevance_score"] == "bad"
+            or metrics["target_overlap_score"] == "bad"
             or metrics["coverage_score"] == "bad"
             or weighted_score < 0.45
         )
@@ -289,9 +308,15 @@ class RetrievalPower:
         query_text: str,
         top_k: int,
         mode: str = "raw",
+        path_filters: tuple[str, ...] = (),
     ) -> dict[str, Any]:
-        result = self.retriever.retrieve(query_text, top_k=top_k)
-        evidences = [*result.vector_evidences, *result.bm25_evidences]
+        result = self.retriever.retrieve(
+            query_text,
+            top_k=top_k,
+            path_filters=list(path_filters) or None,
+            query_hints=[*unit.target_refs],
+        )
+        evidences = list(result.merged_hits or [*result.vector_evidences, *result.bm25_evidences])
         evidence_items = [
             EvidenceItem(
                 evidence_id=f"{index}:{item.source_path}:{item.locator}",
@@ -308,6 +333,7 @@ class RetrievalPower:
         ]
         quality = self.assess_retrieval_quality(
             evidence_items,
+            query_text=query_text,
             target_refs=unit.target_refs,
             target_top_k=top_k,
         )
@@ -356,6 +382,44 @@ class RetrievalPower:
             else:
                 score += 0.25
         return score / len(evidence_items)
+
+    def _compute_query_relevance(self, evidence_items: list[EvidenceItem], query_text: str) -> float:
+        query_tokens = [token for token in self._tokenize_query(query_text) if token]
+        if not query_tokens:
+            return 0.0
+        weighted_total = sum(self._query_token_weight(token) for token in query_tokens)
+        if weighted_total <= 0:
+            return 0.0
+        best_ratio = 0.0
+        for item in evidence_items:
+            haystack = f"{item.source_path}\n{item.snippet}".lower()
+            matched = 0.0
+            for token in query_tokens:
+                if token in haystack:
+                    matched += self._query_token_weight(token)
+            best_ratio = max(best_ratio, matched / weighted_total)
+        return min(best_ratio, 1.0)
+
+    def _tokenize_query(self, query_text: str) -> list[str]:
+        return [item for item in re.findall(r"[\u4e00-\u9fff]|[A-Za-z0-9_]+", query_text.lower()) if item.strip()]
+
+    def _query_token_weight(self, token: str) -> float:
+        if len(token) >= 8:
+            return 2.5
+        if len(token) >= 4:
+            return 1.5
+        if re.match(r"^[a-z0-9_]+$", token):
+            return 1.0
+        return 0.6
+
+    def _evidence_identity_key(self, evidence: EvidenceItem) -> tuple[str, str]:
+        snippet = re.sub(r"\s+", " ", evidence.snippet or "").strip().lower()
+        if len(snippet) >= 80:
+            return ("snippet", snippet[:240])
+        parent = str(evidence.parent_id or evidence.source_path)
+        if snippet:
+            return (parent, snippet[:240])
+        return (parent, evidence.locator)
 
     def _ratio_to_bucket(
         self,

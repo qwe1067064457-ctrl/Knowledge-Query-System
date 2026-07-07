@@ -1,6 +1,15 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode
+} from "react";
 
 import {
   compressSession,
@@ -8,29 +17,49 @@ import {
   deleteSession,
   getKnowledgeIndexStatus,
   getRagMode,
+  getSessionAgentTraces,
+  getRuntimeMemoryCore,
+  getRuntimeMemoryOverview,
   getSessionHistory,
   getSessionTokens,
+  listGroups,
   listSessions,
   listSkills,
   loadFile,
+  mergeIntentTrace,
+  mergeWorkflowTrace,
+  normalizeExecutionEvent,
+  normalizeIntentTrace,
+  normalizeRetrievalStep,
+  normalizeToolCall,
+  normalizeWorkflowTrace,
   renameSession,
   rebuildKnowledgeIndex as rebuildKnowledgeIndexRequest,
   saveFile,
   setRagMode,
   streamChat,
-  type Evidence,
+  type ExecutionEvent,
+  type GroupRecord,
+  type IntentTrace,
   type KnowledgeIndexStatus,
   type RetrievalStep,
+  type RuntimeMemoryCore,
+  type RuntimeMemoryOverview,
+  type SessionAgentTraceEntry,
   type SessionSummary,
-  type ToolCall
+  type ToolCall,
+  type WorkflowTrace
 } from "@/lib/api";
 
-type Message = {
+export type Message = {
   id: string;
   role: "user" | "assistant";
   content: string;
   toolCalls: ToolCall[];
   retrievalSteps: RetrievalStep[];
+  intentTrace?: IntentTrace;
+  workflowTrace?: WorkflowTrace;
+  executionEvents: ExecutionEvent[];
 };
 
 type TokenStats = {
@@ -41,6 +70,8 @@ type TokenStats = {
 
 type AppStore = {
   sessions: SessionSummary[];
+  groups: GroupRecord[];
+  selectedGroupId: string;
   currentSessionId: string | null;
   messages: Message[];
   isStreaming: boolean;
@@ -50,12 +81,16 @@ type AppStore = {
   inspectorPath: string;
   inspectorContent: string;
   inspectorDirty: boolean;
+  inspectorOpen: boolean;
   sidebarWidth: number;
   inspectorWidth: number;
   tokenStats: TokenStats | null;
   knowledgeIndexStatus: KnowledgeIndexStatus | null;
-  createNewSession: () => Promise<void>;
+  runtimeMemoryCore: RuntimeMemoryCore | null;
+  runtimeMemoryOverview: RuntimeMemoryOverview | null;
+  createNewSession: (groupId?: string) => Promise<void>;
   selectSession: (sessionId: string) => Promise<void>;
+  setSelectedGroupId: (groupId: string) => void;
   sendMessage: (value: string) => Promise<void>;
   toggleRagMode: () => Promise<void>;
   renameCurrentSession: (title: string) => Promise<void>;
@@ -65,18 +100,19 @@ type AppStore = {
   saveInspector: () => Promise<void>;
   compressCurrentSession: () => Promise<void>;
   rebuildKnowledgeIndex: () => Promise<void>;
+  refreshRuntimeMemory: (groupId?: string) => Promise<void>;
+  setInspectorOpen: (open: boolean) => void;
   setSidebarWidth: (width: number) => void;
   setInspectorWidth: (width: number) => void;
 };
 
 const FIXED_FILES = [
-  "workspace/SOUL.md",
-  "workspace/IDENTITY.md",
-  "workspace/USER.md",
-  "workspace/AGENTS.md",
-  "memory/MEMORY.md",
   "SKILLS_SNAPSHOT.md"
 ];
+
+const DEFAULT_GROUP_ID = "general";
+const DEFAULT_INSPECTOR_FILE = FIXED_FILES[0];
+let hasBootstrappedAppStore = false;
 
 const StoreContext = createContext<AppStore | null>(null);
 
@@ -84,79 +120,135 @@ function makeId() {
   return `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 }
 
-function normalizeEvidence(value: unknown): Evidence | null {
-  if (!value || typeof value !== "object") {
-    return null;
-  }
+// 0 消息的新会话现在只保留为本地草稿，不再作为正式会话长期展示。
+function isRenderableSession(session: SessionSummary) {
+  return session.message_count > 0;
+}
 
-  const item = value as Record<string, unknown>;
-  const scoreValue = item.score;
-  const score =
-    typeof scoreValue === "number"
-      ? scoreValue
-      : typeof scoreValue === "string" && scoreValue.trim()
-        ? Number(scoreValue)
-        : null;
-
+function buildMessage(partial: Partial<Message> & Pick<Message, "role" | "content">): Message {
   return {
-    source_path: String(item.source_path ?? ""),
-    source_type: String(item.source_type ?? ""),
-    locator: String(item.locator ?? ""),
-    snippet: String(item.snippet ?? ""),
-    channel: (item.channel as Evidence["channel"]) ?? "skill",
-    score: Number.isFinite(score) ? score : null,
-    parent_id: item.parent_id ? String(item.parent_id) : null
+    id: partial.id ?? makeId(),
+    role: partial.role,
+    content: partial.content,
+    toolCalls: partial.toolCalls ?? [],
+    retrievalSteps: partial.retrievalSteps ?? [],
+    intentTrace: partial.intentTrace,
+    workflowTrace: partial.workflowTrace,
+    executionEvents: partial.executionEvents ?? []
   };
 }
 
-function normalizeRetrievalStep(value: unknown): RetrievalStep | null {
-  if (!value || typeof value !== "object") {
-    return null;
-  }
+// 历史接口还未稳定持久化 trace，按位置回填本地 trace，避免流式完成后立刻丢失可视化信息。
+function mergeMessagesWithLocalTrace(historyMessages: Message[], existingMessages: Message[]) {
+  return historyMessages.map((message, index) => {
+    const localMessage = existingMessages[index];
+    if (!localMessage || localMessage.role !== message.role) {
+      return message;
+    }
 
-  const item = value as Record<string, unknown>;
-  const rawResults = Array.isArray(item.results) ? item.results : [];
-  const results = rawResults
-    .map((entry) => normalizeEvidence(entry))
-    .filter((entry): entry is Evidence => entry !== null);
-
-  return {
-    kind: item.kind === "memory" ? "memory" : "knowledge",
-    stage: String(item.stage ?? "unknown"),
-    title: String(item.title ?? "检索结果"),
-    message: String(item.message ?? ""),
-    results
-  };
+    return {
+      ...message,
+      intentTrace: message.intentTrace ?? localMessage.intentTrace,
+      workflowTrace: message.workflowTrace ?? localMessage.workflowTrace,
+      executionEvents: message.executionEvents.length
+        ? message.executionEvents
+        : localMessage.executionEvents
+    };
+  });
 }
 
 function toUiMessages(history: Awaited<ReturnType<typeof getSessionHistory>>["messages"]) {
-  return history.map((message) => ({
-    id: makeId(),
-    role: message.role,
-    content: message.content ?? "",
-    toolCalls: message.tool_calls ?? [],
-    retrievalSteps: (message.retrieval_steps ?? [])
-      .map((step) => normalizeRetrievalStep(step))
-      .filter((step): step is RetrievalStep => step !== null)
-  }));
+  return history.map((message) =>
+    buildMessage({
+      role: message.role,
+      content: message.content ?? "",
+      toolCalls: (message.tool_calls ?? [])
+        .map((toolCall) => normalizeToolCall(toolCall))
+        .filter((toolCall): toolCall is ToolCall => toolCall !== null),
+      retrievalSteps: (message.retrieval_steps ?? [])
+        .map((step) => normalizeRetrievalStep(step))
+        .filter((step): step is RetrievalStep => step !== null),
+      intentTrace: normalizeIntentTrace(message.intent_trace) ?? undefined,
+      workflowTrace: normalizeWorkflowTrace(message.workflow_trace) ?? undefined,
+      executionEvents: (message.execution_events ?? [])
+        .map((event) => normalizeExecutionEvent(event))
+        .filter((event): event is ExecutionEvent => event !== null)
+    })
+  );
+}
+
+function mergeMessagesWithAgentTraces(
+  messages: Message[],
+  traceEntries: SessionAgentTraceEntry[]
+) {
+  if (!traceEntries.length) {
+    return messages;
+  }
+
+  let assistantIndex = 0;
+
+  return messages.map((message) => {
+    if (message.role !== "assistant") {
+      return message;
+    }
+
+    const traceEntry = traceEntries[assistantIndex];
+    assistantIndex += 1;
+
+    const hasTrace =
+      Boolean(message.intentTrace || message.workflowTrace) ||
+      message.executionEvents.length > 0;
+    if (hasTrace) {
+      return message;
+    }
+
+    if (!traceEntry) {
+      return message;
+    }
+
+    const intentTrace = normalizeIntentTrace(traceEntry.intent_trace) ?? undefined;
+    const workflowTrace = normalizeWorkflowTrace(traceEntry.workflow_trace) ?? undefined;
+    const executionEvents = (traceEntry.execution_events ?? [])
+      .map((event) => normalizeExecutionEvent(event))
+      .filter((event): event is ExecutionEvent => event !== null);
+
+    if (!intentTrace && !workflowTrace && !executionEvents.length) {
+      return message;
+    }
+
+    return {
+      ...message,
+      intentTrace,
+      workflowTrace,
+      executionEvents
+    };
+  });
 }
 
 export function AppProvider({ children }: { children: ReactNode }) {
   const [sessions, setSessions] = useState<SessionSummary[]>([]);
+  const [groups, setGroups] = useState<GroupRecord[]>([]);
+  const [selectedGroupId, setSelectedGroupId] = useState("");
   const [currentSessionId, setCurrentSessionId] = useState<string | null>(null);
   const [messages, setMessages] = useState<Message[]>([]);
   const [isStreaming, setIsStreaming] = useState(false);
   const [ragMode, setRagModeState] = useState(false);
   const [skills, setSkills] = useState<Array<{ name: string; description: string; path: string }>>([]);
-  const [inspectorPath, setInspectorPath] = useState("memory/MEMORY.md");
+  const [inspectorPath, setInspectorPath] = useState(DEFAULT_INSPECTOR_FILE);
   const [inspectorContent, setInspectorContent] = useState("");
   const [inspectorDirty, setInspectorDirty] = useState(false);
+  const [inspectorOpen, setInspectorOpen] = useState(false);
   const [sidebarWidth, setSidebarWidth] = useState(308);
   const [inspectorWidth, setInspectorWidth] = useState(360);
   const [tokenStats, setTokenStats] = useState<TokenStats | null>(null);
   const [knowledgeIndexStatus, setKnowledgeIndexStatus] = useState<KnowledgeIndexStatus | null>(
     null
   );
+  const [runtimeMemoryCore, setRuntimeMemoryCore] = useState<RuntimeMemoryCore | null>(null);
+  const [runtimeMemoryOverview, setRuntimeMemoryOverview] = useState<RuntimeMemoryOverview | null>(
+    null
+  );
+  const hasHydratedGroupEffectsRef = useRef(false);
 
   const editableFiles = useMemo(
     () => [...FIXED_FILES, ...skills.map((skill) => skill.path)],
@@ -164,35 +256,63 @@ export function AppProvider({ children }: { children: ReactNode }) {
   );
 
   async function refreshSessions() {
-    setSessions(await listSessions());
+    const nextSessions = await listSessions();
+    setSessions(nextSessions);
+    return nextSessions;
+  }
+
+  async function refreshGroups() {
+    const nextGroups = await listGroups();
+    setGroups(nextGroups);
+    return nextGroups;
   }
 
   async function refreshSkills() {
     setSkills(await listSkills());
   }
 
-  async function refreshKnowledgeIndexStatus() {
-    setKnowledgeIndexStatus(await getKnowledgeIndexStatus());
-  }
+  const refreshKnowledgeIndexStatus = useCallback(async (groupId?: string) => {
+    const resolvedGroupId = groupId || selectedGroupId || groups[0]?.id;
+    setKnowledgeIndexStatus(await getKnowledgeIndexStatus(resolvedGroupId));
+  }, [groups, selectedGroupId]);
+
+  const refreshRuntimeMemory = useCallback(async (groupId?: string) => {
+    const resolvedGroupId = groupId || selectedGroupId || groups[0]?.id || DEFAULT_GROUP_ID;
+    const [nextCore, nextOverview] = await Promise.all([
+      getRuntimeMemoryCore({ user_id: "default", group_id: resolvedGroupId }),
+      getRuntimeMemoryOverview({ user_id: "default", group_id: resolvedGroupId })
+    ]);
+    setRuntimeMemoryCore(nextCore);
+    setRuntimeMemoryOverview(nextOverview);
+  }, [groups, selectedGroupId]);
 
   async function refreshSessionDetails(sessionId: string) {
-    const [history, tokens] = await Promise.all([
+    const [history, tokens, agentTraceRecord] = await Promise.all([
       getSessionHistory(sessionId),
-      getSessionTokens(sessionId)
+      getSessionTokens(sessionId),
+      getSessionAgentTraces(sessionId).catch(() => null)
     ]);
-    setMessages(toUiMessages(history.messages));
+    const nextMessages = mergeMessagesWithAgentTraces(
+      toUiMessages(history.messages),
+      agentTraceRecord?.traces ?? []
+    );
+    setMessages((current) => mergeMessagesWithLocalTrace(nextMessages, current));
     setTokenStats(tokens);
   }
 
-  async function createNewSession() {
-    const created = await createSession();
-    await refreshSessions();
-    setCurrentSessionId(created.id);
+  async function createNewSession(groupId?: string) {
+    const activeGroupId = groupId ?? selectedGroupId ?? groups[0]?.id ?? DEFAULT_GROUP_ID;
+    setSelectedGroupId(activeGroupId);
+    setCurrentSessionId(null);
     setMessages([]);
     setTokenStats(null);
   }
 
   async function selectSession(sessionId: string) {
+    const targetSession = sessions.find((session) => session.id === sessionId);
+    if (targetSession?.active_group_id) {
+      setSelectedGroupId(targetSession.active_group_id);
+    }
     setCurrentSessionId(sessionId);
     await refreshSessionDetails(sessionId);
   }
@@ -202,9 +322,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
       return currentSessionId;
     }
 
-    const created = await createSession();
+    const activeGroupId = selectedGroupId || groups[0]?.id || DEFAULT_GROUP_ID;
+    const created = await createSession("新会话", {
+      active_group_id: activeGroupId,
+      allowed_group_ids: [activeGroupId]
+    });
     setCurrentSessionId(created.id);
     await refreshSessions();
+    setSelectedGroupId(created.active_group_id || activeGroupId);
     return created.id;
   }
 
@@ -214,20 +339,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
 
     const sessionId = await ensureSession();
-    const userMessage: Message = {
-      id: makeId(),
+    const userMessage = buildMessage({
       role: "user",
-      content: value.trim(),
-      toolCalls: [],
-      retrievalSteps: []
-    };
-    const assistantMessage: Message = {
-      id: makeId(),
+      content: value.trim()
+    });
+    const assistantMessage = buildMessage({
       role: "assistant",
-      content: "",
-      toolCalls: [],
-      retrievalSteps: []
-    };
+      content: ""
+    });
 
     setMessages((prev) => [...prev, userMessage, assistantMessage]);
     setIsStreaming(true);
@@ -257,6 +376,37 @@ export function AppProvider({ children }: { children: ReactNode }) {
               return;
             }
 
+            if (event === "intent_analysis") {
+              const trace = normalizeIntentTrace(data);
+              patchAssistant((message) => ({
+                ...message,
+                intentTrace: mergeIntentTrace(message.intentTrace, trace)
+              }));
+              return;
+            }
+
+            if (event === "workflow_plan") {
+              const trace = normalizeWorkflowTrace(data);
+              patchAssistant((message) => ({
+                ...message,
+                workflowTrace: mergeWorkflowTrace(message.workflowTrace, trace)
+              }));
+              return;
+            }
+
+            if (event === "execution_update") {
+              const executionEvent = normalizeExecutionEvent(data);
+              const workflowTrace = normalizeWorkflowTrace(data);
+              patchAssistant((message) => ({
+                ...message,
+                executionEvents: executionEvent
+                  ? [...message.executionEvents, executionEvent]
+                  : message.executionEvents,
+                workflowTrace: mergeWorkflowTrace(message.workflowTrace, workflowTrace)
+              }));
+              return;
+            }
+
             if (event === "token") {
               patchAssistant((message) => ({
                 ...message,
@@ -266,13 +416,24 @@ export function AppProvider({ children }: { children: ReactNode }) {
             }
 
             if (event === "tool_start") {
+              const toolName = typeof data.tool === "string" ? data.tool.trim() : "";
+              const inputText =
+                typeof data.input === "string"
+                  ? data.input
+                  : data.input === undefined || data.input === null
+                    ? ""
+                    : JSON.stringify(data.input);
+              if (!toolName && !inputText.trim()) {
+                return;
+              }
+
               patchAssistant((message) => ({
                 ...message,
                 toolCalls: [
                   ...message.toolCalls,
                   {
-                    tool: String(data.tool ?? "tool"),
-                    input: String(data.input ?? ""),
+                    tool: toolName,
+                    input: inputText,
                     output: ""
                   }
                 ]
@@ -281,11 +442,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
             }
 
             if (event === "tool_end") {
+              const outputText =
+                typeof data.output === "string"
+                  ? data.output
+                  : data.output === undefined || data.output === null
+                    ? ""
+                    : JSON.stringify(data.output);
               patchAssistant((message) => ({
                 ...message,
                 toolCalls: message.toolCalls.map((toolCall, index, list) =>
                   index === list.length - 1
-                    ? { ...toolCall, output: String(data.output ?? "") }
+                    ? { ...toolCall, output: outputText }
                     : toolCall
                 )
               }));
@@ -293,13 +460,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
             }
 
             if (event === "new_response") {
-              const nextAssistant: Message = {
-                id: makeId(),
+              const nextAssistant = buildMessage({
                 role: "assistant",
-                content: "",
-                toolCalls: [],
-                retrievalSteps: []
-              };
+                content: ""
+              });
               activeAssistantId = nextAssistant.id;
               setMessages((prev) => [...prev, nextAssistant]);
               return;
@@ -361,13 +525,14 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   async function removeSession(sessionId: string) {
     await deleteSession(sessionId);
-    await refreshSessions();
+    const nextSessions = await refreshSessions();
+    const nextRenderableSessions = nextSessions.filter(isRenderableSession);
     if (currentSessionId === sessionId) {
-      const nextSessions = await listSessions();
       setSessions(nextSessions);
-      if (nextSessions.length) {
-        setCurrentSessionId(nextSessions[0].id);
-        await refreshSessionDetails(nextSessions[0].id);
+      if (nextRenderableSessions.length) {
+        setCurrentSessionId(nextRenderableSessions[0].id);
+        setSelectedGroupId(nextRenderableSessions[0].active_group_id || selectedGroupId);
+        await refreshSessionDetails(nextRenderableSessions[0].id);
       } else {
         setCurrentSessionId(null);
         setMessages([]);
@@ -378,9 +543,17 @@ export function AppProvider({ children }: { children: ReactNode }) {
 
   async function loadInspectorFile(path: string) {
     setInspectorPath(path);
-    const file = await loadFile(path);
-    setInspectorContent(file.content);
-    setInspectorDirty(false);
+    try {
+      const file = await loadFile(path);
+      setInspectorContent(file.content);
+      setInspectorDirty(false);
+    } catch (error) {
+      const detail = error instanceof Error ? error.message : String(error);
+      setInspectorContent(
+        `# 文件暂时不可读\n\n- path: ${path}\n- reason: ${detail}\n\n当前前端会继续保活，不会因为单个 inspector 文件失败而中断页面。`
+      );
+      setInspectorDirty(false);
+    }
   }
 
   function updateInspectorContent(value: string) {
@@ -404,38 +577,80 @@ export function AppProvider({ children }: { children: ReactNode }) {
   }
 
   async function rebuildKnowledgeIndex() {
-    await rebuildKnowledgeIndexRequest();
-    await refreshKnowledgeIndexStatus();
+    const resolvedGroupId = selectedGroupId || groups[0]?.id;
+    await rebuildKnowledgeIndexRequest(resolvedGroupId);
+    await refreshKnowledgeIndexStatus(resolvedGroupId);
   }
 
   useEffect(() => {
+    if (hasBootstrappedAppStore) {
+      return;
+    }
+
+    hasBootstrappedAppStore = true;
+
     void (async () => {
-      const [initialSessions, rag, initialSkills, initialKnowledgeIndexStatus] = await Promise.all([
+      const [initialSessions, initialGroups, rag, initialSkills] = await Promise.all([
         listSessions(),
+        listGroups(),
         getRagMode(),
-        listSkills(),
-        getKnowledgeIndexStatus()
+        listSkills()
       ]);
 
+      const initialSelectedGroupId = initialGroups[0]?.id || "";
+      const initialKnowledgeIndexStatus = await getKnowledgeIndexStatus(
+        initialSelectedGroupId || undefined
+      );
+
       setSessions(initialSessions);
+      setGroups(initialGroups);
       setRagModeState(rag.enabled);
       setSkills(initialSkills);
       setKnowledgeIndexStatus(initialKnowledgeIndexStatus);
 
-      if (initialSessions.length) {
-        setCurrentSessionId(initialSessions[0].id);
-        await refreshSessionDetails(initialSessions[0].id);
+      const initialRenderableSessions = initialSessions.filter(isRenderableSession);
+
+      if (initialRenderableSessions.length) {
+        setCurrentSessionId(initialRenderableSessions[0].id);
+        const nextSelectedGroupId =
+          initialRenderableSessions[0].active_group_id || initialSelectedGroupId || DEFAULT_GROUP_ID;
+        setSelectedGroupId(nextSelectedGroupId);
+        await refreshSessionDetails(initialRenderableSessions[0].id);
+        await refreshRuntimeMemory(nextSelectedGroupId);
       } else {
-        const created = await createSession();
-        setCurrentSessionId(created.id);
-        setSessions([created]);
+        setCurrentSessionId(null);
+        setMessages([]);
+        setTokenStats(null);
+        setSelectedGroupId(initialSelectedGroupId);
+        await refreshRuntimeMemory(initialSelectedGroupId || DEFAULT_GROUP_ID);
       }
 
-      const file = await loadFile("memory/MEMORY.md");
-      setInspectorPath(file.path);
-      setInspectorContent(file.content);
+      await loadInspectorFile(DEFAULT_INSPECTOR_FILE);
     })();
-  }, []);
+  }, [refreshRuntimeMemory]);
+
+  useEffect(() => {
+    if (!selectedGroupId) {
+      return;
+    }
+
+    if (!hasHydratedGroupEffectsRef.current) {
+      hasHydratedGroupEffectsRef.current = true;
+      return;
+    }
+
+    void refreshRuntimeMemory(selectedGroupId);
+    void refreshKnowledgeIndexStatus(selectedGroupId);
+  }, [refreshKnowledgeIndexStatus, refreshRuntimeMemory, selectedGroupId]);
+
+  useEffect(() => {
+    if (currentSessionId) {
+      return;
+    }
+
+    setMessages([]);
+    setTokenStats(null);
+  }, [currentSessionId]);
 
   useEffect(() => {
     if (!knowledgeIndexStatus?.building) {
@@ -443,14 +658,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     }
 
     const timer = window.setInterval(() => {
-      void getKnowledgeIndexStatus().then((status) => setKnowledgeIndexStatus(status));
+      void refreshKnowledgeIndexStatus();
     }, 3000);
 
     return () => window.clearInterval(timer);
-  }, [knowledgeIndexStatus?.building]);
+  }, [knowledgeIndexStatus?.building, refreshKnowledgeIndexStatus]);
 
   const value: AppStore = {
     sessions,
+    groups,
+    selectedGroupId,
     currentSessionId,
     messages,
     isStreaming,
@@ -460,12 +677,16 @@ export function AppProvider({ children }: { children: ReactNode }) {
     inspectorPath,
     inspectorContent,
     inspectorDirty,
+    inspectorOpen,
     sidebarWidth,
     inspectorWidth,
     tokenStats,
     knowledgeIndexStatus,
+    runtimeMemoryCore,
+    runtimeMemoryOverview,
     createNewSession,
     selectSession,
+    setSelectedGroupId,
     sendMessage,
     toggleRagMode,
     renameCurrentSession,
@@ -475,6 +696,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     saveInspector,
     compressCurrentSession,
     rebuildKnowledgeIndex,
+    refreshRuntimeMemory,
+    setInspectorOpen,
     setSidebarWidth,
     setInspectorWidth
   };

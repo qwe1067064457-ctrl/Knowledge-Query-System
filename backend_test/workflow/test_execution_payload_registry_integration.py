@@ -44,7 +44,7 @@ def test_execution_payload_is_persisted_into_registry(tmp_path: Path) -> None:
     payload = ExecutionPayload(
         route="qa",
         handling_mode="normal",
-        action="knowledge_orchestrator",
+        action="respond",
         context_bundle={},
         plan_bundle={
             "query_units": [{"unit_id": "q1", "origin": "primary", "text": "试用期依据是什么"}],
@@ -102,7 +102,7 @@ def test_agent_builds_summary_driven_instructions() -> None:
     payload = ExecutionPayload(
         route="qa",
         handling_mode="challenge",
-        action="agent",
+        action="respond",
         key_events=("follow_up_retrieval_attempted", "insufficient_evidence"),
         context_bundle={
             "binding_summary": "bound_by_explicit_pattern",

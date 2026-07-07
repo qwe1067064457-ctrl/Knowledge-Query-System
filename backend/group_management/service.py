@@ -121,6 +121,21 @@ class GroupManagementService:
             items.append(item)
         self._write_registry(path, items)
 
+    def _recover_group_registry_items(self) -> list[dict[str, Any]]:
+        """Rebuild the groups registry from on-disk group metadata when the registry is absent."""
+        recovered: list[dict[str, Any]] = []
+        if not self.groups_dir.exists():
+            return recovered
+        for group_dir in sorted(path for path in self.groups_dir.iterdir() if path.is_dir()):
+            payload = self._read_json(group_dir / "meta.json", None)
+            if not isinstance(payload, dict):
+                continue
+            try:
+                recovered.append(GroupRecord.from_dict(payload).to_dict())
+            except Exception:
+                continue
+        return recovered
+
     def _ensure_group_layout(self, group: GroupRecord) -> None:
         group_dir = self.groups_dir / group.id
         storage_knowledge_dir = group_dir / "knowledge"
@@ -310,7 +325,13 @@ class GroupManagementService:
 
     def list_groups(self, *, include_archived: bool = False) -> list[dict[str, Any]]:
         with self._lock:
-            groups = [GroupRecord.from_dict(item).to_dict() for item in self._load_registry(self._groups_registry_path())]
+            registry_path = self._groups_registry_path()
+            registry_items = self._load_registry(registry_path)
+            if not registry_items:
+                registry_items = self._recover_group_registry_items()
+                if registry_items:
+                    self._write_registry(registry_path, registry_items)
+            groups = [GroupRecord.from_dict(item).to_dict() for item in registry_items]
             if include_archived:
                 return groups
             return [group for group in groups if group.get("status") != "archived"]

@@ -55,6 +55,7 @@ class SessionManager:
         user_id = self._safe_segment(user_id, "user_id")
         sessions_path = self._get_group_root(group_id) / "users" / user_id / "sessions"
         (sessions_path / "transcripts").mkdir(parents=True, exist_ok=True)
+        (sessions_path / "agent_traces").mkdir(parents=True, exist_ok=True)
         return sessions_path
 
     def _get_meta_path(self, group_id: str, user_id: str, session_id: str) -> Path:
@@ -62,6 +63,9 @@ class SessionManager:
 
     def _get_transcript_path(self, group_id: str, user_id: str, session_id: str) -> Path:
         return self._get_user_sessions_path(group_id, user_id) / "transcripts" / f"{session_id}.jsonl"
+
+    def _get_agent_trace_path(self, group_id: str, user_id: str, session_id: str) -> Path:
+        return self._get_user_sessions_path(group_id, user_id) / "agent_traces" / f"{session_id}.jsonl"
 
     def _resolve_user_id(self, group_id: str, session_id: str, agent_id: str) -> Optional[str]:
         self._safe_segment(agent_id, "agent_id")
@@ -171,6 +175,7 @@ class SessionManager:
         self._write_meta(group_id, agent_id, session)
         transcript_path = self._get_transcript_path(group_id, user_id, session_id)
         transcript_path.touch()
+        self._get_agent_trace_path(group_id, user_id, session_id).touch()
 
         conn = self._get_db_connection(group_id)
         conn.execute(
@@ -459,6 +464,49 @@ class SessionManager:
 
         return entries
 
+    def append_agent_trace(
+        self,
+        group_id: str,
+        agent_id: str,
+        session_id: str,
+        trace_record: Dict[str, Any],
+    ) -> None:
+        """将 agent 决策链路独立写入与 transcript 隔离的 trace 文件。"""
+        agent_id = self._safe_segment(agent_id, "agent_id")
+        user_id = self._resolve_user_id(group_id, session_id, agent_id)
+        if not user_id:
+            raise ValueError("session not found for trace persistence")
+        trace_path = self._get_agent_trace_path(group_id, user_id, session_id)
+        with open(trace_path, "a", encoding="utf-8") as handle:
+            handle.write(json.dumps(trace_record, ensure_ascii=False) + "\n")
+
+    def get_agent_traces(
+        self,
+        group_id: str,
+        agent_id: str,
+        session_id: str,
+    ) -> List[Dict[str, Any]]:
+        """读取与 transcript 隔离的 agent trace 历史。"""
+        agent_id = self._safe_segment(agent_id, "agent_id")
+        user_id = self._resolve_user_id(group_id, session_id, agent_id)
+        if not user_id:
+            return []
+        trace_path = self._get_agent_trace_path(group_id, user_id, session_id)
+        if not trace_path.exists():
+            return []
+        rows: List[Dict[str, Any]] = []
+        with open(trace_path, "r", encoding="utf-8") as handle:
+            for line in handle:
+                if not line.strip():
+                    continue
+                try:
+                    payload = json.loads(line)
+                except json.JSONDecodeError:
+                    continue
+                if isinstance(payload, dict):
+                    rows.append(payload)
+        return rows
+
     def list_user_sessions(
         self,
         group_id: str,
@@ -542,6 +590,7 @@ class SessionManager:
         user_id = self._resolve_user_id(group_id, session_id, agent_id)
         if user_id:
             self._get_transcript_path(group_id, user_id, session_id).unlink(missing_ok=True)
+            self._get_agent_trace_path(group_id, user_id, session_id).unlink(missing_ok=True)
             self._get_meta_path(group_id, user_id, session_id).unlink(missing_ok=True)
 
         conn = self._get_db_connection(group_id)

@@ -1,0 +1,105 @@
+{
+  "tenant_id": "default",
+  "group_id": "law",
+  "session_id": "session_20260707_153544_3c48dfdc",
+  "entries": [
+    {
+      "object_id": "turn_1783409984404:question",
+      "object_type": "question_object",
+      "tenant_id": "default",
+      "group_id": "law",
+      "session_id": "session_20260707_153544_3c48dfdc",
+      "source_turn_id": "turn_1783409984404",
+      "content": "针对外观设计专利侵权判定中“设计特征”的认定规则与“整体视觉效果”比对方法，请深入分析以下综合问题：\n\n举证责任与证据规则层面：在专利权人未在简要说明中明确记载设计特征，且仅在诉讼中提交部分外观设计专利文件作为创新性证据时，法院应如何平衡专利权人的举证责任与被诉侵权人的反证权利？若被诉侵权人在再审阶段才提交新的现有设计对比文件（如本案中的200630113512.5号专利），法院应否采纳，该证据对“跑道状出水面”是否属于设计特征的认定产生何种影响？\n\n功能性设计特征的界定与适用：本案再审判决否定了二审法院将“手柄推钮”认定为功能性设计特征的结论。请结合裁判要点第3点，进一步阐释：对于兼具功能与装饰性的部件（如推钮、开关），在何种程度下可被认定为“仅由特定功能决定”而不考虑美学因素？若该推钮的形状是唯一能实现控制水流功能的设计，但其同时具备与出水面相协调的装饰效果，此时应如何权衡其对整体视觉效果的影响权重？\n\n区别设计特征的比对逻辑：再审判决指出被诉侵权产品在“喷头及连接面过渡形状”（圆弧vs斜面）、“手柄与头部连接角度”、“推钮有无”等方面存在明显差异，从而认定不近似。请从一般消费者的认知角度，分析这些差异是否足以“显著影响”整体视觉效果？在同时存在高度近似的“跑道状出水面”这一创新特征的情况下，如何适用“全部设计特征”规则——即被诉侵权设计未包含授权外观设计区别于现有设计的全部设计特征时，是否必然导致不近似，还是仍应结合其他设计特征进行综合考量？\n\n裁判规则的体系化反思：该案确立了“未包含全部设计特征→一般不近似”的推定规则，但再审判决最终又基于“整体视觉差异”作出不侵权认定。请问这两种推理路径（“未包含全部特征”与“整体视觉明显差异”）是并列关系还是递进关系？在司法实践中，如何避免将“设计特征”的认定异化为对专利权人主张的机械采纳，从而不当扩大或限缩专利保护范围？\n\n请结合专利法第五十九条第二款、《侵犯专利权纠纷案件解释》第八条、第十条、第十一条，以及本案的裁判逻辑，给出系统性、层次分明的解答。",
+      "refs": [],
+      "salience_score": 1.0,
+      "source_power": "workflow",
+      "metadata": {
+        "handling_mode": "normal",
+        "route": "orchestrated",
+        "knowledge_scope_status": "resolved",
+        "binding_summary": "skip",
+        "context_summary": {
+          "candidate_count": 0,
+          "query_unit_count": 0,
+          "memory_anchor_count": 0,
+          "hydrated_memory_entry_count": 0,
+          "memory_hydrated": false,
+          "binding_matched_by": "",
+          "binding_fallback_type": "",
+          "binding_reason": ""
+        },
+        "plan_summary": {
+          "planning_mode": "structured",
+          "step_count": 3,
+          "checkpoint_count": 1,
+          "comparison_unit_count": 0,
+          "bound_target_ref_count": 0,
+          "refined": false,
+          "fallback_used": false,
+          "fallback_reason": []
+        },
+        "review_summary": {
+          "target_count": 0,
+          "matched_target_count": 0,
+          "matched_target_refs": [],
+          "unsupported_target_refs": [],
+          "needs_more_evidence_targets": [],
+          "status_summary": "not_applicable",
+          "review_mode": "not_applicable",
+          "review_confidence": "not_applicable",
+          "review_scope": "not_applicable",
+          "follow_up_retrieval_attempted": false,
+          "follow_up_retrieval_improved": false,
+          "follow_up_retrieval_sources": [],
+          "follow_up_retrieval_retrieved_evidence_count": 0
+        },
+        "evidence_summary": {},
+        "workflow_summary": {
+          "knowledge_scope_status": "resolved",
+          "binding_summary": "skip",
+          "context_summary": {
+            "candidate_count": 0,
+            "query_unit_count": 0,
+            "memory_anchor_count": 0,
+            "hydrated_memory_entry_count": 0,
+            "memory_hydrated": false,
+            "binding_matched_by": "",
+            "binding_fallback_type": "",
+            "binding_reason": ""
+          },
+          "plan_summary": {
+            "planning_mode": "structured",
+            "step_count": 3,
+            "checkpoint_count": 1,
+            "comparison_unit_count": 0,
+            "bound_target_ref_count": 0,
+            "refined": false,
+            "fallback_used": false,
+            "fallback_reason": []
+          },
+          "review_summary": {
+            "target_count": 0,
+            "matched_target_count": 0,
+            "matched_target_refs": [],
+            "unsupported_target_refs": [],
+            "needs_more_evidence_targets": [],
+            "status_summary": "not_applicable",
+            "review_mode": "not_applicable",
+            "review_confidence": "not_applicable",
+            "review_scope": "not_applicable",
+            "follow_up_retrieval_attempted": false,
+            "follow_up_retrieval_improved": false,
+            "follow_up_retrieval_sources": [],
+            "follow_up_retrieval_retrieved_evidence_count": 0
+          },
+          "evidence_summary": {}
+        },
+        "registry_convenience": {
+          "handling_mode": "normal",
+          "route": "orchestrated"
+        }
+      }
+    }
+  ]
+}

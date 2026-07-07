@@ -1,0 +1,14 @@
+name: decomposition
+capability: decomposition
+unit_types:
+  - qa_like
+  - compare
+  - verify
+allowed_tools:
+  - query_unit_builder
+output_schema: DecompositionSkillResult
+max_steps: 4
+allow_llm: true
+allow_external_io: false
+fallback:
+  unclear_boundary: single_unit

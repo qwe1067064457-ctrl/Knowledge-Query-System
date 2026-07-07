@@ -13,6 +13,7 @@ from api.files import router as files_router
 from api.groups import router as groups_router
 from api.knowledge_index import router as knowledge_index_router
 from api.review import router as review_router
+from api.runtime_memory import router as runtime_memory_router
 from api.sessions import router as sessions_router
 from api.tokens import router as tokens_router
 from api.users import router as users_router
@@ -51,6 +52,7 @@ app.include_router(tokens_router, prefix="/api", tags=["tokens"])
 app.include_router(compress_router, prefix="/api", tags=["compress"])
 app.include_router(config_router, prefix="/api", tags=["config"])
 app.include_router(knowledge_index_router, prefix="/api", tags=["knowledge"])
+app.include_router(runtime_memory_router, prefix="/api", tags=["runtime-memory"])
 app.include_router(review_router, prefix="/api", tags=["review"])
 app.include_router(users_router, prefix="/api", tags=["users"])
 app.include_router(groups_router, prefix="/api", tags=["groups"])

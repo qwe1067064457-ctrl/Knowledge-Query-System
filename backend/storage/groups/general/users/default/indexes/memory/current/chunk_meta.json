@@ -1,0 +1,21 @@
+{
+  "chunk_a3fbfc041813adb58fd5d493aff2fb9c": {
+    "source_path": "groups\\general\\users\\default\\memory\\daily_log\\2026-07-06.jsonl",
+    "locator": {
+      "date": "2026-07-06",
+      "line_no": 1
+    },
+    "memory_id": "mem_f6ee2db5d3844ba69bebf1d3aa085a13",
+    "memory_type": "daily_log",
+    "source_session_id": "session_20260704_100812_fc7cdd92"
+  },
+  "chunk_66d46c90e0f4924cf03a7c0ed983ccf0": {
+    "source_path": "groups\\general\\users\\default\\memory\\domain_case\\domain_cases.jsonl",
+    "locator": {
+      "line_no": 1
+    },
+    "memory_id": "mem_bb9eae3e02144ff584126e80b1bf1540",
+    "memory_type": "domain_case",
+    "source_session_id": "session_20260704_100812_fc7cdd92"
+  }
+}

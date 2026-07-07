@@ -112,7 +112,8 @@ class _FakeRetrievalPower:
         self.repaired_units = repaired_units
         self.calls: list[str] = []
 
-    def retrieve(self, query_units):
+    def retrieve(self, query_units, *, path_filters=()):
+        del path_filters
         from workflow.types import EvidenceBundle, EvidenceItem, RetrievalUnitResult
 
         unit = tuple(query_units)[0]

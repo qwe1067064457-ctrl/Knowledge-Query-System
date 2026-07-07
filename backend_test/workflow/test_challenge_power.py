@@ -20,8 +20,9 @@ class _FakeRetrievalPower:
     def __init__(self) -> None:
         self.last_queries = []
 
-    def retrieve(self, query_units, *, top_k: int = 4) -> EvidenceBundle:
+    def retrieve(self, query_units, *, top_k: int = 4, path_filters=()) -> EvidenceBundle:
         del top_k
+        del path_filters
         assert query_units
         self.last_queries = [unit.text for unit in query_units]
         return EvidenceBundle(

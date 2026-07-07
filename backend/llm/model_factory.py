@@ -6,7 +6,11 @@ code does not own provider branching logic.
 """
 from __future__ import annotations
 
+import re
+from typing import Any, Generator
+
 from langchain_openai import ChatOpenAI
+from langchain_core.messages import AIMessageChunk
 
 from config import get_settings
 
@@ -16,23 +20,11 @@ except ImportError:  # pragma: no cover - optional dependency at runtime
     ChatDeepSeek = None
 
 
-OPENAI_COMPATIBLE_PROVIDERS = {"openai", "zhipu", "bailian", "minimax", "xiaomi"}
+OPENAI_COMPATIBLE_PROVIDERS = {"openai", "zhipu", "bailian", "minimax", "xiaomi", "deepseek"}
 
 
 def build_chat_model():
     settings = get_settings()
-
-    if settings.llm_provider == "deepseek":
-        if ChatDeepSeek is None:
-            raise RuntimeError("langchain-deepseek is not installed")
-        if not settings.llm_api_key:
-            raise RuntimeError("Missing API key for provider deepseek")
-        return ChatDeepSeek(
-            model=settings.llm_model,
-            api_key=settings.llm_api_key,
-            base_url=settings.llm_base_url,
-            temperature=0,
-        )
 
     if settings.llm_provider not in OPENAI_COMPATIBLE_PROVIDERS:
         raise RuntimeError(f"Unsupported LLM provider: {settings.llm_provider}")
@@ -40,19 +32,9 @@ def build_chat_model():
     if not settings.llm_api_key:
         raise RuntimeError(f"Missing API key for provider {settings.llm_provider}")
 
-    # Only enable reasoning_split for MiniMax when configured
-    extra_body = None
-    if settings.llm_provider == "minimax":
-        extra_body = {"reasoning_split": True}
-
     return ChatOpenAI(
         model=settings.llm_model,
         api_key=settings.llm_api_key,
         base_url=settings.llm_base_url,
-        temperature=0,
-        extra_body=extra_body,
+        temperature=0.5,
     )
-
-
-def build_intent_fallback_model():
-    return build_chat_model()

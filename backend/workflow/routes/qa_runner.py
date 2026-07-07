@@ -4,16 +4,13 @@ from dataclasses import replace
 
 from context.session import DEFAULT_AGENT
 from memory_system.memory_anchor import MemoryAnchor
-from workflow.powers.challenge_power import ChallengePower
-from workflow.powers.context_binding_power import ContextBindingPower
 from workflow.powers.retrieval_power import RetrievalPower
 from workflow.retrieval_gate import RetrievalGate
+from workflow.helpers.knowledge_query_rewrite_helper import KnowledgeQueryRewriteHelper
 from workflow.orchestrated.execution_layer.adapters.retrieval_adapter import build_retrieval_workers
-from workflow.orchestrated.execution_layer.adapters.review_adapter import build_review_workers
 from workflow.orchestrated.execution_layer.workers.registry import WorkerRegistry
 from workflow.routes.base import BaseRouteRunner, RouteExecutionRequest
-from workflow.types import ContextBindingResult, QueryUnit, WorkflowPlan
-from workflow.workers.binding_worker import BindingWorker
+from workflow.types import QueryUnit, WorkflowPlan
 from workflow.workers.memory_anchor_worker import MemoryAnchorWorker
 from workflow.workers.review_worker import ReviewWorker
 
@@ -27,12 +24,6 @@ def _merge_key_events(*event_groups: tuple[str, ...] | list[str]) -> tuple[str, 
     return tuple(merged)
 
 
-def _binding_events(binding: ContextBindingResult | None) -> tuple[str, ...]:
-    if binding is None:
-        return ()
-    return ("binding_ambiguous",) if binding.binding_ambiguous else ("binding_applied",)
-
-
 def _retrieval_events(*, retrieval_quality: dict[str, object], repaired_units: int, missing_evidence: bool) -> tuple[str, ...]:
     events = ["retrieval_performed"]
     if repaired_units > 0:
@@ -42,29 +33,14 @@ def _retrieval_events(*, retrieval_quality: dict[str, object], repaired_units: i
     return tuple(events)
 
 
-def _challenge_events(challenge) -> tuple[str, ...]:
-    events: list[str] = []
-    if challenge.follow_up_retrieval_attempted():
-        events.append("follow_up_retrieval_attempted")
-    if challenge.challenge_result_bundle_obj().follow_up_retrieval_improved():
-        events.append("follow_up_retrieval_improved")
-    if challenge.status == "needs_clarification":
-        events.append("clarification_required")
-    if challenge.status == "insufficient_evidence":
-        events.append("insufficient_evidence")
-    return tuple(events)
-
-
 class QaRouteRunner(BaseRouteRunner):
     route_name = "qa"
 
     def __init__(self) -> None:
-        self.binding_worker = BindingWorker()
         self.review_worker = ReviewWorker()
         self.memory_anchor_worker = MemoryAnchorWorker()
-        self.context_binding_power = ContextBindingPower(binding_worker=self.binding_worker)
+        self.knowledge_query_rewrite_helper = KnowledgeQueryRewriteHelper()
         self.retrieval_power = RetrievalPower()
-        self.challenge_power = ChallengePower()
         self.retrieval_gate = RetrievalGate()
 
     def _build_worker_registry(self) -> WorkerRegistry:
@@ -73,8 +49,6 @@ class QaRouteRunner(BaseRouteRunner):
             retrieval_power=self.retrieval_power,
             review_worker=self.review_worker,
         ):
-            registry.register(worker)
-        for worker in build_review_workers(review_worker=self.review_worker):
             registry.register(worker)
         return registry
 
@@ -88,7 +62,7 @@ class QaRouteRunner(BaseRouteRunner):
         context_bundle = payload.context_bundle_obj()
         answer_constraints = dict(payload.answer_constraints)
         key_events: tuple[str, ...] = ()
-        recent_messages, hydrated_candidates, memory_anchor_count, hydrated_memory_entry_count = self._prepare_memory_anchor_context(
+        _, _, memory_anchor_count, hydrated_memory_entry_count = self._prepare_memory_anchor_context(
             plan=plan,
             request=request,
         )
@@ -100,59 +74,35 @@ class QaRouteRunner(BaseRouteRunner):
             hydrated_memory_entry_count=hydrated_memory_entry_count,
             memory_hydrated=hydrated_memory_entry_count > 0,
         )
-
-        binding_result: ContextBindingResult | None = None
-        binding_candidates = [*self._registry_binding_candidates(request), *hydrated_candidates]
-        if "context_binding_power" in plan.enabled_powers:
-            candidate_entries = self.context_binding_power.collect_candidates(binding_candidates)
-            binding_result = self.context_binding_power.bind(
-                request.message,
-                candidate_entries,
-                working_memory=request.context.get("working_memory"),
-                recent_messages=recent_messages,
-                llm_call=request.context.get("bound_query_llm_call"),
-                base_dir=request.context.get("base_dir"),
-                rewrite_query=bool(plan.rewrite_query),
-                recent_power=request.context.get("recent_power"),
-                recent_object_type=request.context.get("recent_object_type"),
-                memory_anchors=request.context.get("memory_anchors"),
-            )
-            key_events = _merge_key_events(
-                key_events,
-                _binding_events(binding_result),
-            )
-            context_bundle = replace(
-                context_bundle,
-                binding=binding_result,
-                binding_summary=binding_result.binding_summary or "binding_applied",
-                candidate_count=len(candidate_entries),
-            )
         context_bundle = self._normalize_context_bundle_obj(plan, context_bundle)
 
         evidence_bundle = payload.evidence_bundle
-        evidence_candidates = list(self._registry_evidence_candidates(request))
+        knowledge_path_filters = self._knowledge_path_filters(request)
         retrieval_decision = self.retrieval_gate.decide(
             plan=plan,
             request=request,
-            binding_result=binding_result,
         )
         if "retrieval_power" in plan.enabled_powers and retrieval_decision.should_retrieve:
-            target_refs = binding_result.target_refs() if binding_result is not None else ()
+            query_text = request.message.strip()
+            if request.is_knowledge_query:
+                rewrite_payload = self.knowledge_query_rewrite_helper.rewrite(
+                    query_text,
+                    llm_call=request.context.get("bound_query_llm_call"),
+                )
+                query_text = str(rewrite_payload.get("query") or query_text).strip() or query_text
+                if bool(rewrite_payload.get("applied", False)):
+                    key_events = _merge_key_events(key_events, ("knowledge_query_rewritten",))
             query_units = (
                 QueryUnit(
                     unit_id="primary",
-                    text=(binding_result.rewritten_query if binding_result is not None and binding_result.rewritten_query else request.message).strip(),
+                    text=query_text,
                     origin="primary",
-                    target_refs=target_refs,
                 ),
             )
-            evidence_bundle = self.retrieval_power.retrieve(query_units)
-            seen = {candidate.object_id for candidate in evidence_candidates}
-            for candidate in evidence_bundle.to_evidence_ref_candidate_objs():
-                if candidate.object_id in seen:
-                    continue
-                seen.add(candidate.object_id)
-                evidence_candidates.append(candidate)
+            evidence_bundle = self.retrieval_power.retrieve(
+                query_units,
+                path_filters=knowledge_path_filters,
+            )
             retrieval_quality_worker = worker_registry.get("retrieval_quality")
             retrieval_quality = retrieval_quality_worker(evidence_bundle=evidence_bundle)
             key_events = _merge_key_events(
@@ -166,40 +116,23 @@ class QaRouteRunner(BaseRouteRunner):
             if retrieval_decision.should_clarify_first and payload.status == "ready":
                 payload = replace(payload, status="needs_clarification")
 
-        challenge_result_bundle = payload.challenge_result_bundle_obj()
-        if "challenge_power" in plan.enabled_powers:
-            challenge = self.challenge_power.execute(
-                query=request.message,
-                rewritten_query=binding_result.rewritten_query if binding_result is not None else None,
-                candidate_targets=list(context_bundle.bound_targets()),
-                binding_result=binding_result,
-                evidence_candidates=evidence_candidates,
-                binding_worker=self.binding_worker,
-                review_worker=self.review_worker,
-                retrieval_power=self.retrieval_power if "retrieval_power" in plan.enabled_powers else None,
-                worker_registry=worker_registry,
-            )
-            challenge_result_bundle = self._normalize_challenge_result_bundle_obj(
-                challenge.to_challenge_result_bundle()
-            )
-            answer_constraints.update(challenge.answer_constraints)
-            key_events = _merge_key_events(
-                key_events,
-                _challenge_events(challenge),
-            )
-            if challenge.status == "needs_clarification" and payload.status == "ready":
-                payload = replace(payload, status="needs_clarification")
-
         return self._finalize_payload(
             payload,
             plan,
             context_bundle=context_bundle,
             plan_bundle=payload.plan_bundle,
-            review_bundle=challenge_result_bundle,
             answer_constraints=answer_constraints,
             key_events=key_events,
             evidence_bundle=evidence_bundle,
         )
+
+    def _knowledge_path_filters(self, request: RouteExecutionRequest) -> tuple[str, ...]:
+        # Knowledge retrieval should stay inside the active group unless a future runtime
+        # explicitly asks to broaden scope.
+        active_group_id = str(request.context.get("active_group_id") or "").strip()
+        if not active_group_id:
+            return ()
+        return (f"storage/groups/{active_group_id}/knowledge",)
 
     def _prepare_memory_anchor_context(
         self,

@@ -22,6 +22,12 @@ def build_session_record(
 ) -> dict[str, Any]:
     session = session_manager.get_session(session_id, group_id, agent_id)
     entries = session_manager.get_transcript(group_id, agent_id, session_id, include_compacted=True)
+    trace_rows = session_manager.get_agent_traces(group_id, agent_id, session_id)
+    trace_by_entry_id = {
+        str(item.get("entry_id")): item
+        for item in trace_rows
+        if item.get("entry_id")
+    }
 
     latest_compaction_index: int | None = None
     compressed_context = ""
@@ -47,6 +53,15 @@ def build_session_record(
         retrieval_steps = (entry.metadata or {}).get("retrieval_steps")
         if retrieval_steps:
             payload["retrieval_steps"] = retrieval_steps
+        if entry.role == "assistant":
+            trace_payload = trace_by_entry_id.get(entry.id)
+            if trace_payload:
+                if trace_payload.get("intent_trace") is not None:
+                    payload["intent_trace"] = trace_payload["intent_trace"]
+                if trace_payload.get("workflow_trace") is not None:
+                    payload["workflow_trace"] = trace_payload["workflow_trace"]
+                if trace_payload.get("execution_events") is not None:
+                    payload["execution_events"] = trace_payload["execution_events"]
         messages.append(payload)
 
     metadata = session.metadata if session else {}
@@ -60,6 +75,28 @@ def build_session_record(
         "updated_at": updated_at,
         "compressed_context": compressed_context,
         "messages": messages,
+    }
+
+
+def build_agent_trace_record(
+    session_manager: SessionManager,
+    session_id: str,
+    *,
+    group_id: str = DEFAULT_GROUP,
+    agent_id: str = DEFAULT_AGENT,
+) -> dict[str, Any]:
+    """按 session 聚合读取独立 trace 文件，供前端单独拉取决策链路。"""
+    session = session_manager.get_session(session_id, group_id, agent_id)
+    if session is None:
+        raise KeyError(session_id)
+
+    trace_rows = session_manager.get_agent_traces(group_id, agent_id, session_id)
+    return {
+        "session_id": session_id,
+        "group_id": group_id,
+        "agent_id": agent_id,
+        "count": len(trace_rows),
+        "traces": trace_rows,
     }
 
 
@@ -107,7 +144,7 @@ def append_message_entry(
     retrieval_steps: list[dict[str, Any]] | None = None,
     group_id: str = DEFAULT_GROUP,
     agent_id: str = DEFAULT_AGENT,
-) -> None:
+) -> str:
     normalized_tool_calls = None
     if tool_calls:
         normalized_tool_calls = []
@@ -139,6 +176,7 @@ def append_message_entry(
         metadata={"retrieval_steps": retrieval_steps} if retrieval_steps else None,
     )
     session_manager.append_entry(group_id, agent_id, entry)
+    return entry.id
 
 
 def update_session_title(
@@ -181,4 +219,6 @@ def create_default_session(
         "created_at": session.created_at.timestamp() * 1000,
         "updated_at": session.last_active_at.timestamp() * 1000,
         "message_count": 0,
+        "active_group_id": active_group_id,
+        "allowed_group_ids": allowed_group_ids or [active_group_id],
     }

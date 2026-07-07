@@ -8,24 +8,34 @@ import { Sidebar } from "@/components/layout/Sidebar";
 import { AppProvider, useAppStore } from "@/lib/store";
 
 function Workspace() {
-  const { sidebarWidth, inspectorWidth, setSidebarWidth, setInspectorWidth } = useAppStore();
+  const {
+    sidebarWidth,
+    inspectorWidth,
+    inspectorOpen,
+    setSidebarWidth,
+    setInspectorWidth
+  } = useAppStore();
 
   return (
-    <main className="min-h-screen p-4 md:p-6">
-      <div className="mx-auto flex max-w-[1800px] flex-col gap-4">
+    <main className="h-screen overflow-hidden p-4 md:p-6">
+      <div className="mx-auto flex h-full max-w-[1800px] flex-col gap-4">
         <Navbar />
-        <div className="flex min-h-[calc(100vh-146px)] gap-0">
-          <div style={{ width: sidebarWidth }}>
+        <div className="flex min-h-0 flex-1 gap-0 overflow-hidden">
+          <div className="min-h-0" style={{ width: sidebarWidth }}>
             <Sidebar />
           </div>
           <ResizeHandle onResize={(delta) => setSidebarWidth(Math.max(260, sidebarWidth + delta))} />
           <ChatPanel />
-          <ResizeHandle
-            onResize={(delta) => setInspectorWidth(Math.max(320, inspectorWidth - delta))}
-          />
-          <div style={{ width: inspectorWidth }}>
-            <InspectorPanel />
-          </div>
+          {inspectorOpen ? (
+            <>
+              <ResizeHandle
+                onResize={(delta) => setInspectorWidth(Math.max(320, inspectorWidth - delta))}
+              />
+              <div className="min-h-0" style={{ width: inspectorWidth }}>
+                <InspectorPanel />
+              </div>
+            </>
+          ) : null}
         </div>
       </div>
     </main>

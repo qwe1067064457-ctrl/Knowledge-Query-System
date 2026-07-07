@@ -29,6 +29,7 @@ class ChallengePower:
         review_worker: Any | None = None,
         retrieval_power: Any | None = None,
         worker_registry: Any | None = None,
+        knowledge_path_filters: tuple[str, ...] = (),
     ) -> ChallengeResult:
         evidence_candidates = list(evidence_candidates or ())
         binding_contract = self._normalize_binding_result(binding_result)
@@ -86,6 +87,7 @@ class ChallengePower:
             review_worker=review_worker,
             retrieval_power=retrieval_power,
             worker_registry=worker_registry,
+            knowledge_path_filters=knowledge_path_filters,
         )
         assessment = self._re_evaluate(
             query=query,
@@ -417,6 +419,7 @@ class ChallengePower:
         review_worker: Any,
         retrieval_power: Any | None,
         worker_registry: Any | None,
+        knowledge_path_filters: tuple[str, ...],
     ) -> tuple[EvidenceAssessmentResult, list[EvidenceRefCandidate | dict[str, Any]]]:
         planner = self._registry_worker(worker_registry, "followup_retrieval_planner")
         plan = (
@@ -443,9 +446,15 @@ class ChallengePower:
         execute_worker = self._registry_worker(worker_registry, "retrieval_execute")
         bundle_worker = self._registry_worker(worker_registry, "retrieval_bundle")
         if execute_worker is not None:
-            support_bundle = execute_worker(query_units=[unit.to_dict() for unit in support_units])
+            support_bundle = execute_worker(
+                query_units=[unit.to_dict() for unit in support_units],
+                path_filters=list(knowledge_path_filters),
+            )
         else:
-            support_bundle = retrieval_power.retrieve(tuple(support_units))
+            support_bundle = retrieval_power.retrieve(
+                tuple(support_units),
+                path_filters=knowledge_path_filters,
+            )
         if bundle_worker is not None:
             bundle_view = dict(bundle_worker(evidence_bundle=support_bundle))
             supplemental_candidates = list(bundle_view.get("evidence_candidates", ()) or ())

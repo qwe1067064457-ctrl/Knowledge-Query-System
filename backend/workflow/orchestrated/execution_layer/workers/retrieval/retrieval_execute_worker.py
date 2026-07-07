@@ -11,7 +11,11 @@ class RetrievalExecuteWorker(BaseWorker):
     def __init__(self, retrieval_power) -> None:
         self.retrieval_power = retrieval_power
 
-    def run(self, query_units: list[dict] | tuple[dict, ...]):
+    def run(
+        self,
+        query_units: list[dict] | tuple[dict, ...],
+        path_filters: list[str] | tuple[str, ...] = (),
+    ):
         units = tuple(
             QueryUnit(
                 unit_id=str(dict(item).get("unit_id", "")),
@@ -21,4 +25,7 @@ class RetrievalExecuteWorker(BaseWorker):
             )
             for item in query_units
         )
-        return self.retrieval_power.retrieve(units)
+        return self.retrieval_power.retrieve(
+            units,
+            path_filters=tuple(str(item) for item in path_filters if item),
+        )

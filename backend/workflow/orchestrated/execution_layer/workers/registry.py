@@ -45,6 +45,15 @@ class WorkerRegistry:
     def names(self) -> tuple[str, ...]:
         return tuple(self._entries.keys())
 
+    def subset(self, names: list[str] | tuple[str, ...]) -> "WorkerRegistry":
+        subset_registry = WorkerRegistry()
+        for name in names:
+            entry = self._entries.get(name)
+            if entry is None:
+                continue
+            subset_registry._entries[name] = entry
+        return subset_registry
+
     def build_langchain_tools(self, names: list[str] | tuple[str, ...]):
         tools: list[StructuredTool] = []
         for name in names:

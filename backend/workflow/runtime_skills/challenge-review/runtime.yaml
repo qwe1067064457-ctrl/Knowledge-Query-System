@@ -1,0 +1,14 @@
+name: challenge-review
+capability: challenge_review
+unit_types:
+  - verify
+  - qa_like
+allowed_tools:
+  - answer_constraint
+output_schema: ChallengeSkillResult
+max_steps: 5
+allow_llm: true
+allow_external_io: false
+fallback:
+  target_missing: needs_clarification
+  evidence_weak: insufficient_evidence

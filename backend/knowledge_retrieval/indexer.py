@@ -16,14 +16,20 @@ class KnowledgeIndexer:
     def configure(self, base_dir: Path) -> None:
         self.retriever.configure(base_dir)
 
-    def status(self) -> IndexStatus:
-        return self.retriever.status()
+    def status(self, group_id: str | None = None) -> IndexStatus:
+        return self.retriever.status(group_id=group_id)
 
     def is_building(self) -> bool:
         return self.retriever.is_building()
 
-    def rebuild_index(self) -> None:
-        self.retriever.rebuild_index()
+    def rebuild_index(self, group_id: str | None = None) -> None:
+        self.retriever.rebuild_index(group_id=group_id)
+
+    def list_groups(self) -> list[str]:
+        return self.retriever.list_groups()
+
+    def count_group_sources(self, group_id: str) -> int:
+        return self.retriever.count_group_sources(group_id)
 
     def retrieve_vector(
         self,

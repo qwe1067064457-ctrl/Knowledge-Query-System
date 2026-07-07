@@ -1,29 +1,27 @@
 from __future__ import annotations
 
-import json
-from dataclasses import replace
 from datetime import datetime
 from pathlib import Path
+import re
 from typing import Any
-
-from langchain.agents import create_agent
 
 from config import runtime_config
 from context.assembly.context_manager import ContextManager
 from context.session.session_manager import DEFAULT_AGENT, DEFAULT_GROUP, DEFAULT_USER, SessionManager
-from graph.prompt_builders.answer_prompt_assembler import (
-    assemble_answer_messages,
-    build_answer_system_prompt,
-)
+from graph.prompt_builders.answer_prompt_assembler import assemble_answer_messages
 from graph.prompt_builders.workflow_prompt_projector import (
     build_answer_behavior_rules_from_workflow,
     build_answer_result_projection_rules_from_workflow,
+)
+from graph.serializers.frontend_trace import (
+    serialize_execution_payload,
+    serialize_intent_analysis,
+    serialize_workflow_plan,
 )
 from intent import classify_intent
 from intent.model_runtime import build_default_llm_fallback_adapter, build_default_small_model_adapter
 from intent.loaders import load_group_intent_rule_assets
 from intent.rules.knowledge_query_rules import is_knowledge_query
-from knowledge_retrieval import knowledge_orchestrator
 from llm.model_factory import build_chat_model
 from llm.output_sanitizer import StreamingReasoningFilter, sanitize_model_text
 from llm.response_utils import stringify_content
@@ -42,13 +40,11 @@ from observability.langsmith.serializers import (
 )
 from observability.runtime.run_factory import create_trace_context
 from observability.runtime.trace_context_store import activate_trace_context
-from tools import get_all_tools
 from workflow import WorkflowDispatcher, WorkflowPlan, build_workflow_plan
-from workflow.adapters.workflow_registry_projection import (
-    build_registry_entries_from_execution_payload,
-)
 from workflow.powers.retrieval_power import RetrievalPower
 from workflow.runners.base import RouteExecutionRequest
+
+
 class AgentManager:
     def __init__(self) -> None:
         self.base_dir: Path | None = None
@@ -76,9 +72,6 @@ class AgentManager:
         self.context_manager = ContextManager(self.raw_session_manager, self.memory_system)
         self.context_manager.set_llm_call(self._llm_text_call)
         self.context_manager.set_observability_emitter(self.context_emitter)
-
-        self.tools = get_all_tools(base_dir)
-        knowledge_orchestrator.configure(base_dir, build_chat_model)
         self.intent_model_adapter = self._build_intent_model_adapter()
         self.intent_llm_fallback_adapter = self._build_intent_llm_fallback_adapter()
 
@@ -110,25 +103,6 @@ class AgentManager:
         )
         return sanitize_model_text(stringify_content(getattr(response, "content", "")))
 
-    def _build_agent(
-        self,
-        extra_instructions: list[str] | None = None,
-        tools_override: list[Any] | None = None,
-    ):
-        if self.base_dir is None:
-            raise RuntimeError("AgentManager is not initialized")
-
-        system_prompt = build_answer_system_prompt(
-            self.base_dir,
-            runtime_config.get_rag_mode(),
-            extra_instructions=extra_instructions,
-        )
-        return create_agent(
-            model=build_chat_model(),
-            tools=self.tools if tools_override is None else tools_override,
-            system_prompt=system_prompt,
-        )
-
     def _build_messages(self, history: list[dict[str, Any]]) -> list[dict[str, str]]:
         messages: list[dict[str, str]] = []
         for item in history:
@@ -152,6 +126,7 @@ class AgentManager:
 
     async def _prepare_messages_for_request(
         self,
+        group_id: str,
         session_id: str | None,
         message: str,
         history: list[dict[str, Any]],
@@ -179,7 +154,7 @@ class AgentManager:
         if session_id and self.raw_session_manager is not None:
             has_new_transcript = bool(
                 self.raw_session_manager.get_transcript(
-                    DEFAULT_GROUP,
+                    group_id,
                     DEFAULT_AGENT,
                     session_id,
                     limit=1,
@@ -189,7 +164,7 @@ class AgentManager:
 
         if session_id and has_new_transcript:
             prepared = await self.context_manager.prepare(
-                DEFAULT_GROUP,
+                group_id,
                 DEFAULT_AGENT,
                 session_id,
                 extra_messages=[current_user],
@@ -199,7 +174,7 @@ class AgentManager:
             messages = self._build_messages(history)
             messages.append(current_user)
             prepared = await self.context_manager.prepare_messages(
-                DEFAULT_GROUP,
+                group_id,
                 DEFAULT_AGENT,
                 messages,
                 query=message,
@@ -238,36 +213,121 @@ class AgentManager:
             ],
         }
 
-    def _format_knowledge_context(self, retrieval_result) -> str:
-        lines = ["[Knowledge retrieval evidence]"]
-        lines.append(f"Status: {retrieval_result.status}")
-        if retrieval_result.reason:
-            lines.append(f"Reason: {retrieval_result.reason}")
-        if retrieval_result.fallback_used:
-            lines.append("Fallback: skill evidence was insufficient, so vector/BM25 retrieval was used.")
-        if not retrieval_result.evidences:
-            lines.append("No direct evidence was found.")
-            return "\n".join(lines)
+    def _knowledge_query_reference(self, evidence_bundle: Any) -> str:
+        query_units = list(getattr(evidence_bundle, "query_unit_results", ()) or ())
+        if not query_units:
+            return ""
+        first = query_units[0]
+        if hasattr(first, "selected_query_text"):
+            return str(first.selected_query_text() or "").strip()
+        if hasattr(first, "selected_query"):
+            return str(getattr(first, "selected_query", "") or "").strip()
+        if isinstance(first, dict):
+            return str(first.get("selected_query") or first.get("query") or "").strip()
+        return str(getattr(first, "query", "") or "").strip()
 
-        for index, evidence in enumerate(retrieval_result.evidences, start=1):
-            lines.append(
-                f"{index}. [{evidence.channel}] {evidence.source_path} ({evidence.locator})\n{evidence.snippet}"
+    def _knowledge_query_tokens(self, query_text: str) -> tuple[str, ...]:
+        lowered = query_text.lower()
+        latin_tokens = re.findall(r"[a-z0-9.+-]{3,}", lowered)
+        cjk_phrases = [
+            phrase
+            for phrase in (
+                "知识库",
+                "science advances",
+                "tfa",
+                "native chemical ligation",
+                "ncl",
+                "sars-cov-2",
+                "e protein",
+                "envelope",
+                "nanobody",
+                "nanobodies",
+                "辅助肽连接",
+                "天然化学连接",
+                "纳米抗体",
+                "蛋白质药物",
+                "抗病毒药物",
+                "突破",
+                "价值",
             )
+            if phrase in lowered or phrase in query_text
+        ]
+        ordered: list[str] = []
+        seen: set[str] = set()
+        for token in [*cjk_phrases, *latin_tokens]:
+            normalized = token.strip().lower()
+            if not normalized or normalized in seen:
+                continue
+            seen.add(normalized)
+            ordered.append(token.strip())
+        return tuple(ordered[:24])
+
+    def _rank_knowledge_evidence_items(self, evidence_bundle: Any) -> list[Any]:
+        merged_items = list(getattr(evidence_bundle, "merged_evidence_items", ()) or ())
+        query_text = self._knowledge_query_reference(evidence_bundle)
+        tokens = self._knowledge_query_tokens(query_text)
+        if not merged_items or not tokens:
+            return merged_items
+
+        def _score(item: Any) -> tuple[float, float]:
+            source_path = str(getattr(item, "source_path", "") or "")
+            snippet = str(getattr(item, "snippet", "") or "")
+            haystack = f"{source_path}\n{snippet}".lower()
+            overlap = 0.0
+            for token in tokens:
+                normalized = token.lower()
+                if normalized and normalized in haystack:
+                    overlap += max(1.0, min(len(normalized) / 6.0, 4.0))
+            has_source_pdf = 2.0 if source_path.endswith("/source.pdf") or source_path.endswith("\\source.pdf") else 0.0
+            base_score = float(getattr(item, "score", 0.0) or 0.0)
+            return (overlap + has_source_pdf, base_score)
+
+        return sorted(merged_items, key=_score, reverse=True)
+
+    def _format_knowledge_retrieval_context(self, evidence_bundle: Any) -> str:
+        lines = ["[RAG retrieved knowledge context]"]
+        merged_items = self._rank_knowledge_evidence_items(evidence_bundle)
+        for idx, item in enumerate(merged_items[:6], start=1):
+            snippet = str(getattr(item, "snippet", "") or "").strip()[:1200]
+            source_path = str(getattr(item, "source_path", "") or "knowledge")
+            locator = str(getattr(item, "locator", "") or "")
+            score = getattr(item, "score", None)
+            score_text = "" if score is None else f" [score={float(score):.4f}]"
+            header = f"{idx}. Source: {source_path}"
+            if locator:
+                header += f" @ {locator}"
+            header += score_text
+            lines.append(f"{header}\n{snippet}")
         return "\n\n".join(lines)
 
-    def _knowledge_answer_instructions(self, retrieval_result) -> list[str]:
-        instructions = [
-            "This is a knowledge-base question.",
-            "Use only the provided knowledge retrieval evidence to answer.",
-            "Do not perform additional knowledge-base inspection with tools.",
-            "If the evidence is incomplete, explicitly say the current knowledge base only supports a partial answer or no direct answer.",
-            "Do not fabricate facts.",
-            "When evidence is insufficient, suggest narrowing the scope by directory, file, keyword, field name, or time range.",
-            "Cite the file paths you relied on.",
-        ]
-        if retrieval_result.reason:
-            instructions.append(f"Current retrieval note: {retrieval_result.reason}")
-        return instructions
+    def _format_knowledge_retrieval_step(self, evidence_bundle: Any) -> dict[str, Any]:
+        merged_items = self._rank_knowledge_evidence_items(evidence_bundle)
+        source_refs = []
+        if hasattr(evidence_bundle, "source_ref_list"):
+            source_refs = list(evidence_bundle.source_ref_list())
+        return {
+            "kind": "knowledge",
+            "stage": "knowledge",
+            "title": f"Knowledge 检索到 {len(merged_items)} 条证据",
+            "message": (
+                "已将 Knowledge 检索结果注入当前请求上下文。"
+                if merged_items
+                else "Knowledge 检索已执行，但当前没有可注入的证据片段。"
+            ),
+            "results": [
+                {
+                    "source_path": str(getattr(item, "source_path", "")),
+                    "source_type": str(getattr(item, "source_type", "")),
+                    "locator": str(getattr(item, "locator", "")),
+                    "snippet": str(getattr(item, "snippet", "")).strip(),
+                    "channel": str(getattr(item, "channel", "")),
+                    "score": getattr(item, "score", None),
+                    "parent_id": getattr(item, "parent_id", None),
+                }
+                for item in merged_items[:8]
+            ],
+            "source_refs": source_refs[:8],
+        }
 
     async def _astream_model_answer(
         self,
@@ -300,79 +360,6 @@ class AgentManager:
 
         yield {"type": "done", "content": "".join(final_content_parts).strip()}
 
-    async def _astream_agent_answer(
-        self,
-        messages: list[dict[str, str]],
-        *,
-        extra_instructions: list[str] | None = None,
-    ):
-        agent = self._build_agent(extra_instructions=extra_instructions)
-
-        final_content_parts: list[str] = []
-        last_ai_message = ""
-        pending_tools: dict[str, dict[str, str]] = {}
-
-        async for mode, payload in agent.astream(
-            {"messages": messages},
-            stream_mode=["messages", "updates"],
-        ):
-            if mode == "messages":
-                chunk, metadata = payload
-                if metadata.get("langgraph_node") != "model":
-                    continue
-                text = stringify_content(getattr(chunk, "content", ""))
-                if text:
-                    final_content_parts.append(text)
-                    yield {"type": "token", "content": text}
-                continue
-
-            if mode != "updates":
-                continue
-
-            for update in payload.values():
-                for agent_message in update.get("messages", []):
-                    message_type = getattr(agent_message, "type", "")
-                    tool_calls = getattr(agent_message, "tool_calls", []) or []
-
-                    if message_type == "ai" and not tool_calls:
-                        candidate = stringify_content(getattr(agent_message, "content", ""))
-                        if candidate:
-                            last_ai_message = candidate
-
-                    if tool_calls:
-                        for tool_call in tool_calls:
-                            call_id = str(tool_call.get("id") or tool_call.get("name"))
-                            tool_name = str(tool_call.get("name", "tool"))
-                            tool_args = tool_call.get("args", "")
-                            if not isinstance(tool_args, str):
-                                tool_args = json.dumps(tool_args, ensure_ascii=False)
-                            pending_tools[call_id] = {
-                                "tool": tool_name,
-                                "input": str(tool_args),
-                            }
-                            yield {
-                                "type": "tool_start",
-                                "tool": tool_name,
-                                "input": str(tool_args),
-                            }
-
-                    if message_type == "tool":
-                        tool_call_id = str(getattr(agent_message, "tool_call_id", ""))
-                        pending = pending_tools.pop(
-                            tool_call_id,
-                            {"tool": getattr(agent_message, "name", "tool"), "input": ""},
-                        )
-                        output = stringify_content(getattr(agent_message, "content", ""))
-                        yield {
-                            "type": "tool_end",
-                            "tool": pending["tool"],
-                            "output": output,
-                        }
-                        yield {"type": "new_response"}
-
-        final_content = "".join(final_content_parts).strip() or last_ai_message.strip()
-        yield {"type": "done", "content": final_content}
-
     def _build_reject_response(self, plan: WorkflowPlan) -> str:
         if plan.handling_mode == "unsupported":
             return "这个请求目前不适合进入正常执行流。我不能直接协助这类操作，但如果你愿意，我可以改为帮你分析风险、约束条件，或整理一个更安全的处理方案。"
@@ -402,28 +389,10 @@ class AgentManager:
         group_id: str,
         message: str,
     ) -> None:
-        if session_id is None or self.context_manager is None or self.raw_session_manager is None:
-            return
-
-        session = self.raw_session_manager.get_session(session_id, DEFAULT_GROUP, DEFAULT_AGENT)
-        tenant_id = session.user_id if session is not None else "default"
-        entries = build_registry_entries_from_execution_payload(
-            payload=payload,
-            session_id=session_id,
-            tenant_id=tenant_id,
-            group_id=group_id,
-            message=message,
-        )
-        if not entries:
-            return
-
-        self.context_manager.append_registry_entries(
-            tenant_id=tenant_id,
-            group_id=group_id,
-            agent_id=DEFAULT_AGENT,
-            session_id=session_id,
-            entries=entries,
-        )
+        del payload, session_id, group_id, message
+        # Registry projection is kept as a legacy adapter, but runtime no longer
+        # writes workflow payloads back into registry by default.
+        return
 
     def _persist_working_memory(
         self,
@@ -436,6 +405,8 @@ class AgentManager:
     ) -> None:
         if session_id is None or self.raw_session_manager is None:
             return
+        session = self.raw_session_manager.get_session(session_id, group_id, DEFAULT_AGENT)
+        user_id = str(session.user_id if session is not None and session.user_id else DEFAULT_USER)
         binding = payload.context_bundle_obj().binding_obj()
         review_bundle = payload.review_bundle_obj().to_dict()
         entries = self.working_memory_writer.build_entries_from_turn(
@@ -455,6 +426,7 @@ class AgentManager:
             session_id=session_id,
             group_id=group_id,
             agent_id=DEFAULT_AGENT,
+            user_id=user_id,
             entries=entries,
         )
 
@@ -591,11 +563,16 @@ class AgentManager:
         trace_context = self._create_request_trace_context(session_id)
         with activate_trace_context(trace_context):
             rag_mode = runtime_config.get_rag_mode()
-            prepared_request = await self._prepare_messages_for_request(session_id, message, history)
-            messages = list(prepared_request["messages"])
-            memory_retrieval = dict(prepared_request.get("memory_retrieval", {}))
             active_group_id, allowed_group_ids = self._load_session_scope(session_id)
             trace_context.group_id = active_group_id
+            prepared_request = await self._prepare_messages_for_request(
+                active_group_id,
+                session_id,
+                message,
+                history,
+            )
+            messages = list(prepared_request["messages"])
+            memory_retrieval = dict(prepared_request.get("memory_retrieval", {}))
             intent_assets = load_group_intent_rule_assets(self.base_dir / "storage", active_group_id)
             intent_started_at = datetime.now()
             intent_analysis = classify_intent(
@@ -610,10 +587,8 @@ class AgentManager:
                 query=message,
                 intent_analysis=intent_analysis,
             )
-            registry_entries = self._load_recent_registry_entries(
-                session_id=session_id,
-                group_id=active_group_id,
-            )
+            # Keep frontend trace aligned with the actual intent object emitted by the backend.
+            yield serialize_intent_analysis(intent_analysis)
             working_memory = None
             if session_id is not None and self.raw_session_manager is not None:
                 working_memory = self.raw_session_manager.get_working_memory(
@@ -627,6 +602,7 @@ class AgentManager:
                 active_group_id=active_group_id,
                 allowed_group_ids=allowed_group_ids,
             )
+            yield serialize_workflow_plan(workflow_plan)
             execution_payload = self.workflow_dispatcher.dispatch(workflow_plan).run(
                 workflow_plan,
                 RouteExecutionRequest(
@@ -637,9 +613,6 @@ class AgentManager:
                         "session_id": session_id,
                         "active_group_id": active_group_id,
                         "allowed_group_ids": allowed_group_ids,
-                        "registry_entries": registry_entries,
-                        "recent_power": registry_entries[-1].get("source_power") if registry_entries else None,
-                        "recent_object_type": registry_entries[-1].get("object_type") if registry_entries else None,
                         "working_memory": working_memory,
                         "recent_messages": messages[-6:],
                         "bound_query_llm_call": self._llm_text_call_sync,
@@ -648,8 +621,23 @@ class AgentManager:
                     },
                 ),
             )
+            # Stage v1 only exposes route payload readiness, not unit-level runtime states.
+            yield serialize_execution_payload(
+                execution_payload,
+                stage="route_payload_ready",
+            )
 
             if execution_payload.evidence_bundle is not None:
+                knowledge_step = self._format_knowledge_retrieval_step(execution_payload.evidence_bundle)
+                if knowledge_step["results"]:
+                    messages = self._insert_before_latest_user(
+                        messages,
+                        {
+                            "role": "system",
+                            "content": self._format_knowledge_retrieval_context(execution_payload.evidence_bundle),
+                        },
+                    )
+                yield {"type": "retrieval", **knowledge_step}
                 self._emit_retrieval_event(
                     started_at=datetime.now(),
                     query=message,
@@ -739,102 +727,8 @@ class AgentManager:
                 )
                 return
 
-            if execution_payload.action == "knowledge_orchestrator":
-                # Legacy knowledge-prep path kept for compatibility while retrieval
-                # ownership is being consolidated back into workflow.
-                knowledge_result = None
-                async for event in knowledge_orchestrator.astream(message):
-                    if event.get("type") == "orchestrated_result":
-                        knowledge_result = event["result"]
-                        continue
-                    yield event
-
-                if knowledge_result is not None:
-                    for step in knowledge_result.steps:
-                        yield {"type": "retrieval", **step.to_dict()}
-                    self._emit_retrieval_event(
-                        started_at=datetime.now(),
-                        query=message,
-                        output_summary={
-                            "knowledge_hit_count": len(knowledge_result.evidences),
-                            "memory_hit_count": 0,
-                            "evidence_ids": [item.evidence_id for item in knowledge_result.evidences],
-                            "retrieval_quality_status": knowledge_result.status,
-                        },
-                        metadata={
-                            "retrieval_source": "knowledge_orchestrator",
-                            "workflow_name": workflow_plan.route,
-                        },
-                    )
-                    messages = self._insert_before_latest_user(
-                        messages,
-                        {
-                            "role": "assistant",
-                            "content": self._format_knowledge_context(knowledge_result),
-                        },
-                    )
-                    execution_payload = replace(
-                        execution_payload,
-                        evidence_bundle=self.retrieval_power.build_bundle_from_orchestrated_result(
-                            knowledge_result,
-                            query=message,
-                        ),
-                    )
-
-                answer_started_at = datetime.now()
-                final_answer = ""
-                async for event in self._astream_model_answer(
-                    messages,
-                    extra_instructions=workflow_instructions
-                    + (self._knowledge_answer_instructions(knowledge_result) if knowledge_result else []),
-                ):
-                    if event.get("type") == "done":
-                        final_answer = str(event.get("content") or "")
-                    yield event
-                self._emit_answer_event(
-                    started_at=answer_started_at,
-                    messages=messages,
-                    workflow_plan=workflow_plan,
-                    execution_payload=execution_payload,
-                    query=message,
-                    answer_text=final_answer,
-                    answer_mode="model",
-                )
-                self._persist_execution_outputs(
-                    payload=execution_payload,
-                    session_id=session_id,
-                    group_id=active_group_id,
-                    message=message,
-                    answer_text=final_answer,
-                )
-                return
-
-            # Agent path is a compatibility fallback for legacy tool-agent cases.
-            # It is no longer the default main answer path for qa/orchestrated.
-            answer_started_at = datetime.now()
-            final_answer = ""
-            async for event in self._astream_agent_answer(
-                messages,
-                extra_instructions=workflow_instructions,
-            ):
-                if event.get("type") == "done":
-                    final_answer = str(event.get("content") or "")
-                yield event
-            self._emit_answer_event(
-                started_at=answer_started_at,
-                messages=messages,
-                workflow_plan=workflow_plan,
-                execution_payload=execution_payload,
-                query=message,
-                answer_text=final_answer,
-                answer_mode="agent",
-            )
-            self._persist_execution_outputs(
-                payload=execution_payload,
-                session_id=session_id,
-                group_id=active_group_id,
-                message=message,
-                answer_text=final_answer,
+            raise RuntimeError(
+                f"unsupported workflow action emitted by policy/runner: {execution_payload.action}"
             )
 
     async def generate_title(self, first_user_message: str) -> str:

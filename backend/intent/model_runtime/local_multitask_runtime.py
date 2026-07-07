@@ -1,10 +1,13 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+import logging
 from pathlib import Path
 from typing import Any
 
 from intent.model_runtime.artifact_loader import IntentModelArtifacts
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass(frozen=True)
@@ -77,7 +80,15 @@ class LocalMultitaskRuntime:
 
     def _ensure_loaded(self) -> None:
         if self._loaded:
+            logger.info("intent runtime reused")
             return
+        logger.info(
+            "intent runtime first load",
+            extra={
+                "intent_model_run_dir": str(self._artifacts.run_dir),
+                "intent_model_base_dir": str(self._artifacts.base_model_dir),
+            },
+        )
         deps = _import_runtime_dependencies()
         torch = deps["torch"]
         nn = deps["nn"]

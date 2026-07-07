@@ -17,8 +17,9 @@ def _working_memory(*entries: WorkingMemoryEntry) -> SessionWorkingMemory:
 
 
 class _FakeRetrievalPower:
-    def retrieve(self, query_units, *, top_k: int = 4) -> EvidenceBundle:
+    def retrieve(self, query_units, *, top_k: int = 4, path_filters=()) -> EvidenceBundle:
         del top_k
+        del path_filters
         return EvidenceBundle(
             query_unit_results=tuple(
                 {

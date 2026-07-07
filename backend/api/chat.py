@@ -29,7 +29,14 @@ def _sse(event: str, data: dict[str, Any]) -> str:
 
 
 def _new_segment() -> dict[str, Any]:
-    return {"content": "", "tool_calls": [], "retrieval_steps": []}
+    return {
+        "content": "",
+        "tool_calls": [],
+        "retrieval_steps": [],
+        "intent_trace": None,
+        "workflow_trace": None,
+        "execution_events": [],
+    }
 
 
 @router.post("/chat")
@@ -78,7 +85,7 @@ async def chat(payload: ChatRequest):
                 content=payload.message,
             )
             for segment in segments:
-                append_message_entry(
+                entry_id = append_message_entry(
                     session_manager,
                     payload.session_id,
                     role="assistant",
@@ -86,6 +93,23 @@ async def chat(payload: ChatRequest):
                     tool_calls=segment["tool_calls"] or None,
                     retrieval_steps=segment["retrieval_steps"] or None,
                 )
+                if (
+                    segment["intent_trace"] is not None
+                    or segment["workflow_trace"] is not None
+                    or segment["execution_events"]
+                ):
+                    session_manager.append_agent_trace(
+                        "general",
+                        "default",
+                        payload.session_id,
+                        {
+                            "entry_id": entry_id,
+                            "session_id": payload.session_id,
+                            "intent_trace": segment["intent_trace"],
+                            "workflow_trace": segment["workflow_trace"],
+                            "execution_events": segment["execution_events"],
+                        },
+                    )
 
             conversation_saved = True
 
@@ -120,11 +144,28 @@ async def chat(payload: ChatRequest):
                             "results": event.get("results", []),
                         }
                     )
+                elif event_type == "intent_analysis":
+                    current_segment["intent_trace"] = data = {
+                        key: value for key, value in event.items() if key != "type"
+                    }
+                elif event_type == "workflow_plan":
+                    current_segment["workflow_trace"] = {
+                        key: value for key, value in event.items() if key != "type"
+                    }
+                elif event_type == "execution_update":
+                    current_segment["execution_events"].append(
+                        {
+                            key: value for key, value in event.items() if key != "type"
+                        }
+                    )
                 elif event_type == "new_response":
                     if (
                         current_segment["content"].strip()
                         or current_segment["tool_calls"]
                         or current_segment["retrieval_steps"]
+                        or current_segment["intent_trace"] is not None
+                        or current_segment["workflow_trace"] is not None
+                        or current_segment["execution_events"]
                     ):
                         segments.append(current_segment)
                     current_segment = _new_segment()

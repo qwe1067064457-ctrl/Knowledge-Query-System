@@ -69,7 +69,11 @@ def _resolve_modifiers_from_quality(evidence: IntentEvidence) -> IntentModifiers
     """Resolve modifiers from the final gated evidence set."""
 
     signals = _trusted_truthy_signals(evidence)
-    handling_modes = _trusted_values(evidence, "handling_mode")
+    strong_challenge_signal = _has_strong_truthy_signal(evidence, "challenge")
+    strong_capability_signal = _has_strong_capability_signal(evidence)
+    strong_out_of_scope_signal = _has_strong_truthy_signal(evidence, "out_of_scope")
+    strong_unsupported_signal = _has_strong_truthy_signal(evidence, "unsupported")
+    strong_challenge_mode = _has_strong_signal_value(evidence, "handling_mode", "challenge")
     blocked_by_missing = (
         evidence.quality_report.case_level == "blocked_by_missing_prerequisite"
         if evidence.quality_report
@@ -80,11 +84,11 @@ def _resolve_modifiers_from_quality(evidence: IntentEvidence) -> IntentModifiers
     )
     return IntentModifiers(
         follow_up="follow_up" in signals,
-        challenge="challenge" in signals or "challenge" in handling_modes or missing_challenge,
+        challenge=strong_challenge_signal or strong_challenge_mode or missing_challenge,
         soft_doubt="soft_doubt" in signals,
         ask_source="ask_source" in signals,
-        ask_capability="ask_capability" in signals or "scope_info" in handling_modes,
-        out_of_scope=bool({"unsupported", "out_of_scope"} & signals),
+        ask_capability=strong_capability_signal,
+        out_of_scope=strong_unsupported_signal or strong_out_of_scope_signal,
     )
 
 
@@ -600,3 +604,29 @@ def _trusted_values(evidence: IntentEvidence, signal: str) -> set[str]:
         for item, _ in _trusted_quality_evidence(evidence)
         if item.signal == signal and item.value
     }
+
+
+def _has_strong_capability_signal(evidence: IntentEvidence) -> bool:
+    """Only let capability signals override route when they come from stable evidence."""
+
+    return _has_strong_truthy_signal(evidence, "ask_capability") or _has_strong_signal_value(
+        evidence,
+        "handling_mode",
+        "scope_info",
+    )
+
+
+def _has_strong_truthy_signal(evidence: IntentEvidence, signal: str) -> bool:
+    for item, trust_rank in _trusted_quality_evidence(evidence):
+        if item.signal == signal and item.value is True:
+            if item.source != "small_model" or trust_rank >= 2:
+                return True
+    return False
+
+
+def _has_strong_signal_value(evidence: IntentEvidence, signal: str, expected_value: str) -> bool:
+    for item, trust_rank in _trusted_quality_evidence(evidence):
+        if item.signal == signal and str(item.value) == expected_value:
+            if item.source != "small_model" or trust_rank >= 2:
+                return True
+    return False

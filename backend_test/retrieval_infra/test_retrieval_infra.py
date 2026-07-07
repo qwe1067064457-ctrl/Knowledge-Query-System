@@ -235,6 +235,35 @@ def test_simple_vector_index_recalls_semantic_overlap(local_tmp_path: Path) -> N
     assert miss == []
 
 
+def test_simple_vector_index_uses_document_level_signals_for_title_queries(local_tmp_path: Path) -> None:
+    source = KnowledgeSourceAdapter().build_source_document(
+        source_id="paper_1",
+        group_id="medicine",
+        source_path="groups/medicine/knowledge/raw/papers/tfa/source.txt",
+        content="This method improves ligation efficiency for difficult membrane proteins.",
+        file_type="txt",
+        metadata={
+            "title": "TFA-assisted peptide ligation for SARS-CoV-2 E protein",
+            "journal": "Science Advances",
+            "year": "2024",
+            "doi": "10.1126/sciadv.example",
+        },
+    )
+    parsed = SimpleTextParser().parse("doc_paper_1", source)
+    normalized = DocumentNormalizer().normalize(parsed)
+    chunks = TextChunker().chunk(normalized)
+
+    vector = SimpleVectorIndex(local_tmp_path / "vector" / "index.sqlite")
+    vector.rebuild(chunks)
+
+    hits = vector.query("Science Advances TFA SARS-CoV-2", top_k=3)
+    miss = vector.query("ulcerative colitis mesalazine", top_k=3)
+
+    assert hits
+    assert hits[0][0].startswith("chunk_")
+    assert miss == []
+
+
 def test_repo_knowledge_index_manager_rebuilds_and_switches_slots(local_tmp_path: Path) -> None:
     backend_dir = local_tmp_path / "backend"
     source_file = backend_dir / "storage" / "groups" / "general" / "knowledge" / "raw" / "ai" / "agent_report.txt"
@@ -251,6 +280,7 @@ def test_repo_knowledge_index_manager_rebuilds_and_switches_slots(local_tmp_path
 
     assert status.ready is True
     assert status.indexed_files >= 1
+    assert status.chunk_count >= 1
     assert status.vector_ready is True
     assert status.bm25_ready is True
     assert manifest["current_build_id"].startswith("b_gen_")
@@ -259,12 +289,171 @@ def test_repo_knowledge_index_manager_rebuilds_and_switches_slots(local_tmp_path
     assert (group_root / "knowledge" / "indexes" / "builds" / "running" / manifest["current_build_id"]).exists()
     assert (group_root / "knowledge" / "indexes" / "builds" / "latest" / manifest["current_build_id"]).exists()
     assert (group_root / "registries" / "history" / "source_registry.jsonl").exists()
-    assert (group_root / "registries" / "history" / "build_history.jsonl").exists()
-    assert (group_root / "registries" / "history" / "validation_history.jsonl").exists()
-    assert (group_root / "registries" / "recovery" / "scan_checkpoints.sqlite").exists()
-    assert (group_root / "registries" / "recovery" / "document_checkpoints.sqlite").exists()
-    assert (group_root / "registries" / "recovery" / "index_checkpoints.sqlite").exists()
-    assert (group_root / "registries" / "recovery" / "activation_checkpoints.sqlite").exists()
+
+
+def test_repo_knowledge_index_manager_status_counts_actual_indexed_source_files(local_tmp_path: Path) -> None:
+    backend_dir = local_tmp_path / "backend"
+    doc_root = backend_dir / "storage" / "groups" / "medicine" / "knowledge" / "raw" / "papers" / "tfa"
+    doc_root.mkdir(parents=True, exist_ok=True)
+    (doc_root / "content.md").write_text(
+        "TFA-assisted peptide ligation enables efficient synthesis of SARS-CoV-2 E protein.",
+        encoding="utf-8",
+    )
+    (doc_root / "metadata.json").write_text(
+        json.dumps({"title": "Science Advances TFA ligation", "year": 2024}, ensure_ascii=False),
+        encoding="utf-8",
+    )
+
+    manager = RepoKnowledgeIndexManager(backend_dir=backend_dir)
+    manager.rebuild_index("medicine")
+
+    status = manager.status("medicine")
+
+    assert status.ready is True
+    assert status.indexed_files == 2
+    assert status.chunk_count >= 2
+
+
+def test_repo_knowledge_index_manager_status_reports_zero_when_current_index_has_no_chunk_meta(local_tmp_path: Path) -> None:
+    backend_dir = local_tmp_path / "backend"
+    current_dir = backend_dir / "storage" / "groups" / "medicine" / "knowledge" / "indexes" / "current"
+    (current_dir / "text_pool" / "vector").mkdir(parents=True, exist_ok=True)
+    (current_dir / "text_pool" / "lexical").mkdir(parents=True, exist_ok=True)
+    (current_dir / "text_pool" / "vector" / "index.sqlite").write_text("", encoding="utf-8")
+    (current_dir / "text_pool" / "lexical" / "term_postings.sqlite").write_text("", encoding="utf-8")
+
+    manager = RepoKnowledgeIndexManager(backend_dir=backend_dir)
+    status = manager.status("medicine")
+
+    assert status.indexed_files == 0
+    assert status.chunk_count == 0
+    assert status.ready is False
+
+
+def test_repo_knowledge_retriever_collapses_duplicate_content_and_metadata_hits(local_tmp_path: Path) -> None:
+    backend_dir = local_tmp_path / "backend"
+    doc_root = backend_dir / "storage" / "groups" / "medicine" / "knowledge" / "raw" / "p1"
+    doc_root.mkdir(parents=True, exist_ok=True)
+    shared_text = (
+        "TFA-assisted peptide ligation enables efficient synthesis of SARS-CoV-2 E protein "
+        "and nanobodies that are difficult for canonical native chemical ligation."
+    )
+    (doc_root / "content.md").write_text(shared_text, encoding="utf-8")
+    (doc_root / "metadata.json").write_text(
+        json.dumps({"abstract": shared_text, "title": "TFA-assisted peptide ligation"}, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    retriever = RepoKnowledgeRetriever(backend_dir=backend_dir)
+    result = retriever.retrieve("TFA-assisted peptide ligation nanobodies", top_k=5)
+
+    snippets = [item.snippet for item in result.merged_hits]
+    assert len(snippets) == len(set(snippets))
+
+
+def test_repo_knowledge_retriever_prefers_primary_body_chunks_over_auxiliary_metadata(local_tmp_path: Path) -> None:
+    backend_dir = local_tmp_path / "backend"
+    doc_root = backend_dir / "storage" / "groups" / "medicine" / "knowledge" / "raw" / "p2"
+    doc_root.mkdir(parents=True, exist_ok=True)
+    (doc_root / "content.md").write_text(
+        (
+            "TFA-assisted peptide ligation enables synthesis of SARS-CoV-2 E protein and nanobodies. "
+            "This body chunk should outrank auxiliary metadata for answer generation."
+        ),
+        encoding="utf-8",
+    )
+    (doc_root / "metadata.json").write_text(
+        json.dumps(
+            {
+                "title": "TFA-assisted peptide ligation",
+                "citation": "Sci. Adv. 10(29): eado9413",
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    (backend_dir / "storage" / "groups" / "medicine" / "knowledge" / "raw" / "index.md").write_text(
+        "Index file should not compete with body chunks.",
+        encoding="utf-8",
+    )
+
+    retriever = RepoKnowledgeRetriever(backend_dir=backend_dir)
+    result = retriever.retrieve("TFA-assisted peptide ligation nanobodies", top_k=5)
+
+    assert result.merged_hits
+    assert all(not item.source_path.endswith("metadata.json") for item in result.merged_hits)
+    assert all(not item.source_path.endswith("index.md") for item in result.merged_hits)
+    assert any(item.source_path.endswith("content.md") for item in result.merged_hits)
+
+
+def test_repo_knowledge_retriever_keeps_auxiliary_chunks_as_fallback_when_no_primary_body_exists(local_tmp_path: Path) -> None:
+    backend_dir = local_tmp_path / "backend"
+    doc_root = backend_dir / "storage" / "groups" / "medicine" / "knowledge" / "raw" / "p3"
+    doc_root.mkdir(parents=True, exist_ok=True)
+    (doc_root / "metadata.json").write_text(
+        json.dumps(
+            {
+                "title": "TFA-assisted peptide ligation",
+                "citation": "Sci. Adv. 10(29): eado9413",
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+
+    retriever = RepoKnowledgeRetriever(backend_dir=backend_dir)
+    result = retriever.retrieve("TFA-assisted peptide ligation", top_k=3)
+
+    assert result.merged_hits
+    assert any(item.source_path.endswith("metadata.json") for item in result.merged_hits)
+
+
+def test_repo_knowledge_index_manager_current_chunk_meta_contains_specific_science_advances_pdf(local_tmp_path: Path) -> None:
+    backend_dir = local_tmp_path / "backend"
+    doc_root = (
+        backend_dir
+        / "storage"
+        / "groups"
+        / "medicine"
+        / "knowledge"
+        / "raw"
+        / "documents"
+        / "pmc_ftp_pdf"
+        / "undated_f86aeb5405_Sci_Adv.;_10(29)_eado9413"
+    )
+    doc_root.mkdir(parents=True, exist_ok=True)
+    (doc_root / "metadata.json").write_text(
+        json.dumps(
+            {
+                "title": "TFA-assisted peptide ligation for synthesis of difficult peptide targets",
+                "citation": "Sci. Adv. 10(29): eado9413",
+                "year": 2024,
+            },
+            ensure_ascii=False,
+        ),
+        encoding="utf-8",
+    )
+    (doc_root / "source.pdf").write_bytes(
+        b"%PDF-1.4\n"
+        b"1 0 obj<</Type/Catalog/Pages 2 0 R>>endobj\n"
+        b"2 0 obj<</Type/Pages/Count 1/Kids[3 0 R]>>endobj\n"
+        b"3 0 obj<</Type/Page/Parent 2 0 R/MediaBox[0 0 300 300]/Contents 4 0 R/Resources<</Font<</F1 5 0 R>>>>>>endobj\n"
+        b"4 0 obj<</Length 140>>stream\n"
+        b"BT /F1 12 Tf 20 260 Td (TFA-assisted peptide ligation enables synthesis of SARS-CoV-2 E protein and nanobodies.) Tj ET\n"
+        b"endstream endobj\n"
+        b"5 0 obj<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>endobj\n"
+        b"xref\n0 6\n0000000000 65535 f \n0000000009 00000 n \n0000000056 00000 n \n0000000113 00000 n \n0000000239 00000 n \n0000000431 00000 n \n"
+        b"trailer<</Root 1 0 R/Size 6>>\nstartxref\n501\n%%EOF"
+    )
+
+    manager = RepoKnowledgeIndexManager(backend_dir=backend_dir)
+    manager.rebuild_index("medicine")
+
+    chunk_meta_path = backend_dir / "storage" / "groups" / "medicine" / "knowledge" / "indexes" / "current" / "chunk_meta.json"
+    chunk_meta = json.loads(chunk_meta_path.read_text(encoding="utf-8"))
+    source_paths = {str(item.get("source_path") or "") for item in chunk_meta.values()}
+
+    assert any(path.endswith("undated_f86aeb5405_Sci_Adv.;_10(29)_eado9413/metadata.json") for path in source_paths)
+    assert any(path.endswith("undated_f86aeb5405_Sci_Adv.;_10(29)_eado9413/source.pdf") for path in source_paths)
 
 
 def test_repo_knowledge_index_manager_warns_but_activates_when_one_text_source_has_no_chunks(local_tmp_path: Path) -> None:

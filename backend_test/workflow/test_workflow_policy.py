@@ -186,12 +186,12 @@ def test_non_knowledge_orchestrated_defaults_to_respond_instead_of_agent() -> No
     assert plan.action == "respond"
 
 
-def test_legacy_agent_fallback_capability_keeps_agent_path_explicit() -> None:
+def test_unknown_capability_does_not_change_workflow_action() -> None:
     analysis = _make_analysis(
         query="先看这个，再决定怎么操作",
         route="qa",
         handling_mode="normal",
-        capabilities=("legacy_agent_fallback",),
+        capabilities=("unknown_capability",),
     )
 
     plan = build_workflow_plan(
@@ -202,7 +202,7 @@ def test_legacy_agent_fallback_capability_keeps_agent_path_explicit() -> None:
     )
 
     assert plan.route == "qa"
-    assert plan.action == "agent"
+    assert plan.action == "respond"
 
 
 def test_scope_switch_without_explicit_group_requires_clarification() -> None:
@@ -224,7 +224,7 @@ def test_scope_switch_without_explicit_group_requires_clarification() -> None:
     assert plan.policy_flags.ask_clarification_first is True
 
 
-def test_knowledge_query_keeps_legacy_knowledge_orchestrator_action() -> None:
+def test_knowledge_query_stays_on_workflow_respond_path() -> None:
     analysis = _make_analysis(
         query="试用期依据是什么",
         route="qa",
@@ -240,7 +240,7 @@ def test_knowledge_query_keeps_legacy_knowledge_orchestrator_action() -> None:
     )
 
     assert plan.route == "qa"
-    assert plan.action == "knowledge_orchestrator"
+    assert plan.action == "respond"
 
 
 def test_workflow_plan_keeps_string_contract_and_follow_up_stays_outside_handling_mode() -> None:

@@ -6,6 +6,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
 from api.session_views import (
+    build_agent_trace_record,
     build_session_record,
     create_default_session,
     update_session_title,
@@ -45,6 +46,8 @@ async def list_sessions() -> list[dict[str, Any]]:
             "created_at": session.created_at.timestamp() * 1000,
             "updated_at": session.last_active_at.timestamp() * 1000,
             "message_count": session.turn_count,
+            "active_group_id": str((session.metadata or {}).get("active_group_id") or "general"),
+            "allowed_group_ids": list((session.metadata or {}).get("allowed_group_ids") or ["general"]),
         }
         for session in sessions
     ]
@@ -100,6 +103,17 @@ async def get_session_history(session_id: str) -> dict[str, Any]:
     if session_manager is None:
         raise HTTPException(status_code=503, detail="Agent manager is not initialized")
     return build_session_record(session_manager, session_id)
+
+
+@router.get("/sessions/{session_id}/agent-traces")
+async def get_session_agent_traces(session_id: str) -> dict[str, Any]:
+    session_manager = agent_manager.raw_session_manager
+    if session_manager is None:
+        raise HTTPException(status_code=503, detail="Agent manager is not initialized")
+    try:
+        return build_agent_trace_record(session_manager, session_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Session not found") from exc
 
 
 @router.post("/sessions/{session_id}/generate-title")

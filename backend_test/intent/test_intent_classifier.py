@@ -1,13 +1,39 @@
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from intent import classify_intent
 from intent.loaders import load_intent_rule_assets
+from intent.schema.intent_types import CandidateIntent, IntentModifiers, ModelResult
 
 
 LAW_HISTORY = [
     {"role": "user", "content": "劳动合同法中试用期最长多久？"},
     {"role": "assistant", "content": "试用期最长可能为六个月，但要看合同期限。"},
 ]
+
+
+@dataclass
+class CapabilityLeakingModel:
+    def predict(self, intent_input, history):
+        del intent_input, history
+        return ModelResult(
+            valid=True,
+            candidate_intents=(CandidateIntent(intent="qa", score=0.6846), CandidateIntent(intent="chat", score=0.1568)),
+            modifiers=IntentModifiers(ask_capability=True),
+            main_intent_probs={"qa": 0.6846, "chat": 0.1568, "system": 0.0243, "unsupported": 0.1342},
+            task_complexity_probs={"simple": 0.6086, "compound": 0.3426, "complex": 0.0488},
+            task_shape_probs={"single_question": 0.3644, "compare": 0.2211, "verify": 0.1997, "none": 0.0847},
+            task_topology_probs={"single": 0.9845, "parallel_queries": 0.0119},
+            context_dependency_probs={"partial": 0.7717, "none": 0.2239},
+            handling_mode_probs={"clarify": 0.4175, "unsupported": 0.4030, "scope_info": 0.0517, "challenge": 0.1041, "normal": 0.0236},
+            modifier_scores={"ask_capability": 0.3725, "challenge": 0.1504},
+            context_scores={"history_reference": 0.1936, "clarify_hint": 0.4235},
+            safety_scores={"unsupported": 0.2192, "out_of_scope": 0.3459},
+            confidence="low",
+            low_confidence=True,
+            reason="main_intent=qa:0.68;task_shape=single_question:0.36;task_topology=single:0.98;handling_mode=clarify:0.42;fallback_candidate=true",
+        )
 
 
 def test_classifies_domain_question_as_simple_qa() -> None:
@@ -93,6 +119,31 @@ def test_ask_capability_routes_to_system() -> None:
 
 def test_capability_support_question_stays_system_not_chat() -> None:
     result = classify_intent("你支持把当前 intent 四层样本导出成 JSONL 吗？我想先确认你的能力范围。")
+
+    assert result.resolved.main_intent == "system"
+    assert result.resolved.modifiers.ask_capability is True
+    assert result.control.route == "qa"
+    assert result.control.mode == "capability"
+
+
+def test_knowledge_query_phrase_does_not_let_weak_model_capability_override_qa() -> None:
+    result = classify_intent(
+        "查知识库, ai发展趋势",
+        LAW_HISTORY,
+        model_adapter=CapabilityLeakingModel(),
+        enable_model_evidence=True,
+    )
+
+    assert result.evidence.quality_report is not None
+    assert result.evidence.quality_report.case_level == "requires_adjudication"
+    assert result.evidence.model_result is not None
+    assert result.resolved.main_intent == "qa"
+    assert result.resolved.modifiers.ask_capability is False
+    assert result.control.mode == "normal"
+
+
+def test_explicit_can_you_search_knowledge_base_routes_to_system() -> None:
+    result = classify_intent("你能查知识库吗？")
 
     assert result.resolved.main_intent == "system"
     assert result.resolved.modifiers.ask_capability is True

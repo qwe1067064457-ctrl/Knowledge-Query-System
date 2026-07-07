@@ -29,6 +29,9 @@ class RouteExecutionRequest:
 
 class BaseRouteRunner:
     route_name = "base"
+    # Registry entries are kept as legacy persisted artifacts only. Runtime candidate
+    # construction must come from working memory, recent messages, hydrated memory
+    # anchors, or typed unit outputs instead of registry projections.
 
     def run(self, plan: WorkflowPlan, request: RouteExecutionRequest) -> ExecutionPayload:
         return self._build_payload(plan, request, ())
@@ -199,10 +202,13 @@ class BaseRouteRunner:
         )
 
     def _registry_candidates(self, request: RouteExecutionRequest) -> list[dict[str, Any]]:
-        return normalize_registry_entries(request.context.get("registry_entries", ()))
+        del request
+        return []
 
     def _registry_binding_candidates(self, request: RouteExecutionRequest) -> list[dict[str, Any]]:
-        return binding_candidates(request.context.get("registry_entries", ()))
+        del request
+        return []
 
     def _registry_evidence_candidates(self, request: RouteExecutionRequest) -> list[EvidenceRefCandidate]:
-        return evidence_candidates(request.context.get("registry_entries", ()))
+        del request
+        return []

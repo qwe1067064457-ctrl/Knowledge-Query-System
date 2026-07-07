@@ -10,7 +10,9 @@ class _FakeRetriever:
     def __init__(self, result: HybridRetrievalResult) -> None:
         self._result = result
 
-    def retrieve(self, query: str, *, top_k: int = 4):
+    def retrieve(self, query: str, *, top_k: int = 4, path_filters=None, query_hints=None):
+        del query_hints
+        del path_filters
         return self._result
 
 
@@ -19,11 +21,30 @@ class _SequenceRetriever:
         self._results = list(results)
         self.calls: list[tuple[str, int]] = []
 
-    def retrieve(self, query: str, *, top_k: int = 4):
+    def retrieve(self, query: str, *, top_k: int = 4, path_filters=None, query_hints=None):
+        del query_hints
+        del path_filters
         self.calls.append((query, top_k))
         if len(self._results) == 1:
             return self._results[0]
         return self._results.pop(0)
+
+
+class _CapturingRetriever:
+    def __init__(self, result: HybridRetrievalResult) -> None:
+        self._result = result
+        self.calls: list[dict[str, object]] = []
+
+    def retrieve(self, query: str, *, top_k: int = 4, path_filters=None, query_hints=None):
+        self.calls.append(
+            {
+                "query": query,
+                "top_k": top_k,
+                "path_filters": list(path_filters or []),
+                "query_hints": list(query_hints or []),
+            }
+        )
+        return self._result
 
 
 def test_retrieval_quality_good_when_target_covered() -> None:
@@ -49,6 +70,7 @@ def test_retrieval_quality_good_when_target_covered() -> None:
     payload = bundle.to_dict()
 
     assert quality["status"] in {"good", "weak"}
+    assert quality["query_relevance_score"] != "bad"
     assert quality["target_overlap_score"] != "bad"
     assert bundle.source_refs == ("docs/law.md",)
     assert bundle.query_unit_results[0]["repair_strategy"] == "none"
@@ -83,6 +105,7 @@ def test_retrieval_quality_bad_triggers_repair_signal_when_target_missing() -> N
     payload = bundle.to_dict()
 
     assert quality["target_overlap_score"] == "bad"
+    assert quality["query_relevance_score"] == "bad"
     assert quality["should_repair"] is True
     assert repair_plan["enabled"] is True
     assert repair_plan["strategy"] == "switch_to_bound_query"
@@ -91,6 +114,31 @@ def test_retrieval_quality_bad_triggers_repair_signal_when_target_missing() -> N
     assert bundle.query_unit_results[0]["repaired_query"] is not None
     assert payload["evidence_summary"]["retrieval_quality_status"] == "bad"
     assert payload["evidence_summary"]["missing_evidence"] is True
+
+
+def test_retrieval_quality_rejects_irrelevant_hits_even_without_target_refs() -> None:
+    retriever = _FakeRetriever(
+        HybridRetrievalResult(
+            merged_hits=[
+                Evidence(
+                    source_path="docs/uc.md",
+                    source_type="raw_extracted",
+                    locator="p7",
+                    snippet="美沙拉嗪用于溃疡性结肠炎的治疗与随访。",
+                    channel="fused",
+                    score=0.91,
+                )
+            ]
+        )
+    )
+    power = RetrievalPower(retriever=retriever)
+
+    bundle = power.retrieve((QueryUnit(unit_id="q1", text="TFA peptide ligation SARS-CoV-2 E protein nanobody"),), top_k=4)
+    quality = bundle.query_unit_results[0]["quality"]
+
+    assert quality["query_relevance_score"] == "bad"
+    assert quality["status"] == "bad"
+    assert quality["should_repair"] is True
 
 
 def test_multi_query_units_keep_provenance() -> None:
@@ -261,3 +309,36 @@ def test_retrieval_power_returns_typed_query_unit_results() -> None:
     assert unit_result.should_repair() is False
     assert unit_result.repair_strategy_name() == "none"
     assert unit_result.was_repaired() is False
+
+
+def test_retrieval_power_forwards_path_filters_to_backend() -> None:
+    retriever = _CapturingRetriever(
+        HybridRetrievalResult(
+            vector_evidences=[
+                Evidence(
+                    source_path="docs/medicine.md",
+                    source_type="official_structured",
+                    locator="p1",
+                    snippet="药物机制综述。",
+                    channel="vector",
+                    score=0.9,
+                )
+            ],
+            bm25_evidences=[],
+        )
+    )
+    power = RetrievalPower(retriever=retriever)
+
+    power.retrieve(
+        (QueryUnit(unit_id="q1", text="查药物机制"),),
+        path_filters=("storage/groups/medicine/knowledge",),
+    )
+
+    assert retriever.calls == [
+        {
+            "query": "查药物机制",
+            "top_k": 4,
+            "path_filters": ["storage/groups/medicine/knowledge"],
+            "query_hints": [],
+        }
+    ]

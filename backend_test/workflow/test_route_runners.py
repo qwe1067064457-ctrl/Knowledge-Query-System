@@ -18,10 +18,12 @@ from workflow.types import ChallengeResult, EvidenceAssessmentResult, EvidenceBu
 class _FakeRetrievalPower:
     def __init__(self) -> None:
         self.last_query_units = []
+        self.last_path_filters = ()
 
-    def retrieve(self, query_units, *, top_k: int = 4) -> EvidenceBundle:
+    def retrieve(self, query_units, *, top_k: int = 4, path_filters=()) -> EvidenceBundle:
         del top_k
         self.last_query_units = list(query_units)
+        self.last_path_filters = tuple(path_filters)
         return EvidenceBundle(
             query_unit_results=tuple(
                 {
@@ -53,10 +55,12 @@ class _FakeRetrievalPower:
 class _RelatedOnlyRecoveryRetrievalPower:
     def __init__(self) -> None:
         self.last_queries = []
+        self.last_path_filters = ()
 
-    def retrieve(self, query_units, *, top_k: int = 4) -> EvidenceBundle:
+    def retrieve(self, query_units, *, top_k: int = 4, path_filters=()) -> EvidenceBundle:
         del top_k
         self.last_queries = [unit.text for unit in query_units]
+        self.last_path_filters = tuple(path_filters)
         return EvidenceBundle(
             query_unit_results=tuple(
                 {
@@ -437,6 +441,56 @@ def test_qa_runner_challenge_can_resolve_missing_targets_via_follow_up_retrieval
     assert "clarification_required" in payload.key_events
 
 
+def test_qa_runner_scopes_knowledge_retrieval_to_active_group() -> None:
+    runner = QaRouteRunner()
+    runner.retrieval_power = _FakeRetrievalPower()
+    plan = _make_plan(
+        route="qa",
+        handling_mode="normal",
+        enabled_powers=("retrieval_power",),
+        action="respond",
+    )
+    request = RouteExecutionRequest(
+        message="查知识库里的药物机制",
+        messages=[{"role": "user", "content": "查知识库里的药物机制"}],
+        is_knowledge_query=True,
+        context={"active_group_id": "medicine"},
+    )
+
+    runner.run(plan, request)
+
+    assert runner.retrieval_power.last_path_filters == ("storage/groups/medicine/knowledge",)
+
+
+def test_qa_runner_rewrites_knowledge_query_before_retrieval() -> None:
+    runner = QaRouteRunner()
+    runner.retrieval_power = _FakeRetrievalPower()
+    plan = _make_plan(
+        route="qa",
+        handling_mode="normal",
+        enabled_powers=("retrieval_power",),
+        action="respond",
+    )
+    request = RouteExecutionRequest(
+        message="查知识库，ai发展趋势",
+        messages=[{"role": "user", "content": "查知识库，ai发展趋势"}],
+        is_knowledge_query=True,
+        context={
+            "active_group_id": "medicine",
+            "bound_query_llm_call": lambda _prompt: (
+                '{"rewritten_query":"AI development trends AI Agent multi-agent systems",'
+                '"query_hints":["AI Agent","multi-agent systems"]}'
+            ),
+        },
+    )
+
+    payload = runner.run(plan, request)
+
+    assert runner.retrieval_power.last_query_units
+    assert "AI development trends" in runner.retrieval_power.last_query_units[0].text
+    assert "knowledge_query_rewritten" in payload.key_events
+
+
 def test_qa_runner_real_challenge_case_related_only_existing_evidence_uses_targeted_retrieval() -> None:
     runner = QaRouteRunner()
     runner.retrieval_power = _RelatedOnlyRecoveryRetrievalPower()
@@ -776,7 +830,7 @@ def test_orchestrated_runner_uses_staged_planning_mode_for_staged_tasks() -> Non
     plan = WorkflowPlan(
         route="orchestrated",
         handling_mode="normal",
-        action="agent",
+        action="respond",
         use_context=False,
         cite_sources=True,
         use_planner=True,

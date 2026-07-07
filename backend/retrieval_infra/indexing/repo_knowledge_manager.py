@@ -77,14 +77,17 @@ class RepoKnowledgeIndexManager:
     def is_building(self) -> bool:
         return self._building
 
-    def status(self) -> IndexStatus:
+    def status(self, group_id: str | None = None) -> IndexStatus:
         indexed_files = 0
+        chunk_count = 0
         vector_ready = False
         bm25_ready = False
-        for group_id in self._discover_groups():
-            current_dir = self._current_dir(group_id)
-            if (current_dir / "chunk_store.sqlite").exists():
-                indexed_files += 1
+        group_ids = [group_id] if group_id else self._discover_groups()
+        for target_group_id in group_ids:
+            current_dir = self._current_dir(target_group_id)
+            current_chunk_count, current_indexed_files = self._count_current_index_payload(current_dir)
+            chunk_count += current_chunk_count
+            indexed_files += current_indexed_files
             if (current_dir / "text_pool" / "vector" / "index.sqlite").exists() or (current_dir / "table_pool" / "vector" / "index.sqlite").exists():
                 vector_ready = True
             if (current_dir / "text_pool" / "lexical" / "term_postings.sqlite").exists() or (current_dir / "table_pool" / "lexical" / "term_postings.sqlite").exists():
@@ -95,17 +98,50 @@ class RepoKnowledgeIndexManager:
             building=self._building,
             last_built_at=self._last_built_at,
             indexed_files=indexed_files,
+            chunk_count=chunk_count,
             vector_ready=vector_ready,
             bm25_ready=bm25_ready,
         )
 
-    def rebuild_index(self) -> None:
+    def rebuild_index(self, group_id: str | None = None) -> None:
         self._building = True
         try:
-            for group_id in self._discover_groups():
-                self._build_group(group_id, mode="full")
+            group_ids = [group_id] if group_id else self._discover_groups()
+            for target_group_id in group_ids:
+                self._build_group(target_group_id, mode="full")
         finally:
             self._building = False
+
+    def list_groups(self) -> list[str]:
+        return self._discover_groups()
+
+    def _count_current_index_payload(self, current_dir: Path) -> tuple[int, int]:
+        """Return current active chunk count and unique indexed source count for one group."""
+        chunk_meta_path = current_dir / "chunk_meta.json"
+        if not chunk_meta_path.exists():
+            return 0, 0
+        try:
+            chunk_meta = json.loads(chunk_meta_path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError:
+            return 0, 0
+        chunk_count = len(chunk_meta)
+        source_paths = {
+            str(item.get("source_path") or "").strip()
+            for item in chunk_meta.values()
+            if isinstance(item, dict)
+        }
+        source_paths.discard("")
+        return chunk_count, len(source_paths)
+
+    def count_group_sources(self, group_id: str) -> int:
+        count = 0
+        for root in self._group_source_roots(group_id):
+            if not root.exists():
+                continue
+            for path in root.rglob("*"):
+                if path.is_file():
+                    count += 1
+        return count
 
     def ensure_group_built(self, group_id: str) -> GroupKnowledgeAssets:
         current_dir = self._current_dir(group_id)
@@ -469,6 +505,8 @@ class RepoKnowledgeIndexManager:
     def _copy_tree_contents(self, source_dir: Path, target_dir: Path) -> None:
         target_dir.mkdir(parents=True, exist_ok=True)
         for path in source_dir.rglob("*"):
+            if not path.exists():
+                continue
             relative = path.relative_to(source_dir)
             target = target_dir / relative
             if path.is_dir():
@@ -624,17 +662,23 @@ class RepoKnowledgeIndexManager:
         table_record_count: int,
         doc_results: tuple[dict[str, object], ...],
     ) -> dict[str, object]:
-        required_files = (
+        has_table_sources = any(self._doc_kind_for_source(source.file_type) == "table" for source in source_documents)
+        required_files = [
             candidate_dir / "chunk_store.sqlite",
             candidate_dir / "chunk_meta.json",
             candidate_dir / "build_fingerprint.json",
             candidate_dir / "text_pool" / "lexical" / "term_postings.sqlite",
             candidate_dir / "text_pool" / "lexical" / "globals.json",
             candidate_dir / "text_pool" / "vector" / "index.sqlite",
-            candidate_dir / "table_pool" / "lexical" / "term_postings.sqlite",
-            candidate_dir / "table_pool" / "lexical" / "globals.json",
-            candidate_dir / "table_pool" / "vector" / "index.sqlite",
-        )
+        ]
+        if has_table_sources or table_record_count > 0:
+            required_files.extend(
+                [
+                    candidate_dir / "table_pool" / "lexical" / "term_postings.sqlite",
+                    candidate_dir / "table_pool" / "lexical" / "globals.json",
+                    candidate_dir / "table_pool" / "vector" / "index.sqlite",
+                ]
+            )
         missing = [str(path) for path in required_files if not path.exists()]
         blocking_errors = [f"missing required asset: {path}" for path in missing]
         warnings: list[str] = []

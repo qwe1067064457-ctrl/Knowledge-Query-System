@@ -1,0 +1,15 @@
+name: context-binding
+capability: context_binding
+unit_types:
+  - qa_like
+  - verify
+allowed_tools:
+  - candidate_collection
+  - query_rewrite
+output_schema: ContextBindingSkillResult
+max_steps: 4
+allow_llm: true
+allow_external_io: false
+fallback:
+  ambiguous: needs_clarification
+  no_target: rewrite_without_target

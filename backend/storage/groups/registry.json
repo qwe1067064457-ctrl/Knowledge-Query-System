@@ -1,0 +1,61 @@
+{
+  "items": [
+    {
+      "id": "general",
+      "name": "General Knowledge Base",
+      "description": "Shared general-purpose knowledge group for common AI, ecommerce, finance, and security corpora.",
+      "status": "active",
+      "default_agent_id": "default",
+      "created_by": "",
+      "created_at": "2026-05-30T00:00:00+00:00",
+      "updated_at": "2026-05-30T00:00:00+00:00",
+      "knowledge": {
+        "storage_root": "storage/groups/general/knowledge",
+        "raw": "storage/groups/general/knowledge/raw",
+        "indexes": "storage/groups/general/knowledge/indexes"
+      },
+      "memory_policy": {},
+      "metadata": {
+        "created_by": "codex_retrieval_migration"
+      }
+    },
+    {
+      "id": "law",
+      "name": "Law Knowledge Base",
+      "description": "Legal knowledge group for statutes, regulations, cases, and reusable legal analysis.",
+      "status": "active",
+      "default_agent_id": "default",
+      "created_by": "",
+      "created_at": "2026-05-10T10:34:23.114301+00:00",
+      "updated_at": "2026-05-10T10:34:23.114325+00:00",
+      "knowledge": {
+        "root": "storage/groups/law/knowledge",
+        "raw": "storage/groups/law/knowledge/raw",
+        "indexes": "storage/groups/law/knowledge/indexes"
+      },
+      "memory_policy": {},
+      "metadata": {
+        "created_by": "codex_law_kb_builder"
+      }
+    },
+    {
+      "id": "medicine",
+      "name": "Medicine Knowledge Base",
+      "description": "Medical knowledge group for open access papers, clinical references, and structured medical corpora.",
+      "status": "active",
+      "default_agent_id": "default",
+      "created_by": "",
+      "created_at": "2026-05-30T00:00:00+00:00",
+      "updated_at": "2026-05-30T00:00:00+00:00",
+      "knowledge": {
+        "storage_root": "storage/groups/medicine/knowledge",
+        "raw": "storage/groups/medicine/knowledge/raw",
+        "indexes": "storage/groups/medicine/knowledge/indexes"
+      },
+      "memory_policy": {},
+      "metadata": {
+        "created_by": "codex_retrieval_migration"
+      }
+    }
+  ]
+}

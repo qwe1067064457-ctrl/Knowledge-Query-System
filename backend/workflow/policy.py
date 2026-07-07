@@ -19,9 +19,6 @@ _SCOPE_SWITCH_PATTERNS = (
     re.compile(r"换(一个|别的)?(组|库)"),
     re.compile(r"不是这个(组|库)"),
 )
-_LEGACY_AGENT_FALLBACK_CAPABILITY = "legacy_agent_fallback"
-
-
 def build_workflow_plan(
     analysis: IntentAnalysis,
     *,
@@ -117,16 +114,9 @@ def _resolve_action(
     is_knowledge_query: bool,
     capabilities: set[str],
 ) -> WorkflowAction:
+    del is_knowledge_query, capabilities
     if route == "reject" or handling_mode == "unsupported":
         return "reject"
-    if handling_mode in {"clarify", "scope_info"}:
-        return "respond"
-    if route == "chat":
-        return "respond"
-    if is_knowledge_query:
-        return "knowledge_orchestrator"
-    if _LEGACY_AGENT_FALLBACK_CAPABILITY in capabilities and route in {"qa", "orchestrated"}:
-        return "agent"
     return "respond"
 
 

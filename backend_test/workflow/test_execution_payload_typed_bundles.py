@@ -99,7 +99,7 @@ def test_execution_payload_summary_views_consume_typed_bundles() -> None:
     payload = ExecutionPayload(
         route="orchestrated",
         handling_mode="normal",
-        action="agent",
+        action="respond",
         context_bundle=ContextBundle(
             trace={"main_intent": "qa"},
             binding=None,

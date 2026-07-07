@@ -87,6 +87,7 @@ class IndexStatus:
     building: bool
     last_built_at: float | None
     indexed_files: int
+    chunk_count: int
     vector_ready: bool
     bm25_ready: bool
 

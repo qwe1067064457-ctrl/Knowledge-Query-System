@@ -12,7 +12,7 @@ from workflow.contracts.graph import (
     UnitResult,
 )
 
-WorkflowAction = Literal["respond", "agent", "knowledge_orchestrator", "reject"]
+WorkflowAction = Literal["respond", "reject"]
 WorkflowRoute = Literal["qa", "orchestrated", "chat", "reject"]
 WorkflowHandlingMode = Literal["normal", "challenge", "clarify", "scope_info", "unsupported"]
 KnowledgeScopeStatus = Literal["resolved", "needs_clarification"]
@@ -111,6 +111,7 @@ class EvidenceItem:
 
 @dataclass(frozen=True)
 class RetrievalQualityAssessment:
+    query_relevance_score: RetrievalMetricValue
     hit_count_score: RetrievalMetricValue
     dedup_hit_score: RetrievalMetricValue
     target_overlap_score: RetrievalMetricValue
@@ -698,6 +699,8 @@ class PlanBundleSummaryView:
     comparison_unit_count: int = 0
     bound_target_ref_count: int = 0
     execution_unit_count: int = 0
+    unit_group_count: int = 0
+    parallel_group_count: int = 0
     dag: bool = True
     refined: bool = False
     fallback_used: bool = False
@@ -926,6 +929,7 @@ class PlanBundle:
     task_topology: str = "not_applicable"
     planning_mode: str = "not_applicable"
     query_units: tuple[dict[str, Any], ...] = ()
+    unit_groups: tuple[tuple[dict[str, Any], ...], ...] = ()
     ordered_steps: tuple[dict[str, Any], ...] = ()
     comparison_units: tuple[dict[str, Any], ...] = ()
     execution_checkpoints: tuple[dict[str, Any], ...] = ()
@@ -946,6 +950,8 @@ class PlanBundle:
             "comparison_unit_count": summary.comparison_unit_count,
             "bound_target_ref_count": summary.bound_target_ref_count,
             "execution_unit_count": summary.execution_unit_count,
+            "unit_group_count": summary.unit_group_count,
+            "parallel_group_count": summary.parallel_group_count,
             "dag": summary.dag,
             "refined": summary.refined,
             "fallback_used": summary.fallback_used,
@@ -954,6 +960,9 @@ class PlanBundle:
 
     def query_unit_dicts(self) -> tuple[dict[str, Any], ...]:
         return tuple(dict(item) for item in self.query_units)
+
+    def unit_group_dicts(self) -> tuple[tuple[dict[str, Any], ...], ...]:
+        return tuple(tuple(dict(item) for item in group) for group in self.unit_groups)
 
     def summary_obj(self) -> dict[str, Any]:
         return self.summary_dict()
@@ -967,6 +976,8 @@ class PlanBundle:
             comparison_unit_count=len(self.comparison_units),
             bound_target_ref_count=len(self.bound_target_refs),
             execution_unit_count=len(graph.unit_objs()),
+            unit_group_count=len(self.unit_groups),
+            parallel_group_count=sum(1 for group in self.unit_groups if len(group) > 1),
             dag=graph.is_dag() if graph.unit_objs() else True,
             refined=self.refined,
             fallback_used=self.fallback_used,
@@ -1008,6 +1019,7 @@ class PlanBundle:
             "task_topology": self.task_topology,
             "planning_mode": self.planning_mode,
             "query_units": [dict(item) for item in self.query_units],
+            "unit_groups": [[dict(item) for item in group] for group in self.unit_groups],
             "ordered_steps": [dict(item) for item in self.ordered_steps],
             "comparison_units": [dict(item) for item in self.comparison_units],
             "execution_checkpoints": [dict(item) for item in self.execution_checkpoints],
@@ -1031,6 +1043,10 @@ class PlanBundle:
             task_topology=str(data.get("task_topology", "not_applicable")),
             planning_mode=str(data.get("planning_mode", summary.get("planning_mode", "not_applicable"))),
             query_units=tuple(dict(item) for item in data.get("query_units", ()) or ()),
+            unit_groups=tuple(
+                tuple(dict(item) for item in group)
+                for group in data.get("unit_groups", ()) or ()
+            ),
             ordered_steps=tuple(dict(item) for item in data.get("ordered_steps", ()) or ()),
             comparison_units=tuple(dict(item) for item in data.get("comparison_units", ()) or ()),
             execution_checkpoints=tuple(dict(item) for item in data.get("execution_checkpoints", ()) or ()),

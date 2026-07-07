@@ -75,7 +75,7 @@ def test_answer_layer_package_preserves_execution_states() -> None:
     payload = ExecutionPayload(
         route="orchestrated",
         handling_mode="normal",
-        action="agent",
+        action="respond",
         plan_bundle={
             "goal": "示例问题",
             "planning_mode": "staged",

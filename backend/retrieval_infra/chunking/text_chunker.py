@@ -19,6 +19,7 @@ class TextChunker:
     def chunk(self, document: NormalizedDocument) -> tuple[ChunkDocument, ...]:
         chunks: list[ChunkDocument] = []
         chunk_index = 0
+        retrieval_signals = self._document_signal_values(document)
         for section_index, section in enumerate(document.sections):
             content = str(section.get("text") or "").strip()
             if not content:
@@ -44,6 +45,8 @@ class TextChunker:
                         locator=dict(section.get("locator") or {}) | {"section_index": section_index, "chunk_index": chunk_index},
                         metadata=dict(document.metadata)
                         | {
+                            "document_title": document.title,
+                            "retrieval_signals": retrieval_signals,
                             "heading": section.get("heading"),
                             "structured_only": bool(section.get("structured_only")),
                             "analysis_available": bool(section.get("analysis_available", False)),
@@ -57,6 +60,43 @@ class TextChunker:
                 )
                 chunk_index += 1
         return tuple(chunks)
+
+    def _document_signal_values(self, document: NormalizedDocument) -> list[str]:
+        metadata = dict(document.metadata)
+        signal_keys = (
+            "title",
+            "journal",
+            "journal_name",
+            "publication",
+            "year",
+            "published_year",
+            "doi",
+            "pmid",
+            "keywords",
+            "aliases",
+        )
+        values: list[str] = []
+        if document.title:
+            values.append(str(document.title).strip())
+        for key in signal_keys:
+            raw = metadata.get(key)
+            if raw is None:
+                continue
+            if isinstance(raw, (list, tuple, set)):
+                values.extend(str(item).strip() for item in raw if str(item).strip())
+                continue
+            text = str(raw).strip()
+            if text:
+                values.append(text)
+        deduped: list[str] = []
+        seen: set[str] = set()
+        for item in values:
+            normalized = item.lower()
+            if not normalized or normalized in seen:
+                continue
+            seen.add(normalized)
+            deduped.append(item)
+        return deduped[:16]
 
     def _split_section(self, content: str) -> list[str]:
         paragraphs = [part.strip() for part in re.split(r"\n{2,}", content) if part.strip()]

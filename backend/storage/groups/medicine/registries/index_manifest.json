@@ -1,7 +1,7 @@
 {
   "namespace": "knowledge",
-  "active_slot": "next",
-  "previous_slot": "current",
-  "activated_at": "2026-05-30T23:38:12.417663",
-  "snapshot_id": "medicine_next"
+  "current_build_id": "b_med_0701100355_934275",
+  "current_snapshot_id": "s_b_med_0701100355_934275",
+  "previous_snapshot_id": null,
+  "activated_at": "2026-07-01T10:04:01.530441"
 }
