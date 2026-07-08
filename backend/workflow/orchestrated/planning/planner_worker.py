@@ -4,11 +4,18 @@ from typing import Any
 
 from workflow.contracts import ExecutionEdge, ExecutionGraph, ExecutionUnit, GlobalBindingFrame
 from workflow.helpers.planning_prompt_helper import PlanningPromptHelper
+from workflow.orchestrated.planning.grouped_unit_planner import GroupedUnitPlanner
 
 
 class PlannerWorker:
-    def __init__(self, *, prompt_helper: PlanningPromptHelper | None = None) -> None:
+    def __init__(
+        self,
+        *,
+        prompt_helper: PlanningPromptHelper | None = None,
+        grouped_planner: GroupedUnitPlanner | None = None,
+    ) -> None:
         self.prompt_helper = prompt_helper or PlanningPromptHelper()
+        self.grouped_planner = grouped_planner or GroupedUnitPlanner()
 
     def draft_plan(
         self,
@@ -181,16 +188,32 @@ class PlannerWorker:
             },
         }
         try:
-            prompt = self.prompt_helper.render_prompt(
+            grouped_prompt = self.prompt_helper.render_grouped_prompt(
                 base_dir=task_frame.get("base_dir"),
                 task_frame=prompt_payload,
             )
-            graph = self.prompt_helper.validate_graph_payload(
-                self.prompt_helper.parse_json_payload(str(llm_call(prompt))),
-                max_units=6,
+            grouped_plan = self.grouped_planner.parse(
+                self.prompt_helper.parse_json_payload(str(llm_call(grouped_prompt))),
             )
+            graph = self.grouped_planner.to_execution_graph(
+                grouped_plan,
+                global_binding_frame=global_binding_frame,
+                binding_enabled=bool(task_frame.get("binding_enabled", False)),
+            )
+            unit_groups = grouped_plan.unit_group_dicts()
         except Exception:
-            return None
+            try:
+                prompt = self.prompt_helper.render_prompt(
+                    base_dir=task_frame.get("base_dir"),
+                    task_frame=prompt_payload,
+                )
+                graph = self.prompt_helper.validate_graph_payload(
+                    self.prompt_helper.parse_json_payload(str(llm_call(prompt))),
+                    max_units=6,
+                )
+                unit_groups = ()
+            except Exception:
+                return None
 
         planning_mode = self._resolve_graph_planning_mode(
             graph=graph,
@@ -203,6 +226,16 @@ class PlannerWorker:
             {"step_id": "step_graph", "title": "Generate execution graph from structured task frame", "status": "planned"},
             {"step_id": "step_answer", "title": "Produce route-aware final answer", "status": "planned"},
         ]
+        if unit_groups:
+            ordered_steps.insert(
+                1,
+                {"step_id": "step_grouped_units", "title": "Handle each query unit explicitly", "status": "planned"},
+            )
+        if planning_mode == "compare":
+            ordered_steps.insert(
+                1,
+                {"step_id": "step_compare", "title": "Compare targets and dimensions", "status": "planned"},
+            )
         execution_checkpoints = [
             {
                 "checkpoint_id": "checkpoint_graph",
@@ -210,6 +243,14 @@ class PlannerWorker:
                 "status": "pending",
             }
         ]
+        if unit_groups:
+            execution_checkpoints.append(
+                {
+                    "checkpoint_id": "checkpoint_units",
+                    "label": "Every grouped unit should appear in the execution plan.",
+                    "status": "pending",
+                }
+            )
         bound_targets = list(task_frame.get("bound_targets", ()))
         return {
             "goal": str(task_frame.get("goal") or ""),
@@ -227,6 +268,7 @@ class PlannerWorker:
                 target.get("object_id") or target.get("content") or f"target_{index}"
                 for index, target in enumerate(bound_targets, start=1)
             ],
+            "unit_groups": unit_groups,
             "execution_graph": graph.to_dict(),
             "fallback_used": False,
             "graph_notes": list(graph.graph_notes),

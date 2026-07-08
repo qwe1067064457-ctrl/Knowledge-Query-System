@@ -11,6 +11,7 @@ from workflow.orchestrated.execution_layer.contracts.unit_execution_outcome impo
     UnitExecutionContext,
     UnitExecutionOutcome,
 )
+from workflow.runtime_skills.unit_runtime_config import get_unit_runtime_config, tool_names_for_unit
 
 
 class BaseCapabilityExecutor:
@@ -47,13 +48,17 @@ class BaseCapabilityExecutor:
         llm_factory,
         worker_registry,
         prompt_name: str,
-        worker_names: tuple[str, ...],
+        worker_names: tuple[str, ...] | None = None,
         payload: dict[str, Any],
     ) -> dict[str, Any] | None:
         if llm_factory is None:
             return None
+        config = get_unit_runtime_config(str(self.capability))
+        if not config.react_enabled:
+            return None
         model = llm_factory()
-        tools = worker_registry.build_langchain_tools(list(worker_names))
+        selected_workers = worker_names if worker_names is not None else tool_names_for_unit(str(self.capability))
+        tools = worker_registry.build_langchain_tools(list(selected_workers))
         agent = create_agent(
             model=model,
             tools=tools,

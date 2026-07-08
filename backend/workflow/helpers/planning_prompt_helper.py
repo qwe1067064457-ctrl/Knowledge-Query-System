@@ -74,6 +74,14 @@ class PlanningPromptHelper:
         template = self.load_prompt(base_dir)
         return template.replace("{task_frame_json}", self._json(task_frame))
 
+    def render_grouped_prompt(self, *, base_dir: Path | None, task_frame: dict[str, Any]) -> str:
+        template = self._load_prompt(
+            base_dir,
+            filename="grouped_unit_planner_prompt.md",
+            fallback=self._default_grouped_prompt(),
+        )
+        return template.replace("{task_frame_json}", self._json(task_frame))
+
     def parse_json_payload(self, content: str) -> dict[str, Any]:
         text = content.strip()
         if text.startswith("```"):
@@ -139,3 +147,9 @@ class PlanningPromptHelper:
 
     def _json(self, payload: Any) -> str:
         return json.dumps(payload, ensure_ascii=False, indent=2)
+
+    def _default_grouped_prompt(self) -> str:
+        path = Path(__file__).resolve().parents[1] / "orchestrated" / "planning" / "prompts" / "grouped_unit_planner_prompt.md"
+        if path.exists():
+            return path.read_text(encoding="utf-8").strip()
+        return _DEFAULT_PLANNING_PROMPT

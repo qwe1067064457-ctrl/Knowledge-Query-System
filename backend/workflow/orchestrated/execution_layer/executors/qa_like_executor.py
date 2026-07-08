@@ -1,10 +1,11 @@
 from workflow.orchestrated.execution_layer.contracts.unit_execution_outcome import UnitExecutionOutcome
 from workflow.orchestrated.execution_layer.executors.base import BaseCapabilityExecutor
+from workflow.runtime_skills.unit_runtime_config import tool_names_for_unit
 
 
 class QaLikeExecutor(BaseCapabilityExecutor):
     capability = "qa_like"
-    worker_names = ("candidate_collection", "query_rewrite")
+    worker_names = tool_names_for_unit(capability)
 
     def run(self, *, unit_context, worker_registry, llm_factory=None, trace_hooks=None) -> UnitExecutionOutcome:
         del trace_hooks
@@ -70,7 +71,6 @@ class QaLikeExecutor(BaseCapabilityExecutor):
             llm_factory=llm_factory,
             worker_registry=worker_registry,
             prompt_name="qa_like_react_prompt.md",
-            worker_names=self.worker_names,
             payload={
                 "query": query_text,
                 "unit_id": unit_context.unit.unit_id,

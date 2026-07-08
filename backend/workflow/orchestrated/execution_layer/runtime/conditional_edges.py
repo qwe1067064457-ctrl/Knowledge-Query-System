@@ -7,7 +7,7 @@ def should_execute_unit(*, unit: ExecutionUnit, state_by_unit: dict[str, str]) -
     if not unit.depends_on:
         return True
     for dependency in unit.depends_on:
-        if state_by_unit.get(dependency) != "completed":
+        if state_by_unit.get(dependency) not in {"completed", "degraded"}:
             return False
     return True
 

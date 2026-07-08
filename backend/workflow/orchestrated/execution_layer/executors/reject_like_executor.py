@@ -1,10 +1,11 @@
 from workflow.orchestrated.execution_layer.contracts.unit_execution_outcome import UnitExecutionOutcome
 from workflow.orchestrated.execution_layer.executors.base import BaseCapabilityExecutor
+from workflow.runtime_skills.unit_runtime_config import tool_names_for_unit
 
 
 class RejectLikeExecutor(BaseCapabilityExecutor):
     capability = "reject_like"
-    worker_names = ()
+    worker_names = tool_names_for_unit(capability)
 
     def run(self, *, unit_context, worker_registry, llm_factory=None, trace_hooks=None) -> UnitExecutionOutcome:
         del trace_hooks
@@ -15,7 +16,6 @@ class RejectLikeExecutor(BaseCapabilityExecutor):
             llm_factory=llm_factory,
             worker_registry=worker_registry,
             prompt_name="reject_like_react_prompt.md",
-            worker_names=self.worker_names,
             payload={
                 "query": unit_context.unit.goal,
                 "unit_id": unit_context.unit.unit_id,

@@ -39,6 +39,8 @@ class PlanFormatHelper:
                 "comparison_unit_count": len(normalized.get("comparison_units", ())),
                 "bound_target_ref_count": len(normalized.get("bound_target_refs", ())),
                 "execution_unit_count": len(normalized.get("execution_graph", {}).get("units", ())),
+                "unit_group_count": len(normalized.get("unit_groups", ()) or ()),
+                "parallel_group_count": sum(1 for group in normalized.get("unit_groups", ()) or () if len(group) > 1),
                 "dag": bool(normalized.get("execution_graph", {}).get("execution_summary", {}).get("dag", True)),
                 "refined": bool(normalized.get("refined", False)),
                 "fallback_used": bool(normalized.get("fallback_used", False)),

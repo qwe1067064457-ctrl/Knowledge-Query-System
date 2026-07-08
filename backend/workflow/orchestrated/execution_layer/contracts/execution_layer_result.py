@@ -15,6 +15,8 @@ class ExecutionLayerResult:
     preferred_binding_result: ContextBindingResult | None = None
     evidence_candidates: tuple[dict[str, Any], ...] = ()
     key_events: tuple[str, ...] = ()
+    degraded_units: tuple[str, ...] = ()
+    clarification_required: bool = False
 
 
 ExecutionRuntimeResult = ExecutionLayerResult
